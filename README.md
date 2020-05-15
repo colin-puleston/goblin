@@ -1,3 +1,4 @@
 # goblin
-Domain expert-focused OWL ontology editor
-Documentation to follow soon
+Domain expert-focused OWL ontology editor.
+
+Documentation to follow soon.
