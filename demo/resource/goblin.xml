@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<Goblin
+	dynamicNamespace="http://mekon/demo-dynamic.owl"
+	dynamicFilename="demo-dynamic.owl">
+
+	<Hierarchy
+		rootConcept="http://mekon/demo-core.owl#Gender">
+	</Hierarchy>
+
+	<Hierarchy
+		rootConcept="http://mekon/demo-core.owl#Industry">
+		<SimpleConstraintType
+			name="industry sector"
+			linkingProperty="http://mekon/demo-core.owl#sector"
+			rootTargetConcept="http://mekon/demo-core.owl#IndustrySector"
+			cardinalityType="SINGLE_VALUE">
+			<SemanticsOption semantics="IMPLIED_VALUE"/>
+		</SimpleConstraintType>
+		<AnchoredConstraintType
+			name="job type"
+			anchorConcept="http://mekon/demo-core.owl#Job"
+			sourceProperty="http://mekon/demo-core.owl#industry"
+			targetProperty="http://mekon/demo-core.owl#jobType"
+			rootTargetConcept="http://mekon/demo-core.owl#JobType"
+			cardinalityType="SINGLE_VALUE">
+			<SemanticsOption semantics="VALID_VALUES"/>
+			<SemanticsOption semantics="IMPLIED_VALUE"/>
+		</AnchoredConstraintType>
+	</Hierarchy>
+
+	<Hierarchy
+		rootConcept="http://mekon/demo-core.owl#IndustrySector">
+	</Hierarchy>
+
+	<Hierarchy
+		rootConcept="http://mekon/demo-core.owl#JobType">
+	</Hierarchy>
+
+	<Hierarchy
+		rootConcept="http://mekon/demo-core.owl#Location">
+	</Hierarchy>
+
+	<Hierarchy
+		rootConcept="http://mekon/demo-core.owl#ResearchArea">
+	</Hierarchy>
+
+	<Hierarchy
+		rootConcept="http://mekon/demo-core.owl#Student">
+	</Hierarchy>
+
+	<Hierarchy
+		rootConcept="http://mekon/demo-core.owl#TravelClass">
+	</Hierarchy>
+
+	<Hierarchy
+		rootConcept="http://mekon/demo-core.owl#Trip">
+	</Hierarchy>
+
+</Goblin>

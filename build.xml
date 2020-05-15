@@ -1,0 +1,96 @@
+<?xml version="1.0"?>
+
+<project name="GOBLIN" default="jar" basedir=".">
+
+	<!-- Build script for GOBLIN -->
+	<echo message="OS: ${os.name}"/>
+	<echo message="Java Runtime Environment version: ${java.version}"/>
+
+	<!-- sources -->
+	<property name="src.lib" value="lib"/>
+	<property name="src.resource" value="demo/resource"/>
+	<property name="src.code.src" value="code/src"/>
+	<property name="src.code.test" value="code/test"/>
+
+	<!-- build -->
+	<property name="build" location="build"/>
+	<property name="build.classes.rel" value="classes" />
+	<property name="build.classes" location="${build}/${build.classes.rel}" />
+	<property name="build.lib.rel" value="lib" />
+	<property name="build.lib" location="${build}/${build.lib.rel}" />
+	<property name="build.resource.rel" value="resource" />
+	<property name="build.resource" location="${build}/${build.resource.rel}" />
+
+	<!-- output jar -->
+	<property name="build.jar" location="${build.lib}/goblin.jar"/>
+
+	<!-- debug property -->
+	<property name="debug" value="true"/>
+
+	<!-- java options -->
+
+	<!-- Demo invocation -->
+	<property name="demo.classpath.sh" value="${build.lib.rel}/*:${build.resource.rel}"/>
+	<property name="demo.classpath.win" value="${build.lib.rel}/*;${build.resource.rel}"/>
+	<property name="demo.mainclass" value="uk.ac.manchester.cs.goblin.gui.Goblin"/>
+	<property name="demo.java.opts" value="-Xmx768M -Xss16M -XX:+UseSerialGC"/>
+	<property name="demo.java.args" value="${demo.java.opts} ${demo.mainclass}"/>
+	<property name="demo.run.sh" location="${build}/demo.sh"/>
+	<property name="demo.run.win" location="${build}/demo.bat"/>
+
+	<!-- build class-path -->
+	<path id="classpath">
+		<fileset dir="${build.lib}">
+			<include name="*.jar"/>
+		</fileset>
+	</path>
+
+	<!-- clean target -->
+	<target name="clean">
+		<delete dir="${build}"/>
+	</target>
+
+	<!-- base target -->
+	<target name="base">
+		<mkdir dir="${build.lib}"/>
+		<mkdir dir="${build.classes}"/>
+		<copy todir="${build.lib}" flatten="true">
+			<fileset dir="${src.lib}/">
+                <include name="**/*.jar"/>
+			</fileset>
+		</copy>
+	</target>
+
+	<!-- resource target -->
+	<target name="resource">
+		<mkdir dir="${build.resource}"/>
+		<copy todir="${build.resource}" >
+			<fileset dir="${src.resource}">
+				<include name="**/*.owl"/>
+				<include name="**/*.xml"/>
+			</fileset>
+		</copy>
+	</target>
+
+	<!-- goblin targets -->
+	<target name="code" depends="base">
+		<mkdir dir="${build.classes}"/>
+		<javac srcdir="${src.code.src}" classpathref="classpath" destdir="${build.classes}" debug="${debug}">
+			<compilerarg value="-Xlint"/>
+		</javac>
+	</target>
+
+	<target name="jar" depends="code">
+		<jar destfile="${build.jar}">
+			<fileset dir="${build.classes}" />
+			<fileset dir="${src.code.src}" includes="**/*.java"/>
+		</jar>
+	</target>
+
+	<target name="demo" depends="jar, resource">
+		<echo file="${demo.run.sh}">java -cp ${demo.classpath.sh} ${demo.java.args}</echo>
+		<echo file="${demo.run.win}">java -cp ${demo.classpath.win} ${demo.java.args}</echo>
+		<chmod dir="${build}" includes="*.sh" perm="+x"/>
+	</target>
+
+</project>
