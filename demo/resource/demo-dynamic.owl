@@ -1,14 +1,13 @@
 <?xml version="1.0"?>
-<rdf:RDF xmlns="http://mekon/demo-dynamic.owl#"
-     xml:base="http://mekon/demo-dynamic.owl"
+<rdf:RDF xmlns="http://goblin/demo-dynamic.owl#"
+     xml:base="http://goblin/demo-dynamic.owl"
      xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
      xmlns:owl="http://www.w3.org/2002/07/owl#"
-     xmlns:uk="http://uk.ac.manchester.cs.bhig.mekon.kr.indirect.owl#"
      xmlns:xml="http://www.w3.org/XML/1998/namespace"
      xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
      xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">
-    <owl:Ontology rdf:about="http://mekon/demo-dynamic.owl">
-        <owl:imports rdf:resource="http://mekon/demo-core.owl"/>
+    <owl:Ontology rdf:about="http://goblin/demo-dynamic.owl">
+        <owl:imports rdf:resource="http://goblin/demo-core.owl"/>
     </owl:Ontology>
     
 
@@ -24,703 +23,394 @@
     
 
 
-    <!-- http://mekon/demo-dynamic.owl#Academia -->
+    <!-- http://goblin/demo-dynamic.owl#Art -->
 
-    <owl:Class rdf:about="http://mekon/demo-dynamic.owl#Academia">
-        <rdfs:subClassOf rdf:resource="http://mekon/demo-dynamic.owl#Education"/>
+    <owl:Class rdf:about="http://goblin/demo-dynamic.owl#Art">
+        <rdfs:subClassOf rdf:resource="http://goblin/demo-core.owl#Activity"/>
     </owl:Class>
     
 
 
-    <!-- http://mekon/demo-dynamic.owl#AcademicJob -->
+    <!-- http://goblin/demo-dynamic.owl#Badmington -->
 
-    <owl:Class rdf:about="http://mekon/demo-dynamic.owl#AcademicJob">
-        <owl:equivalentClass>
-            <owl:Class>
-                <owl:intersectionOf rdf:parseType="Collection">
-                    <rdf:Description rdf:about="http://mekon/demo-core.owl#Job"/>
-                    <owl:Restriction>
-                        <owl:onProperty rdf:resource="http://mekon/demo-core.owl#industry"/>
-                        <owl:someValuesFrom rdf:resource="http://mekon/demo-dynamic.owl#Academia"/>
-                    </owl:Restriction>
-                </owl:intersectionOf>
-            </owl:Class>
-        </owl:equivalentClass>
-        <rdfs:subClassOf rdf:resource="http://mekon/demo-core.owl#Job"/>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="http://mekon/demo-core.owl#jobType"/>
-                <owl:allValuesFrom>
-                    <owl:Class>
-                        <owl:unionOf rdf:parseType="Collection">
-                            <rdf:Description rdf:about="http://mekon/demo-dynamic.owl#Generalist"/>
-                            <rdf:Description rdf:about="http://mekon/demo-dynamic.owl#Lecturer"/>
-                            <rdf:Description rdf:about="http://mekon/demo-dynamic.owl#Researcher"/>
-                        </owl:unionOf>
-                    </owl:Class>
-                </owl:allValuesFrom>
-            </owl:Restriction>
-        </rdfs:subClassOf>
+    <owl:Class rdf:about="http://goblin/demo-dynamic.owl#Badmington">
+        <rdfs:subClassOf rdf:resource="http://goblin/demo-dynamic.owl#RacketSport"/>
     </owl:Class>
     
 
 
-    <!-- http://mekon/demo-dynamic.owl#Accountant -->
+    <!-- http://goblin/demo-dynamic.owl#BasketWeaving -->
 
-    <owl:Class rdf:about="http://mekon/demo-dynamic.owl#Accountant">
-        <rdfs:subClassOf rdf:resource="http://mekon/demo-dynamic.owl#Generalist"/>
+    <owl:Class rdf:about="http://goblin/demo-dynamic.owl#BasketWeaving">
+        <rdfs:subClassOf rdf:resource="http://goblin/demo-dynamic.owl#Craft"/>
     </owl:Class>
     
 
 
-    <!-- http://mekon/demo-dynamic.owl#Arts -->
+    <!-- http://goblin/demo-dynamic.owl#CasualSpectator -->
 
-    <owl:Class rdf:about="http://mekon/demo-dynamic.owl#Arts">
-        <rdfs:subClassOf rdf:resource="http://mekon/demo-core.owl#ResearchArea"/>
+    <owl:Class rdf:about="http://goblin/demo-dynamic.owl#CasualSpectator">
+        <rdfs:subClassOf rdf:resource="http://goblin/demo-dynamic.owl#Spectator"/>
     </owl:Class>
     
 
 
-    <!-- http://mekon/demo-dynamic.owl#Banker -->
+    <!-- http://goblin/demo-dynamic.owl#Cooking -->
 
-    <owl:Class rdf:about="http://mekon/demo-dynamic.owl#Banker">
-        <rdfs:subClassOf rdf:resource="http://mekon/demo-dynamic.owl#Specialist"/>
+    <owl:Class rdf:about="http://goblin/demo-dynamic.owl#Cooking">
+        <rdfs:subClassOf rdf:resource="http://goblin/demo-dynamic.owl#DomesticHobby"/>
     </owl:Class>
     
 
 
-    <!-- http://mekon/demo-dynamic.owl#BicycleTrip -->
+    <!-- http://goblin/demo-dynamic.owl#Craft -->
 
-    <owl:Class rdf:about="http://mekon/demo-dynamic.owl#BicycleTrip">
-        <rdfs:subClassOf rdf:resource="http://mekon/demo-dynamic.owl#RoadTrip"/>
+    <owl:Class rdf:about="http://goblin/demo-dynamic.owl#Craft">
+        <rdfs:subClassOf rdf:resource="http://goblin/demo-core.owl#Activity"/>
     </owl:Class>
     
 
 
-    <!-- http://mekon/demo-dynamic.owl#BusTrip -->
+    <!-- http://goblin/demo-dynamic.owl#Cricket -->
 
-    <owl:Class rdf:about="http://mekon/demo-dynamic.owl#BusTrip">
-        <rdfs:subClassOf rdf:resource="http://mekon/demo-dynamic.owl#RoadTrip"/>
+    <owl:Class rdf:about="http://goblin/demo-dynamic.owl#Cricket">
+        <rdfs:subClassOf rdf:resource="http://goblin/demo-dynamic.owl#TeamSport"/>
     </owl:Class>
     
 
 
-    <!-- http://mekon/demo-dynamic.owl#CarTrip -->
+    <!-- http://goblin/demo-dynamic.owl#Cycling -->
 
-    <owl:Class rdf:about="http://mekon/demo-dynamic.owl#CarTrip">
-        <rdfs:subClassOf rdf:resource="http://mekon/demo-dynamic.owl#RoadTrip"/>
+    <owl:Class rdf:about="http://goblin/demo-dynamic.owl#Cycling">
+        <rdfs:subClassOf rdf:resource="http://goblin/demo-dynamic.owl#OutdoorPursuit"/>
     </owl:Class>
     
 
 
-    <!-- http://mekon/demo-dynamic.owl#CivilEngineering -->
+    <!-- http://goblin/demo-dynamic.owl#DIY -->
 
-    <owl:Class rdf:about="http://mekon/demo-dynamic.owl#CivilEngineering">
-        <rdfs:subClassOf rdf:resource="http://mekon/demo-dynamic.owl#Engineering"/>
+    <owl:Class rdf:about="http://goblin/demo-dynamic.owl#DIY">
+        <rdfs:subClassOf rdf:resource="http://goblin/demo-dynamic.owl#DomesticHobby"/>
     </owl:Class>
     
 
 
-    <!-- http://mekon/demo-dynamic.owl#Clerical -->
+    <!-- http://goblin/demo-dynamic.owl#DomesticHobby -->
 
-    <owl:Class rdf:about="http://mekon/demo-dynamic.owl#Clerical">
-        <rdfs:subClassOf rdf:resource="http://mekon/demo-dynamic.owl#Generalist"/>
+    <owl:Class rdf:about="http://goblin/demo-dynamic.owl#DomesticHobby">
+        <rdfs:subClassOf rdf:resource="http://goblin/demo-core.owl#Activity"/>
     </owl:Class>
     
 
 
-    <!-- http://mekon/demo-dynamic.owl#Doctor -->
+    <!-- http://goblin/demo-dynamic.owl#EventAdministrator -->
 
-    <owl:Class rdf:about="http://mekon/demo-dynamic.owl#Doctor">
-        <rdfs:subClassOf rdf:resource="http://mekon/demo-dynamic.owl#Medic"/>
+    <owl:Class rdf:about="http://goblin/demo-dynamic.owl#EventAdministrator">
+        <rdfs:subClassOf rdf:resource="http://goblin/demo-dynamic.owl#Organiser"/>
     </owl:Class>
     
 
 
-    <!-- http://mekon/demo-dynamic.owl#EU -->
+    <!-- http://goblin/demo-dynamic.owl#EventOfficial -->
 
-    <owl:Class rdf:about="http://mekon/demo-dynamic.owl#EU">
-        <rdfs:subClassOf rdf:resource="http://mekon/demo-core.owl#Location"/>
+    <owl:Class rdf:about="http://goblin/demo-dynamic.owl#EventOfficial">
+        <rdfs:subClassOf rdf:resource="http://goblin/demo-dynamic.owl#Organiser"/>
     </owl:Class>
     
 
 
-    <!-- http://mekon/demo-dynamic.owl#EUOtherThanUK -->
+    <!-- http://goblin/demo-dynamic.owl#FanaticalSpectator -->
 
-    <owl:Class rdf:about="http://mekon/demo-dynamic.owl#EUOtherThanUK">
-        <rdfs:subClassOf rdf:resource="http://mekon/demo-dynamic.owl#EU"/>
+    <owl:Class rdf:about="http://goblin/demo-dynamic.owl#FanaticalSpectator">
+        <rdfs:subClassOf rdf:resource="http://goblin/demo-dynamic.owl#Spectator"/>
     </owl:Class>
     
 
 
-    <!-- http://mekon/demo-dynamic.owl#Education -->
+    <!-- http://goblin/demo-dynamic.owl#Football -->
 
-    <owl:Class rdf:about="http://mekon/demo-dynamic.owl#Education">
-        <rdfs:subClassOf rdf:resource="http://mekon/demo-core.owl#Industry"/>
+    <owl:Class rdf:about="http://goblin/demo-dynamic.owl#Football">
+        <rdfs:subClassOf rdf:resource="http://goblin/demo-dynamic.owl#TeamSport"/>
     </owl:Class>
     
 
 
-    <!-- http://mekon/demo-dynamic.owl#Engineer -->
+    <!-- http://goblin/demo-dynamic.owl#Formula1 -->
 
-    <owl:Class rdf:about="http://mekon/demo-dynamic.owl#Engineer">
-        <rdfs:subClassOf rdf:resource="http://mekon/demo-dynamic.owl#Specialist"/>
+    <owl:Class rdf:about="http://goblin/demo-dynamic.owl#Formula1">
+        <rdfs:subClassOf rdf:resource="http://goblin/demo-dynamic.owl#MotorcarRacing"/>
     </owl:Class>
     
 
 
-    <!-- http://mekon/demo-dynamic.owl#Engineering -->
+    <!-- http://goblin/demo-dynamic.owl#Gardening -->
 
-    <owl:Class rdf:about="http://mekon/demo-dynamic.owl#Engineering">
-        <rdfs:subClassOf rdf:resource="http://mekon/demo-core.owl#Industry"/>
+    <owl:Class rdf:about="http://goblin/demo-dynamic.owl#Gardening">
+        <rdfs:subClassOf rdf:resource="http://goblin/demo-dynamic.owl#DomesticHobby"/>
     </owl:Class>
     
 
 
-    <!-- http://mekon/demo-dynamic.owl#EngineeringJob -->
+    <!-- http://goblin/demo-dynamic.owl#Hiking -->
 
-    <owl:Class rdf:about="http://mekon/demo-dynamic.owl#EngineeringJob">
-        <owl:equivalentClass>
-            <owl:Class>
-                <owl:intersectionOf rdf:parseType="Collection">
-                    <rdf:Description rdf:about="http://mekon/demo-core.owl#Job"/>
-                    <owl:Restriction>
-                        <owl:onProperty rdf:resource="http://mekon/demo-core.owl#industry"/>
-                        <owl:someValuesFrom rdf:resource="http://mekon/demo-dynamic.owl#Engineering"/>
-                    </owl:Restriction>
-                </owl:intersectionOf>
-            </owl:Class>
-        </owl:equivalentClass>
-        <rdfs:subClassOf rdf:resource="http://mekon/demo-core.owl#Job"/>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="http://mekon/demo-core.owl#jobType"/>
-                <owl:allValuesFrom>
-                    <owl:Class>
-                        <owl:unionOf rdf:parseType="Collection">
-                            <rdf:Description rdf:about="http://mekon/demo-dynamic.owl#Engineer"/>
-                            <rdf:Description rdf:about="http://mekon/demo-dynamic.owl#Generalist"/>
-                            <rdf:Description rdf:about="http://mekon/demo-dynamic.owl#SkilledManual"/>
-                        </owl:unionOf>
-                    </owl:Class>
-                </owl:allValuesFrom>
-            </owl:Restriction>
-        </rdfs:subClassOf>
+    <owl:Class rdf:about="http://goblin/demo-dynamic.owl#Hiking">
+        <rdfs:subClassOf rdf:resource="http://goblin/demo-dynamic.owl#OutdoorPursuit"/>
     </owl:Class>
     
 
 
-    <!-- http://mekon/demo-dynamic.owl#England -->
+    <!-- http://goblin/demo-dynamic.owl#Hockey -->
 
-    <owl:Class rdf:about="http://mekon/demo-dynamic.owl#England">
-        <rdfs:subClassOf rdf:resource="http://mekon/demo-dynamic.owl#UK"/>
+    <owl:Class rdf:about="http://goblin/demo-dynamic.owl#Hockey">
+        <rdfs:subClassOf rdf:resource="http://goblin/demo-dynamic.owl#TeamSport"/>
     </owl:Class>
     
 
 
-    <!-- http://mekon/demo-dynamic.owl#Female -->
+    <!-- http://goblin/demo-dynamic.owl#Instructor -->
 
-    <owl:Class rdf:about="http://mekon/demo-dynamic.owl#Female">
-        <rdfs:subClassOf rdf:resource="http://mekon/demo-core.owl#Gender"/>
+    <owl:Class rdf:about="http://goblin/demo-dynamic.owl#Instructor">
+        <rdfs:subClassOf rdf:resource="http://goblin/demo-dynamic.owl#ParticipantOverseer"/>
     </owl:Class>
     
 
 
-    <!-- http://mekon/demo-dynamic.owl#Finance -->
+    <!-- http://goblin/demo-dynamic.owl#Judge -->
 
-    <owl:Class rdf:about="http://mekon/demo-dynamic.owl#Finance">
-        <rdfs:subClassOf rdf:resource="http://mekon/demo-core.owl#Industry"/>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="http://mekon/demo-core.owl#sector"/>
-                <owl:someValuesFrom rdf:resource="http://mekon/demo-dynamic.owl#Private"/>
-            </owl:Restriction>
-        </rdfs:subClassOf>
+    <owl:Class rdf:about="http://goblin/demo-dynamic.owl#Judge">
+        <rdfs:subClassOf rdf:resource="http://goblin/demo-dynamic.owl#EventOfficial"/>
     </owl:Class>
     
 
 
-    <!-- http://mekon/demo-dynamic.owl#FinancialJob -->
+    <!-- http://goblin/demo-dynamic.owl#Knitting -->
 
-    <owl:Class rdf:about="http://mekon/demo-dynamic.owl#FinancialJob">
-        <owl:equivalentClass>
-            <owl:Class>
-                <owl:intersectionOf rdf:parseType="Collection">
-                    <rdf:Description rdf:about="http://mekon/demo-core.owl#Job"/>
-                    <owl:Restriction>
-                        <owl:onProperty rdf:resource="http://mekon/demo-core.owl#industry"/>
-                        <owl:someValuesFrom rdf:resource="http://mekon/demo-dynamic.owl#Finance"/>
-                    </owl:Restriction>
-                </owl:intersectionOf>
-            </owl:Class>
-        </owl:equivalentClass>
-        <rdfs:subClassOf rdf:resource="http://mekon/demo-core.owl#Job"/>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="http://mekon/demo-core.owl#jobType"/>
-                <owl:allValuesFrom>
-                    <owl:Class>
-                        <owl:unionOf rdf:parseType="Collection">
-                            <rdf:Description rdf:about="http://mekon/demo-dynamic.owl#Banker"/>
-                            <rdf:Description rdf:about="http://mekon/demo-dynamic.owl#Generalist"/>
-                        </owl:unionOf>
-                    </owl:Class>
-                </owl:allValuesFrom>
-            </owl:Restriction>
-        </rdfs:subClassOf>
+    <owl:Class rdf:about="http://goblin/demo-dynamic.owl#Knitting">
+        <rdfs:subClassOf rdf:resource="http://goblin/demo-dynamic.owl#Craft"/>
     </owl:Class>
     
 
 
-    <!-- http://mekon/demo-dynamic.owl#FirstClass -->
+    <!-- http://goblin/demo-dynamic.owl#Manager -->
 
-    <owl:Class rdf:about="http://mekon/demo-dynamic.owl#FirstClass">
-        <rdfs:subClassOf rdf:resource="http://mekon/demo-core.owl#TravelClass"/>
+    <owl:Class rdf:about="http://goblin/demo-dynamic.owl#Manager">
+        <rdfs:subClassOf rdf:resource="http://goblin/demo-dynamic.owl#ParticipantOverseer"/>
     </owl:Class>
     
 
 
-    <!-- http://mekon/demo-dynamic.owl#Generalist -->
+    <!-- http://goblin/demo-dynamic.owl#MotorSport -->
 
-    <owl:Class rdf:about="http://mekon/demo-dynamic.owl#Generalist">
-        <rdfs:subClassOf rdf:resource="http://mekon/demo-core.owl#JobType"/>
+    <owl:Class rdf:about="http://goblin/demo-dynamic.owl#MotorSport">
+        <rdfs:subClassOf rdf:resource="http://goblin/demo-dynamic.owl#Sport"/>
     </owl:Class>
     
 
 
-    <!-- http://mekon/demo-dynamic.owl#Government -->
+    <!-- http://goblin/demo-dynamic.owl#MotorbikeRacing -->
 
-    <owl:Class rdf:about="http://mekon/demo-dynamic.owl#Government">
-        <rdfs:subClassOf rdf:resource="http://mekon/demo-core.owl#Industry"/>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="http://mekon/demo-core.owl#sector"/>
-                <owl:someValuesFrom rdf:resource="http://mekon/demo-dynamic.owl#Public"/>
-            </owl:Restriction>
-        </rdfs:subClassOf>
+    <owl:Class rdf:about="http://goblin/demo-dynamic.owl#MotorbikeRacing">
+        <rdfs:subClassOf rdf:resource="http://goblin/demo-dynamic.owl#MotorSport"/>
     </owl:Class>
     
 
 
-    <!-- http://mekon/demo-dynamic.owl#Health -->
+    <!-- http://goblin/demo-dynamic.owl#MotorcarRacing -->
 
-    <owl:Class rdf:about="http://mekon/demo-dynamic.owl#Health">
-        <rdfs:subClassOf rdf:resource="http://mekon/demo-core.owl#Industry"/>
+    <owl:Class rdf:about="http://goblin/demo-dynamic.owl#MotorcarRacing">
+        <rdfs:subClassOf rdf:resource="http://goblin/demo-dynamic.owl#MotorSport"/>
     </owl:Class>
     
 
 
-    <!-- http://mekon/demo-dynamic.owl#HealthJob -->
+    <!-- http://goblin/demo-dynamic.owl#MountainBiking -->
 
-    <owl:Class rdf:about="http://mekon/demo-dynamic.owl#HealthJob">
-        <owl:equivalentClass>
-            <owl:Class>
-                <owl:intersectionOf rdf:parseType="Collection">
-                    <rdf:Description rdf:about="http://mekon/demo-core.owl#Job"/>
-                    <owl:Restriction>
-                        <owl:onProperty rdf:resource="http://mekon/demo-core.owl#industry"/>
-                        <owl:someValuesFrom rdf:resource="http://mekon/demo-dynamic.owl#Health"/>
-                    </owl:Restriction>
-                </owl:intersectionOf>
-            </owl:Class>
-        </owl:equivalentClass>
-        <rdfs:subClassOf rdf:resource="http://mekon/demo-core.owl#Job"/>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="http://mekon/demo-core.owl#jobType"/>
-                <owl:allValuesFrom>
-                    <owl:Class>
-                        <owl:unionOf rdf:parseType="Collection">
-                            <rdf:Description rdf:about="http://mekon/demo-dynamic.owl#Generalist"/>
-                            <rdf:Description rdf:about="http://mekon/demo-dynamic.owl#Medic"/>
-                        </owl:unionOf>
-                    </owl:Class>
-                </owl:allValuesFrom>
-            </owl:Restriction>
-        </rdfs:subClassOf>
+    <owl:Class rdf:about="http://goblin/demo-dynamic.owl#MountainBiking">
+        <rdfs:subClassOf rdf:resource="http://goblin/demo-dynamic.owl#Cycling"/>
     </owl:Class>
     
 
 
-    <!-- http://mekon/demo-dynamic.owl#HeavyEngineering -->
+    <!-- http://goblin/demo-dynamic.owl#Netball -->
 
-    <owl:Class rdf:about="http://mekon/demo-dynamic.owl#HeavyEngineering">
-        <rdfs:subClassOf rdf:resource="http://mekon/demo-dynamic.owl#Engineering"/>
+    <owl:Class rdf:about="http://goblin/demo-dynamic.owl#Netball">
+        <rdfs:subClassOf rdf:resource="http://goblin/demo-dynamic.owl#TeamSport"/>
     </owl:Class>
     
 
 
-    <!-- http://mekon/demo-dynamic.owl#Humanities -->
+    <!-- http://goblin/demo-dynamic.owl#OccasionalParticipant -->
 
-    <owl:Class rdf:about="http://mekon/demo-dynamic.owl#Humanities">
-        <rdfs:subClassOf rdf:resource="http://mekon/demo-core.owl#ResearchArea"/>
+    <owl:Class rdf:about="http://goblin/demo-dynamic.owl#OccasionalParticipant">
+        <rdfs:subClassOf rdf:resource="http://goblin/demo-dynamic.owl#Participant"/>
     </owl:Class>
     
 
 
-    <!-- http://mekon/demo-dynamic.owl#JuniorManagement -->
+    <!-- http://goblin/demo-dynamic.owl#Organiser -->
 
-    <owl:Class rdf:about="http://mekon/demo-dynamic.owl#JuniorManagement">
-        <rdfs:subClassOf rdf:resource="http://mekon/demo-dynamic.owl#Management"/>
+    <owl:Class rdf:about="http://goblin/demo-dynamic.owl#Organiser">
+        <rdfs:subClassOf rdf:resource="http://goblin/demo-core.owl#Role"/>
     </owl:Class>
     
 
 
-    <!-- http://mekon/demo-dynamic.owl#Lecturer -->
+    <!-- http://goblin/demo-dynamic.owl#OutdoorPursuit -->
 
-    <owl:Class rdf:about="http://mekon/demo-dynamic.owl#Lecturer">
-        <rdfs:subClassOf rdf:resource="http://mekon/demo-dynamic.owl#Teacher"/>
+    <owl:Class rdf:about="http://goblin/demo-dynamic.owl#OutdoorPursuit">
+        <rdfs:subClassOf rdf:resource="http://goblin/demo-core.owl#Activity"/>
     </owl:Class>
     
 
 
-    <!-- http://mekon/demo-dynamic.owl#LightEngineering -->
+    <!-- http://goblin/demo-dynamic.owl#Painting -->
 
-    <owl:Class rdf:about="http://mekon/demo-dynamic.owl#LightEngineering">
-        <rdfs:subClassOf rdf:resource="http://mekon/demo-dynamic.owl#Engineering"/>
+    <owl:Class rdf:about="http://goblin/demo-dynamic.owl#Painting">
+        <rdfs:subClassOf rdf:resource="http://goblin/demo-dynamic.owl#Art"/>
     </owl:Class>
     
 
 
-    <!-- http://mekon/demo-dynamic.owl#Male -->
+    <!-- http://goblin/demo-dynamic.owl#Participant -->
 
-    <owl:Class rdf:about="http://mekon/demo-dynamic.owl#Male">
-        <rdfs:subClassOf rdf:resource="http://mekon/demo-core.owl#Gender"/>
+    <owl:Class rdf:about="http://goblin/demo-dynamic.owl#Participant">
+        <rdfs:subClassOf rdf:resource="http://goblin/demo-core.owl#Role"/>
     </owl:Class>
     
 
 
-    <!-- http://mekon/demo-dynamic.owl#Management -->
+    <!-- http://goblin/demo-dynamic.owl#ParticipantOverseer -->
 
-    <owl:Class rdf:about="http://mekon/demo-dynamic.owl#Management">
-        <rdfs:subClassOf rdf:resource="http://mekon/demo-dynamic.owl#Generalist"/>
+    <owl:Class rdf:about="http://goblin/demo-dynamic.owl#ParticipantOverseer">
+        <rdfs:subClassOf rdf:resource="http://goblin/demo-dynamic.owl#Organiser"/>
     </owl:Class>
     
 
 
-    <!-- http://mekon/demo-dynamic.owl#Medic -->
+    <!-- http://goblin/demo-dynamic.owl#RacketSport -->
 
-    <owl:Class rdf:about="http://mekon/demo-dynamic.owl#Medic">
-        <rdfs:subClassOf rdf:resource="http://mekon/demo-dynamic.owl#Specialist"/>
+    <owl:Class rdf:about="http://goblin/demo-dynamic.owl#RacketSport">
+        <rdfs:subClassOf rdf:resource="http://goblin/demo-dynamic.owl#Sport"/>
     </owl:Class>
     
 
 
-    <!-- http://mekon/demo-dynamic.owl#MiddleManagement -->
+    <!-- http://goblin/demo-dynamic.owl#Referee -->
 
-    <owl:Class rdf:about="http://mekon/demo-dynamic.owl#MiddleManagement">
-        <rdfs:subClassOf rdf:resource="http://mekon/demo-dynamic.owl#Management"/>
+    <owl:Class rdf:about="http://goblin/demo-dynamic.owl#Referee">
+        <rdfs:subClassOf rdf:resource="http://goblin/demo-dynamic.owl#EventOfficial"/>
     </owl:Class>
     
 
 
-    <!-- http://mekon/demo-dynamic.owl#NonEU -->
+    <!-- http://goblin/demo-dynamic.owl#RoadCycling -->
 
-    <owl:Class rdf:about="http://mekon/demo-dynamic.owl#NonEU">
-        <rdfs:subClassOf rdf:resource="http://mekon/demo-core.owl#Location"/>
+    <owl:Class rdf:about="http://goblin/demo-dynamic.owl#RoadCycling">
+        <rdfs:subClassOf rdf:resource="http://goblin/demo-dynamic.owl#Cycling"/>
     </owl:Class>
     
 
 
-    <!-- http://mekon/demo-dynamic.owl#NorthernIreland -->
+    <!-- http://goblin/demo-dynamic.owl#RockClimbing -->
 
-    <owl:Class rdf:about="http://mekon/demo-dynamic.owl#NorthernIreland">
-        <rdfs:subClassOf rdf:resource="http://mekon/demo-dynamic.owl#UK"/>
+    <owl:Class rdf:about="http://goblin/demo-dynamic.owl#RockClimbing">
+        <rdfs:subClassOf rdf:resource="http://goblin/demo-dynamic.owl#OutdoorPursuit"/>
     </owl:Class>
     
 
 
-    <!-- http://mekon/demo-dynamic.owl#Nurse -->
+    <!-- http://goblin/demo-dynamic.owl#Rugby -->
 
-    <owl:Class rdf:about="http://mekon/demo-dynamic.owl#Nurse">
-        <rdfs:subClassOf rdf:resource="http://mekon/demo-dynamic.owl#Medic"/>
+    <owl:Class rdf:about="http://goblin/demo-dynamic.owl#Rugby">
+        <rdfs:subClassOf rdf:resource="http://goblin/demo-dynamic.owl#TeamSport"/>
     </owl:Class>
     
 
 
-    <!-- http://mekon/demo-dynamic.owl#Physio -->
+    <!-- http://goblin/demo-dynamic.owl#Sculpture -->
 
-    <owl:Class rdf:about="http://mekon/demo-dynamic.owl#Physio">
-        <rdfs:subClassOf rdf:resource="http://mekon/demo-dynamic.owl#Medic"/>
+    <owl:Class rdf:about="http://goblin/demo-dynamic.owl#Sculpture">
+        <rdfs:subClassOf rdf:resource="http://goblin/demo-dynamic.owl#Art"/>
     </owl:Class>
     
 
 
-    <!-- http://mekon/demo-dynamic.owl#PlaneTrip -->
+    <!-- http://goblin/demo-dynamic.owl#SeriousParticipant -->
 
-    <owl:Class rdf:about="http://mekon/demo-dynamic.owl#PlaneTrip">
-        <rdfs:subClassOf rdf:resource="http://mekon/demo-core.owl#Trip"/>
+    <owl:Class rdf:about="http://goblin/demo-dynamic.owl#SeriousParticipant">
+        <rdfs:subClassOf rdf:resource="http://goblin/demo-dynamic.owl#Participant"/>
     </owl:Class>
     
 
 
-    <!-- http://mekon/demo-dynamic.owl#PoliticalJob -->
+    <!-- http://goblin/demo-dynamic.owl#Sewing -->
 
-    <owl:Class rdf:about="http://mekon/demo-dynamic.owl#PoliticalJob">
-        <owl:equivalentClass>
-            <owl:Class>
-                <owl:intersectionOf rdf:parseType="Collection">
-                    <rdf:Description rdf:about="http://mekon/demo-core.owl#Job"/>
-                    <owl:Restriction>
-                        <owl:onProperty rdf:resource="http://mekon/demo-core.owl#industry"/>
-                        <owl:someValuesFrom rdf:resource="http://mekon/demo-dynamic.owl#Politics"/>
-                    </owl:Restriction>
-                </owl:intersectionOf>
-            </owl:Class>
-        </owl:equivalentClass>
-        <rdfs:subClassOf rdf:resource="http://mekon/demo-core.owl#Job"/>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="http://mekon/demo-core.owl#jobType"/>
-                <owl:allValuesFrom rdf:resource="http://mekon/demo-dynamic.owl#Politician"/>
-            </owl:Restriction>
-        </rdfs:subClassOf>
+    <owl:Class rdf:about="http://goblin/demo-dynamic.owl#Sewing">
+        <rdfs:subClassOf rdf:resource="http://goblin/demo-dynamic.owl#Craft"/>
     </owl:Class>
     
 
 
-    <!-- http://mekon/demo-dynamic.owl#Politician -->
+    <!-- http://goblin/demo-dynamic.owl#Spectator -->
 
-    <owl:Class rdf:about="http://mekon/demo-dynamic.owl#Politician">
-        <rdfs:subClassOf rdf:resource="http://mekon/demo-dynamic.owl#Specialist"/>
+    <owl:Class rdf:about="http://goblin/demo-dynamic.owl#Spectator">
+        <rdfs:subClassOf rdf:resource="http://goblin/demo-core.owl#Role"/>
     </owl:Class>
     
 
 
-    <!-- http://mekon/demo-dynamic.owl#Politics -->
+    <!-- http://goblin/demo-dynamic.owl#Speedway -->
 
-    <owl:Class rdf:about="http://mekon/demo-dynamic.owl#Politics">
-        <rdfs:subClassOf rdf:resource="http://mekon/demo-core.owl#Industry"/>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="http://mekon/demo-core.owl#sector"/>
-                <owl:someValuesFrom rdf:resource="http://mekon/demo-dynamic.owl#Public"/>
-            </owl:Restriction>
-        </rdfs:subClassOf>
+    <owl:Class rdf:about="http://goblin/demo-dynamic.owl#Speedway">
+        <rdfs:subClassOf rdf:resource="http://goblin/demo-dynamic.owl#MotorbikeRacing"/>
     </owl:Class>
     
 
 
-    <!-- http://mekon/demo-dynamic.owl#Postgraduate -->
+    <!-- http://goblin/demo-dynamic.owl#Sport -->
 
-    <owl:Class rdf:about="http://mekon/demo-dynamic.owl#Postgraduate">
-        <rdfs:subClassOf rdf:resource="http://mekon/demo-dynamic.owl#UniversityStudent"/>
+    <owl:Class rdf:about="http://goblin/demo-dynamic.owl#Sport">
+        <rdfs:subClassOf rdf:resource="http://goblin/demo-core.owl#Activity"/>
     </owl:Class>
     
 
 
-    <!-- http://mekon/demo-dynamic.owl#PrimarySchoolStudent -->
+    <!-- http://goblin/demo-dynamic.owl#Squash -->
 
-    <owl:Class rdf:about="http://mekon/demo-dynamic.owl#PrimarySchoolStudent">
-        <rdfs:subClassOf rdf:resource="http://mekon/demo-dynamic.owl#SchoolStudent"/>
+    <owl:Class rdf:about="http://goblin/demo-dynamic.owl#Squash">
+        <rdfs:subClassOf rdf:resource="http://goblin/demo-dynamic.owl#RacketSport"/>
     </owl:Class>
     
 
 
-    <!-- http://mekon/demo-dynamic.owl#Private -->
+    <!-- http://goblin/demo-dynamic.owl#TeamSport -->
 
-    <owl:Class rdf:about="http://mekon/demo-dynamic.owl#Private">
-        <rdfs:subClassOf rdf:resource="http://mekon/demo-core.owl#IndustrySector"/>
+    <owl:Class rdf:about="http://goblin/demo-dynamic.owl#TeamSport">
+        <rdfs:subClassOf rdf:resource="http://goblin/demo-dynamic.owl#Sport"/>
     </owl:Class>
     
 
 
-    <!-- http://mekon/demo-dynamic.owl#Public -->
+    <!-- http://goblin/demo-dynamic.owl#Tennis -->
 
-    <owl:Class rdf:about="http://mekon/demo-dynamic.owl#Public">
-        <rdfs:subClassOf rdf:resource="http://mekon/demo-core.owl#IndustrySector"/>
+    <owl:Class rdf:about="http://goblin/demo-dynamic.owl#Tennis">
+        <rdfs:subClassOf rdf:resource="http://goblin/demo-dynamic.owl#RacketSport"/>
     </owl:Class>
     
 
 
-    <!-- http://mekon/demo-dynamic.owl#ResearchLecturer -->
+    <!-- http://goblin/demo-dynamic.owl#Trainer -->
 
-    <owl:Class rdf:about="http://mekon/demo-dynamic.owl#ResearchLecturer">
-        <rdfs:subClassOf rdf:resource="http://mekon/demo-dynamic.owl#Lecturer"/>
+    <owl:Class rdf:about="http://goblin/demo-dynamic.owl#Trainer">
+        <rdfs:subClassOf rdf:resource="http://goblin/demo-dynamic.owl#ParticipantOverseer"/>
     </owl:Class>
     
 
 
-    <!-- http://mekon/demo-dynamic.owl#Researcher -->
+    <!-- http://goblin/demo-dynamic.owl#Umpire -->
 
-    <owl:Class rdf:about="http://mekon/demo-dynamic.owl#Researcher">
-        <rdfs:subClassOf rdf:resource="http://mekon/demo-dynamic.owl#Specialist"/>
-    </owl:Class>
-    
-
-
-    <!-- http://mekon/demo-dynamic.owl#RoadTrip -->
-
-    <owl:Class rdf:about="http://mekon/demo-dynamic.owl#RoadTrip">
-        <rdfs:subClassOf rdf:resource="http://mekon/demo-core.owl#Trip"/>
-    </owl:Class>
-    
-
-
-    <!-- http://mekon/demo-dynamic.owl#SchoolStudent -->
-
-    <owl:Class rdf:about="http://mekon/demo-dynamic.owl#SchoolStudent">
-        <rdfs:subClassOf rdf:resource="http://mekon/demo-core.owl#Student"/>
-    </owl:Class>
-    
-
-
-    <!-- http://mekon/demo-dynamic.owl#Schools -->
-
-    <owl:Class rdf:about="http://mekon/demo-dynamic.owl#Schools">
-        <rdfs:subClassOf rdf:resource="http://mekon/demo-dynamic.owl#Education"/>
-    </owl:Class>
-    
-
-
-    <!-- http://mekon/demo-dynamic.owl#SchoolsJob -->
-
-    <owl:Class rdf:about="http://mekon/demo-dynamic.owl#SchoolsJob">
-        <owl:equivalentClass>
-            <owl:Class>
-                <owl:intersectionOf rdf:parseType="Collection">
-                    <rdf:Description rdf:about="http://mekon/demo-core.owl#Job"/>
-                    <owl:Restriction>
-                        <owl:onProperty rdf:resource="http://mekon/demo-core.owl#industry"/>
-                        <owl:someValuesFrom rdf:resource="http://mekon/demo-dynamic.owl#Schools"/>
-                    </owl:Restriction>
-                </owl:intersectionOf>
-            </owl:Class>
-        </owl:equivalentClass>
-        <rdfs:subClassOf rdf:resource="http://mekon/demo-core.owl#Job"/>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="http://mekon/demo-core.owl#jobType"/>
-                <owl:allValuesFrom>
-                    <owl:Class>
-                        <owl:unionOf rdf:parseType="Collection">
-                            <rdf:Description rdf:about="http://mekon/demo-dynamic.owl#Generalist"/>
-                            <rdf:Description rdf:about="http://mekon/demo-dynamic.owl#Teacher"/>
-                        </owl:unionOf>
-                    </owl:Class>
-                </owl:allValuesFrom>
-            </owl:Restriction>
-        </rdfs:subClassOf>
-    </owl:Class>
-    
-
-
-    <!-- http://mekon/demo-dynamic.owl#Science -->
-
-    <owl:Class rdf:about="http://mekon/demo-dynamic.owl#Science">
-        <rdfs:subClassOf rdf:resource="http://mekon/demo-core.owl#ResearchArea"/>
-    </owl:Class>
-    
-
-
-    <!-- http://mekon/demo-dynamic.owl#Scotland -->
-
-    <owl:Class rdf:about="http://mekon/demo-dynamic.owl#Scotland">
-        <rdfs:subClassOf rdf:resource="http://mekon/demo-dynamic.owl#UK"/>
-    </owl:Class>
-    
-
-
-    <!-- http://mekon/demo-dynamic.owl#SecondClass -->
-
-    <owl:Class rdf:about="http://mekon/demo-dynamic.owl#SecondClass">
-        <rdfs:subClassOf rdf:resource="http://mekon/demo-core.owl#TravelClass"/>
-    </owl:Class>
-    
-
-
-    <!-- http://mekon/demo-dynamic.owl#SecondarySchoolStudent -->
-
-    <owl:Class rdf:about="http://mekon/demo-dynamic.owl#SecondarySchoolStudent">
-        <rdfs:subClassOf rdf:resource="http://mekon/demo-dynamic.owl#SchoolStudent"/>
-    </owl:Class>
-    
-
-
-    <!-- http://mekon/demo-dynamic.owl#SeniorManagement -->
-
-    <owl:Class rdf:about="http://mekon/demo-dynamic.owl#SeniorManagement">
-        <rdfs:subClassOf rdf:resource="http://mekon/demo-dynamic.owl#Management"/>
-    </owl:Class>
-    
-
-
-    <!-- http://mekon/demo-dynamic.owl#SkilledManual -->
-
-    <owl:Class rdf:about="http://mekon/demo-dynamic.owl#SkilledManual">
-        <rdfs:subClassOf rdf:resource="http://mekon/demo-dynamic.owl#Specialist"/>
-    </owl:Class>
-    
-
-
-    <!-- http://mekon/demo-dynamic.owl#SocialScience -->
-
-    <owl:Class rdf:about="http://mekon/demo-dynamic.owl#SocialScience">
-        <rdfs:subClassOf rdf:resource="http://mekon/demo-core.owl#ResearchArea"/>
-    </owl:Class>
-    
-
-
-    <!-- http://mekon/demo-dynamic.owl#Specialist -->
-
-    <owl:Class rdf:about="http://mekon/demo-dynamic.owl#Specialist">
-        <rdfs:subClassOf rdf:resource="http://mekon/demo-core.owl#JobType"/>
-    </owl:Class>
-    
-
-
-    <!-- http://mekon/demo-dynamic.owl#Teacher -->
-
-    <owl:Class rdf:about="http://mekon/demo-dynamic.owl#Teacher">
-        <rdfs:subClassOf rdf:resource="http://mekon/demo-dynamic.owl#Specialist"/>
-    </owl:Class>
-    
-
-
-    <!-- http://mekon/demo-dynamic.owl#TrainTrip -->
-
-    <owl:Class rdf:about="http://mekon/demo-dynamic.owl#TrainTrip">
-        <rdfs:subClassOf rdf:resource="http://mekon/demo-core.owl#Trip"/>
-    </owl:Class>
-    
-
-
-    <!-- http://mekon/demo-dynamic.owl#UK -->
-
-    <owl:Class rdf:about="http://mekon/demo-dynamic.owl#UK">
-        <rdfs:subClassOf rdf:resource="http://mekon/demo-dynamic.owl#EU"/>
-    </owl:Class>
-    
-
-
-    <!-- http://mekon/demo-dynamic.owl#Undergraduate -->
-
-    <owl:Class rdf:about="http://mekon/demo-dynamic.owl#Undergraduate">
-        <rdfs:subClassOf rdf:resource="http://mekon/demo-dynamic.owl#UniversityStudent"/>
-    </owl:Class>
-    
-
-
-    <!-- http://mekon/demo-dynamic.owl#UniversityStudent -->
-
-    <owl:Class rdf:about="http://mekon/demo-dynamic.owl#UniversityStudent">
-        <rdfs:subClassOf rdf:resource="http://mekon/demo-core.owl#Student"/>
-    </owl:Class>
-    
-
-
-    <!-- http://mekon/demo-dynamic.owl#UnskilledManual -->
-
-    <owl:Class rdf:about="http://mekon/demo-dynamic.owl#UnskilledManual">
-        <rdfs:subClassOf rdf:resource="http://mekon/demo-dynamic.owl#Generalist"/>
-    </owl:Class>
-    
-
-
-    <!-- http://mekon/demo-dynamic.owl#Wales -->
-
-    <owl:Class rdf:about="http://mekon/demo-dynamic.owl#Wales">
-        <rdfs:subClassOf rdf:resource="http://mekon/demo-dynamic.owl#UK"/>
+    <owl:Class rdf:about="http://goblin/demo-dynamic.owl#Umpire">
+        <rdfs:subClassOf rdf:resource="http://goblin/demo-dynamic.owl#EventOfficial"/>
     </owl:Class>
 </rdf:RDF>
 

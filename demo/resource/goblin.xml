@@ -1,60 +1,37 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <Goblin
-	dynamicNamespace="http://mekon/demo-dynamic.owl"
+	dynamicNamespace="http://goblin/demo-dynamic.owl"
 	dynamicFilename="demo-dynamic.owl">
 
-	<Hierarchy
-		rootConcept="http://mekon/demo-core.owl#Gender">
-	</Hierarchy>
-
-	<Hierarchy
-		rootConcept="http://mekon/demo-core.owl#Industry">
-		<SimpleConstraintType
-			name="industry sector"
-			linkingProperty="http://mekon/demo-core.owl#sector"
-			rootTargetConcept="http://mekon/demo-core.owl#IndustrySector"
-			cardinalityType="SINGLE_VALUE">
-			<SemanticsOption semantics="IMPLIED_VALUE"/>
-		</SimpleConstraintType>
+	<DynamicHierarchy
+		rootConcept="http://goblin/demo-core.owl#Activity">
 		<AnchoredConstraintType
-			name="job type"
-			anchorConcept="http://mekon/demo-core.owl#Job"
-			sourceProperty="http://mekon/demo-core.owl#industry"
-			targetProperty="http://mekon/demo-core.owl#jobType"
-			rootTargetConcept="http://mekon/demo-core.owl#JobType"
+			name="role performed"
+			anchorConcept="http://goblin/demo-core.owl#Hobby"
+			sourceProperty="http://goblin/demo-core.owl#involvesActivity"
+			targetProperty="http://goblin/demo-core.owl#rolePerformed"
+			rootTargetConcept="http://goblin/demo-core.owl#Role"
 			cardinalityType="SINGLE_VALUE">
 			<SemanticsOption semantics="VALID_VALUES"/>
 			<SemanticsOption semantics="IMPLIED_VALUE"/>
 		</AnchoredConstraintType>
-	</Hierarchy>
+		<SimpleConstraintType
+			name="activity location"
+			linkingProperty="http://goblin/demo-core.owl#performedInLocation"
+			rootTargetConcept="http://goblin/demo-core.owl#Location"
+			cardinalityType="MULTI_VALUE">
+			<SemanticsOption semantics="VALID_VALUES"/>
+			<SemanticsOption semantics="IMPLIED_VALUE"/>
+		</SimpleConstraintType>
+	</DynamicHierarchy>
 
-	<Hierarchy
-		rootConcept="http://mekon/demo-core.owl#IndustrySector">
-	</Hierarchy>
+	<DynamicHierarchy
+		rootConcept="http://goblin/demo-core.owl#Role">
+	</DynamicHierarchy>
 
-	<Hierarchy
-		rootConcept="http://mekon/demo-core.owl#JobType">
-	</Hierarchy>
-
-	<Hierarchy
-		rootConcept="http://mekon/demo-core.owl#Location">
-	</Hierarchy>
-
-	<Hierarchy
-		rootConcept="http://mekon/demo-core.owl#ResearchArea">
-	</Hierarchy>
-
-	<Hierarchy
-		rootConcept="http://mekon/demo-core.owl#Student">
-	</Hierarchy>
-
-	<Hierarchy
-		rootConcept="http://mekon/demo-core.owl#TravelClass">
-	</Hierarchy>
-
-	<Hierarchy
-		rootConcept="http://mekon/demo-core.owl#Trip">
-	</Hierarchy>
+	<ReferenceOnlyHierarchy
+		rootConcept="http://goblin/demo-core.owl#Location">
+	</ReferenceOnlyHierarchy>
 
 </Goblin>
