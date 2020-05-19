@@ -17,7 +17,8 @@ class ConfigFileReader {
 
 	static private final String CONFIG_FILE_NAME = "goblin.xml";
 
-	static private final String HIERARCHY_TAG = "Hierarchy";
+	static private final String DYNAMIC_HIERARCHY_TAG = "DynamicHierarchy";
+	static private final String REFERENCE_ONLY_HIERARCHY_TAG = "ReferenceOnlyHierarchy";
 	static private final String ANCHORED_CONSTRAINT_TYPE_TAG = "AnchoredConstraintType";
 	static private final String SIMPLE_CONSTRAINT_TYPE_TAG = "SimpleConstraintType";
 	static private final String SEMANTICS_OPTION_TAG = "SemanticsOption";
@@ -43,13 +44,54 @@ class ConfigFileReader {
 		private Model model;
 		private Ontology ontology;
 
+		private abstract class HierarchiesLoader {
+
+			HierarchiesLoader() {
+
+				for (KConfigNode hierarchyNode : rootNode.getChildren(getStatusTag())) {
+
+					addHierarchy(getRootConceptId(hierarchyNode));
+				}
+			}
+
+			abstract String getStatusTag();
+
+			abstract void addHierarchy(EntityId rootConceptId);
+		}
+
+		private class DynamicHierarchiesLoader extends HierarchiesLoader {
+
+			String getStatusTag() {
+
+				return DYNAMIC_HIERARCHY_TAG;
+			}
+
+			void addHierarchy(EntityId rootConceptId) {
+
+				model.addDynamicHierarchy(rootConceptId);
+			}
+		}
+
+		private class ReferenceOnlyHierarchiesLoader extends HierarchiesLoader {
+
+			String getStatusTag() {
+
+				return REFERENCE_ONLY_HIERARCHY_TAG;
+			}
+
+			void addHierarchy(EntityId rootConceptId) {
+
+				model.addReferenceOnlyHierarchy(rootConceptId);
+			}
+		}
+
 		private abstract class ConstraintTypesLoader {
 
 			ConstraintTypesLoader() {
 
-				Iterator<Hierarchy> hierarchies = model.getHierarchies().iterator();
+				Iterator<Hierarchy> hierarchies = model.getDynamicHierarchies().iterator();
 
-				for (KConfigNode hierarchyNode : rootNode.getChildren(HIERARCHY_TAG)) {
+				for (KConfigNode hierarchyNode : rootNode.getChildren(DYNAMIC_HIERARCHY_TAG)) {
 
 					loadHierarchyTypes(hierarchyNode, hierarchies.next());
 				}
@@ -146,18 +188,11 @@ class ConfigFileReader {
 			this.model = model;
 			this.ontology = ontology;
 
-			loadHierarchies();
+			new DynamicHierarchiesLoader();
+			new ReferenceOnlyHierarchiesLoader();
 
 			new SimpleConstraintTypesLoader();
 			new AnchoredConstraintTypesLoader();
-		}
-
-		private void loadHierarchies() {
-
-			for (KConfigNode node : rootNode.getChildren(HIERARCHY_TAG)) {
-
-				model.addHierarchy(getRootConceptId(node));
-			}
 		}
 
 		private EntityId getRootConceptId(KConfigNode node) {

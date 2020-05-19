@@ -90,7 +90,7 @@ public class Goblin extends GFrame {
 
 		List<Hierarchy> getSources() {
 
-			return getCurrentModel().getHierarchies();
+			return getCurrentModel().getAllHierarchies();
 		}
 
 		String getTitle(Hierarchy hierarchy) {

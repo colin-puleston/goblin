@@ -155,7 +155,7 @@ class HierarchyPanel extends GSplitPane {
 		hierarchyTree = treePanel.getTree();
 		constraintsPanel = new ConstraintsPanel();
 
-		if (hierarchy.isConstrained()) {
+		if (hierarchy.hasConstraintTypes()) {
 
 			new ConstraintTypeSelectionRelayer();
 		}

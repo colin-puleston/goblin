@@ -423,7 +423,7 @@ class DynamicModelLoader {
 
 	private void loadConcepts() {
 
-		for (Hierarchy hierarchy : model.getHierarchies()) {
+		for (Hierarchy hierarchy : model.getAllHierarchies()) {
 
 			Concept root = hierarchy.getRootConcept();
 
@@ -441,7 +441,7 @@ class DynamicModelLoader {
 
 	private void loadConstraints() {
 
-		for (Hierarchy hierarchy : model.getHierarchies()) {
+		for (Hierarchy hierarchy : model.getDynamicHierarchies()) {
 
 			for (ConstraintType type : hierarchy.getConstraintTypes()) {
 

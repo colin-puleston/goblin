@@ -5,95 +5,16 @@ import java.util.*;
 /**
  * @author Colin Puleston
  */
-public class Hierarchy {
+public abstract class Hierarchy {
 
 	private Model model;
 
 	private RootConcept root;
-	private List<ConstraintType> constraintTypes = new ArrayList<ConstraintType>();
-
 	private Map<EntityId, Concept> conceptsById = new HashMap<EntityId, Concept>();
 
-	private class RootConcept extends Concept {
+	public abstract void addConstraintType(ConstraintType type);
 
-		public boolean resetId(DynamicId newDynamicId) {
-
-			throw createInvalidRootOperationException();
-		}
-
-		public boolean move(Concept newParent) {
-
-			throw createInvalidRootOperationException();
-		}
-
-		public void remove() {
-
-			throw createInvalidRootOperationException();
-		}
-
-		public boolean addValidValuesConstraint(ConstraintType type, Collection<Concept> targetValues) {
-
-			throw createInvalidRootOperationException();
-		}
-
-		public boolean addImpliedValueConstraint(ConstraintType type, Concept targetValue) {
-
-			throw createInvalidRootOperationException();
-		}
-
-		public boolean isRoot() {
-
-			return true;
-		}
-
-		public Concept getParent() {
-
-			throw createInvalidRootOperationException();
-		}
-
-		public Set<Concept> getParents() {
-
-			return Collections.emptySet();
-		}
-
-		public boolean descendantOf(Concept testAncestor) {
-
-			return false;
-		}
-
-		public Constraint getClosestAncestorValidValuesConstraint(ConstraintType type) {
-
-			throw createInvalidRootOperationException();
-		}
-
-		RootConcept(EntityId rootConceptId) {
-
-			super(Hierarchy.this, rootConceptId);
-		}
-
-		void doRemoveConstraint(Constraint constraint) {
-
-			throw createInvalidRootOperationException();
-		}
-
-		private RuntimeException createInvalidRootOperationException() {
-
-			return new RuntimeException("Cannot perform operation on root concept!");
-		}
-	}
-
-	public Hierarchy(Model model, EntityId rootConceptId) {
-
-		this.model = model;
-
-		root = new RootConcept(rootConceptId);
-	}
-
-	public void addConstraintType(ConstraintType type) {
-
-		constraintTypes.add(type);
-		root.addRootConstraint(type);
-	}
+	public abstract boolean dynamicHierarchy();
 
 	public Model getModel() {
 
@@ -127,14 +48,15 @@ public class Hierarchy {
 		return concept;
 	}
 
-	public boolean isConstrained() {
+	public abstract boolean hasConstraintTypes();
 
-		return !constraintTypes.isEmpty();
-	}
+	public abstract List<ConstraintType> getConstraintTypes();
 
-	public List<ConstraintType> getConstraintTypes() {
+	Hierarchy(Model model, EntityId rootConceptId) {
 
-		return new ArrayList<ConstraintType>(constraintTypes);
+		this.model = model;
+
+		root = new RootConcept(this, rootConceptId);
 	}
 
 	void registerConcept(Concept concept) {

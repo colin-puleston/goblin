@@ -54,4 +54,14 @@ abstract class ConceptTreeSelectionDependentButton
 
 		return ConceptTree.extractConcepts(tree.getSelectedNodes());
 	}
+
+	boolean enableOnActiveSelections(List<Concept> selections) {
+
+		return tree.multiSelect() || enableOnActiveSelection(selections.get(0));
+	}
+
+	boolean enableOnActiveSelection(Concept selection) {
+
+		return true;
+	}
 }

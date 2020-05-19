@@ -108,7 +108,7 @@ class DynamicModelRenderer {
 
 	private void renderNewHierarchies(Model model) {
 
-		for (Hierarchy hierarchy : model.getHierarchies()) {
+		for (Hierarchy hierarchy : model.getDynamicHierarchies()) {
 
 			Concept root = hierarchy.getRootConcept();
 
@@ -118,7 +118,7 @@ class DynamicModelRenderer {
 
 	private void renderNewConstraints(Model model) {
 
-		for (Hierarchy hierarchy : model.getHierarchies()) {
+		for (Hierarchy hierarchy : model.getDynamicHierarchies()) {
 
 			renderConstraintsFrom(hierarchy.getRootConcept());
 		}

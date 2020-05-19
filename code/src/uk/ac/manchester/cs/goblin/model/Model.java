@@ -62,9 +62,18 @@ public class Model {
 		return editActions.redo();
 	}
 
-	public Hierarchy addHierarchy(EntityId rootConceptId) {
+	public Hierarchy addDynamicHierarchy(EntityId rootConceptId) {
 
-		Hierarchy hierarchy = new Hierarchy(this, rootConceptId);
+		Hierarchy hierarchy = new DynamicHierarchy(this, rootConceptId);
+
+		hierarchies.add(hierarchy);
+
+		return hierarchy;
+	}
+
+	public Hierarchy addReferenceOnlyHierarchy(EntityId rootConceptId) {
+
+		Hierarchy hierarchy = new ReferenceOnlyHierarchy(this, rootConceptId);
 
 		hierarchies.add(hierarchy);
 
@@ -81,9 +90,19 @@ public class Model {
 		return new EntityId(uri, labelOrNull);
 	}
 
-	public List<Hierarchy> getHierarchies() {
+	public List<Hierarchy> getAllHierarchies() {
 
 		return new ArrayList<Hierarchy>(hierarchies);
+	}
+
+	public List<Hierarchy> getDynamicHierarchies() {
+
+		return getStatusHierarchies(true);
+	}
+
+	public List<Hierarchy> getReferenceOnlyHierarchies() {
+
+		return getStatusHierarchies(false);
 	}
 
 	public Hierarchy getHierarchy(EntityId rootConceptId) {
@@ -146,6 +165,21 @@ public class Model {
 	ConflictResolver getConflictResolver() {
 
 		return conflictResolver;
+	}
+
+	private List<Hierarchy> getStatusHierarchies(boolean dynamic) {
+
+		List<Hierarchy> statusHierarchies = new ArrayList<Hierarchy>();
+
+		for (Hierarchy hierarchy : hierarchies) {
+
+			if (hierarchy.dynamicHierarchy() == dynamic) {
+
+				statusHierarchies.add(hierarchy);
+			}
+		}
+
+		return statusHierarchies;
 	}
 
 	private Concept lookForConcept(EntityId conceptId) {

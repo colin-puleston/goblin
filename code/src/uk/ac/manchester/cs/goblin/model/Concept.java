@@ -134,7 +134,7 @@ public abstract class Concept extends EditTarget {
 
 	public Concept addChild(EntityId id) {
 
-		Concept child = new DynamicConcept(id, this);
+		Concept child = createChild(id);
 
 		child.add();
 
@@ -383,6 +383,13 @@ public abstract class Concept extends EditTarget {
 	Hierarchy getPrimaryEditHierarchy() {
 
 		return hierarchy;
+	}
+
+	private Concept createChild(EntityId id) {
+
+		return hierarchy.dynamicHierarchy()
+				? new DynamicConcept(id, this)
+				: new ReferenceOnlyConcept(id, this);
 	}
 
 	private EditAction incorporateInwardTargetRemovalEdits(EditAction action) {

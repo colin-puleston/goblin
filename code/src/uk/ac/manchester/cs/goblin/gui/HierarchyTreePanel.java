@@ -40,6 +40,8 @@ class HierarchyTreePanel extends JPanel {
 
 	static private final long serialVersionUID = -1;
 
+	static private final String NO_EDIT_MESSAGE_LABEL = "External hierarchy / Non-editable";
+
 	static private final String NO_CONSTRAINTS_LABEL = "Hide constraints";
 	static private final String EDIT_TYPE_CONSTRAINTS_LABEL = "Show constraints: Current edit type";
 	static private final String ALL_CONSTRAINTS_LABEL = "Show constraints: All";
@@ -93,7 +95,7 @@ class HierarchyTreePanel extends JPanel {
 
 		GCellDisplay getSelectorsCellDisplay(Concept concept, boolean highlight) {
 
-			return GoblinCellDisplay.CONCEPTS_DEFAULT.forConcept(concept, highlight);
+			return tree.getGoblinCellDisplay(concept).forConcept(concept, highlight);
 		}
 	}
 
@@ -176,7 +178,7 @@ class HierarchyTreePanel extends JPanel {
 			new TriggerKeyListener(triggerKey);
 		}
 
-		boolean enableOnSelectedConcept(Concept selection) {
+		boolean enableOnActiveSelection(Concept selection) {
 
 			return enableForRootSelection(selection) && enableForMoveInProgress(selection);
 		}
@@ -335,9 +337,9 @@ class HierarchyTreePanel extends JPanel {
 		model = hierarchy.getModel();
 		tree = new HierarchyTree(hierarchy, conceptMover);
 
-		add(createUpperPanel(hierarchy), BorderLayout.NORTH);
+		add(createUpperComponent(hierarchy), BorderLayout.NORTH);
 		add(new JScrollPane(tree), BorderLayout.CENTER);
-		add(createButtonsPanel(), BorderLayout.SOUTH);
+		add(createLowerComponent(hierarchy), BorderLayout.SOUTH);
 	}
 
 	HierarchyTree getTree() {
@@ -345,9 +347,9 @@ class HierarchyTreePanel extends JPanel {
 		return tree;
 	}
 
-	private JComponent createUpperPanel(Hierarchy hierarchy) {
+	private JComponent createUpperComponent(Hierarchy hierarchy) {
 
-		if (hierarchy.isConstrained()) {
+		if (hierarchy.hasConstraintTypes()) {
 
 			JPanel panel = new JPanel(new BorderLayout());
 
@@ -360,7 +362,14 @@ class HierarchyTreePanel extends JPanel {
 		return new TreeSelectorPanel();
 	}
 
-	private JComponent createButtonsPanel() {
+	private JComponent createLowerComponent(Hierarchy hierarchy) {
+
+		return hierarchy.dynamicHierarchy()
+					? createEditButtonsPanel()
+					: createNoEditMessageLabel();
+	}
+
+	private JComponent createEditButtonsPanel() {
 
 		return ControlsPanel.horizontal(
 					new AddButton(),
@@ -369,6 +378,15 @@ class HierarchyTreePanel extends JPanel {
 					new PasteButton(),
 					new StopCutButton(),
 					new ResetIdButton());
+	}
+
+	private JLabel createNoEditMessageLabel() {
+
+		JLabel label = new JLabel(NO_EDIT_MESSAGE_LABEL);
+
+		GFonts.setMedium(label);
+
+		return label;
 	}
 
 	private void checkAddConcept(Concept parent) {
