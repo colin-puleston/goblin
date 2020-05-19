@@ -74,11 +74,17 @@
     
 
 
+    <!-- http://goblin/demo-core.owl#ActivityCentre -->
+
+    <owl:Class rdf:about="http://goblin/demo-core.owl#ActivityCentre">
+        <rdfs:subClassOf rdf:resource="http://goblin/demo-core.owl#IndoorLocation"/>
+    </owl:Class>
+    
+
+
     <!-- http://goblin/demo-core.owl#CyclingTrack -->
 
-    <owl:Class rdf:about="http://goblin/demo-core.owl#CyclingTrack">
-        <rdfs:subClassOf rdf:resource="http://goblin/demo-core.owl#Racetrack"/>
-    </owl:Class>
+    <owl:Class rdf:about="http://goblin/demo-core.owl#CyclingTrack"/>
     
 
 
@@ -256,9 +262,9 @@
     
 
 
-    <!-- http://goblin/demo-core.owl#SportsStadium -->
+    <!-- http://goblin/demo-core.owl#SportsGround -->
 
-    <owl:Class rdf:about="http://goblin/demo-core.owl#SportsStadium">
+    <owl:Class rdf:about="http://goblin/demo-core.owl#SportsGround">
         <rdfs:subClassOf rdf:resource="http://goblin/demo-core.owl#OutdoorSportsVenue"/>
     </owl:Class>
     
