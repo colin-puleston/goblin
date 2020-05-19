@@ -118,6 +118,11 @@ public class Model {
 		throw new RuntimeException("Not root-concept: " + rootConceptId);
 	}
 
+	public boolean conceptExists(EntityId conceptId) {
+
+		return lookForConcept(conceptId) != null;
+	}
+
 	public Concept getConcept(EntityId conceptId) {
 
 		Concept concept = lookForConcept(conceptId);
@@ -128,6 +133,19 @@ public class Model {
 		}
 
 		throw new RuntimeException("Cannot find concept: " + conceptId);
+	}
+
+	public Concept lookForConcept(EntityId conceptId) {
+
+		for (Hierarchy hierarchy : hierarchies) {
+
+			if (hierarchy.hasConcept(conceptId)) {
+
+				return hierarchy.getConcept(conceptId);
+			}
+		}
+
+		return null;
 	}
 
 	public boolean dynamicConceptExists(DynamicId dynamicId) {
@@ -180,24 +198,6 @@ public class Model {
 		}
 
 		return statusHierarchies;
-	}
-
-	private Concept lookForConcept(EntityId conceptId) {
-
-		for (Hierarchy hierarchy : hierarchies) {
-
-			if (hierarchy.hasConcept(conceptId)) {
-
-				return hierarchy.getConcept(conceptId);
-			}
-		}
-
-		return null;
-	}
-
-	private boolean conceptExists(EntityId conceptId) {
-
-		return lookForConcept(conceptId) != null;
 	}
 
 	private boolean hasDynamicNamespace(URI uri) {

@@ -31,11 +31,6 @@ class DynamicModelLoader {
 
 		abstract class ConceptExtractor {
 
-			Concept extractOne(OWLClassExpression expr) {
-
-				return getOne(extractAll(expr));
-			}
-
 			Concept extractOneOrNone(OWLClassExpression expr) {
 
 				return lookForOne(extractAll(expr));
@@ -47,7 +42,12 @@ class DynamicModelLoader {
 
 				for (OWLClass cls : extractClasses(expr)) {
 
-					concepts.add(getConcept(cls));
+					Concept concept = lookForConcept(cls);
+
+					if (concept != null) {
+
+						concepts.add(concept);
+					}
 				}
 
 				return concepts;
@@ -278,18 +278,6 @@ class DynamicModelLoader {
 
 			return null;
 		}
-
-		private <E>E getOne(Set<E> elements) {
-
-			E element = lookForOne(elements);
-
-			if (element == null) {
-
-				throw createBadAxiomsException();
-			}
-
-			return element;
-		}
 	}
 
 	private class SimpleConstraintLoader extends ConstraintLoader {
@@ -298,7 +286,12 @@ class DynamicModelLoader {
 
 			super(type, sourceCls, type.getLinkingPropertyId());
 
-			checkLoad(getConcept(sourceCls));
+			Concept source = lookForConcept(sourceCls);
+
+			if (source != null) {
+
+				checkLoad(source);
+			}
 		}
 	}
 
@@ -366,7 +359,12 @@ class DynamicModelLoader {
 
 			if (expr != null) {
 
-				checkLoad(sourceExtractor.extractOne(expr));
+				Concept source = sourceExtractor.extractOneOrNone(expr);
+
+				if (source != null) {
+
+					checkLoad(source);
+				}
 			}
 		}
 
@@ -507,7 +505,7 @@ class DynamicModelLoader {
 			return ontology.getClass(iri);
 		}
 
-		throw new RuntimeException("Cannot find hierarchy-root class: " + iri);
+		throw new RuntimeException("Cannot find hierarchy root-class: " + iri);
 	}
 
 	private OWLClass getCls(Concept concept) {
@@ -530,9 +528,16 @@ class DynamicModelLoader {
 		return IRI.create(id.getURI());
 	}
 
-	private Concept getConcept(OWLClass cls) {
+	private Concept lookForConcept(OWLClass cls) {
 
-		return model.getConcept(getConceptId(cls));
+		Concept concept = model.lookForConcept(getConceptId(cls));
+
+		if (concept == null) {
+
+			showLoadWarning("Referenced concept not loaded: " + cls);
+		}
+
+		return concept;
 	}
 
 	private EntityId getConceptId(OWLClass cls) {
@@ -545,5 +550,10 @@ class DynamicModelLoader {
 	private <T>T asTypeOrNull(Object obj, Class<T> type) {
 
 		return type.isAssignableFrom(obj.getClass()) ? type.cast(obj) : null;
+	}
+
+	private void showLoadWarning(String msg) {
+
+		System.err.println("GOBLIN: MODEL LOAD WARNING: " + msg);
 	}
 }
