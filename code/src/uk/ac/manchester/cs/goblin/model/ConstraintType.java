@@ -11,19 +11,20 @@ public abstract class ConstraintType {
 	private Concept rootSourceConcept;
 	private Concept rootTargetConcept;
 
-	private CardinalityType cardinalityType = CardinalityType.SINGLE_VALUE;
-
 	private Set<ConstraintSemantics> semanticsOptions
 				= Collections.singleton(ConstraintSemantics.VALID_VALUES);
 
-	public void setCardinalityType(CardinalityType cardinalityType) {
+	private ImpliedValuesMultiplicity impliedValuesMultiplicity
+							= ImpliedValuesMultiplicity.SINGLE;
 
-		this.cardinalityType = cardinalityType;
+	public void setSemanticsOptions(Set<ConstraintSemantics> options) {
+
+		semanticsOptions = new HashSet<ConstraintSemantics>(options);
 	}
 
-	public void setSemanticsOptions(Set<ConstraintSemantics> semanticsOptions) {
+	public void setImpliedValuesMultiplicity(ImpliedValuesMultiplicity value) {
 
-		this.semanticsOptions = new HashSet<ConstraintSemantics>(semanticsOptions);
+		impliedValuesMultiplicity = value;
 	}
 
 	public String getName() {
@@ -41,14 +42,14 @@ public abstract class ConstraintType {
 		return rootTargetConcept;
 	}
 
-	public boolean singleValue() {
-
-		return cardinalityType.singleValue();
-	}
-
 	public boolean semanticsOption(ConstraintSemantics semantics) {
 
 		return semanticsOptions.contains(semantics);
+	}
+
+	public boolean singleValue() {
+
+		return impliedValuesMultiplicity.singleValue();
 	}
 
 	protected ConstraintType(String name, Concept rootSourceConcept, Concept rootTargetConcept) {

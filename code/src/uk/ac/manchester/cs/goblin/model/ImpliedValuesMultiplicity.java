@@ -3,17 +3,17 @@ package uk.ac.manchester.cs.goblin.model;
 /**
  * @author Colin Puleston
  */
-public enum CardinalityType {
+public enum ImpliedValuesMultiplicity {
 
-	SINGLE_VALUE, MULTI_VALUE;
+	SINGLE, MULTIPLE;
 
 	public boolean singleValue() {
 
-		return this == SINGLE_VALUE;
+		return this == SINGLE;
 	}
 
 	public boolean multiValue() {
 
-		return this == MULTI_VALUE;
+		return this == MULTIPLE;
 	}
 }

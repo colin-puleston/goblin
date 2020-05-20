@@ -34,7 +34,7 @@ class ConfigFileReader {
 	static private final String TARGET_PROPERTY_ATTR = "targetProperty";
 	static private final String LINKING_PROPERTY_ATTR = "linkingProperty";
 	static private final String ROOT_TARGET_CONCEPT_ATTR = "rootTargetConcept";
-	static private final String CARDINALITY_TYPE_ATTR = "cardinalityType";
+	static private final String IMPLIED_VALUES_MULT_ATTR = "impliedValuesMultiplicity";
 	static private final String SEMANTICS_OPTION_ATTR = "semantics";
 
 	private KConfigNode rootNode;
@@ -121,17 +121,17 @@ class ConfigFileReader {
 
 				ConstraintType type = loadSpecificType(node, name, rootSrc, rootTgt);
 
-				CardinalityType cardinalityType = getCardinalityTypeOrNull(node);
 				Set<ConstraintSemantics> semanticsOpts = getSemanticsOptions(node);
-
-				if (cardinalityType != null) {
-
-					type.setCardinalityType(cardinalityType);
-				}
+				ImpliedValuesMultiplicity impValuesMult = getImpliedValuesMultiplicityOrNull(node);
 
 				if (!semanticsOpts.isEmpty()) {
 
 					type.setSemanticsOptions(semanticsOpts);
+				}
+
+				if (impValuesMult != null) {
+
+					type.setImpliedValuesMultiplicity(impValuesMult);
 				}
 
 				return type;
@@ -215,9 +215,9 @@ class ConfigFileReader {
 			return getPropertyId(node, ROOT_TARGET_CONCEPT_ATTR);
 		}
 
-		private CardinalityType getCardinalityTypeOrNull(KConfigNode node) {
+		private ImpliedValuesMultiplicity getImpliedValuesMultiplicityOrNull(KConfigNode node) {
 
-			return node.getEnum(CARDINALITY_TYPE_ATTR, CardinalityType.class, null);
+			return node.getEnum(IMPLIED_VALUES_MULT_ATTR, ImpliedValuesMultiplicity.class, null);
 		}
 
 		private ConstraintSemantics getSemanticsOption(KConfigNode node) {

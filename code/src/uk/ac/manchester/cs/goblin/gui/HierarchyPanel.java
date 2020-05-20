@@ -43,8 +43,6 @@ class HierarchyPanel extends GSplitPane {
 	static private final String TREE_PANEL_TITLE = "Selected hierarchy";
 	static private final String CONSTRAINTS_PANEL_TITLE = "Constraints editor";
 
-	static private final String CONSTRAINT_PANEL_TITLE_FORMAT = "%s constraints";
-
 	private Hierarchy hierarchy;
 
 	private HierarchyTree hierarchyTree;
@@ -100,49 +98,7 @@ class HierarchyPanel extends GSplitPane {
 
 		JComponent createComponent(ConstraintType type) {
 
-			JTabbedPane tabs = new JTabbedPane();
-
-			String validsTitle = checkPanelTitle(type, ConstraintSemantics.VALID_VALUES);
-			String impliedsTitle = checkPanelTitle(type, ConstraintSemantics.IMPLIED_VALUE);
-
-			if (validsTitle != null) {
-
-				tabs.addTab(validsTitle, createValidValuesPanel(type));
-			}
-
-			if (impliedsTitle != null) {
-
-				tabs.addTab(impliedsTitle, createImpliedValuesPanel(type));
-			}
-
-			return tabs;
-		}
-
-		private String checkPanelTitle(ConstraintType type, ConstraintSemantics semantics) {
-
-			if (!type.semanticsOption(semantics)) {
-
-				return null;
-			}
-
-			return String.format(CONSTRAINT_PANEL_TITLE_FORMAT, semantics.getDisplayLabel());
-		}
-
-		private ConstraintGroupPanel createValidValuesPanel(ConstraintType type) {
-
-			return createGroupPanel(type, ConstraintSemantics.VALID_VALUES);
-		}
-
-		private ConstraintGroupPanel createImpliedValuesPanel(ConstraintType type) {
-
-			return createGroupPanel(type, ConstraintSemantics.IMPLIED_VALUE);
-		}
-
-		private ConstraintGroupPanel createGroupPanel(
-										ConstraintType type,
-										ConstraintSemantics semantics) {
-
-			return new ConstraintGroupPanel(type, semantics, hierarchyTree);
+			return new ConstraintGroupPanel(type, hierarchyTree);
 		}
 	}
 

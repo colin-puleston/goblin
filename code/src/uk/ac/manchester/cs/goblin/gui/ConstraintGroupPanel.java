@@ -39,8 +39,6 @@ class ConstraintGroupPanel extends JPanel {
 
 	static private final long serialVersionUID = -1;
 
-	static private final String EDIT_PANEL_TITLE_FORMAT = "%s targets";
-
 	static private final String SHOW_POTENTIAL_VALIDS_LABEL = "Show potentially valid";
 
 	static private final String ADD_TARGETS_LABEL = "Add";
@@ -49,8 +47,6 @@ class ConstraintGroupPanel extends JPanel {
 	static private final String APPLY_EDITS_LABEL = "Apply edits";
 
 	private ConstraintType type;
-	private ConstraintSemantics semantics;
-
 	private ConceptTree sourcesTree;
 
 	private abstract class PanelPopulator {
@@ -66,7 +62,7 @@ class ConstraintGroupPanel extends JPanel {
 
 			TargetsTree() {
 
-				super(!singleTargetSelection());
+				super(true);
 			}
 
 			GCellDisplay getConceptDisplay(Concept concept) {
@@ -101,7 +97,7 @@ class ConstraintGroupPanel extends JPanel {
 
 			targetsTree.initialise(getValidValuesConstraint());
 
-			add(createTargetsTreeHeaderPanel(), BorderLayout.NORTH);
+			add(createHeaderPanel(), BorderLayout.NORTH);
 			add(new JScrollPane(targetsTree), BorderLayout.CENTER);
 		}
 
@@ -112,22 +108,14 @@ class ConstraintGroupPanel extends JPanel {
 			revalidate();
 		}
 
-		JComponent createTargetsTreeHeaderPanel() {
+		JComponent createHeaderPanel() {
 
 			return new TargetsTreeSelectorPanel();
 		}
 
 		abstract Constraint getValidValuesConstraint();
 
-		boolean singleTargetSelection() {
-
-			return false;
-		}
-
-		GoblinCellDisplay getCellDisplay(Concept concept) {
-
-			return GoblinCellDisplay.CONSTRAINTS_VALID_TARGET;
-		}
+		abstract GoblinCellDisplay getCellDisplay(Concept concept);
 	}
 
 	private class DefaultPanelPopulator extends PanelPopulator {
@@ -144,19 +132,139 @@ class ConstraintGroupPanel extends JPanel {
 			return source.lookForValidValuesConstraint(type);
 		}
 
-		boolean singleTargetSelection() {
+		GoblinCellDisplay getCellDisplay(Concept concept) {
 
-			return false;
+			return GoblinCellDisplay.CONSTRAINTS_VALID_TARGET;
 		}
 	}
 
-	private abstract class EditPanelPopulator extends PanelPopulator {
+	private class EditPanelPopulator extends PanelPopulator {
+
+		private Constraint potentialValidValues;
+		private Constraint localValidValues;
+
+		private ConstraintTargetsDisplay targetsDisplay;
+
+		private class ShowPotentiallyValidsOptionSelector extends GCheckBox {
+
+			static private final long serialVersionUID = -1;
+
+			protected void onSelectionUpdate(boolean selected) {
+
+				targetsTree.getRootNode().clearChildren();
+				targetsTree.initialise(getValidValuesConstraint(selected));
+			}
+
+			ShowPotentiallyValidsOptionSelector() {
+
+				super(SHOW_POTENTIAL_VALIDS_LABEL);
+
+				setSelected(false);
+				setEnabled(localValidValues != null);
+			}
+		}
+
+		EditPanelPopulator(Concept source) {
+
+			super(source);
+
+			potentialValidValues = source.getClosestAncestorValidValuesConstraint(type);
+			localValidValues = source.lookForValidValuesConstraint(type);
+
+			targetsDisplay = createTargetsDisplay();
+		}
+
+		void populate() {
+
+			super.populate();
+
+			add(createActionsTabs(), BorderLayout.SOUTH);
+		}
+
+		JComponent createHeaderPanel() {
+
+			if (validValuesInclusion()) {
+
+				JPanel panel = new JPanel(new BorderLayout());
+
+				panel.add(new ShowPotentiallyValidsOptionSelector(), BorderLayout.WEST);
+				panel.add(super.createHeaderPanel(), BorderLayout.EAST);
+
+				return panel;
+			}
+
+			return super.createHeaderPanel();
+		}
+
+		Constraint getValidValuesConstraint() {
+
+			return getValidValuesConstraint(false);
+		}
+
+		GoblinCellDisplay getCellDisplay(Concept concept) {
+
+			return targetsDisplay.getCellDisplay(concept);
+		}
+
+		private JTabbedPane createActionsTabs() {
+
+			JTabbedPane tabs = new JTabbedPane();
+
+			if (validValuesInclusion()) {
+
+				addActionsTab(tabs, createValidValuesPanel());
+			}
+
+			if (impliedValuesInclusion()) {
+
+				addActionsTab(tabs, createImpliedValuesPanel());
+			}
+
+			return tabs;
+		}
+
+		private EditActionsPanel createValidValuesPanel() {
+
+			return new ValidValuesEditActionsPanel(source, localValidValues, targetsTree);
+		}
+
+		private EditActionsPanel createImpliedValuesPanel() {
+
+			return new ImpliedValuesEditActionsPanel(source, getValidValuesConstraint(), targetsTree);
+		}
+
+		private void addActionsTab(JTabbedPane tabs, EditActionsPanel actionsPanel) {
+
+			tabs.addTab(actionsPanel.getTitle(), actionsPanel);
+		}
+
+		private ConstraintTargetsDisplay createTargetsDisplay() {
+
+			Constraint validValues = getValidValuesConstraint();
+			Set<Constraint> impliedValues = source.getImpliedValueConstraints(type);
+
+			return new ConstraintTargetsDisplay(validValues, impliedValues);
+		}
+
+		private Constraint getValidValuesConstraint(boolean ensurePotential) {
+
+			if (!ensurePotential && localValidValues != null) {
+
+				return localValidValues;
+			}
+
+			return potentialValidValues;
+		}
+	}
+
+	private abstract class EditActionsPanel extends JPanel {
 
 		static private final long serialVersionUID = -1;
 
+		private Concept source;
 		private Set<Concept> currentTargets = new HashSet<Concept>();
 
-		private ConstraintTargetsDisplay targetsDisplay = null;
+		private ConstraintTargetsTree targetsTree;
 		private TargetSelectionsList targetSelectionsList = new TargetSelectionsList();
 
 		private class TargetSelectionsList extends GList<Concept> {
@@ -185,13 +293,8 @@ class ConstraintGroupPanel extends JPanel {
 						clearList();
 					}
 
-					addEntity(target, createCellDisplay(target));
+					addEntity(target, targetsTree.getConceptDisplay(target));
 				}
-			}
-
-			private GCellDisplay createCellDisplay(Concept target) {
-
-				return getCellDisplay(target).forConcept(target);
 			}
 		}
 
@@ -230,20 +333,20 @@ class ConstraintGroupPanel extends JPanel {
 
 			boolean enableOnActiveSelections(List<Concept> selections) {
 
+				if (singleTargetSelection() && selections.size() != 1) {
+
+					return false;
+				}
+
 				for (Concept selection : selections) {
 
-					if (selectableTarget(selection)) {
+					if (!validTargetSelection(selection)) {
 
-						return true;
+						return false;
 					}
 				}
 
-				return false;
-			}
-
-			private boolean selectableTarget(Concept selection) {
-
-				return !selection.isRoot() && !selectionTarget(selection);
+				return true;
 			}
 		}
 
@@ -352,9 +455,37 @@ class ConstraintGroupPanel extends JPanel {
 			}
 		}
 
-		EditPanelPopulator(Concept source) {
+		EditActionsPanel(Concept source, ConstraintTargetsTree targetsTree) {
 
-			super(source);
+			super(new BorderLayout());
+
+			this.source = source;
+			this.targetsTree = targetsTree;
+
+			findCurrentTargets();
+			targetSelectionsList.addTargets(currentTargets);
+
+			add(new JScrollPane(targetSelectionsList), BorderLayout.CENTER);
+			add(createButtonsPanel(), BorderLayout.SOUTH);
+		}
+
+		String getTitle() {
+
+			return getSemantics().getDisplayLabel();
+		}
+
+		abstract ConstraintSemantics getSemantics();
+
+		abstract boolean singleTargetSelection();
+
+		boolean validTargetSelection(Concept selection) {
+
+			return !selection.isRoot() && !selectionTarget(selection);
+		}
+
+		abstract void applyEdits(Concept source, List<Concept> targets);
+
+		private void findCurrentTargets() {
 
 			for (Constraint constraint : getEditConstraints()) {
 
@@ -362,37 +493,12 @@ class ConstraintGroupPanel extends JPanel {
 			}
 		}
 
-		void initialiseEditPanel() {
+		private List<Constraint> getEditConstraints() {
 
-			targetsDisplay = createTargetsDisplay();
-			targetSelectionsList.addTargets(currentTargets);
+			return getSemantics().select(source.getConstraints(type));
 		}
 
-		void populate() {
-
-			super.populate();
-
-			add(createActionsPanel(), BorderLayout.SOUTH);
-		}
-
-		GoblinCellDisplay getCellDisplay(Concept concept) {
-
-			return targetsDisplay.getCellDisplay(concept);
-		}
-
-		abstract void applyEdits(Concept source, List<Concept> targets);
-
-		private JPanel createActionsPanel() {
-
-			JPanel panel = new JPanel(new BorderLayout());
-
-			panel.add(new JScrollPane(targetSelectionsList), BorderLayout.CENTER);
-			panel.add(createActionsInvocationPanel(), BorderLayout.SOUTH);
-
-			return TitledPanels.setTitle(panel, createActionsPanelTitle());
-		}
-
-		private JComponent createActionsInvocationPanel() {
+		private JComponent createButtonsPanel() {
 
 			JPanel panel = new JPanel(new BorderLayout());
 
@@ -408,24 +514,6 @@ class ConstraintGroupPanel extends JPanel {
 						new TargetAddButton(),
 						new TargetRemoveButton(),
 						new TargetsClearButton());
-		}
-
-		private ConstraintTargetsDisplay createTargetsDisplay() {
-
-			Constraint validValues = getValidValuesConstraint();
-			Set<Constraint> impliedValues = source.getImpliedValueConstraints(type);
-
-			return new ConstraintTargetsDisplay(validValues, impliedValues);
-		}
-
-		private List<Constraint> getEditConstraints() {
-
-			return semantics.select(source.getConstraints(type));
-		}
-
-		private String createActionsPanelTitle() {
-
-			return String.format(EDIT_PANEL_TITLE_FORMAT, semantics.getDisplayLabel());
 		}
 
 		private void addTargetSelections(List<Concept> newSelections) {
@@ -476,60 +564,32 @@ class ConstraintGroupPanel extends JPanel {
 
 			return concept1.descendantOf(concept2) || concept2.descendantOf(concept1);
 		}
-
-		private boolean validTargetConcept(Concept concept) {
-
-			return concept.subsumedByAny(getValidValuesConstraint().getTargetValues());
-		}
 	}
 
-	private class ValidValuesEditPanelPopulator extends EditPanelPopulator {
+	private class ValidValuesEditActionsPanel extends EditActionsPanel {
 
-		private Constraint potentialValidValues;
+		static private final long serialVersionUID = -1;
+
 		private Constraint localValidValues;
 
-		private class ShowPotentiallyValidsSelector extends GCheckBox {
+		ValidValuesEditActionsPanel(
+			Concept source,
+			Constraint localValidValues,
+			ConstraintTargetsTree targetsTree) {
 
-			static private final long serialVersionUID = -1;
+			super(source, targetsTree);
 
-			protected void onSelectionUpdate(boolean selected) {
-
-				targetsTree.getRootNode().clearChildren();
-				targetsTree.initialise(getValidValuesConstraint(selected));
-			}
-
-			ShowPotentiallyValidsSelector() {
-
-				super(SHOW_POTENTIAL_VALIDS_LABEL);
-
-				setSelected(false);
-				setEnabled(localValidValues != null);
-			}
+			this.localValidValues = localValidValues;
 		}
 
-		ValidValuesEditPanelPopulator(Concept source) {
+		ConstraintSemantics getSemantics() {
 
-			super(source);
-
-			potentialValidValues = source.getClosestAncestorValidValuesConstraint(type);
-			localValidValues = source.lookForValidValuesConstraint(type);
-
-			initialiseEditPanel();
+			return ConstraintSemantics.VALID_VALUES;
 		}
 
-		JComponent createTargetsTreeHeaderPanel() {
+		boolean singleTargetSelection() {
 
-			JPanel panel = new JPanel(new BorderLayout());
-
-			panel.add(new ShowPotentiallyValidsSelector(), BorderLayout.WEST);
-			panel.add(super.createTargetsTreeHeaderPanel(), BorderLayout.EAST);
-
-			return panel;
-		}
-
-		Constraint getValidValuesConstraint() {
-
-			return getValidValuesConstraint(false);
+			return false;
 		}
 
 		void applyEdits(Concept source, List<Concept> targets) {
@@ -546,46 +606,50 @@ class ConstraintGroupPanel extends JPanel {
 				source.addValidValuesConstraint(type, targets);
 			}
 		}
-
-		private Constraint getValidValuesConstraint(boolean ensurePotential) {
-
-			if (!ensurePotential && localValidValues != null) {
-
-				return localValidValues;
-			}
-
-			return potentialValidValues;
-		}
 	}
 
-	private class ImpliedValueEditPanelPopulator extends EditPanelPopulator {
+	private class ImpliedValuesEditActionsPanel extends EditActionsPanel {
+
+		static private final long serialVersionUID = -1;
 
 		private Constraint validValues;
+
 		private Map<Concept, Constraint> impliedValuesByTarget
 								= new HashMap<Concept, Constraint>();
 
-		ImpliedValueEditPanelPopulator(Concept source) {
+		ImpliedValuesEditActionsPanel(
+			Concept source,
+			Constraint validValues,
+			ConstraintTargetsTree targetsTree) {
 
-			super(source);
+			super(source, targetsTree);
 
-			validValues = source.getClosestValidValuesConstraint(type);
+			this.validValues = validValues;
 
 			for (Constraint constraint : source.getImpliedValueConstraints(type)) {
 
 				impliedValuesByTarget.put(constraint.getTargetValue(), constraint);
 			}
-
-			initialiseEditPanel();
 		}
 
-		Constraint getValidValuesConstraint() {
+		String getTitle() {
 
-			return validValues;
+			return super.getTitle() + (type.singleValue() ? "" : "(s)");
+		}
+
+		ConstraintSemantics getSemantics() {
+
+			return ConstraintSemantics.IMPLIED_VALUE;
 		}
 
 		boolean singleTargetSelection() {
 
 			return type.singleValue();
+		}
+
+		boolean validTargetSelection(Concept selection) {
+
+			return super.validTargetSelection(selection) && validTarget(selection);
 		}
 
 		void applyEdits(Concept source, List<Concept> targets) {
@@ -605,6 +669,11 @@ class ConstraintGroupPanel extends JPanel {
 					source.addImpliedValueConstraint(type, target);
 				}
 			}
+		}
+
+		private boolean validTarget(Concept concept) {
+
+			return concept.subsumedByAny(validValues.getTargetValues());
 		}
 	}
 
@@ -626,15 +695,11 @@ class ConstraintGroupPanel extends JPanel {
 		}
 	}
 
-	ConstraintGroupPanel(
-		ConstraintType type,
-		ConstraintSemantics semantics,
-		ConceptTree sourcesTree) {
+	ConstraintGroupPanel(ConstraintType type, ConceptTree sourcesTree) {
 
 		super(new BorderLayout());
 
 		this.type = type;
-		this.semantics = semantics;
 		this.sourcesTree = sourcesTree;
 
 		new DefaultPanelPopulator().populate();
@@ -659,8 +724,16 @@ class ConstraintGroupPanel extends JPanel {
 			return new DefaultPanelPopulator();
 		}
 
-		return semantics.validValues()
-				? new ValidValuesEditPanelPopulator(source)
-				: new ImpliedValueEditPanelPopulator(source);
+		return new EditPanelPopulator(source);
+	}
+
+	private boolean validValuesInclusion() {
+
+		return type.semanticsOption(ConstraintSemantics.VALID_VALUES);
+	}
+
+	private boolean impliedValuesInclusion() {
+
+		return type.semanticsOption(ConstraintSemantics.IMPLIED_VALUE);
 	}
 }

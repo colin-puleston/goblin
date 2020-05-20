@@ -21,7 +21,7 @@ public enum ConstraintSemantics {
 
 	public String getDisplayLabel() {
 
-		return "\'" + toString().toLowerCase().replaceAll("_", "-") + "\'";
+		return toString().toLowerCase().replaceAll("_", "-");
 	}
 
 	public List<Constraint> select(Collection<Constraint> candidates) {
