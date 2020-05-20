@@ -12,7 +12,7 @@
 			sourceProperty="http://goblin/demo-core.owl#involvesActivity"
 			targetProperty="http://goblin/demo-core.owl#rolePerformed"
 			rootTargetConcept="http://goblin/demo-core.owl#Role"
-			cardinalityType="SINGLE_VALUE">
+			impliedValuesMultiplicity="SINGLE">
 			<SemanticsOption semantics="VALID_VALUES"/>
 			<SemanticsOption semantics="IMPLIED_VALUE"/>
 		</AnchoredConstraintType>
@@ -20,7 +20,7 @@
 			name="activity location"
 			linkingProperty="http://goblin/demo-core.owl#performedInLocation"
 			rootTargetConcept="http://goblin/demo-core.owl#Location"
-			cardinalityType="MULTI_VALUE">
+			impliedValuesMultiplicity="MULTIPLE">
 			<SemanticsOption semantics="VALID_VALUES"/>
 			<SemanticsOption semantics="IMPLIED_VALUE"/>
 		</SimpleConstraintType>
