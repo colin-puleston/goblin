@@ -67,6 +67,7 @@ abstract class ConceptTree extends GSelectorTree {
 	}
 
 	private Set<Concept> rootConcepts;
+	private ConstraintsListener constraintsListener = ConstraintsListener.INERT_LISTENER;
 
 	private abstract class ConceptTreeNode extends GNode {
 
@@ -179,12 +180,12 @@ abstract class ConceptTree extends GSelectorTree {
 
 			public void onConstraintAdded(Constraint constraint) {
 
-				onConstraintChange();
+				constraintsListener.onConstraintChange();
 			}
 
 			public void onConstraintRemoved(Constraint constraint) {
 
-				onConstraintChange();
+				constraintsListener.onConstraintChange();
 			}
 
 			public void onConceptRemoved(Concept concept, boolean replacing) {
@@ -398,6 +399,11 @@ abstract class ConceptTree extends GSelectorTree {
 		setShowsRootHandles(true);
 	}
 
+	void setConstraintsListener(ConstraintsListener listener) {
+
+		constraintsListener = listener;
+	}
+
 	void initialise(Concept rootConcept) {
 
 		initialise(Collections.singleton(rootConcept));
@@ -418,6 +424,8 @@ abstract class ConceptTree extends GSelectorTree {
 	void redisplayForConstraintsEdit() {
 
 		getConceptTreeRootNode().redisplayAllConstraints(false);
+
+		reselectSelected();
 	}
 
 	boolean showConstraints(ConstraintType type) {
@@ -480,8 +488,6 @@ abstract class ConceptTree extends GSelectorTree {
 	}
 
 	abstract GCellDisplay getConceptDisplay(Concept concept);
-
-	abstract void onConstraintChange();
 
 	private ConceptTreeNode lookForNodeFor(Concept concept) {
 

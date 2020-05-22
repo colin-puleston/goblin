@@ -12,6 +12,11 @@ class EntityTracker<E> {
 		this.entity = entity;
 	}
 
+	EntityTracker(EntityTracker<E> template) {
+
+		this(template.entity);
+	}
+
 	void replaceEntity(E replacement) {
 
 		entity = replacement;

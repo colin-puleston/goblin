@@ -32,7 +32,7 @@ public class Model {
 		conflictResolver.setConfirmations(confirmations);
 	}
 
-	public void startEditTracking() {
+	public void setModelLoaded() {
 
 		editActions.startTracking();
 	}
@@ -151,6 +151,11 @@ public class Model {
 	public boolean dynamicConceptExists(DynamicId dynamicId) {
 
 		return conceptExists(toEntityId(dynamicId));
+	}
+
+	boolean modelLoaded() {
+
+		return editActions.trackingStarted();
 	}
 
 	boolean canResetDynamicConceptId(Concept concept, DynamicId newDynamicId) {

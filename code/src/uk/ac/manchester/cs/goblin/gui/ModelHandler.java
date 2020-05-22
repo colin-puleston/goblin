@@ -170,7 +170,7 @@ class ModelHandler {
 	private void initialiseModel() {
 
 		model.setConfirmations(new UserConfirmations());
-		model.startEditTracking();
+		model.setModelLoaded();
 	}
 
 	private Model loadDefaultOrExit() {

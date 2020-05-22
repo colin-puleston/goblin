@@ -41,6 +41,14 @@ class HierarchyTree extends ConceptTree {
 	private ConstraintsDisplayMode constraintsDisplayMode = ConstraintsDisplayMode.NONE;
 	private ConstraintType constraintTypeSelection = null;
 
+	private class ConstraintEditDrivenUpdater extends ConstraintsListener {
+
+		void onConstraintChange() {
+
+			redisplayForConstraintsEdit();
+		}
+	}
+
 	HierarchyTree(Hierarchy hierarchy, ConceptMover conceptMover) {
 
 		super(false);
@@ -49,6 +57,7 @@ class HierarchyTree extends ConceptTree {
 		this.conceptMover = conceptMover;
 
 		initialise(hierarchy.getRootConcept());
+		setConstraintsListener(new ConstraintEditDrivenUpdater());
 	}
 
 	GCellDisplay getConceptDisplay(Concept concept) {
@@ -84,14 +93,9 @@ class HierarchyTree extends ConceptTree {
 		return type == constraintTypeSelection;
 	}
 
-	void onConstraintChange() {
-
-		reselect();
-	}
-
 	void update() {
 
-		reselect();
+		reselectSelected();
 		updateAllNodeDisplays();
 	}
 
@@ -108,16 +112,5 @@ class HierarchyTree extends ConceptTree {
 		}
 
 		return GoblinCellDisplay.CONCEPTS_REFERENCE_ONLY;
-	}
-
-	private void reselect() {
-
-		GNode selected = getSelectedNode();
-
-		if (selected != null) {
-
-			setSelectionPath(null);
-			selected.select();
-		}
 	}
 }

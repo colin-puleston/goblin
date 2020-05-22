@@ -88,7 +88,4 @@ abstract class ConstraintTargetsTree extends ConceptTree {
 
 		initialise(constraint.getTargetValues());
 	}
-
-	void onConstraintChange() {
-	}
 }

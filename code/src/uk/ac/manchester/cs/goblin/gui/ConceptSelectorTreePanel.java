@@ -64,11 +64,6 @@ abstract class ConceptSelectorTreePanel extends JPanel {
 
 			return getSelectorCellDisplay(concept, filterPanel.passesFilter(concept));
 		}
-
-		void onConstraintChange() {
-
-			throw new Error("Unexpected method invocation!");
-		}
 	}
 
 	private class FilterPanel extends GTreeFilterPanel<Concept> {

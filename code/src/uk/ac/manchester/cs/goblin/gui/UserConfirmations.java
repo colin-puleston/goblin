@@ -59,16 +59,18 @@ class UserConfirmations implements Confirmations {
 
 			if (!typeRemovals.isEmpty()) {
 
-				checkSemanticsTypeHeader(semantics);
+				addSemanticsTypeHeader(semantics);
 
 				for (Constraint removal : typeRemovals) {
 
 					addRemoval(removal);
 				}
+
+				info.append("\n");
 			}
 		}
 
-		private void checkSemanticsTypeHeader(ConstraintSemantics semantics) {
+		private void addSemanticsTypeHeader(ConstraintSemantics semantics) {
 
 			info.append(
 				"Conflicting "

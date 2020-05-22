@@ -5,41 +5,16 @@ import java.util.*;
 /**
  * @author Colin Puleston
  */
-class RootConcept extends Concept {
-
-	public boolean resetId(DynamicId newDynamicId) {
-
-		throw createInvalidRootOperationException();
-	}
-
-	public boolean move(Concept newParent) {
-
-		throw createInvalidRootOperationException();
-	}
-
-	public void remove() {
-
-		throw createInvalidRootOperationException();
-	}
+class RootConcept extends InertConcept {
 
 	public boolean addValidValuesConstraint(ConstraintType type, Collection<Concept> targetValues) {
 
-		throw createInvalidRootOperationException();
+		throw createInvalidOperationException();
 	}
 
 	public boolean addImpliedValueConstraint(ConstraintType type, Concept targetValue) {
 
-		throw createInvalidRootOperationException();
-	}
-
-	public boolean isRoot() {
-
-		return true;
-	}
-
-	public Concept getParent() {
-
-		throw createInvalidRootOperationException();
+		throw createInvalidOperationException();
 	}
 
 	public Set<Concept> getParents() {
@@ -52,11 +27,6 @@ class RootConcept extends Concept {
 		return false;
 	}
 
-	public Constraint getClosestAncestorValidValuesConstraint(ConstraintType type) {
-
-		throw createInvalidRootOperationException();
-	}
-
 	RootConcept(Hierarchy hierarchy, EntityId rootConceptId) {
 
 		super(hierarchy, rootConceptId);
@@ -64,10 +34,10 @@ class RootConcept extends Concept {
 
 	void doRemoveConstraint(Constraint constraint) {
 
-		throw createInvalidRootOperationException();
+		throw createInvalidOperationException();
 	}
 
-	private RuntimeException createInvalidRootOperationException() {
+	private RuntimeException createInvalidOperationException() {
 
 		return new RuntimeException("Cannot perform operation on root concept!");
 	}

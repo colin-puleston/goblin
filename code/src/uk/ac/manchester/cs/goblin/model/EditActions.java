@@ -19,6 +19,11 @@ class EditActions {
 		trackingStarted = true;
 	}
 
+	boolean trackingStarted() {
+
+		return trackingStarted;
+	}
+
 	void addListener(ModelEditListener listener) {
 
 		listeners.add(listener);

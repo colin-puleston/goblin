@@ -9,4 +9,14 @@ class ConceptTracker extends EntityTracker<Concept> {
 
 		super(concept);
 	}
+
+	ConceptTracker(ConceptTracker template) {
+
+		super(template);
+	}
+
+	ConceptTracker copy() {
+
+		return new ConceptTracker(this);
+	}
 }

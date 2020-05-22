@@ -5,7 +5,7 @@ import java.util.*;
 /**
  * @author Colin Puleston
  */
-public abstract class Concept extends EditTarget {
+public class Concept extends EditTarget {
 
 	static public boolean allSubsumed(Set<Concept> testSubsumers, Set<Concept> testSubsumeds) {
 
@@ -23,6 +23,8 @@ public abstract class Concept extends EditTarget {
 	private Hierarchy hierarchy;
 
 	private EntityId conceptId;
+
+	private ConceptTracker parent;
 	private ConceptTrackerSet children;
 
 	private ConstraintTrackerSet constraints;
@@ -111,9 +113,32 @@ public abstract class Concept extends EditTarget {
 		conceptListeners.add(listener);
 	}
 
-	public abstract boolean resetId(DynamicId newDynamicId);
 
-	public abstract boolean move(Concept newParent);
+	public boolean resetId(DynamicId newDynamicId) {
+
+		if (canResetId(newDynamicId)) {
+
+			replace(createCopy(toEntityId(newDynamicId)));
+
+			return true;
+		}
+
+		return false;
+	}
+
+	public boolean move(Concept newParent) {
+
+		ConflictResolution conflictRes = checkMoveConflicts(newParent);
+
+		if (conflictRes.resolvable()) {
+
+			replace(createCopy(newParent), conflictRes);
+
+			return true;
+		}
+
+		return false;
+	}
 
 	public void remove() {
 
@@ -181,16 +206,30 @@ public abstract class Concept extends EditTarget {
 		return conceptId;
 	}
 
-	public abstract boolean isRoot();
+	public boolean isRoot() {
+
+		return parent == null;
+	}
 
 	public boolean isLeaf() {
 
 		return children.isEmpty();
 	}
 
-	public abstract Concept getParent();
+	public Concept getParent() {
 
-	public abstract Set<Concept> getParents();
+		if (parent == null) {
+
+			throw new RuntimeException("Cannot perform operation on root concept!");
+		}
+
+		return parent.getEntity();
+	}
+
+	public Set<Concept> getParents() {
+
+		return Collections.singleton(getParent());
+	}
 
 	public Set<Concept> getChildren() {
 
@@ -215,7 +254,10 @@ public abstract class Concept extends EditTarget {
 		return false;
 	}
 
-	public abstract boolean descendantOf(Concept testAncestor);
+	public boolean descendantOf(Concept testAncestor) {
+
+		return getParent().equals(testAncestor) || getParent().descendantOf(testAncestor);
+	}
 
 	public Set<Constraint> getConstraints() {
 
@@ -262,7 +304,10 @@ public abstract class Concept extends EditTarget {
 		return sub != null ? sub : getClosestAncestorValidValuesConstraint(type);
 	}
 
-	public abstract Constraint getClosestAncestorValidValuesConstraint(ConstraintType type);
+	public Constraint getClosestAncestorValidValuesConstraint(ConstraintType type) {
+
+		return getParent().getClosestValidValuesConstraint(type);
+	}
 
 	public boolean constraintExists(
 						ConstraintType type,
@@ -300,22 +345,6 @@ public abstract class Concept extends EditTarget {
 		children = new ConceptTrackerSet(model);
 		constraints = new ConstraintTrackerSet(model);
 		inwardConstraints = new ConstraintTrackerSet(model);
-	}
-
-	Concept(Concept replaced) {
-
-		hierarchy = replaced.hierarchy;
-		conceptId = replaced.conceptId;
-		children = replaced.children.copy();
-		constraints = replaced.constraints.copy();
-		inwardConstraints = replaced.inwardConstraints.copy();
-	}
-
-	Concept(Concept replaced, EntityId conceptId) {
-
-		this(replaced);
-
-		this.conceptId = conceptId;
 	}
 
 	void add() {
@@ -385,11 +414,48 @@ public abstract class Concept extends EditTarget {
 		return hierarchy;
 	}
 
+	private Concept(Concept replaced) {
+
+		hierarchy = replaced.hierarchy;
+		conceptId = replaced.conceptId;
+		parent = replaced.parent.copy();
+		children = replaced.children.copy();
+		constraints = replaced.constraints.copy();
+		inwardConstraints = replaced.inwardConstraints.copy();
+	}
+
 	private Concept createChild(EntityId id) {
 
-		return hierarchy.dynamicHierarchy()
-				? new DynamicConcept(id, this)
-				: new ReferenceOnlyConcept(id, this);
+		Concept child = hierarchy.dynamicHierarchy()
+							? new Concept(hierarchy, id)
+							: new InertConcept(hierarchy, id);
+
+		child.setParent(this);
+
+		return child;
+	}
+
+	private Concept createCopy(Concept newParent) {
+
+		Concept copy = new Concept(this);
+
+		copy.setParent(newParent);
+
+		return copy;
+	}
+
+	private Concept createCopy(EntityId newConceptId) {
+
+		Concept copy = new Concept(this);
+
+		copy.conceptId = newConceptId;
+
+		return copy;
+	}
+
+	private void setParent(Concept parent) {
+
+		this.parent = toConceptTracker(parent);
 	}
 
 	private EditAction incorporateInwardTargetRemovalEdits(EditAction action) {
@@ -404,6 +470,23 @@ public abstract class Concept extends EditTarget {
 		cpmd.addSubAction(action);
 
 		return cpmd;
+	}
+
+	private ConflictResolution checkMoveConflicts(Concept newParent) {
+
+		ConceptTracker savedParent = parent;
+		parent = toConceptTracker(newParent);
+
+		ConflictResolution conflicts = checkMovedConflicts();
+
+		parent = savedParent;
+
+		return conflicts;
+	}
+
+	private ConflictResolution checkMovedConflicts() {
+
+		return getModel().getConflictResolver().checkConceptMove(this);
 	}
 
 	private void performAction(EditAction action) {
@@ -457,8 +540,18 @@ public abstract class Concept extends EditTarget {
 		}
 	}
 
+	private boolean canResetId(DynamicId newDynamicId) {
+
+		return getModel().canResetDynamicConceptId(this, newDynamicId);
+	}
+
 	private EntityId toEntityId(DynamicId dynamicId) {
 
 		return getModel().toEntityId(dynamicId);
+	}
+
+	private ConceptTracker toConceptTracker(Concept concept) {
+
+		return getModel().getConceptTracking().toTracker(concept);
 	}
 }

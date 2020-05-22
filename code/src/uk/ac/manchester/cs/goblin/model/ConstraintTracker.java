@@ -9,4 +9,14 @@ class ConstraintTracker extends EntityTracker<Constraint> {
 
 		super(constraint);
 	}
+
+	ConstraintTracker(ConstraintTracker template) {
+
+		super(template);
+	}
+
+	ConstraintTracker copy() {
+
+		return new ConstraintTracker(this);
+	}
 }
