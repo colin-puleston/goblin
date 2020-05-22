@@ -70,6 +70,20 @@ abstract class ConceptSelectorTreePanel extends JPanel {
 
 		static private final long serialVersionUID = -1;
 
+		protected void applyFilter(GLexicalFilter filter) {
+
+			super.applyFilter(filter);
+
+			tree.expandAll();
+		}
+
+		protected void clearFilter() {
+
+			super.clearFilter();
+
+			tree.collapseAll();
+		}
+
 		protected void reinitialiseTree() {
 
 			tree.reinitialise();

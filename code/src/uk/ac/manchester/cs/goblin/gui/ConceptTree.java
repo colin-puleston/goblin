@@ -263,6 +263,11 @@ abstract class ConceptTree extends GSelectorTree {
 			return firstIsConcept ? -1 : 1;
 		}
 
+		protected boolean autoExpand() {
+
+			return concept.isRoot();
+		}
+
 		protected GCellDisplay getDisplay() {
 
 			return getConceptDisplay(concept);
