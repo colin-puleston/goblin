@@ -41,43 +41,27 @@ abstract class ConceptTreeSelectorPanel extends JPanel {
 
 	static private final long serialVersionUID = -1;
 
-	static private final String DIALOG_TITLE = "Select Concept";
+	static private final String SEARCH_BUTTON_LABEL = "Search...";
+	static private final String SEARCH_DIALOG_TITLE = "Select Concept";
+	static private final String SEARCH_LIST_TITLE = "List";
+	static private final String SEARCH_TREE_TITLE = "Tree";
 
-	static private final String LIST_SEARCH_BUTTON_LABEL = "List?";
-	static private final String TREE_SEARCH_BUTTON_LABEL = "Tree?";
-
-	static private final Dimension LIST_SEARCH_DIALOG_SIZE = new Dimension(300, 400);
-	static private final Dimension TREE_SEARCH_DIALOG_SIZE = new Dimension(400, 400);
+	static private final Dimension SEARCH_DIALOG_SIZE = new Dimension(400, 400);
 
 	private ConceptTree targetTree;
 
-	private class ListSearchButton extends GButton {
+	private class SearchButton extends GButton {
 
 		static private final long serialVersionUID = -1;
 
 		protected void doButtonThing() {
 
-			new ListSearchDialog();
+			new SearchDialog();
 		}
 
-		ListSearchButton() {
+		SearchButton() {
 
-			super(LIST_SEARCH_BUTTON_LABEL);
-		}
-	}
-
-	private class TreeSearchButton extends GButton {
-
-		static private final long serialVersionUID = -1;
-
-		protected void doButtonThing() {
-
-			new TreeSearchDialog();
-		}
-
-		TreeSearchButton() {
-
-			super(TREE_SEARCH_BUTTON_LABEL);
+			super(SEARCH_BUTTON_LABEL);
 		}
 	}
 
@@ -85,105 +69,100 @@ abstract class ConceptTreeSelectorPanel extends JPanel {
 
 		static private final long serialVersionUID = -1;
 
-		SearchDialog() {
+		public Dimension getPreferredSize() {
 
-			super(ConceptTreeSelectorPanel.this, DIALOG_TITLE, true);
+			return SEARCH_DIALOG_SIZE;
 		}
 
-		void selectInTargetTree(Concept concept) {
+		SearchDialog() {
+
+			super(ConceptTreeSelectorPanel.this, SEARCH_DIALOG_TITLE, true);
+
+			display(createTabs());
+		}
+
+		void onSelected(Concept concept) {
 
 			targetTree.selectConcept(concept);
 
 			dispose();
 		}
-	}
 
-	private class ListSearchDialog extends SearchDialog {
+		private JTabbedPane createTabs() {
 
-		static private final long serialVersionUID = -1;
+			JTabbedPane tabs = new JTabbedPane();
 
-		private class ConceptList extends GList<Concept> {
+			tabs.addTab(SEARCH_LIST_TITLE, new GListPanel<Concept>(new SearchList(this)));
+			tabs.addTab(SEARCH_TREE_TITLE, new TreeSearchPanel(this));
 
-			static private final long serialVersionUID = -1;
-
-			private class TargetTreeConceptSelector extends GSelectionListener<Concept> {
-
-				protected void onSelected(Concept concept) {
-
-					selectInTargetTree(concept);
-				}
-
-				protected void onDeselected(Concept concept) {
-				}
-
-				TargetTreeConceptSelector() {
-
-					addSelectionListener(this);
-				}
-			}
-
-			ConceptList() {
-
-				super(false, true);
-
-				populate(targetTree.getRootConcepts());
-
-				new TargetTreeConceptSelector();
-			}
-
-			private void populate(Set<Concept> concepts) {
-
-				for (Concept concept : concepts) {
-
-					addEntity(concept, getSelectorsCellDisplay(concept, false));
-					populate(concept.getChildren());
-				}
-			}
-		}
-
-		public Dimension getPreferredSize() {
-
-			return LIST_SEARCH_DIALOG_SIZE;
-		}
-
-		ListSearchDialog() {
-
-			display(new GListPanel<Concept>(new ConceptList()));
+			return tabs;
 		}
 	}
 
-	private class TreeSearchDialog extends SearchDialog {
+	private class SearchList extends GList<Concept> {
 
 		static private final long serialVersionUID = -1;
 
-		private class SearchTreePanel extends ConceptSelectorTreePanel {
+		private SearchDialog dialog;
 
-			static private final long serialVersionUID = -1;
+		private class TargetTreeConceptSelector extends GSelectionListener<Concept> {
 
-			SearchTreePanel() {
+			protected void onSelected(Concept concept) {
 
-				super(targetTree.getRootConcepts());
+				dialog.onSelected(concept);
 			}
 
-			GCellDisplay getSelectorCellDisplay(Concept concept, boolean highlight) {
-
-				return getSelectorsCellDisplay(concept, highlight);
+			protected void onDeselected(Concept concept) {
 			}
 
-			void onSelection(Concept selected) {
+			TargetTreeConceptSelector() {
 
-				selectInTargetTree(selected);
+				addSelectionListener(this);
 			}
 		}
 
-		public Dimension getPreferredSize() {
+		SearchList(SearchDialog dialog) {
 
-			return TREE_SEARCH_DIALOG_SIZE;
+			super(false, true);
+
+			this.dialog = dialog;
+
+			populate(targetTree.getRootConcepts());
+
+			new TargetTreeConceptSelector();
 		}
 
-		TreeSearchDialog() {
+		private void populate(Set<Concept> concepts) {
 
-			display(new SearchTreePanel());
+			for (Concept concept : concepts) {
+
+				addEntity(concept, getSelectorsCellDisplay(concept, false));
+				populate(concept.getChildren());
+			}
+		}
+	}
+
+	private class TreeSearchPanel extends ConceptSelectorTreePanel {
+
+		static private final long serialVersionUID = -1;
+
+		private SearchDialog dialog;
+
+		TreeSearchPanel(SearchDialog dialog) {
+
+			super(targetTree.getRootConcepts());
+
+			this.dialog = dialog;
+		}
+
+		GCellDisplay getSelectorCellDisplay(Concept concept, boolean highlight) {
+
+			return getSelectorsCellDisplay(concept, highlight);
+		}
+
+		void onSelection(Concept selected) {
+
+			dialog.onSelected(selected);
 		}
 	}
 
@@ -194,13 +173,8 @@ abstract class ConceptTreeSelectorPanel extends JPanel {
 		this.targetTree = targetTree;
 
 		setBorder(LineBorder.createGrayLineBorder());
-		add(createButtonsPanel(), BorderLayout.EAST);
+		add(new SearchButton(), BorderLayout.EAST);
 	}
 
 	abstract GCellDisplay getSelectorsCellDisplay(Concept concept, boolean highlight);
-
-	private JPanel createButtonsPanel() {
-
-		return ControlsPanel.horizontal(new ListSearchButton(), new TreeSearchButton());
-	}
 }

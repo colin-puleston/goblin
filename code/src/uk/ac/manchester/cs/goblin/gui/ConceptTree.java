@@ -133,8 +133,6 @@ abstract class ConceptTree extends GSelectorTree {
 
 	private class RootNode extends ConceptTreeNode {
 
-		private Set<Concept> rootConcepts;
-
 		protected void addInitialChildren() {
 
 			addChildrenFor(rootConcepts);
@@ -143,11 +141,6 @@ abstract class ConceptTree extends GSelectorTree {
 		protected GCellDisplay getDisplay() {
 
 			return GCellDisplay.NO_DISPLAY;
-		}
-
-		RootNode(Set<Concept> rootConcepts) {
-
-			this.rootConcepts = rootConcepts;
 		}
 
 		void redisplayAllConstraints(boolean modeChanged) {
@@ -265,7 +258,7 @@ abstract class ConceptTree extends GSelectorTree {
 
 		protected boolean autoExpand() {
 
-			return concept.isRoot();
+			return rootConcepts.contains(concept);
 		}
 
 		protected GCellDisplay getDisplay() {
@@ -416,9 +409,9 @@ abstract class ConceptTree extends GSelectorTree {
 
 	void initialise(Set<Concept> rootConcepts) {
 
-		initialise(new RootNode(rootConcepts));
-
 		this.rootConcepts = rootConcepts;
+
+		initialise(new RootNode());
 	}
 
 	void redisplayForConstraintsDisplayModeChange() {

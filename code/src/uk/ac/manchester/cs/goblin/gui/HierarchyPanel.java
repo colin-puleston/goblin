@@ -41,7 +41,7 @@ class HierarchyPanel extends GSplitPane {
 	static private final long serialVersionUID = -1;
 
 	static private final String TREE_PANEL_TITLE = "Selected hierarchy";
-	static private final String CONSTRAINTS_PANEL_TITLE = "Constraints editor";
+	static private final String CONSTRAINTS_PANEL_TITLE = "Constrained hierarchies";
 
 	private Hierarchy hierarchy;
 

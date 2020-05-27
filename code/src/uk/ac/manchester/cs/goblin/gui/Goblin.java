@@ -54,7 +54,7 @@ public class Goblin extends GFrame {
 	static private final String UNDO_BUTTON_LABEL = "Undo";
 	static private final String REDO_BUTTON_LABEL = "Redo";
 
-	static private final int FRAME_WIDTH = 1300;
+	static private final int FRAME_WIDTH = 1200;
 	static private final int FRAME_HEIGHT = 700;
 
 	static public void main(String[] args) {
