@@ -43,8 +43,8 @@ class HierarchyTreePanel extends JPanel {
 	static private final String NO_EDIT_MESSAGE_LABEL = "External hierarchy / Non-editable";
 
 	static private final String NO_CONSTRAINTS_LABEL = "Hide constraints";
-	static private final String EDIT_TYPE_CONSTRAINTS_LABEL = "Show constraints: Current edit type";
-	static private final String ALL_CONSTRAINTS_LABEL = "Show constraints: All";
+	static private final String EDIT_TYPE_CONSTRAINTS_LABEL = "Show constraints: CURRENT";
+	static private final String ALL_CONSTRAINTS_LABEL = "Show constraints: ALL";
 
 	static private final String ADD_LABEL = "Add...";
 	static private final String REMOVE_LABEL = "Del";
