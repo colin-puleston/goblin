@@ -428,7 +428,7 @@ public class Concept extends EditTarget {
 
 		Concept child = hierarchy.dynamicHierarchy()
 							? new Concept(hierarchy, id)
-							: new InertConcept(hierarchy, id);
+							: new ReferenceOnlyConcept(hierarchy, id);
 
 		child.setParent(this);
 

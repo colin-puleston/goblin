@@ -149,16 +149,6 @@ class HierarchyTreePanel extends JPanel {
 
 				return toUpper(key) == triggerKey || toLower(key) == triggerKey;
 			}
-
-			private int toUpper(int key) {
-
-				return (int)Character.toUpperCase((char)key);
-			}
-
-			private int toLower(int key) {
-
-				return (int)Character.toLowerCase((char)key);
-			}
 		}
 
 		protected void doButtonThing() {
@@ -176,6 +166,18 @@ class HierarchyTreePanel extends JPanel {
 			super(label, tree);
 
 			new TriggerKeyListener(triggerKey);
+
+			setToolTipText(getToolTipText(triggerKey));
+		}
+
+		String getToolTipText(int triggerKey) {
+
+			return "CTRL-" + getCtrlPrefixedToolTipText(triggerKey);
+		}
+
+		String getCtrlPrefixedToolTipText(int triggerKey) {
+
+			return "" + (char)toUpper(triggerKey);
 		}
 
 		boolean enableOnActiveSelection(Concept selection) {
@@ -198,6 +200,16 @@ class HierarchyTreePanel extends JPanel {
 		private boolean enableForRootSelection(Concept selection) {
 
 			return enableIfRootSelected() || !selection.isRoot();
+		}
+
+		private int toUpper(int key) {
+
+			return (int)Character.toUpperCase((char)key);
+		}
+
+		private int toLower(int key) {
+
+			return (int)Character.toLowerCase((char)key);
 		}
 	}
 
@@ -223,6 +235,11 @@ class HierarchyTreePanel extends JPanel {
 		RemoveButton() {
 
 			super(REMOVE_LABEL, REMOVE_TRIGGER_KEY);
+		}
+
+		String getCtrlPrefixedToolTipText(int triggerKey) {
+
+			return "DEL";
 		}
 
 		boolean enableIfRootSelected() {
@@ -265,6 +282,11 @@ class HierarchyTreePanel extends JPanel {
 		StopCutButton() {
 
 			super(STOP_CUT_LABEL, STOP_CUT_TRIGGER_KEY);
+		}
+
+		String getToolTipText(int triggerKey) {
+
+			return "ESC";
 		}
 
 		boolean enableOnNoSelection() {

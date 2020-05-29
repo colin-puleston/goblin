@@ -168,6 +168,7 @@ abstract class ConceptTree extends GSelectorTree {
 				if (parentNode != null) {
 
 					parentNode.addChildFor(child);
+					parentNode.expand();
 				}
 			}
 

@@ -5,7 +5,7 @@ import java.util.*;
 /**
  * @author Colin Puleston
  */
-class RootConcept extends InertConcept {
+class RootConcept extends FixedConcept {
 
 	public boolean addValidValuesConstraint(ConstraintType type, Collection<Concept> targetValues) {
 
@@ -37,8 +37,8 @@ class RootConcept extends InertConcept {
 		throw createInvalidOperationException();
 	}
 
-	private RuntimeException createInvalidOperationException() {
+	String getFixedConceptTypeDecriptor() {
 
-		return new RuntimeException("Cannot perform operation on root concept!");
+		return "root";
 	}
 }
