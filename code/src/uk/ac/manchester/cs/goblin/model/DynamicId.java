@@ -15,39 +15,66 @@ public class DynamicId {
 		return new DynamicId(name, nameToLabel(name));
 	}
 
-	static public DynamicId fromLabel(String label) {
+	static public DynamicId fromLabelOrNull(String label) {
 
-		return new DynamicId(labelToName(label), label);
+		String name = labelToName(label);
+
+		return name != null ? new DynamicId(name, label) : null;
+	}
+
+	static public boolean validName(String name) {
+
+		return !name.isEmpty() && encodeName(name).equals(name);
 	}
 
 	static private String nameToLabel(String name) {
 
-		return KLabel.create(decodeName(checkNonEmptyName(name)));
+		return KLabel.create(checkValidName(name));
 	}
 
 	static private String labelToName(String label) {
 
-		return KLabel.recreateName(encodeName(checkNonEmptyLabel(label)));
+		checkValidLabel(label);
+
+		do {
+
+			String name = KLabel.recreateName(label);
+
+			if (validName(name)) {
+
+				return name;
+			}
+
+			label = label.substring(0, label.length() - 1);
+		}
+		while (label.length() != 0);
+
+		return null;
 	}
 
-	static private String checkNonEmptyName(String name) {
+	static private String checkValidName(String name) {
 
-		return checkNonEmpty(name, "name");
-	}
+		if (name.isEmpty()) {
 
-	static private String checkNonEmptyLabel(String label) {
-
-		return checkNonEmpty(label, "label");
-	}
-
-	static private String checkNonEmpty(String thing, String thingName) {
-
-		if (thing.isEmpty()) {
-
-			throw new RuntimeException(thingName + " is empty!");
+			throw new RuntimeException("Name is empty!");
 		}
 
-		return thing;
+		if (!validName(name)) {
+
+			throw new RuntimeException("Not a valid name: " + name);
+		}
+
+		return name;
+	}
+
+	static private String checkValidLabel(String label) {
+
+		if (label.isEmpty()) {
+
+			throw new RuntimeException("Label is empty!");
+		}
+
+		return label;
 	}
 
 	static private String encodeName(String name) {
@@ -62,25 +89,13 @@ public class DynamicId {
 		}
 	}
 
-	static private String decodeName(String name) {
-
-		try {
-
-			return URLDecoder.decode(name, "UTF-8");
-		}
-		catch (UnsupportedEncodingException e) {
-
-			throw new Error(e);
-		}
-	}
-
 	private String name;
 	private String label;
 
 	public DynamicId(String name, String label) {
 
-		this.name = encodeName(checkNonEmptyName(name));
-		this.label = checkNonEmptyLabel(label);
+		this.name = checkValidName(name);
+		this.label = checkValidLabel(label);
 	}
 
 	public String toString() {

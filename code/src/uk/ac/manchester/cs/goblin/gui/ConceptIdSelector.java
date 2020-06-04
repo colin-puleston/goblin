@@ -59,7 +59,7 @@ class ConceptIdSelector extends GDialog {
 		protected void onCharEntered(char enteredChar) {
 
 			selection = resolveSelection();
-			userEdited = anyText();
+			userEdited = !getText().isEmpty();
 
 			updateForSelection();
 			otherField.updateForSelection();
@@ -102,23 +102,15 @@ class ConceptIdSelector extends GDialog {
 
 		private DynamicId resolveSelection() {
 
+			String text = getText();
 			String otherText = otherField.checkForUserText();
 
-			if (anyText()) {
+			if (text.isEmpty()) {
 
-				String text = getText();
-
-				return otherText != null
-						? resolveSelection(text, otherText)
-						: resolveSelection(text);
+				return otherText != null ? otherField.resolveSelection(otherText) : null;
 			}
 
-			return otherText != null ? otherField.resolveSelection(otherText) : null;
-		}
-
-		private boolean anyText() {
-
-			return !getText().isEmpty();
+			return otherText != null ? resolveSelection(text, otherText) : resolveSelection(text);
 		}
 
 		private String checkForUserText() {
@@ -140,12 +132,19 @@ class ConceptIdSelector extends GDialog {
 
 			String text = getText();
 
-			if (text.length() == 1) {
+			if (DynamicId.validName(text)) {
 
-				setText(text.toUpperCase());
+				if (text.length() == 1) {
+
+					setText(text.toUpperCase());
+				}
+
+				super.onCharEntered(enteredChar);
 			}
+			else {
 
-			super.onCharEntered(enteredChar);
+				setText(text.substring(0, text.length() - 1));
+			}
 		}
 
 		DynamicId resolveSelection(String text) {
@@ -170,7 +169,7 @@ class ConceptIdSelector extends GDialog {
 
 		DynamicId resolveSelection(String text) {
 
-			return DynamicId.fromLabel(text);
+			return DynamicId.fromLabelOrNull(text);
 		}
 
 		DynamicId resolveSelection(String text, String otherText) {
