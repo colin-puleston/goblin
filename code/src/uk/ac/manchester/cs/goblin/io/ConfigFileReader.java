@@ -26,9 +26,8 @@ class ConfigFileReader {
 	static private final String DYNAMIC_NAMESPACE_ATTR = "dynamicNamespace";
 	static private final String DYNAMIC_FILE_ATTR = "dynamicFilename";
 
+	static private final String ENTITY_NAME_ATTR = "name";
 	static private final String ROOT_CONCEPT_ATTR = "rootConcept";
-
-	static private final String CONSTRAINT_TYPE_NAME_ATTR = "name";
 	static private final String ANCHOR_CONCEPT_ATTR = "anchorConcept";
 	static private final String SOURCE_PROPERTY_ATTR = "sourceProperty";
 	static private final String TARGET_PROPERTY_ATTR = "targetProperty";
@@ -50,13 +49,24 @@ class ConfigFileReader {
 
 				for (KConfigNode hierarchyNode : rootNode.getChildren(getStatusTag())) {
 
-					addHierarchy(getRootConceptId(hierarchyNode));
+					addHierarchy(hierarchyNode);
 				}
 			}
 
 			abstract String getStatusTag();
 
-			abstract void addHierarchy(EntityId rootConceptId);
+			abstract Hierarchy addHierarchy(EntityId rootConceptId);
+
+			private void addHierarchy(KConfigNode node) {
+
+				Hierarchy hierarchy = addHierarchy(getRootConceptId(node));
+				String name = getEntityNameOrNull(node);
+
+				if (name != null) {
+
+					hierarchy.setName(name);
+				}
+			}
 		}
 
 		private class DynamicHierarchiesLoader extends HierarchiesLoader {
@@ -66,9 +76,9 @@ class ConfigFileReader {
 				return DYNAMIC_HIERARCHY_TAG;
 			}
 
-			void addHierarchy(EntityId rootConceptId) {
+			Hierarchy addHierarchy(EntityId rootConceptId) {
 
-				model.addDynamicHierarchy(rootConceptId);
+				return model.addDynamicHierarchy(rootConceptId);
 			}
 		}
 
@@ -79,9 +89,9 @@ class ConfigFileReader {
 				return REFERENCE_ONLY_HIERARCHY_TAG;
 			}
 
-			void addHierarchy(EntityId rootConceptId) {
+			Hierarchy addHierarchy(EntityId rootConceptId) {
 
-				model.addReferenceOnlyHierarchy(rootConceptId);
+				return model.addReferenceOnlyHierarchy(rootConceptId);
 			}
 		}
 
@@ -115,7 +125,7 @@ class ConfigFileReader {
 
 			private ConstraintType loadType(KConfigNode node, Hierarchy hierarchy) {
 
-				String name = getConstraintTypeName(node);
+				String name = getEntityName(node);
 				Concept rootSrc = hierarchy.getRootConcept();
 				Concept rootTgt = getRootTargetConcept(node);
 
@@ -195,14 +205,19 @@ class ConfigFileReader {
 			new AnchoredConstraintTypesLoader();
 		}
 
+		private String getEntityName(KConfigNode node) {
+
+			return node.getString(ENTITY_NAME_ATTR);
+		}
+
+		private String getEntityNameOrNull(KConfigNode node) {
+
+			return node.getString(ENTITY_NAME_ATTR, null);
+		}
+
 		private EntityId getRootConceptId(KConfigNode node) {
 
 			return getPropertyId(node, ROOT_CONCEPT_ATTR);
-		}
-
-		private String getConstraintTypeName(KConfigNode node) {
-
-			return node.getString(CONSTRAINT_TYPE_NAME_ATTR);
 		}
 
 		private Concept getRootTargetConcept(KConfigNode node) {

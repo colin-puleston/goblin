@@ -9,6 +9,7 @@ public abstract class Hierarchy {
 
 	private Model model;
 
+	private String name;
 	private RootConcept root;
 	private Map<EntityId, Concept> conceptsById = new HashMap<EntityId, Concept>();
 
@@ -16,9 +17,19 @@ public abstract class Hierarchy {
 
 	public abstract boolean dynamicHierarchy();
 
+	public void setName(String name) {
+
+		this.name = name;
+	}
+
 	public Model getModel() {
 
 		return model;
+	}
+
+	public String getName() {
+
+		return name;
 	}
 
 	public Concept getRootConcept() {
@@ -56,6 +67,7 @@ public abstract class Hierarchy {
 
 		this.model = model;
 
+		name = rootConceptId.getLabel();
 		root = new RootConcept(this, rootConceptId);
 	}
 
