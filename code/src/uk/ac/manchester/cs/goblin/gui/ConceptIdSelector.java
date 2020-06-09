@@ -132,7 +132,7 @@ class ConceptIdSelector extends GDialog {
 
 			String text = getText();
 
-			if (DynamicId.validName(text)) {
+			if (text.isEmpty() || DynamicId.validName(text)) {
 
 				if (text.length() == 1) {
 
