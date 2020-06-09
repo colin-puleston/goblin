@@ -4,34 +4,38 @@
 	dynamicNamespace="http://goblin/demo-dynamic.owl"
 	dynamicFilename="demo-dynamic.owl">
 
-	<DynamicHierarchy
-		rootConcept="http://goblin/demo-core.owl#Activity">
-		<AnchoredConstraintType
-			name="role performed"
-			anchorConcept="http://goblin/demo-core.owl#Hobby"
-			sourceProperty="http://goblin/demo-core.owl#involvesActivity"
-			targetProperty="http://goblin/demo-core.owl#rolePerformed"
-			rootTargetConcept="http://goblin/demo-core.owl#Role"
-			impliedValuesMultiplicity="SINGLE">
-			<SemanticsOption semantics="VALID_VALUES"/>
-			<SemanticsOption semantics="IMPLIED_VALUE"/>
-		</AnchoredConstraintType>
-		<SimpleConstraintType
-			name="activity location"
-			linkingProperty="http://goblin/demo-core.owl#performedInLocation"
-			rootTargetConcept="http://goblin/demo-core.owl#Location"
-			impliedValuesMultiplicity="MULTIPLE">
-			<SemanticsOption semantics="VALID_VALUES"/>
-			<SemanticsOption semantics="IMPLIED_VALUE"/>
-		</SimpleConstraintType>
-	</DynamicHierarchy>
+	<ModelSection>
 
-	<DynamicHierarchy
-		rootConcept="http://goblin/demo-core.owl#Role">
-	</DynamicHierarchy>
+		<DynamicHierarchy
+			rootConcept="http://goblin/demo-core.owl#Activity">
+			<AnchoredConstraintType
+				name="role performed"
+				anchorConcept="http://goblin/demo-core.owl#Hobby"
+				sourceProperty="http://goblin/demo-core.owl#involvesActivity"
+				targetProperty="http://goblin/demo-core.owl#rolePerformed"
+				rootTargetConcept="http://goblin/demo-core.owl#Role"
+				impliedValuesMultiplicity="SINGLE">
+				<SemanticsOption semantics="VALID_VALUES"/>
+				<SemanticsOption semantics="IMPLIED_VALUE"/>
+			</AnchoredConstraintType>
+			<SimpleConstraintType
+				name="activity location"
+				linkingProperty="http://goblin/demo-core.owl#performedInLocation"
+				rootTargetConcept="http://goblin/demo-core.owl#Location"
+				impliedValuesMultiplicity="MULTIPLE">
+				<SemanticsOption semantics="VALID_VALUES"/>
+				<SemanticsOption semantics="IMPLIED_VALUE"/>
+			</SimpleConstraintType>
+		</DynamicHierarchy>
 
-	<ReferenceOnlyHierarchy
-		rootConcept="http://goblin/demo-core.owl#Location">
-	</ReferenceOnlyHierarchy>
+		<DynamicHierarchy
+			rootConcept="http://goblin/demo-core.owl#Role">
+		</DynamicHierarchy>
+
+		<ReferenceOnlyHierarchy
+			rootConcept="http://goblin/demo-core.owl#Location">
+		</ReferenceOnlyHierarchy>
+
+	</ModelSection>
 
 </Goblin>
