@@ -24,8 +24,6 @@
 
 package uk.ac.manchester.cs.goblin.gui;
 
-import java.util.*;
-
 import java.awt.BorderLayout;
 import java.awt.event.*;
 import javax.swing.*;
@@ -42,7 +40,7 @@ public class Goblin extends GFrame {
 
 	static private final long serialVersionUID = -1;
 
-	static final String SIMPLE_TITLE = "GOBLIN OWL-Editor";
+	static final String SIMPLE_TITLE = "Goblin OWL-Editor";
 
 	static private final String COMPOUND_TITLE_FORMAT = SIMPLE_TITLE + ": %s";
 
@@ -74,62 +72,6 @@ public class Goblin extends GFrame {
 
 	private ModelHandler modelHandler;
 	private ModelEditPanel modelEditPanel;
-
-	private class ModelEditPanel extends ConceptTreesPanel<Hierarchy> {
-
-		static private final long serialVersionUID = -1;
-
-		ModelEditPanel() {
-
-			super(JTabbedPane.LEFT);
-
-			setFont(GFonts.toMedium(getFont()));
-
-			populate();
-		}
-
-		List<Hierarchy> getSources() {
-
-			return getCurrentModel().getAllHierarchies();
-		}
-
-		String getTitle(Hierarchy hierarchy) {
-
-			return hierarchy.getName();
-		}
-
-		Concept getRootConcept(Hierarchy hierarchy) {
-
-			return hierarchy.getRootConcept();
-		}
-
-		JComponent createComponent(Hierarchy hierarchy) {
-
-			return new HierarchyPanel(hierarchy);
-		}
-
-		void makeEditVisible(EditLocation location) {
-
-			int hierarchyIdx = makeHierarchyVisible(location);
-
-			if (location.constraintEdit()) {
-
-				Constraint constraint = location.getEditedConstraint();
-
-				getHierarchyPanel(hierarchyIdx).makeConstraintVisible(constraint);
-			}
-		}
-
-		private int makeHierarchyVisible(EditLocation location) {
-
-			return makeSourceVisible(location.getPrimaryEditHierarchy().getRootConcept());
-		}
-
-		private HierarchyPanel getHierarchyPanel(int hierarchyIdx) {
-
-			return (HierarchyPanel)getComponentAt(hierarchyIdx);
-		}
-	}
 
 	private abstract class EditsEnabledButton extends GButton {
 
@@ -289,7 +231,7 @@ public class Goblin extends GFrame {
 		super(title, FRAME_WIDTH, FRAME_HEIGHT);
 
 		modelHandler = new ModelHandler(this);
-		modelEditPanel = new ModelEditPanel();
+		modelEditPanel = new ModelEditPanel(modelHandler);
 
 		setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 		addWindowListener(new WindowCloseListener());

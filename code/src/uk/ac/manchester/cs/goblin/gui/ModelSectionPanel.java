@@ -28,65 +28,81 @@ import java.util.*;
 
 import javax.swing.*;
 
+import uk.ac.manchester.cs.mekon.gui.*;
+
 import uk.ac.manchester.cs.goblin.model.*;
 
 /**
  * @author Colin Puleston
  */
-abstract class ConceptTreesPanel<S> extends JTabbedPane {
+class ModelSectionPanel extends ConceptTreesPanel<Hierarchy> {
 
 	static private final long serialVersionUID = -1;
 
-	ConceptTreesPanel(int tabPlacement) {
+	private ModelSection section;
 
-		super(tabPlacement);
-	}
+	ModelSectionPanel(ModelSection section) {
 
-	void populate() {
+		super(JTabbedPane.LEFT);
 
-		int i = 0;
+		this.section = section;
 
-		for (S source : getSources()) {
+		setFont(GFonts.toMedium(getFont()));
 
-			addTab(getTitle(source), createComponent(source));
-		}
-	}
-
-	void repopulate() {
-
-		removeAll();
 		populate();
 	}
 
-	void makeSourceVisible(S source) {
+	String getTitle() {
 
-		setSelectedIndex(getSources().indexOf(source));
+		return section.getName();
 	}
 
-	int checkMakeSourceVisible(Concept rootConcept) {
+	List<Hierarchy> getSources() {
 
-		int i = 0;
+		return section.getAllHierarchies();
+	}
 
-		for (S source : getSources()) {
+	String getTitle(Hierarchy hierarchy) {
 
-			if (getRootConcept(source).equals(rootConcept)) {
+		return hierarchy.getName();
+	}
 
-				setSelectedIndex(i);
+	Concept getRootConcept(Hierarchy hierarchy) {
 
-				return i;
-			}
+		return hierarchy.getRootConcept();
+	}
 
-			i++;
+	JComponent createComponent(Hierarchy hierarchy) {
+
+		return new HierarchyPanel(hierarchy);
+	}
+
+	boolean checkMakeEditVisible(EditLocation location) {
+
+		int hierarchyIdx = checkMakeHierarchyVisible(location);
+
+		if (hierarchyIdx == -1) {
+
+			return false;
 		}
 
-		return -1;
+		if (location.constraintEdit()) {
+
+			Constraint constraint = location.getEditedConstraint();
+
+			getHierarchyPanel(hierarchyIdx).makeConstraintVisible(constraint);
+		}
+
+		return true;
 	}
 
-	abstract List<S> getSources();
+	private int checkMakeHierarchyVisible(EditLocation location) {
 
-	abstract String getTitle(S treeSource);
+		return checkMakeSourceVisible(location.getPrimaryEditHierarchy().getRootConcept());
+	}
 
-	abstract Concept getRootConcept(S treeSource);
+	private HierarchyPanel getHierarchyPanel(int hierarchyIdx) {
 
-	abstract JComponent createComponent(S treeSource);
+		return (HierarchyPanel)getComponentAt(hierarchyIdx);
+	}
 }

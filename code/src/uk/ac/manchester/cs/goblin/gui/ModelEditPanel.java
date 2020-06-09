@@ -24,32 +24,32 @@
 
 package uk.ac.manchester.cs.goblin.gui;
 
+import java.awt.BorderLayout;
 import java.util.*;
 
 import javax.swing.*;
+
+import uk.ac.manchester.cs.mekon.gui.*;
 
 import uk.ac.manchester.cs.goblin.model.*;
 
 /**
  * @author Colin Puleston
  */
-abstract class ConceptTreesPanel<S> extends JTabbedPane {
+class ModelEditPanel extends JPanel {
 
 	static private final long serialVersionUID = -1;
 
-	ConceptTreesPanel(int tabPlacement) {
+	private ModelHandler modelHandler;
+	private List<ModelSectionPanel> sectionPanels = new ArrayList<ModelSectionPanel>();
 
-		super(tabPlacement);
-	}
+	ModelEditPanel(ModelHandler modelHandler) {
 
-	void populate() {
+		super(new BorderLayout());
 
-		int i = 0;
+		this.modelHandler = modelHandler;
 
-		for (S source : getSources()) {
-
-			addTab(getTitle(source), createComponent(source));
-		}
+		populate();
 	}
 
 	void repopulate() {
@@ -58,35 +58,45 @@ abstract class ConceptTreesPanel<S> extends JTabbedPane {
 		populate();
 	}
 
-	void makeSourceVisible(S source) {
+	void makeEditVisible(EditLocation location) {
 
-		setSelectedIndex(getSources().indexOf(source));
+		for (ModelSectionPanel sectionPanel : sectionPanels) {
+
+			if (sectionPanel.checkMakeEditVisible(location)) {
+
+				break;
+			}
+		}
 	}
 
-	int checkMakeSourceVisible(Concept rootConcept) {
+	private void populate() {
 
-		int i = 0;
+		sectionPanels.clear();
 
-		for (S source : getSources()) {
+		for (ModelSection section : modelHandler.getModel().getSections()) {
 
-			if (getRootConcept(source).equals(rootConcept)) {
-
-				setSelectedIndex(i);
-
-				return i;
-			}
-
-			i++;
+			sectionPanels.add(new ModelSectionPanel(section));
 		}
 
-		return -1;
+		add(createMainPanel(), BorderLayout.CENTER);
 	}
 
-	abstract List<S> getSources();
+	private JComponent createMainPanel() {
 
-	abstract String getTitle(S treeSource);
+		return sectionPanels.size() == 1 ? sectionPanels.get(0) : createMultiSectionPanel();
+	}
 
-	abstract Concept getRootConcept(S treeSource);
+	private JComponent createMultiSectionPanel() {
 
-	abstract JComponent createComponent(S treeSource);
+		JTabbedPane tabs = new JTabbedPane(JTabbedPane.TOP);
+
+		tabs.setFont(GFonts.toLarge(tabs.getFont()));
+
+		for (ModelSectionPanel sectionPanel : sectionPanels) {
+
+			tabs.addTab(sectionPanel.getTitle(), sectionPanel);
+		}
+
+		return tabs;
+	}
 }

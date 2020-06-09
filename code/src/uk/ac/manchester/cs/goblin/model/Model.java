@@ -6,11 +6,13 @@ import java.util.*;
 /**
  * @author Colin Puleston
  */
-public class Model {
+public class Model extends HierarchyContainer {
+
+	static private final String DEFAULT_SECTION_NAME_PREFIX = "Section-";
 
 	private String dynamicNamespace;
 
-	private List<Hierarchy> hierarchies = new ArrayList<Hierarchy>();
+	private List<ModelSection> sections = new ArrayList<ModelSection>();
 
 	private EditActions editActions;
 	private ConceptTracking conceptTracking;
@@ -32,6 +34,20 @@ public class Model {
 		conflictResolver.setConfirmations(confirmations);
 	}
 
+	public ModelSection addSection() {
+
+		return addSection(DEFAULT_SECTION_NAME_PREFIX + sections.size());
+	}
+
+	public ModelSection addSection(String name) {
+
+		ModelSection section = new ModelSection(this, name);
+
+		sections.add(section);
+
+		return section;
+	}
+
 	public void setModelLoaded() {
 
 		editActions.startTracking();
@@ -40,6 +56,11 @@ public class Model {
 	public void addEditListener(ModelEditListener listener) {
 
 		editActions.addListener(listener);
+	}
+
+	public List<ModelSection> getSections() {
+
+		return new ArrayList<ModelSection>(sections);
 	}
 
 	public boolean canUndo() {
@@ -62,24 +83,6 @@ public class Model {
 		return editActions.redo();
 	}
 
-	public Hierarchy addDynamicHierarchy(EntityId rootConceptId) {
-
-		Hierarchy hierarchy = new DynamicHierarchy(this, rootConceptId);
-
-		hierarchies.add(hierarchy);
-
-		return hierarchy;
-	}
-
-	public Hierarchy addReferenceOnlyHierarchy(EntityId rootConceptId) {
-
-		Hierarchy hierarchy = new ReferenceOnlyHierarchy(this, rootConceptId);
-
-		hierarchies.add(hierarchy);
-
-		return hierarchy;
-	}
-
 	public EntityId createEntityId(URI uri, String labelOrNull) {
 
 		if (hasDynamicNamespace(uri)) {
@@ -90,67 +93,9 @@ public class Model {
 		return new EntityId(uri, labelOrNull);
 	}
 
-	public List<Hierarchy> getAllHierarchies() {
+	public boolean containsDynamicConcept(DynamicId dynamicId) {
 
-		return new ArrayList<Hierarchy>(hierarchies);
-	}
-
-	public List<Hierarchy> getDynamicHierarchies() {
-
-		return getStatusHierarchies(true);
-	}
-
-	public List<Hierarchy> getReferenceOnlyHierarchies() {
-
-		return getStatusHierarchies(false);
-	}
-
-	public Hierarchy getHierarchy(EntityId rootConceptId) {
-
-		for (Hierarchy hierarchy : hierarchies) {
-
-			if (hierarchy.hasRootConcept(rootConceptId)) {
-
-				return hierarchy;
-			}
-		}
-
-		throw new RuntimeException("Not root-concept: " + rootConceptId);
-	}
-
-	public boolean conceptExists(EntityId conceptId) {
-
-		return lookForConcept(conceptId) != null;
-	}
-
-	public Concept getConcept(EntityId conceptId) {
-
-		Concept concept = lookForConcept(conceptId);
-
-		if (concept != null) {
-
-			return concept;
-		}
-
-		throw new RuntimeException("Cannot find concept: " + conceptId);
-	}
-
-	public Concept lookForConcept(EntityId conceptId) {
-
-		for (Hierarchy hierarchy : hierarchies) {
-
-			if (hierarchy.hasConcept(conceptId)) {
-
-				return hierarchy.getConcept(conceptId);
-			}
-		}
-
-		return null;
-	}
-
-	public boolean dynamicConceptExists(DynamicId dynamicId) {
-
-		return conceptExists(toEntityId(dynamicId));
+		return containsConcept(toEntityId(dynamicId));
 	}
 
 	boolean modelLoaded() {
@@ -162,7 +107,7 @@ public class Model {
 
 		EntityId newId = toEntityId(newDynamicId);
 
-		return concept.getConceptId().equals(newId) || !conceptExists(newId);
+		return concept.getConceptId().equals(newId) || !containsConcept(newId);
 	}
 
 	EntityId toEntityId(DynamicId dynamicId) {
@@ -188,21 +133,6 @@ public class Model {
 	ConflictResolver getConflictResolver() {
 
 		return conflictResolver;
-	}
-
-	private List<Hierarchy> getStatusHierarchies(boolean dynamic) {
-
-		List<Hierarchy> statusHierarchies = new ArrayList<Hierarchy>();
-
-		for (Hierarchy hierarchy : hierarchies) {
-
-			if (hierarchy.dynamicHierarchy() == dynamic) {
-
-				statusHierarchies.add(hierarchy);
-			}
-		}
-
-		return statusHierarchies;
 	}
 
 	private boolean hasDynamicNamespace(URI uri) {

@@ -417,7 +417,7 @@ class HierarchyTreePanel extends JPanel {
 
 		if (id != null) {
 
-			if (model.dynamicConceptExists(id)) {
+			if (model.containsDynamicConcept(id)) {
 
 				showConceptAlreadyExistsMessage(id);
 			}
