@@ -239,7 +239,7 @@ class HierarchyTreePanel extends JPanel {
 
 		String getCtrlPrefixedToolTipText(int triggerKey) {
 
-			return "DEL";
+			return "Del";
 		}
 
 		boolean enableIfRootSelected() {
@@ -286,7 +286,7 @@ class HierarchyTreePanel extends JPanel {
 
 		String getToolTipText(int triggerKey) {
 
-			return "ESC";
+			return "Esc";
 		}
 
 		boolean enableOnNoSelection() {

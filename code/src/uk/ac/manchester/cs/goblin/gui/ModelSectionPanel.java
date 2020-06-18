@@ -64,7 +64,7 @@ class ModelSectionPanel extends ConceptTreesPanel<Hierarchy> {
 
 	String getTitle(Hierarchy hierarchy) {
 
-		return hierarchy.getName();
+		return hierarchy.getName() + (hierarchy.hasConstraintTypes() ? " (C)" : "");
 	}
 
 	Concept getRootConcept(Hierarchy hierarchy) {

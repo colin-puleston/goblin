@@ -54,6 +54,8 @@ class ConceptIdSelector extends GDialog {
 		static private final long serialVersionUID = -1;
 
 		private InputField otherField = null;
+
+		private String currentText = "";;
 		private boolean userEdited = false;
 
 		protected void onCharEntered(char enteredChar) {
@@ -93,7 +95,19 @@ class ConceptIdSelector extends GDialog {
 
 		abstract DynamicId resolveSelection(String text, String otherText);
 
-		abstract String getTextFromSelection();
+		abstract String getSelectionTextOrNull();
+
+		void setCurrentText(String text) {
+
+			setText(text);
+
+			currentText = text;
+		}
+
+		void undoCurrentInput() {
+
+			setText(currentText);
+		}
 
 		private boolean previousIndependentUserEdits() {
 
@@ -120,7 +134,19 @@ class ConceptIdSelector extends GDialog {
 
 		private void updateForSelection() {
 
-			setText(selection != null ? getTextFromSelection() : "");
+			String text = getSelectionDisplayText();
+
+			if (!text.equals(getText())) {
+
+				setCurrentText(text);
+			}
+		}
+
+		private String getSelectionDisplayText() {
+
+			String text = getSelectionTextOrNull();
+
+			return text != null ? text : "";
 		}
 	}
 
@@ -136,14 +162,14 @@ class ConceptIdSelector extends GDialog {
 
 				if (text.length() == 1) {
 
-					setText(text.toUpperCase());
+					setCurrentText(text.toUpperCase());
 				}
 
 				super.onCharEntered(enteredChar);
 			}
 			else {
 
-				setText(text.substring(0, text.length() - 1));
+				undoCurrentInput();
 			}
 		}
 
@@ -157,7 +183,7 @@ class ConceptIdSelector extends GDialog {
 			return new DynamicId(text, otherText);
 		}
 
-		String getTextFromSelection() {
+		String getSelectionTextOrNull() {
 
 			return selection.getName();
 		}
@@ -177,7 +203,7 @@ class ConceptIdSelector extends GDialog {
 			return new DynamicId(otherText, text);
 		}
 
-		String getTextFromSelection() {
+		String getSelectionTextOrNull() {
 
 			return selection.getLabel();
 		}
