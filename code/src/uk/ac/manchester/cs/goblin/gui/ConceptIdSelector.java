@@ -41,171 +41,272 @@ class ConceptIdSelector extends GDialog {
 
 	static private final String TITLE = "Enter Concept Identity";
 
-	static private final String OK_LABEL = "Ok";
-	static private final String CANCEL_LABEL = "Cancel";
+	static private final String NAME_FIELD_TITLE = "Name";
+	static private final String LABEL_FIELD_TITLE = "Label";
 
-	static private final Dimension WINDOW_SIZE = new Dimension(250, 150);
+	static private final String OK_BUTTON_LABEL = "Ok";
+	static private final String CANCEL_BUTTON_LABEL = "Cancel";
+	static private final String AUTOSET_BUTTON_LABEL = "auto";
 
-	private DynamicId selection = null;
-	private ControlButton okButton = new ControlButton(OK_LABEL);
+	static private final Dimension WINDOW_SIZE = new Dimension(300, 150);
 
-	private abstract class InputField extends GTextField {
+	private DynamicId currentId;
+	private DynamicId selectedId = null;
+
+	private ControlButton okButton = new ControlButton(OK_BUTTON_LABEL);
+
+	private abstract class InputPanel extends JPanel {
 
 		static private final long serialVersionUID = -1;
 
-		private InputField otherField = null;
+		private String initialValue;
+		private String currentValue;
 
-		private String currentText = "";;
-		private boolean userEdited = false;
+		private InputPanel otherInput = null;
 
-		protected void onCharEntered(char enteredChar) {
+		private ValueField valueField = null;
+		private AutoSetButton autoSetButton = new AutoSetButton();
 
-			selection = resolveSelection();
-			userEdited = !getText().isEmpty();
+		private class ValueField extends GTextField {
 
-			updateForSelection();
-			otherField.updateForSelection();
+			static private final long serialVersionUID = -1;
 
-			okButton.setEnabled(userEdited);
+			protected void onCharEntered(char enteredChar) {
+
+				String newValue = getText();
+				String resolvedValue = resolveNewValue(newValue);
+
+				if (resolvedValue != null) {
+
+					setCurrentValue(resolvedValue);
+				}
+				else {
+
+					setText(currentValue);
+				}
+			}
+
+			protected void onTextEntered(String text) {
+
+				dispose();
+			}
+
+			ValueField() {
+
+				setText(initialValue);
+			}
+
+			void setCurrentValue(String value) {
+
+				if (!value.equals(getText())) {
+
+					setText(value);
+				}
+
+				currentValue = value;
+				selectedId = resolveSelection();
+
+				okButton.setEnabled(selectedId != null);
+				otherInput.autoSetButton.setEnabling();
+			}
 		}
 
-		protected void onTextEntered(String text) {
+		private class AutoSetButton extends GButton {
 
-			dispose();
+			static private final long serialVersionUID = -1;
+
+			protected void doButtonThing() {
+
+				valueField.setCurrentValue(createAutoValue(otherInput.currentValue));
+
+				setEnabled(false);
+			}
+
+			AutoSetButton() {
+
+				super(AUTOSET_BUTTON_LABEL);
+
+				setEnabled(false);
+			}
+
+			void setEnabling() {
+
+				setEnabled(canSetAutoValue());
+			}
 		}
 
-		InputField() {
+		InputPanel(String title) {
 
-			userEdited = previousIndependentUserEdits();
+			super(new BorderLayout());
 
-			updateForSelection();
+			TitledPanels.setTitle(this, title);
+
+			initialValue = currentId != null ? extractValue(currentId) : "";
+			currentValue = initialValue;
 		}
 
-		void setOtherField(InputField otherField) {
+		void setOtherInput(InputPanel otherInput) {
 
-			this.otherField = otherField;
+			this.otherInput = otherInput;
 		}
 
-		JPanel createPanel(String title) {
+		void initialise() {
 
-			return TitledPanels.create(this, title);
+			valueField = new ValueField();
+			autoSetButton = new AutoSetButton();
+
+			add(valueField, BorderLayout.CENTER);
+			add(autoSetButton, BorderLayout.EAST);
 		}
 
-		abstract DynamicId resolveSelection(String text);
+		abstract String extractValue(DynamicId id);
 
-		abstract DynamicId resolveSelection(String text, String otherText);
+		abstract String resolveNewValue(String newValue);
 
-		abstract String getSelectionTextOrNull();
+		abstract String createAutoValue(String otherValue);
 
-		void setCurrentText(String text) {
+		abstract String createAutoValueOrNull(String otherValue);
 
-			setText(text);
+		abstract DynamicId createSelection(String value, String otherValue);
 
-			currentText = text;
-		}
+		private boolean canSetAutoValue() {
 
-		void undoCurrentInput() {
+			String otherValue = otherInput.currentValue;
 
-			setText(currentText);
-		}
+			if (otherValue == null) {
 
-		private boolean previousIndependentUserEdits() {
+				return false;
+			}
 
-			return selection != null && selection.independentNameAndLabel();
+			String autoValue = createAutoValueOrNull(otherValue);
+
+			return autoValue != null && !autoValue.equals(currentValue);
 		}
 
 		private DynamicId resolveSelection() {
 
-			String text = getText();
-			String otherText = otherField.checkForUserText();
+			if (valueEdited() || otherInput.valueEdited()) {
 
-			if (text.isEmpty()) {
-
-				return otherText != null ? otherField.resolveSelection(otherText) : null;
+				return valuePresent() ? otherInput.resolveSelection(currentValue) : null;
 			}
 
-			return otherText != null ? resolveSelection(text, otherText) : resolveSelection(text);
+			return null;
 		}
 
-		private String checkForUserText() {
+		private DynamicId resolveSelection(String otherValue) {
 
-			return userEdited ? getText() : null;
+			return valuePresent() ? createSelection(currentValue, otherValue) : null;
 		}
 
-		private void updateForSelection() {
+		private boolean valuePresent() {
 
-			String text = getSelectionDisplayText();
-
-			if (!text.equals(getText())) {
-
-				setCurrentText(text);
-			}
+			return !currentValue.isEmpty();
 		}
 
-		private String getSelectionDisplayText() {
+		private boolean valueEdited() {
 
-			String text = getSelectionTextOrNull();
-
-			return text != null ? text : "";
+			return !currentValue.equals(initialValue);
 		}
 	}
 
-	private class NameField extends InputField {
+	private class NamePanel extends InputPanel {
 
 		static private final long serialVersionUID = -1;
 
-		protected void onCharEntered(char enteredChar) {
+		NamePanel() {
 
-			String text = getText();
+			super(NAME_FIELD_TITLE);
+		}
 
-			if (text.isEmpty() || DynamicId.validName(text)) {
+		String extractValue(DynamicId id) {
 
-				if (text.length() == 1) {
+			return id.getName();
+		}
 
-					setCurrentText(text.toUpperCase());
-				}
+		String resolveNewValue(String newValue) {
 
-				super.onCharEntered(enteredChar);
+			if (newValue.isEmpty()) {
+
+				return "";
 			}
-			else {
 
-				undoCurrentInput();
+			if (DynamicId.validName(newValue)) {
+
+				return ensureStartsWithUpperCase(newValue);
 			}
+
+			return null;
 		}
 
-		DynamicId resolveSelection(String text) {
+		String createAutoValue(String otherValue) {
 
-			return DynamicId.fromName(text);
+			String value = createAutoValueOrNull(otherValue);
+
+			if (value == null) {
+
+				throw new Error("Should never happen!");
+			}
+
+			return value;
 		}
 
-		DynamicId resolveSelection(String text, String otherText) {
+		String createAutoValueOrNull(String otherValue) {
 
-			return new DynamicId(text, otherText);
+			DynamicId id = DynamicId.fromLabelOrNull(otherValue);
+
+			return id != null ? id.getName() : null;
 		}
 
-		String getSelectionTextOrNull() {
+		DynamicId createSelection(String value, String otherValue) {
 
-			return selection.getName();
+			return new DynamicId(value, otherValue);
+		}
+
+		private String ensureStartsWithUpperCase(String value) {
+
+			char first = value.charAt(0);
+
+			if (Character.isLowerCase(first)) {
+
+				return "" + Character.toUpperCase(first) + value.substring(1);
+			}
+
+			return value;
 		}
 	}
 
-	private class LabelField extends InputField {
+	private class LabelPanel extends InputPanel {
 
 		static private final long serialVersionUID = -1;
 
-		DynamicId resolveSelection(String text) {
+		LabelPanel() {
 
-			return DynamicId.fromLabelOrNull(text);
+			super(LABEL_FIELD_TITLE);
 		}
 
-		DynamicId resolveSelection(String text, String otherText) {
+		String extractValue(DynamicId id) {
 
-			return new DynamicId(otherText, text);
+			return id.getLabel();
 		}
 
-		String getSelectionTextOrNull() {
+		String resolveNewValue(String newValue) {
 
-			return selection.getLabel();
+			return newValue;
+		}
+
+		String createAutoValue(String otherValue) {
+
+			return DynamicId.fromName(otherValue).getLabel();
+		}
+
+		String createAutoValueOrNull(String otherValue) {
+
+			return createAutoValue(otherValue);
+		}
+
+		DynamicId createSelection(String value, String otherValue) {
+
+			return new DynamicId(otherValue, value);
 		}
 	}
 
@@ -215,9 +316,9 @@ class ConceptIdSelector extends GDialog {
 
 		protected void doButtonThing() {
 
-			if (getText().equals(CANCEL_LABEL)) {
+			if (getText().equals(CANCEL_BUTTON_LABEL)) {
 
-				selection = null;
+				selectedId = null;
 			}
 
 			dispose();
@@ -233,15 +334,15 @@ class ConceptIdSelector extends GDialog {
 
 		public void windowClosing(WindowEvent e) {
 
-			selection = null;
+			selectedId = null;
 		}
 	}
 
-	ConceptIdSelector(JComponent parent, DynamicId initialSelection) {
+	ConceptIdSelector(JComponent parent, DynamicId currentId) {
 
 		super(parent, TITLE, true);
 
-		selection = initialSelection;
+		this.currentId = currentId;
 
 		okButton.setEnabled(false);
 		addWindowListener(new WindowCloseListener());
@@ -251,23 +352,26 @@ class ConceptIdSelector extends GDialog {
 
 	DynamicId getSelection() {
 
-		return selection;
+		return selectedId;
 	}
 
 	private JComponent createDisplay() {
 
 		JPanel panel = new JPanel();
 
-		InputField nameField = new NameField();
-		InputField labelField = new LabelField();
+		InputPanel namePanel = new NamePanel();
+		InputPanel labelPanel = new LabelPanel();
 
-		nameField.setOtherField(labelField);
-		labelField.setOtherField(nameField);
+		namePanel.setOtherInput(labelPanel);
+		labelPanel.setOtherInput(namePanel);
+
+		namePanel.initialise();
+		labelPanel.initialise();
 
 		panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
 		panel.setPreferredSize(WINDOW_SIZE);
-		panel.add(nameField.createPanel("Name"));
-		panel.add(labelField.createPanel("Label"));
+		panel.add(namePanel);
+		panel.add(labelPanel);
 		panel.add(createButtonsPanel());
 
 		return panel;
@@ -275,7 +379,7 @@ class ConceptIdSelector extends GDialog {
 
 	private JPanel createButtonsPanel() {
 
-		return ControlsPanel.horizontal(okButton, new ControlButton(CANCEL_LABEL));
+		return ControlsPanel.horizontal(okButton, new ControlButton(CANCEL_BUTTON_LABEL));
 	}
 }
 
