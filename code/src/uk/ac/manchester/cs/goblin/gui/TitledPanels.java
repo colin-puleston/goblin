@@ -9,7 +9,7 @@ import java.awt.*;
 import javax.swing.*;
 import javax.swing.border.*;
 
-import uk.ac.manchester.cs.mekon.gui.*;
+import uk.ac.manchester.cs.mekon_util.gui.*;
 
 /**
  * @author Colin Puleston

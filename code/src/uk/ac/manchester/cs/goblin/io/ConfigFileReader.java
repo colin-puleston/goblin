@@ -4,7 +4,7 @@ import java.io.*;
 
 import org.semanticweb.owlapi.model.*;
 
-import uk.ac.manchester.cs.mekon.config.*;
+import uk.ac.manchester.cs.mekon_util.config.*;
 
 import uk.ac.manchester.cs.goblin.model.*;
 

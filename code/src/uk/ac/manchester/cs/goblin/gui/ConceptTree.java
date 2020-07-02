@@ -28,7 +28,7 @@ import java.util.*;
 import javax.swing.*;
 import javax.swing.tree.*;
 
-import uk.ac.manchester.cs.mekon.gui.*;
+import uk.ac.manchester.cs.mekon_util.gui.*;
 
 import uk.ac.manchester.cs.goblin.model.*;
 

@@ -28,8 +28,8 @@ import java.awt.Color;
 import java.awt.Font;
 import java.util.*;
 
-import uk.ac.manchester.cs.mekon.gui.*;
-import uk.ac.manchester.cs.mekon.gui.icon.*;
+import uk.ac.manchester.cs.mekon_util.gui.*;
+import uk.ac.manchester.cs.mekon_util.gui.icon.*;
 
 import uk.ac.manchester.cs.goblin.model.*;
 

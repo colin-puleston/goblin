@@ -3,7 +3,7 @@ package uk.ac.manchester.cs.goblin.model;
 import java.io.*;
 import java.net.*;
 
-import uk.ac.manchester.cs.mekon.util.*;
+import uk.ac.manchester.cs.mekon_util.*;
 
 /**
  * @author Colin Puleston

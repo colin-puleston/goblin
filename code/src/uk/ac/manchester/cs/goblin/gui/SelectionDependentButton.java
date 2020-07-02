@@ -26,7 +26,7 @@ package uk.ac.manchester.cs.goblin.gui;
 
 import java.util.*;
 
-import uk.ac.manchester.cs.mekon.gui.*;
+import uk.ac.manchester.cs.mekon_util.gui.*;
 
 /**
  * @author Colin Puleston
