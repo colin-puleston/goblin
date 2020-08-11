@@ -29,12 +29,12 @@ class ConflictResolution {
 			return action;
 		}
 
-		CompoundEditAction compoundAction = new CompoundEditAction();
+		CompoundEditAction compound = new CompoundEditAction();
 
-		compoundAction.addSubActions(resolvingEditActions);
-		compoundAction.addSubAction(action);
+		compound.addSubActions(resolvingEditActions);
+		compound.addSubAction(action);
 
-		return compoundAction;
+		return compound;
 	}
 
 	private ConflictResolution() {

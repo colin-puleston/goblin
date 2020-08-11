@@ -113,12 +113,13 @@ public class Concept extends EditTarget {
 		conceptListeners.add(listener);
 	}
 
-
 	public boolean resetId(DynamicId newDynamicId) {
 
 		if (canResetId(newDynamicId)) {
 
-			replace(createCopy(toEntityId(newDynamicId)));
+			Concept replacement = createCopy(toEntityId(newDynamicId));
+
+			performAction(new ReplaceConceptAction(this, replacement));
 
 			return true;
 		}
@@ -128,11 +129,11 @@ public class Concept extends EditTarget {
 
 	public boolean move(Concept newParent) {
 
-		ConflictResolution conflictRes = checkMoveConflicts(newParent);
+		EditAction action = checkCreateMoveAction(newParent);
 
-		if (conflictRes.resolvable()) {
+		if (action != null) {
 
-			replace(createCopy(newParent), conflictRes);
+			performAction(action);
 
 			return true;
 		}
@@ -142,14 +143,7 @@ public class Concept extends EditTarget {
 
 	public void remove() {
 
-		EditAction action = new RemoveAction(this);
-
-		if (!inwardConstraints.isEmpty()) {
-
-			action = incorporateInwardTargetRemovalEdits(action);
-		}
-
-		performAction(action);
+		performAction(createRemoveAction());
 	}
 
 	public Concept addChild(DynamicId dynamicId) {
@@ -352,16 +346,31 @@ public class Concept extends EditTarget {
 		performAction(new AddAction(this));
 	}
 
-	void replace(Concept replacement) {
+	EditAction checkCreateMoveAction(Concept newParent) {
 
-		replace(replacement, ConflictResolution.NO_CONFLICTS);
+		ConflictResolution conflictRes = checkMoveConflicts(newParent);
+
+		if (conflictRes.resolvable()) {
+
+			Concept replacement = createCopy(newParent);
+			EditAction action = new ReplaceConceptAction(this, replacement);
+
+			return conflictRes.incorporateResolvingEdits(action);
+		}
+
+		return null;
 	}
 
-	void replace(Concept replacement, ConflictResolution conflictRes) {
+	EditAction createRemoveAction() {
 
-		EditAction action = new ReplaceConceptAction(this, replacement);
+		EditAction action = new RemoveAction(this);
 
-		performAction(conflictRes.incorporateResolvingEdits(action));
+		if (!inwardConstraints.isEmpty()) {
+
+			action = incorporateInwardTargetRemovalEdits(action);
+		}
+
+		return action;
 	}
 
 	void doAdd(boolean replacement) {

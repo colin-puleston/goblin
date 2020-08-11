@@ -390,12 +390,57 @@ abstract class ConceptTree extends GSelectorTree {
 		}
 	}
 
+	private class MultiSelectionPruner extends GSelectionListener<GNode> {
+
+		protected void onSelected(GNode node) {
+
+			pruneSelections(extractConcept(node));
+		}
+
+		protected void onDeselected(GNode node) {
+		}
+
+		MultiSelectionPruner() {
+
+			addNodeSelectionListener(this);
+		}
+
+		private void pruneSelections(Concept latest) {
+
+			List<Concept> prePruning = getAllSelectedConcepts();
+			List<Concept> postPruning = new ArrayList<Concept>(prePruning);
+
+			for (Concept selection : prePruning) {
+
+				if (latest != selection && conflict(latest, selection)) {
+
+					postPruning.remove(selection);
+				}
+			}
+
+			if (postPruning.size() != prePruning.size()) {
+
+				selectConcepts(postPruning);
+			}
+		}
+
+		private boolean conflict(Concept concept1, Concept concept2) {
+
+			return concept1.descendantOf(concept2) || concept2.descendantOf(concept1);
+		}
+	}
+
 	ConceptTree(boolean multiSelect) {
 
 		super(multiSelect);
 
 		setRootVisible(false);
 		setShowsRootHandles(true);
+
+		if (multiSelect) {
+
+			new MultiSelectionPruner();
+		}
 	}
 
 	void setConstraintsListener(ConstraintsListener listener) {

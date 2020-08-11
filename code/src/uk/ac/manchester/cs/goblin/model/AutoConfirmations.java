@@ -7,7 +7,7 @@ import java.util.*;
  */
 class AutoConfirmations implements Confirmations {
 
-	public boolean confirmConceptMove(List<Constraint> invalidatedConstraints) {
+	public boolean confirmConceptMove(Concept moved, List<Constraint> invalidatedConstraints) {
 
 		return true;
 	}

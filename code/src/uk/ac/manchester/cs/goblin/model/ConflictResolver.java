@@ -264,14 +264,18 @@ class ConflictResolver {
 
 	private class ConceptMoveConflictsResolver extends ConstraintConflictsResolver {
 
+		private Concept moved;
+
 		ConceptMoveConflictsResolver(Concept moved) {
+
+			this.moved = moved;
 
 			initialise(new ConceptMoveConflictsFinder(moved).conflicts);
 		}
 
 		boolean confirmConflictRemovals(List<Constraint> conflicts) {
 
-			return confirmations.confirmConceptMove(conflicts);
+			return confirmations.confirmConceptMove(moved, conflicts);
 		}
 	}
 

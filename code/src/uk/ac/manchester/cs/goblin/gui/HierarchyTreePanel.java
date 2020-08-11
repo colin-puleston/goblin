@@ -60,7 +60,7 @@ class HierarchyTreePanel extends JPanel {
 	static private final int PASTE_TRIGGER_KEY = KeyEvent.VK_V;
 	static private final int RESET_ID_TRIGGER_KEY = KeyEvent.VK_I;
 
-	private Model model;
+	private Hierarchy hierarchy;
 	private HierarchyTree tree;
 
 	private ConceptMover conceptMover = new ConceptMover();
@@ -151,16 +151,6 @@ class HierarchyTreePanel extends JPanel {
 			}
 		}
 
-		protected void doButtonThing() {
-
-			Concept selected = tree.getSelectedConcept();
-
-			if (selected != null) {
-
-				doConceptEdit(selected);
-			}
-		}
-
 		EditButton(String label, int triggerKey) {
 
 			super(label, tree);
@@ -180,26 +170,21 @@ class HierarchyTreePanel extends JPanel {
 			return "" + (char)toUpper(triggerKey);
 		}
 
-		boolean enableOnActiveSelection(Concept selection) {
+		boolean enableOnActiveSelections(List<Concept> selections) {
 
-			return enableForRootSelection(selection) && enableForMoveInProgress(selection);
+			return moveInProgressStatusMatch() && canEdit(selections);
 		}
 
-		boolean enableIfRootSelected() {
+		boolean moveInProgressAction() {
 
-			return true;
+			return false;
 		}
 
-		boolean enableForMoveInProgress(Concept selection) {
+		abstract boolean canEdit(List<Concept> selections);
 
-			return !conceptMover.moveInProgress();
-		}
+		private boolean moveInProgressStatusMatch() {
 
-		abstract void doConceptEdit(Concept concept);
-
-		private boolean enableForRootSelection(Concept selection) {
-
-			return enableIfRootSelected() || !selection.isRoot();
+			return moveInProgressAction() == conceptMover.moveInProgress();
 		}
 
 		private int toUpper(int key) {
@@ -213,7 +198,53 @@ class HierarchyTreePanel extends JPanel {
 		}
 	}
 
-	private class AddButton extends EditButton {
+	private abstract class SingleSelectEditButton extends EditButton {
+
+		static private final long serialVersionUID = -1;
+
+		protected void doButtonThing() {
+
+			Concept selected = tree.getSelectedConcept();
+
+			if (selected != null) {
+
+				doConceptEdit(selected);
+			}
+		}
+
+		SingleSelectEditButton(String label, int triggerKey) {
+
+			super(label, triggerKey);
+		}
+
+		boolean canEdit(List<Concept> selections) {
+
+			return selections.size() == 1 && canEdit(selections.get(0));
+		}
+
+		abstract boolean canEdit(Concept selection);
+
+		abstract void doConceptEdit(Concept concept);
+	}
+
+	private abstract class MultiSelectEditButton extends EditButton {
+
+		static private final long serialVersionUID = -1;
+
+		protected void doButtonThing() {
+
+			doConceptEdits(tree.getAllSelectedConcepts());
+		}
+
+		MultiSelectEditButton(String label, int triggerKey) {
+
+			super(label, triggerKey);
+		}
+
+		abstract void doConceptEdits(List<Concept> concepts);
+	}
+
+	private class AddButton extends SingleSelectEditButton {
 
 		static private final long serialVersionUID = -1;
 
@@ -222,13 +253,18 @@ class HierarchyTreePanel extends JPanel {
 			super(ADD_LABEL, ADD_TRIGGER_KEY);
 		}
 
+		boolean canEdit(Concept selection) {
+
+			return true;
+		}
+
 		void doConceptEdit(Concept concept) {
 
 			checkAddConcept(concept);
 		}
 	}
 
-	private class RemoveButton extends EditButton {
+	private class RemoveButton extends MultiSelectEditButton {
 
 		static private final long serialVersionUID = -1;
 
@@ -242,18 +278,18 @@ class HierarchyTreePanel extends JPanel {
 			return "Del";
 		}
 
-		boolean enableIfRootSelected() {
+		boolean canEdit(List<Concept> selections) {
 
-			return false;
+			return !containsRootConcept(selections);
 		}
 
-		void doConceptEdit(Concept concept) {
+		void doConceptEdits(List<Concept> concepts) {
 
-			checkRemoveConcept(concept);
+			checkRemoveConcepts(concepts);
 		}
 	}
 
-	private class CutButton extends EditButton {
+	private class CutButton extends MultiSelectEditButton {
 
 		static private final long serialVersionUID = -1;
 
@@ -262,20 +298,20 @@ class HierarchyTreePanel extends JPanel {
 			super(CUT_LABEL, CUT_TRIGGER_KEY);
 		}
 
-		boolean enableIfRootSelected() {
+		boolean canEdit(List<Concept> selections) {
 
-			return false;
+			return !containsRootConcept(selections);
 		}
 
-		void doConceptEdit(Concept concept) {
+		void doConceptEdits(List<Concept> concepts) {
 
-			conceptMover.startMove(concept);
+			conceptMover.startMove(concepts);
 
 			tree.update();
 		}
 	}
 
-	private class StopCutButton extends EditButton {
+	private class StopCutButton extends MultiSelectEditButton {
 
 		static private final long serialVersionUID = -1;
 
@@ -289,17 +325,22 @@ class HierarchyTreePanel extends JPanel {
 			return "Esc";
 		}
 
-		boolean enableOnNoSelection() {
+		boolean enableOnNoActiveSelections() {
 
 			return conceptMover.moveInProgress();
 		}
 
-		boolean enableForMoveInProgress(Concept selection) {
+		boolean moveInProgressAction() {
 
-			return conceptMover.moveInProgress();
+			return true;
 		}
 
-		void doConceptEdit(Concept concept) {
+		boolean canEdit(List<Concept> selections) {
+
+			return true;
+		}
+
+		void doConceptEdits(List<Concept> concepts) {
 
 			conceptMover.abortMove();
 
@@ -307,7 +348,7 @@ class HierarchyTreePanel extends JPanel {
 		}
 	}
 
-	private class PasteButton extends EditButton {
+	private class PasteButton extends SingleSelectEditButton {
 
 		static private final long serialVersionUID = -1;
 
@@ -316,7 +357,12 @@ class HierarchyTreePanel extends JPanel {
 			super(PASTE_LABEL, PASTE_TRIGGER_KEY);
 		}
 
-		boolean enableForMoveInProgress(Concept selection) {
+		boolean moveInProgressAction() {
+
+			return true;
+		}
+
+		boolean canEdit(Concept selection) {
 
 			return conceptMover.newParentCandidate(selection);
 		}
@@ -329,7 +375,7 @@ class HierarchyTreePanel extends JPanel {
 		}
 	}
 
-	private class ResetIdButton extends EditButton {
+	private class ResetIdButton extends SingleSelectEditButton {
 
 		static private final long serialVersionUID = -1;
 
@@ -338,9 +384,9 @@ class HierarchyTreePanel extends JPanel {
 			super(RESET_ID_LABEL, RESET_ID_TRIGGER_KEY);
 		}
 
-		boolean enableIfRootSelected() {
+		boolean canEdit(Concept selection) {
 
-			return false;
+			return !isRootConcept(selection);
 		}
 
 		void doConceptEdit(Concept concept) {
@@ -356,7 +402,8 @@ class HierarchyTreePanel extends JPanel {
 
 		super(new BorderLayout());
 
-		model = hierarchy.getModel();
+		this.hierarchy = hierarchy;
+
 		tree = new HierarchyTree(hierarchy, conceptMover);
 
 		add(createUpperComponent(hierarchy), BorderLayout.NORTH);
@@ -417,7 +464,7 @@ class HierarchyTreePanel extends JPanel {
 
 		if (id != null) {
 
-			if (model.containsDynamicConcept(id)) {
+			if (hierarchy.getModel().containsDynamicConcept(id)) {
 
 				showConceptAlreadyExistsMessage(id);
 			}
@@ -446,11 +493,11 @@ class HierarchyTreePanel extends JPanel {
 		return false;
 	}
 
-	private void checkRemoveConcept(Concept concept) {
+	private void checkRemoveConcepts(List<Concept> concepts) {
 
-		if (obtainConceptRemovalConfirmation(concept)) {
+		if (obtainConceptRemovalsConfirmation(concepts)) {
 
-			concept.remove();
+			new ConceptGroup(concepts).removeAll();
 		}
 	}
 
@@ -464,15 +511,38 @@ class HierarchyTreePanel extends JPanel {
 		InfoDisplay.inform("Concept already exists: " + id.getName());
 	}
 
-	private boolean obtainConceptRemovalConfirmation(Concept concept) {
+	private boolean obtainConceptRemovalsConfirmation(List<Concept> concepts) {
 
-		String msg = "Removing concept";
+		return InfoDisplay.checkContinue(createConceptRemovalsMessage(concepts));
+	}
 
-		if (!concept.isLeaf()) {
+	private String createConceptRemovalsMessage(List<Concept> concepts) {
 
-			msg += " and all descendant-concepts";
+		StringBuilder msg = new StringBuilder();
+
+		msg.append("Removing concept(s):");
+		msg.append("\n\n");
+
+		for (Concept concept : concepts) {
+
+			msg.append("  " + concept.getConceptId());
+			msg.append('\n');
 		}
 
-		return InfoDisplay.checkContinue(msg + ": " + concept.getConceptId());
+		msg.append('\n');
+		msg.append("Plus any descendant-concepts and associated constraints");
+		msg.append('\n');
+
+		return msg.toString();
+	}
+
+	private boolean containsRootConcept(List<Concept> concepts) {
+
+		return concepts.contains(hierarchy.getRootConcept());
+	}
+
+	private boolean isRootConcept(Concept concept) {
+
+		return concept.equals(hierarchy.getRootConcept());
 	}
 }

@@ -51,7 +51,7 @@ class HierarchyTree extends ConceptTree {
 
 	HierarchyTree(Hierarchy hierarchy, ConceptMover conceptMover) {
 
-		super(false);
+		super(true);
 
 		this.hierarchy = hierarchy;
 		this.conceptMover = conceptMover;

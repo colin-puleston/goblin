@@ -34,22 +34,30 @@ import uk.ac.manchester.cs.goblin.model.*;
  */
 class UserConfirmations implements Confirmations {
 
-	private class ConstraintsRemovalsInfo {
+	private abstract class ConstraintsRemovalSourceHandler {
 
 		static private final int MAX_TARGETS_TO_DISPLAY = 3;
 
 		private StringBuilder info = new StringBuilder();
 
-		ConstraintsRemovalsInfo(List<Constraint> removals) {
+		void initialise(List<Constraint> removals) {
+
+			addMessageHeader();
 
 			checkAddForSemanticsType(ConstraintSemantics.VALID_VALUES, removals);
 			checkAddForSemanticsType(ConstraintSemantics.IMPLIED_VALUE, removals);
+
+			addMessageFooter();
 		}
 
-		String get() {
+		boolean checkContinue() {
 
-			return info.toString();
+			return InfoDisplay.checkContinue(info.toString());
 		}
+
+		abstract String describeEditProcess();
+
+		abstract String describeEditProcessForQuery();
 
 		private void checkAddForSemanticsType(
 						ConstraintSemantics semantics,
@@ -70,16 +78,32 @@ class UserConfirmations implements Confirmations {
 			}
 		}
 
+		private void addMessageHeader() {
+
+			info.append(describeEditProcess());
+			info.append(" will cause the following");
+			info.append(" conflicting constraints to be removed...");
+			info.append("\n\n");
+		}
+
+		private void addMessageFooter() {
+
+			info.append(describeEditProcessForQuery());
+			info.append(" and conflicting constraints?");
+			info.append("\n\n");
+		}
+
 		private void addSemanticsTypeHeader(ConstraintSemantics semantics) {
 
-			info.append(
-				"Conflicting "
-				+ semantics.getDisplayLabel()
-				+ " constraints will be removed:\n\n");
+			info.append("  ");
+			info.append(semantics.getDisplayLabel());
+			info.append(" constraints:");
+			info.append("\n\n");
 		}
 
 		private void addRemoval(Constraint removal) {
 
+			info.append("    ");
 			info.append(removal.getSourceValue());
 			info.append(" ==> ");
 			addTargets(removal.getTargetValues());
@@ -121,18 +145,53 @@ class UserConfirmations implements Confirmations {
 		}
 	}
 
-	public boolean confirmConceptMove(List<Constraint> invalidatedConstraints) {
+	private class ConceptMoveHandler extends ConstraintsRemovalSourceHandler {
 
-		return confirmConstraintRemovals(invalidatedConstraints);
+		private String conceptLabel;
+
+		ConceptMoveHandler(Concept moved, List<Constraint> invalidatedConstraints) {
+
+			conceptLabel = ("\"" + moved.getConceptId().getLabel() + "\"");
+
+			initialise(invalidatedConstraints);
+		}
+
+		String describeEditProcess() {
+
+			return "Moving " + conceptLabel;
+		}
+
+		String describeEditProcessForQuery() {
+
+			return "Move " + conceptLabel;
+		}
+	}
+
+	private class ConstraintAdditionHandler extends ConstraintsRemovalSourceHandler {
+
+		ConstraintAdditionHandler(List<Constraint> conflicts) {
+
+			initialise(conflicts);
+		}
+
+		String describeEditProcess() {
+
+			return "Adding constraint";
+		}
+
+		String describeEditProcessForQuery() {
+
+			return "Add constraint";
+		}
+	}
+
+	public boolean confirmConceptMove(Concept moved, List<Constraint> invalidatedConstraints) {
+
+		return new ConceptMoveHandler(moved, invalidatedConstraints).checkContinue();
 	}
 
 	public boolean confirmConstraintAddition(List<Constraint> conflicts) {
 
-		return confirmConstraintRemovals(conflicts);
-	}
-
-	private boolean confirmConstraintRemovals(List<Constraint> removals) {
-
-		return InfoDisplay.checkContinue(new ConstraintsRemovalsInfo(removals).get());
+		return new ConstraintAdditionHandler(conflicts).checkContinue();
 	}
 }

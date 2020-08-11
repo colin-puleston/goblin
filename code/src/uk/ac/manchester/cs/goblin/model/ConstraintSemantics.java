@@ -21,7 +21,13 @@ public enum ConstraintSemantics {
 
 	public String getDisplayLabel() {
 
-		return toString().toLowerCase().replaceAll("_", "-");
+		String s = toString();
+		String d = "";
+
+		d += s.charAt(0);
+		d += s.substring(1).toLowerCase().replaceAll("_", "-");
+
+		return d;
 	}
 
 	public List<Constraint> select(Collection<Constraint> candidates) {

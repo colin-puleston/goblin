@@ -56,13 +56,18 @@ class ConstraintGroupPanel extends JPanel {
 		final Concept source;
 		final TargetsTree targetsTree;
 
-		private class TargetsTree extends ConstraintTargetsTree {
+		private class TargetsTree extends ConceptTree {
 
 			static private final long serialVersionUID = -1;
 
 			TargetsTree() {
 
 				super(true);
+			}
+
+			void initialise(Constraint constraint) {
+
+				initialise(constraint.getTargetValues());
 			}
 
 			GCellDisplay getConceptDisplay(Concept concept) {
@@ -264,7 +269,7 @@ class ConstraintGroupPanel extends JPanel {
 		private Concept source;
 		private Set<Concept> currentTargets = new HashSet<Concept>();
 
-		private ConstraintTargetsTree targetsTree;
+		private ConceptTree targetsTree;
 		private TargetSelectionsList targetSelectionsList = new TargetSelectionsList();
 
 		private class TargetSelectionsList extends GList<Concept> {
@@ -455,7 +460,7 @@ class ConstraintGroupPanel extends JPanel {
 			}
 		}
 
-		EditActionsPanel(Concept source, ConstraintTargetsTree targetsTree) {
+		EditActionsPanel(Concept source, ConceptTree targetsTree) {
 
 			super(new BorderLayout());
 
@@ -575,7 +580,7 @@ class ConstraintGroupPanel extends JPanel {
 		ValidValuesEditActionsPanel(
 			Concept source,
 			Constraint localValidValues,
-			ConstraintTargetsTree targetsTree) {
+			ConceptTree targetsTree) {
 
 			super(source, targetsTree);
 
@@ -620,7 +625,7 @@ class ConstraintGroupPanel extends JPanel {
 		ImpliedValuesEditActionsPanel(
 			Concept source,
 			Constraint validValues,
-			ConstraintTargetsTree targetsTree) {
+			ConceptTree targetsTree) {
 
 			super(source, targetsTree);
 

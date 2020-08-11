@@ -24,6 +24,8 @@
 
 package uk.ac.manchester.cs.goblin.gui;
 
+import java.util.*;
+
 import uk.ac.manchester.cs.goblin.model.*;
 
 /**
@@ -31,28 +33,28 @@ import uk.ac.manchester.cs.goblin.model.*;
  */
 class ConceptMover {
 
-	private Concept rootMoveConcept = null;
+	private List<Concept> rootMoveConcepts = new ArrayList<Concept>();
 
-	void startMove(Concept rootMoveConcept) {
+	void startMove(Collection<Concept> rootMoveConcepts) {
 
-		this.rootMoveConcept = rootMoveConcept;
+		this.rootMoveConcepts.addAll(rootMoveConcepts);
 	}
 
 	void completeMove(Concept newParent) {
 
-		rootMoveConcept.move(newParent);
+		new ConceptGroup(rootMoveConcepts).moveAll(newParent);
 
-		rootMoveConcept = null;
+		rootMoveConcepts.clear();
 	}
 
 	void abortMove() {
 
-		rootMoveConcept = null;
+		rootMoveConcepts.clear();
 	}
 
 	boolean moveInProgress() {
 
-		return rootMoveConcept != null;
+		return !rootMoveConcepts.isEmpty();
 	}
 
 	boolean newParentCandidate(Concept concept) {
@@ -62,11 +64,27 @@ class ConceptMover {
 
 	boolean movingConcept(Concept concept) {
 
-		return moveInProgress() && concept.subsumedBy(rootMoveConcept);
+		for (Concept rootMoveConcept : rootMoveConcepts) {
+
+			if (concept.subsumedBy(rootMoveConcept)) {
+
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	private boolean rootMoveParent(Concept concept) {
 
-		return concept.equals(rootMoveConcept.getParent());
+		for (Concept rootMoveConcept : rootMoveConcepts) {
+
+			if (concept.equals(rootMoveConcept.getParent())) {
+
+				return true;
+			}
+		}
+
+		return false;
 	}
 }

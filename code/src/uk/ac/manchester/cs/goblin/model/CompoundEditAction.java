@@ -11,7 +11,12 @@ class CompoundEditAction extends EditAction {
 
 	CompoundEditAction(EditAction... subActions) {
 
-		this.subActions.addAll(Arrays.asList(subActions));
+		this(Arrays.asList(subActions));
+	}
+
+	CompoundEditAction(Collection<EditAction> subActions) {
+
+		this.subActions.addAll(subActions);
 	}
 
 	void addSubAction(EditAction subAction) {

@@ -7,7 +7,7 @@ import java.util.*;
  */
 public interface Confirmations {
 
-	public boolean confirmConceptMove(List<Constraint> invalidatedConstraints);
+	public boolean confirmConceptMove(Concept moved, List<Constraint> invalidatedConstraints);
 
 	public boolean confirmConstraintAddition(List<Constraint> conflicts);
 }
