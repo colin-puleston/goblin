@@ -14,7 +14,7 @@
 				sourceProperty="http://goblin/demo-core.owl#involvesActivity"
 				targetProperty="http://goblin/demo-core.owl#rolePerformed"
 				rootTargetConcept="http://goblin/demo-core.owl#Role"
-				impliedValuesMultiplicity="SINGLE">
+				singleImpliedValues="TRUE">
 				<SemanticsOption semantics="VALID_VALUES"/>
 				<SemanticsOption semantics="IMPLIED_VALUE"/>
 			</AnchoredConstraintType>
@@ -22,7 +22,7 @@
 				name="activity location"
 				linkingProperty="http://goblin/demo-core.owl#performedInLocation"
 				rootTargetConcept="http://goblin/demo-core.owl#Location"
-				impliedValuesMultiplicity="MULTIPLE">
+				singleImpliedValues="FALSE">
 				<SemanticsOption semantics="VALID_VALUES"/>
 				<SemanticsOption semantics="IMPLIED_VALUE"/>
 			</SimpleConstraintType>
