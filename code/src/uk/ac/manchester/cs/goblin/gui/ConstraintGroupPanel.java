@@ -188,7 +188,7 @@ class ConstraintGroupPanel extends JPanel {
 
 		JComponent createHeaderPanel() {
 
-			if (validValuesInclusion()) {
+			if (type.definesValidValues()) {
 
 				JPanel panel = new JPanel(new BorderLayout());
 
@@ -215,12 +215,12 @@ class ConstraintGroupPanel extends JPanel {
 
 			JTabbedPane tabs = new JTabbedPane();
 
-			if (validValuesInclusion()) {
+			if (type.definesValidValues()) {
 
 				addActionsTab(tabs, createValidValuesPanel());
 			}
 
-			if (impliedValuesInclusion()) {
+			if (type.definesImpliedValues()) {
 
 				addActionsTab(tabs, createImpliedValuesPanel());
 			}
@@ -639,7 +639,7 @@ class ConstraintGroupPanel extends JPanel {
 
 		String getTitle() {
 
-			return super.getTitle() + (type.singleValue() ? "" : "(s)");
+			return super.getTitle() + (type.singleImpliedValues() ? "" : "(s)");
 		}
 
 		ConstraintSemantics getSemantics() {
@@ -649,7 +649,7 @@ class ConstraintGroupPanel extends JPanel {
 
 		boolean singleTargetSelection() {
 
-			return type.singleValue();
+			return type.singleImpliedValues();
 		}
 
 		boolean validTargetSelection(Concept selection) {
@@ -730,15 +730,5 @@ class ConstraintGroupPanel extends JPanel {
 		}
 
 		return new EditPanelPopulator(source);
-	}
-
-	private boolean validValuesInclusion() {
-
-		return type.semanticsOption(ConstraintSemantics.VALID_VALUES);
-	}
-
-	private boolean impliedValuesInclusion() {
-
-		return type.semanticsOption(ConstraintSemantics.IMPLIED_VALUE);
 	}
 }

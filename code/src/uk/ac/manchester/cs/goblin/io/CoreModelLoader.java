@@ -93,7 +93,7 @@ class CoreModelLoader extends ConfigFileVocab {
 
 		abstract String getTypeTag();
 
-		abstract ConstraintType loadSpecificType(
+		abstract IOConstraintType loadIOType(
 									KConfigNode node,
 									String name,
 									Concept rootSrc,
@@ -113,20 +113,16 @@ class CoreModelLoader extends ConfigFileVocab {
 			Concept rootSrc = hierarchy.getRootConcept();
 			Concept rootTgt = getRootTargetConcept(node);
 
-			ConstraintType type = loadSpecificType(node, name, rootSrc, rootTgt);
+			IOConstraintType type = loadIOType(node, name, rootSrc, rootTgt);
 
 			Set<ConstraintSemantics> semanticsOpts = getSemanticsOptions(node);
-			ImpliedValuesMultiplicity impValuesMult = getImpliedValuesMultiplicityOrNull(node);
 
 			if (!semanticsOpts.isEmpty()) {
 
 				type.setSemanticsOptions(semanticsOpts);
 			}
 
-			if (impValuesMult != null) {
-
-				type.setImpliedValuesMultiplicity(impValuesMult);
-			}
+			type.setSingleImpliedValues(getSingleImpliedValues(node));
 
 			return type;
 		}
@@ -156,7 +152,11 @@ class CoreModelLoader extends ConfigFileVocab {
 			return SIMPLE_CONSTRAINT_TYPE_TAG;
 		}
 
-		ConstraintType loadSpecificType(KConfigNode node, String name, Concept rootSrc, Concept rootTgt) {
+		IOConstraintType loadIOType(
+							KConfigNode node,
+							String name,
+							Concept rootSrc,
+							Concept rootTgt) {
 
 			EntityId lnkProp = getPropertyId(node, LINKING_PROPERTY_ATTR);
 
@@ -176,7 +176,11 @@ class CoreModelLoader extends ConfigFileVocab {
 			return ANCHORED_CONSTRAINT_TYPE_TAG;
 		}
 
-		ConstraintType loadSpecificType(KConfigNode node, String name, Concept rootSrc, Concept rootTgt) {
+		IOConstraintType loadIOType(
+							KConfigNode node,
+							String name,
+							Concept rootSrc,
+							Concept rootTgt) {
 
 			EntityId anchor = getConceptId(node, ANCHOR_CONCEPT_ATTR);
 
@@ -242,14 +246,14 @@ class CoreModelLoader extends ConfigFileVocab {
 		return getPropertyId(node, ROOT_TARGET_CONCEPT_ATTR);
 	}
 
-	private ImpliedValuesMultiplicity getImpliedValuesMultiplicityOrNull(KConfigNode node) {
-
-		return node.getEnum(IMPLIED_VALUES_MULT_ATTR, ImpliedValuesMultiplicity.class, null);
-	}
-
 	private ConstraintSemantics getSemanticsOption(KConfigNode node) {
 
 		return node.getEnum(SEMANTICS_OPTION_ATTR, ConstraintSemantics.class);
+	}
+
+	private boolean getSingleImpliedValues(KConfigNode node) {
+
+		return node.getBoolean(SINGLE_IMPLIED_VALUES_ATTR, false);
 	}
 
 	private EntityId getConceptId(KConfigNode node, String tag) {

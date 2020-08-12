@@ -11,22 +11,6 @@ public abstract class ConstraintType {
 	private Concept rootSourceConcept;
 	private Concept rootTargetConcept;
 
-	private Set<ConstraintSemantics> semanticsOptions
-				= Collections.singleton(ConstraintSemantics.VALID_VALUES);
-
-	private ImpliedValuesMultiplicity impliedValuesMultiplicity
-							= ImpliedValuesMultiplicity.SINGLE;
-
-	public void setSemanticsOptions(Set<ConstraintSemantics> options) {
-
-		semanticsOptions = new HashSet<ConstraintSemantics>(options);
-	}
-
-	public void setImpliedValuesMultiplicity(ImpliedValuesMultiplicity value) {
-
-		impliedValuesMultiplicity = value;
-	}
-
 	public String getName() {
 
 		return name;
@@ -42,15 +26,11 @@ public abstract class ConstraintType {
 		return rootTargetConcept;
 	}
 
-	public boolean semanticsOption(ConstraintSemantics semantics) {
+	public abstract boolean definesValidValues();
 
-		return semanticsOptions.contains(semantics);
-	}
+	public abstract boolean definesImpliedValues();
 
-	public boolean singleValue() {
-
-		return impliedValuesMultiplicity.singleValue();
-	}
+	public abstract boolean singleImpliedValues();
 
 	protected ConstraintType(String name, Concept rootSourceConcept, Concept rootTargetConcept) {
 

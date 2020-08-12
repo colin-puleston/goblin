@@ -22,6 +22,6 @@ class ImpliedValueConstraint extends Constraint {
 
 	boolean singleConstraintOfTypeAndSemanticsPerConcept() {
 
-		return getType().singleValue();
+		return getType().singleImpliedValues();
 	}
 }

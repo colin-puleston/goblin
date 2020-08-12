@@ -22,6 +22,6 @@ class ConfigFileVocab {
 	static final String TARGET_PROPERTY_ATTR = "targetProperty";
 	static final String LINKING_PROPERTY_ATTR = "linkingProperty";
 	static final String ROOT_TARGET_CONCEPT_ATTR = "rootTargetConcept";
-	static final String IMPLIED_VALUES_MULT_ATTR = "impliedValuesMultiplicity";
+	static final String SINGLE_IMPLIED_VALUES_ATTR = "singleImpliedValues";
 	static final String SEMANTICS_OPTION_ATTR = "semantics";
 }

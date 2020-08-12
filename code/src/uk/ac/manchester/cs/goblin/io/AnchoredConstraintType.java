@@ -5,7 +5,7 @@ import uk.ac.manchester.cs.goblin.model.*;
 /**
  * @author Colin Puleston
  */
-class AnchoredConstraintType extends ConstraintType {
+class AnchoredConstraintType extends IOConstraintType {
 
 	private EntityId anchorConceptId;
 

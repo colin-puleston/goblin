@@ -71,7 +71,7 @@ class ConflictResolver {
 
 				if (dec.getSemantics().impliedValue()) {
 
-					if (type.singleValue()) {
+					if (type.singleImpliedValues()) {
 
 						return !dec.getTargetValue().descendantOf(anc.getTargetValue());
 					}
@@ -246,7 +246,7 @@ class ConflictResolver {
 
 			ConstraintType type = constraint.getType();
 
-			if (type.singleValue()) {
+			if (type.singleImpliedValues()) {
 
 				Concept source = constraint.getSourceValue();
 

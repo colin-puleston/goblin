@@ -5,7 +5,7 @@ import uk.ac.manchester.cs.goblin.model.*;
 /**
  * @author Colin Puleston
  */
-class SimpleConstraintType extends ConstraintType {
+class SimpleConstraintType extends IOConstraintType {
 
 	private EntityId linkingPropertyId;
 
