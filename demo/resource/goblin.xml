@@ -19,9 +19,9 @@
 				<SemanticsOption semantics="IMPLIED_VALUE"/>
 			</AnchoredConstraintType>
 			<SimpleConstraintType
-				name="activity location"
+				name="activity venue"
 				linkingProperty="http://goblin/demo-core.owl#performedInLocation"
-				rootTargetConcept="http://goblin/demo-core.owl#Location"
+				rootTargetConcept="http://goblin/demo-core.owl#VenueByType"
 				singleImpliedValues="FALSE">
 				<SemanticsOption semantics="VALID_VALUES"/>
 				<SemanticsOption semantics="IMPLIED_VALUE"/>
@@ -32,8 +32,25 @@
 			rootConcept="http://goblin/demo-core.owl#Role">
 		</DynamicHierarchy>
 
+		<DynamicHierarchy
+			rootConcept="http://goblin/demo-core.owl#VenueByType">
+			<HierarchicalConstraintType
+				name="venue location"
+				rootTargetConcept="http://goblin/demo-core.owl#VenueByLocation"
+				singleImpliedValues="TRUE">
+			</HierarchicalConstraintType>
+			<SimpleConstraintType
+				name="activity venue"
+				linkingProperty="http://goblin/demo-core.owl#performedInLocation"
+				rootTargetConcept="http://goblin/demo-core.owl#VenueByType"
+				singleImpliedValues="FALSE">
+				<SemanticsOption semantics="VALID_VALUES"/>
+				<SemanticsOption semantics="IMPLIED_VALUE"/>
+			</SimpleConstraintType>
+		</DynamicHierarchy>
+
 		<ReferenceOnlyHierarchy
-			rootConcept="http://goblin/demo-core.owl#Location">
+			rootConcept="http://goblin/demo-core.owl#VenueByLocation">
 		</ReferenceOnlyHierarchy>
 
 	</ModelSection>

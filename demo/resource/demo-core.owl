@@ -35,9 +35,9 @@
     
 
 
-    <!-- http://goblin/demo-core.owl#performedInLocation -->
+    <!-- http://goblin/demo-core.owl#performedInVenue -->
 
-    <owl:ObjectProperty rdf:about="http://goblin/demo-core.owl#performedInLocation"/>
+    <owl:ObjectProperty rdf:about="http://goblin/demo-core.owl#performedInVenue"/>
     
 
 
@@ -65,49 +65,27 @@
     <owl:Class rdf:about="http://goblin/demo-core.owl#Activity">
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="http://goblin/demo-core.owl#performedInLocation"/>
+                <owl:onProperty rdf:resource="http://goblin/demo-core.owl#performedInVenue"/>
                 <owl:minQualifiedCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:minQualifiedCardinality>
-                <owl:onClass rdf:resource="http://goblin/demo-core.owl#Location"/>
+                <owl:onClass rdf:resource="http://goblin/demo-core.owl#Venue"/>
             </owl:Restriction>
         </rdfs:subClassOf>
     </owl:Class>
     
 
 
-    <!-- http://goblin/demo-core.owl#ActivityCentre -->
+    <!-- http://goblin/demo-core.owl#GeneralIndoorVenue -->
 
-    <owl:Class rdf:about="http://goblin/demo-core.owl#ActivityCentre">
-        <rdfs:subClassOf rdf:resource="http://goblin/demo-core.owl#IndoorLocation"/>
+    <owl:Class rdf:about="http://goblin/demo-core.owl#GeneralIndoorVenue">
+        <rdfs:subClassOf rdf:resource="http://goblin/demo-core.owl#IndoorVenue"/>
     </owl:Class>
     
 
 
-    <!-- http://goblin/demo-core.owl#CyclingTrack -->
+    <!-- http://goblin/demo-core.owl#GeneralOutdoorVenue -->
 
-    <owl:Class rdf:about="http://goblin/demo-core.owl#CyclingTrack"/>
-    
-
-
-    <!-- http://goblin/demo-core.owl#DomesticDwelling -->
-
-    <owl:Class rdf:about="http://goblin/demo-core.owl#DomesticDwelling">
-        <rdfs:subClassOf rdf:resource="http://goblin/demo-core.owl#IndoorLocation"/>
-    </owl:Class>
-    
-
-
-    <!-- http://goblin/demo-core.owl#Footpaths -->
-
-    <owl:Class rdf:about="http://goblin/demo-core.owl#Footpaths">
-        <rdfs:subClassOf rdf:resource="http://goblin/demo-core.owl#OffRoadLocation"/>
-    </owl:Class>
-    
-
-
-    <!-- http://goblin/demo-core.owl#GeneralOutdoorLocation -->
-
-    <owl:Class rdf:about="http://goblin/demo-core.owl#GeneralOutdoorLocation">
-        <rdfs:subClassOf rdf:resource="http://goblin/demo-core.owl#OutdoorLocation"/>
+    <owl:Class rdf:about="http://goblin/demo-core.owl#GeneralOutdoorVenue">
+        <rdfs:subClassOf rdf:resource="http://goblin/demo-core.owl#OutdoorVenue"/>
     </owl:Class>
     
 
@@ -133,64 +111,18 @@
     
 
 
-    <!-- http://goblin/demo-core.owl#IndoorLocation -->
+    <!-- http://goblin/demo-core.owl#IndoorVenue -->
 
-    <owl:Class rdf:about="http://goblin/demo-core.owl#IndoorLocation">
-        <rdfs:subClassOf rdf:resource="http://goblin/demo-core.owl#Location"/>
+    <owl:Class rdf:about="http://goblin/demo-core.owl#IndoorVenue">
+        <rdfs:subClassOf rdf:resource="http://goblin/demo-core.owl#VenueByLocation"/>
     </owl:Class>
     
 
 
-    <!-- http://goblin/demo-core.owl#IndoorRunningTrack -->
+    <!-- http://goblin/demo-core.owl#OutdoorVenue -->
 
-    <owl:Class rdf:about="http://goblin/demo-core.owl#IndoorRunningTrack">
-        <rdfs:subClassOf rdf:resource="http://goblin/demo-core.owl#IndoorSportsVenue"/>
-    </owl:Class>
-    
-
-
-    <!-- http://goblin/demo-core.owl#IndoorSportsVenue -->
-
-    <owl:Class rdf:about="http://goblin/demo-core.owl#IndoorSportsVenue">
-        <rdfs:subClassOf rdf:resource="http://goblin/demo-core.owl#IndoorLocation"/>
-    </owl:Class>
-    
-
-
-    <!-- http://goblin/demo-core.owl#Location -->
-
-    <owl:Class rdf:about="http://goblin/demo-core.owl#Location"/>
-    
-
-
-    <!-- http://goblin/demo-core.owl#MotorRacingTrack -->
-
-    <owl:Class rdf:about="http://goblin/demo-core.owl#MotorRacingTrack">
-        <rdfs:subClassOf rdf:resource="http://goblin/demo-core.owl#Racetrack"/>
-    </owl:Class>
-    
-
-
-    <!-- http://goblin/demo-core.owl#OffRoadLocation -->
-
-    <owl:Class rdf:about="http://goblin/demo-core.owl#OffRoadLocation">
-        <rdfs:subClassOf rdf:resource="http://goblin/demo-core.owl#GeneralOutdoorLocation"/>
-    </owl:Class>
-    
-
-
-    <!-- http://goblin/demo-core.owl#OutdoorLocation -->
-
-    <owl:Class rdf:about="http://goblin/demo-core.owl#OutdoorLocation">
-        <rdfs:subClassOf rdf:resource="http://goblin/demo-core.owl#Location"/>
-    </owl:Class>
-    
-
-
-    <!-- http://goblin/demo-core.owl#OutdoorSportsVenue -->
-
-    <owl:Class rdf:about="http://goblin/demo-core.owl#OutdoorSportsVenue">
-        <rdfs:subClassOf rdf:resource="http://goblin/demo-core.owl#OutdoorLocation"/>
+    <owl:Class rdf:about="http://goblin/demo-core.owl#OutdoorVenue">
+        <rdfs:subClassOf rdf:resource="http://goblin/demo-core.owl#VenueByLocation"/>
     </owl:Class>
     
 
@@ -208,18 +140,18 @@
     
 
 
-    <!-- http://goblin/demo-core.owl#PublicRoads -->
+    <!-- http://goblin/demo-core.owl#PurposeBuiltIndoorVenue -->
 
-    <owl:Class rdf:about="http://goblin/demo-core.owl#PublicRoads">
-        <rdfs:subClassOf rdf:resource="http://goblin/demo-core.owl#GeneralOutdoorLocation"/>
+    <owl:Class rdf:about="http://goblin/demo-core.owl#PurposeBuiltIndoorVenue">
+        <rdfs:subClassOf rdf:resource="http://goblin/demo-core.owl#IndoorVenue"/>
     </owl:Class>
     
 
 
-    <!-- http://goblin/demo-core.owl#Racetrack -->
+    <!-- http://goblin/demo-core.owl#PurposeBuiltOutdoorVenue -->
 
-    <owl:Class rdf:about="http://goblin/demo-core.owl#Racetrack">
-        <rdfs:subClassOf rdf:resource="http://goblin/demo-core.owl#OutdoorSportsVenue"/>
+    <owl:Class rdf:about="http://goblin/demo-core.owl#PurposeBuiltOutdoorVenue">
+        <rdfs:subClassOf rdf:resource="http://goblin/demo-core.owl#OutdoorVenue"/>
     </owl:Class>
     
 
@@ -230,58 +162,24 @@
     
 
 
-    <!-- http://goblin/demo-core.owl#RoughTerrain -->
+    <!-- http://goblin/demo-core.owl#Venue -->
 
-    <owl:Class rdf:about="http://goblin/demo-core.owl#RoughTerrain">
-        <rdfs:subClassOf rdf:resource="http://goblin/demo-core.owl#OffRoadLocation"/>
+    <owl:Class rdf:about="http://goblin/demo-core.owl#Venue"/>
+    
+
+
+    <!-- http://goblin/demo-core.owl#VenueByLocation -->
+
+    <owl:Class rdf:about="http://goblin/demo-core.owl#VenueByLocation">
+        <rdfs:subClassOf rdf:resource="http://goblin/demo-core.owl#Venue"/>
     </owl:Class>
     
 
 
-    <!-- http://goblin/demo-core.owl#RunningTrack -->
+    <!-- http://goblin/demo-core.owl#VenueByType -->
 
-    <owl:Class rdf:about="http://goblin/demo-core.owl#RunningTrack">
-        <rdfs:subClassOf rdf:resource="http://goblin/demo-core.owl#Racetrack"/>
-    </owl:Class>
-    
-
-
-    <!-- http://goblin/demo-core.owl#RuralRoads -->
-
-    <owl:Class rdf:about="http://goblin/demo-core.owl#RuralRoads">
-        <rdfs:subClassOf rdf:resource="http://goblin/demo-core.owl#PublicRoads"/>
-    </owl:Class>
-    
-
-
-    <!-- http://goblin/demo-core.owl#SportsCentre -->
-
-    <owl:Class rdf:about="http://goblin/demo-core.owl#SportsCentre">
-        <rdfs:subClassOf rdf:resource="http://goblin/demo-core.owl#IndoorSportsVenue"/>
-    </owl:Class>
-    
-
-
-    <!-- http://goblin/demo-core.owl#SportsGround -->
-
-    <owl:Class rdf:about="http://goblin/demo-core.owl#SportsGround">
-        <rdfs:subClassOf rdf:resource="http://goblin/demo-core.owl#OutdoorSportsVenue"/>
-    </owl:Class>
-    
-
-
-    <!-- http://goblin/demo-core.owl#UrbanRoads -->
-
-    <owl:Class rdf:about="http://goblin/demo-core.owl#UrbanRoads">
-        <rdfs:subClassOf rdf:resource="http://goblin/demo-core.owl#PublicRoads"/>
-    </owl:Class>
-    
-
-
-    <!-- http://goblin/demo-core.owl#Velodrome -->
-
-    <owl:Class rdf:about="http://goblin/demo-core.owl#Velodrome">
-        <rdfs:subClassOf rdf:resource="http://goblin/demo-core.owl#IndoorSportsVenue"/>
+    <owl:Class rdf:about="http://goblin/demo-core.owl#VenueByType">
+        <rdfs:subClassOf rdf:resource="http://goblin/demo-core.owl#Venue"/>
     </owl:Class>
 </rdf:RDF>
 

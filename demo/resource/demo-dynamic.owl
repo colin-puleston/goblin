@@ -23,23 +23,20 @@
     
 
 
+    <!-- http://goblin/demo-dynamic.owl#ActivityCentre -->
+
+    <owl:Class rdf:about="http://goblin/demo-dynamic.owl#ActivityCentre">
+        <rdfs:subClassOf rdf:resource="http://goblin/demo-core.owl#PurposeBuiltIndoorVenue"/>
+        <rdfs:subClassOf rdf:resource="http://goblin/demo-core.owl#VenueByType"/>
+        <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Activity centre</rdfs:label>
+    </owl:Class>
+    
+
+
     <!-- http://goblin/demo-dynamic.owl#Art -->
 
     <owl:Class rdf:about="http://goblin/demo-dynamic.owl#Art">
         <rdfs:subClassOf rdf:resource="http://goblin/demo-core.owl#Activity"/>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="http://goblin/demo-core.owl#performedInLocation"/>
-                <owl:allValuesFrom>
-                    <owl:Class>
-                        <owl:unionOf rdf:parseType="Collection">
-                            <rdf:Description rdf:about="http://goblin/demo-core.owl#ActivityCentre"/>
-                            <rdf:Description rdf:about="http://goblin/demo-core.owl#DomesticDwelling"/>
-                        </owl:unionOf>
-                    </owl:Class>
-                </owl:allValuesFrom>
-            </owl:Restriction>
-        </rdfs:subClassOf>
         <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Art</rdfs:label>
     </owl:Class>
     
@@ -85,19 +82,6 @@
 
     <owl:Class rdf:about="http://goblin/demo-dynamic.owl#Craft">
         <rdfs:subClassOf rdf:resource="http://goblin/demo-core.owl#Activity"/>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="http://goblin/demo-core.owl#performedInLocation"/>
-                <owl:allValuesFrom>
-                    <owl:Class>
-                        <owl:unionOf rdf:parseType="Collection">
-                            <rdf:Description rdf:about="http://goblin/demo-core.owl#ActivityCentre"/>
-                            <rdf:Description rdf:about="http://goblin/demo-core.owl#DomesticDwelling"/>
-                        </owl:unionOf>
-                    </owl:Class>
-                </owl:allValuesFrom>
-            </owl:Restriction>
-        </rdfs:subClassOf>
         <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Craft</rdfs:label>
     </owl:Class>
     
@@ -116,20 +100,6 @@
 
     <owl:Class rdf:about="http://goblin/demo-dynamic.owl#Cycling">
         <rdfs:subClassOf rdf:resource="http://goblin/demo-dynamic.owl#OutdoorPursuit"/>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="http://goblin/demo-core.owl#performedInLocation"/>
-                <owl:allValuesFrom>
-                    <owl:Class>
-                        <owl:unionOf rdf:parseType="Collection">
-                            <rdf:Description rdf:about="http://goblin/demo-core.owl#OffRoadLocation"/>
-                            <rdf:Description rdf:about="http://goblin/demo-core.owl#PublicRoads"/>
-                            <rdf:Description rdf:about="http://goblin/demo-core.owl#Velodrome"/>
-                        </owl:unionOf>
-                    </owl:Class>
-                </owl:allValuesFrom>
-            </owl:Restriction>
-        </rdfs:subClassOf>
         <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Cycling</rdfs:label>
     </owl:Class>
     
@@ -144,16 +114,20 @@
     
 
 
+    <!-- http://goblin/demo-dynamic.owl#DomesticDwelling -->
+
+    <owl:Class rdf:about="http://goblin/demo-dynamic.owl#DomesticDwelling">
+        <rdfs:subClassOf rdf:resource="http://goblin/demo-core.owl#GeneralIndoorVenue"/>
+        <rdfs:subClassOf rdf:resource="http://goblin/demo-core.owl#VenueByType"/>
+        <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Domestic dwelling</rdfs:label>
+    </owl:Class>
+    
+
+
     <!-- http://goblin/demo-dynamic.owl#DomesticHobby -->
 
     <owl:Class rdf:about="http://goblin/demo-dynamic.owl#DomesticHobby">
         <rdfs:subClassOf rdf:resource="http://goblin/demo-core.owl#Activity"/>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="http://goblin/demo-core.owl#performedInLocation"/>
-                <owl:someValuesFrom rdf:resource="http://goblin/demo-core.owl#DomesticDwelling"/>
-            </owl:Restriction>
-        </rdfs:subClassOf>
         <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Domestic hobby</rdfs:label>
     </owl:Class>
     
@@ -195,6 +169,15 @@
     
 
 
+    <!-- http://goblin/demo-dynamic.owl#Footpaths -->
+
+    <owl:Class rdf:about="http://goblin/demo-dynamic.owl#Footpaths">
+        <rdfs:subClassOf rdf:resource="http://goblin/demo-dynamic.owl#OffRoad"/>
+        <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Footpaths</rdfs:label>
+    </owl:Class>
+    
+
+
     <!-- http://goblin/demo-dynamic.owl#Formula1 -->
 
     <owl:Class rdf:about="http://goblin/demo-dynamic.owl#Formula1">
@@ -217,52 +200,14 @@
 
     <owl:Class rdf:about="http://goblin/demo-dynamic.owl#Hiking">
         <rdfs:subClassOf rdf:resource="http://goblin/demo-dynamic.owl#OutdoorPursuit"/>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="http://goblin/demo-core.owl#performedInLocation"/>
-                <owl:allValuesFrom>
-                    <owl:Class>
-                        <owl:unionOf rdf:parseType="Collection">
-                            <rdf:Description rdf:about="http://goblin/demo-core.owl#OffRoadLocation"/>
-                            <rdf:Description rdf:about="http://goblin/demo-core.owl#RuralRoads"/>
-                        </owl:unionOf>
-                    </owl:Class>
-                </owl:allValuesFrom>
-            </owl:Restriction>
-        </rdfs:subClassOf>
         <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Hiking</rdfs:label>
     </owl:Class>
     
 
 
-    <!-- http://goblin/demo-dynamic.owl#Hobby-Constraint-5&#45;&#45;Craft-to-Role -->
+    <!-- http://goblin/demo-dynamic.owl#Hobby-Constraint-1&#45;&#45;Art-to-Role -->
 
-    <owl:Class rdf:about="http://goblin/demo-dynamic.owl#Hobby-Constraint-5--Craft-to-Role">
-        <owl:equivalentClass>
-            <owl:Class>
-                <owl:intersectionOf rdf:parseType="Collection">
-                    <rdf:Description rdf:about="http://goblin/demo-core.owl#Hobby"/>
-                    <owl:Restriction>
-                        <owl:onProperty rdf:resource="http://goblin/demo-core.owl#involvesActivity"/>
-                        <owl:someValuesFrom rdf:resource="http://goblin/demo-dynamic.owl#Craft"/>
-                    </owl:Restriction>
-                </owl:intersectionOf>
-            </owl:Class>
-        </owl:equivalentClass>
-        <rdfs:subClassOf rdf:resource="http://goblin/demo-core.owl#Hobby"/>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="http://goblin/demo-core.owl#rolePerformed"/>
-                <owl:allValuesFrom rdf:resource="http://goblin/demo-dynamic.owl#Participant"/>
-            </owl:Restriction>
-        </rdfs:subClassOf>
-    </owl:Class>
-    
-
-
-    <!-- http://goblin/demo-dynamic.owl#Hobby-Constraint-6&#45;&#45;Art-to-Role -->
-
-    <owl:Class rdf:about="http://goblin/demo-dynamic.owl#Hobby-Constraint-6--Art-to-Role">
+    <owl:Class rdf:about="http://goblin/demo-dynamic.owl#Hobby-Constraint-1--Art-to-Role">
         <owl:equivalentClass>
             <owl:Class>
                 <owl:intersectionOf rdf:parseType="Collection">
@@ -285,16 +230,16 @@
     
 
 
-    <!-- http://goblin/demo-dynamic.owl#Hobby-Constraint-7&#45;&#45;Hiking-to-Role -->
+    <!-- http://goblin/demo-dynamic.owl#Hobby-Constraint-2&#45;&#45;Craft-to-Role -->
 
-    <owl:Class rdf:about="http://goblin/demo-dynamic.owl#Hobby-Constraint-7--Hiking-to-Role">
+    <owl:Class rdf:about="http://goblin/demo-dynamic.owl#Hobby-Constraint-2--Craft-to-Role">
         <owl:equivalentClass>
             <owl:Class>
                 <owl:intersectionOf rdf:parseType="Collection">
                     <rdf:Description rdf:about="http://goblin/demo-core.owl#Hobby"/>
                     <owl:Restriction>
                         <owl:onProperty rdf:resource="http://goblin/demo-core.owl#involvesActivity"/>
-                        <owl:someValuesFrom rdf:resource="http://goblin/demo-dynamic.owl#Hiking"/>
+                        <owl:someValuesFrom rdf:resource="http://goblin/demo-dynamic.owl#Craft"/>
                     </owl:Restriction>
                 </owl:intersectionOf>
             </owl:Class>
@@ -310,9 +255,9 @@
     
 
 
-    <!-- http://goblin/demo-dynamic.owl#Hobby-Constraint-9&#45;&#45;Cycling-to-Role -->
+    <!-- http://goblin/demo-dynamic.owl#Hobby-Constraint-7&#45;&#45;Cycling-to-Role -->
 
-    <owl:Class rdf:about="http://goblin/demo-dynamic.owl#Hobby-Constraint-9--Cycling-to-Role">
+    <owl:Class rdf:about="http://goblin/demo-dynamic.owl#Hobby-Constraint-7--Cycling-to-Role">
         <owl:equivalentClass>
             <owl:Class>
                 <owl:intersectionOf rdf:parseType="Collection">
@@ -346,11 +291,46 @@
     
 
 
+    <!-- http://goblin/demo-dynamic.owl#Hobby-Constraint-9&#45;&#45;Hiking-to-Role -->
+
+    <owl:Class rdf:about="http://goblin/demo-dynamic.owl#Hobby-Constraint-9--Hiking-to-Role">
+        <owl:equivalentClass>
+            <owl:Class>
+                <owl:intersectionOf rdf:parseType="Collection">
+                    <rdf:Description rdf:about="http://goblin/demo-core.owl#Hobby"/>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="http://goblin/demo-core.owl#involvesActivity"/>
+                        <owl:someValuesFrom rdf:resource="http://goblin/demo-dynamic.owl#Hiking"/>
+                    </owl:Restriction>
+                </owl:intersectionOf>
+            </owl:Class>
+        </owl:equivalentClass>
+        <rdfs:subClassOf rdf:resource="http://goblin/demo-core.owl#Hobby"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://goblin/demo-core.owl#rolePerformed"/>
+                <owl:allValuesFrom rdf:resource="http://goblin/demo-dynamic.owl#Participant"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+    </owl:Class>
+    
+
+
     <!-- http://goblin/demo-dynamic.owl#Hockey -->
 
     <owl:Class rdf:about="http://goblin/demo-dynamic.owl#Hockey">
         <rdfs:subClassOf rdf:resource="http://goblin/demo-dynamic.owl#TeamSport"/>
         <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Hockey</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://goblin/demo-dynamic.owl#IndoorRunningTrack -->
+
+    <owl:Class rdf:about="http://goblin/demo-dynamic.owl#IndoorRunningTrack">
+        <rdfs:subClassOf rdf:resource="http://goblin/demo-core.owl#PurposeBuiltIndoorVenue"/>
+        <rdfs:subClassOf rdf:resource="http://goblin/demo-dynamic.owl#RunningTrack"/>
+        <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Indoor running track</rdfs:label>
     </owl:Class>
     
 
@@ -391,16 +371,20 @@
     
 
 
+    <!-- http://goblin/demo-dynamic.owl#MotorRacingTrack -->
+
+    <owl:Class rdf:about="http://goblin/demo-dynamic.owl#MotorRacingTrack">
+        <rdfs:subClassOf rdf:resource="http://goblin/demo-core.owl#PurposeBuiltOutdoorVenue"/>
+        <rdfs:subClassOf rdf:resource="http://goblin/demo-dynamic.owl#Racetrack"/>
+        <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Motor racing track</rdfs:label>
+    </owl:Class>
+    
+
+
     <!-- http://goblin/demo-dynamic.owl#MotorSport -->
 
     <owl:Class rdf:about="http://goblin/demo-dynamic.owl#MotorSport">
         <rdfs:subClassOf rdf:resource="http://goblin/demo-dynamic.owl#Sport"/>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="http://goblin/demo-core.owl#performedInLocation"/>
-                <owl:allValuesFrom rdf:resource="http://goblin/demo-core.owl#MotorRacingTrack"/>
-            </owl:Restriction>
-        </rdfs:subClassOf>
         <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Motor sport</rdfs:label>
     </owl:Class>
     
@@ -428,12 +412,6 @@
 
     <owl:Class rdf:about="http://goblin/demo-dynamic.owl#MountainBiking">
         <rdfs:subClassOf rdf:resource="http://goblin/demo-dynamic.owl#Cycling"/>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="http://goblin/demo-core.owl#performedInLocation"/>
-                <owl:allValuesFrom rdf:resource="http://goblin/demo-core.owl#OffRoadLocation"/>
-            </owl:Restriction>
-        </rdfs:subClassOf>
         <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Mountain biking</rdfs:label>
     </owl:Class>
     
@@ -457,6 +435,16 @@
     
 
 
+    <!-- http://goblin/demo-dynamic.owl#OffRoad -->
+
+    <owl:Class rdf:about="http://goblin/demo-dynamic.owl#OffRoad">
+        <rdfs:subClassOf rdf:resource="http://goblin/demo-core.owl#GeneralOutdoorVenue"/>
+        <rdfs:subClassOf rdf:resource="http://goblin/demo-core.owl#VenueByType"/>
+        <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Off road</rdfs:label>
+    </owl:Class>
+    
+
+
     <!-- http://goblin/demo-dynamic.owl#Organiser -->
 
     <owl:Class rdf:about="http://goblin/demo-dynamic.owl#Organiser">
@@ -471,6 +459,16 @@
     <owl:Class rdf:about="http://goblin/demo-dynamic.owl#OutdoorPursuit">
         <rdfs:subClassOf rdf:resource="http://goblin/demo-core.owl#Activity"/>
         <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Outdoor pursuit</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://goblin/demo-dynamic.owl#OutdoorRunningTrack -->
+
+    <owl:Class rdf:about="http://goblin/demo-dynamic.owl#OutdoorRunningTrack">
+        <rdfs:subClassOf rdf:resource="http://goblin/demo-core.owl#PurposeBuiltOutdoorVenue"/>
+        <rdfs:subClassOf rdf:resource="http://goblin/demo-dynamic.owl#RunningTrack"/>
+        <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Outdoor running track</rdfs:label>
     </owl:Class>
     
 
@@ -502,23 +500,19 @@
     
 
 
+    <!-- http://goblin/demo-dynamic.owl#Racetrack -->
+
+    <owl:Class rdf:about="http://goblin/demo-dynamic.owl#Racetrack">
+        <rdfs:subClassOf rdf:resource="http://goblin/demo-dynamic.owl#SportsVenue"/>
+        <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Racetrack</rdfs:label>
+    </owl:Class>
+    
+
+
     <!-- http://goblin/demo-dynamic.owl#RacketSport -->
 
     <owl:Class rdf:about="http://goblin/demo-dynamic.owl#RacketSport">
         <rdfs:subClassOf rdf:resource="http://goblin/demo-dynamic.owl#Sport"/>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="http://goblin/demo-core.owl#performedInLocation"/>
-                <owl:allValuesFrom>
-                    <owl:Class>
-                        <owl:unionOf rdf:parseType="Collection">
-                            <rdf:Description rdf:about="http://goblin/demo-core.owl#SportsCentre"/>
-                            <rdf:Description rdf:about="http://goblin/demo-core.owl#SportsGround"/>
-                        </owl:unionOf>
-                    </owl:Class>
-                </owl:allValuesFrom>
-            </owl:Restriction>
-        </rdfs:subClassOf>
         <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Racket sport</rdfs:label>
     </owl:Class>
     
@@ -533,16 +527,20 @@
     
 
 
+    <!-- http://goblin/demo-dynamic.owl#Road -->
+
+    <owl:Class rdf:about="http://goblin/demo-dynamic.owl#Road">
+        <rdfs:subClassOf rdf:resource="http://goblin/demo-core.owl#GeneralOutdoorVenue"/>
+        <rdfs:subClassOf rdf:resource="http://goblin/demo-core.owl#VenueByType"/>
+        <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Road</rdfs:label>
+    </owl:Class>
+    
+
+
     <!-- http://goblin/demo-dynamic.owl#RoadCycling -->
 
     <owl:Class rdf:about="http://goblin/demo-dynamic.owl#RoadCycling">
         <rdfs:subClassOf rdf:resource="http://goblin/demo-dynamic.owl#Cycling"/>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="http://goblin/demo-core.owl#performedInLocation"/>
-                <owl:allValuesFrom rdf:resource="http://goblin/demo-core.owl#PublicRoads"/>
-            </owl:Restriction>
-        </rdfs:subClassOf>
         <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Road cycling</rdfs:label>
     </owl:Class>
     
@@ -552,13 +550,16 @@
 
     <owl:Class rdf:about="http://goblin/demo-dynamic.owl#RockClimbing">
         <rdfs:subClassOf rdf:resource="http://goblin/demo-dynamic.owl#OutdoorPursuit"/>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="http://goblin/demo-core.owl#performedInLocation"/>
-                <owl:someValuesFrom rdf:resource="http://goblin/demo-core.owl#RoughTerrain"/>
-            </owl:Restriction>
-        </rdfs:subClassOf>
         <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Rock climbing</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://goblin/demo-dynamic.owl#RoughTerrain -->
+
+    <owl:Class rdf:about="http://goblin/demo-dynamic.owl#RoughTerrain">
+        <rdfs:subClassOf rdf:resource="http://goblin/demo-dynamic.owl#OffRoad"/>
+        <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Rough terrain</rdfs:label>
     </owl:Class>
     
 
@@ -568,6 +569,24 @@
     <owl:Class rdf:about="http://goblin/demo-dynamic.owl#Rugby">
         <rdfs:subClassOf rdf:resource="http://goblin/demo-dynamic.owl#TeamSport"/>
         <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Rugby</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://goblin/demo-dynamic.owl#RunningTrack -->
+
+    <owl:Class rdf:about="http://goblin/demo-dynamic.owl#RunningTrack">
+        <rdfs:subClassOf rdf:resource="http://goblin/demo-dynamic.owl#Racetrack"/>
+        <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Running track</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://goblin/demo-dynamic.owl#RuralRoad -->
+
+    <owl:Class rdf:about="http://goblin/demo-dynamic.owl#RuralRoad">
+        <rdfs:subClassOf rdf:resource="http://goblin/demo-dynamic.owl#Road"/>
+        <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Rural road</rdfs:label>
     </owl:Class>
     
 
@@ -626,6 +645,35 @@
     
 
 
+    <!-- http://goblin/demo-dynamic.owl#SportsCentre -->
+
+    <owl:Class rdf:about="http://goblin/demo-dynamic.owl#SportsCentre">
+        <rdfs:subClassOf rdf:resource="http://goblin/demo-core.owl#PurposeBuiltIndoorVenue"/>
+        <rdfs:subClassOf rdf:resource="http://goblin/demo-dynamic.owl#SportsVenue"/>
+        <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Sports centre</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://goblin/demo-dynamic.owl#SportsGround -->
+
+    <owl:Class rdf:about="http://goblin/demo-dynamic.owl#SportsGround">
+        <rdfs:subClassOf rdf:resource="http://goblin/demo-core.owl#PurposeBuiltOutdoorVenue"/>
+        <rdfs:subClassOf rdf:resource="http://goblin/demo-dynamic.owl#SportsVenue"/>
+        <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Sports ground</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://goblin/demo-dynamic.owl#SportsVenue -->
+
+    <owl:Class rdf:about="http://goblin/demo-dynamic.owl#SportsVenue">
+        <rdfs:subClassOf rdf:resource="http://goblin/demo-core.owl#VenueByType"/>
+        <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Sports venue</rdfs:label>
+    </owl:Class>
+    
+
+
     <!-- http://goblin/demo-dynamic.owl#Squash -->
 
     <owl:Class rdf:about="http://goblin/demo-dynamic.owl#Squash">
@@ -639,12 +687,6 @@
 
     <owl:Class rdf:about="http://goblin/demo-dynamic.owl#TeamSport">
         <rdfs:subClassOf rdf:resource="http://goblin/demo-dynamic.owl#Sport"/>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="http://goblin/demo-core.owl#performedInLocation"/>
-                <owl:someValuesFrom rdf:resource="http://goblin/demo-core.owl#SportsGround"/>
-            </owl:Restriction>
-        </rdfs:subClassOf>
         <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Team sport</rdfs:label>
     </owl:Class>
     
@@ -677,34 +719,28 @@
     
 
 
-    <!-- http://goblin/demo-dynamic.owl#Hobby-Constraint-1&#45;&#45;Domestic hobby-to-Role -->
+    <!-- http://goblin/demo-dynamic.owl#UrbanRoad -->
 
-    <owl:Class rdf:about="http://goblin/demo-dynamic.owl#Hobby-Constraint-1--Domestic hobby-to-Role">
-        <owl:equivalentClass>
-            <owl:Class>
-                <owl:intersectionOf rdf:parseType="Collection">
-                    <rdf:Description rdf:about="http://goblin/demo-core.owl#Hobby"/>
-                    <owl:Restriction>
-                        <owl:onProperty rdf:resource="http://goblin/demo-core.owl#involvesActivity"/>
-                        <owl:someValuesFrom rdf:resource="http://goblin/demo-dynamic.owl#DomesticHobby"/>
-                    </owl:Restriction>
-                </owl:intersectionOf>
-            </owl:Class>
-        </owl:equivalentClass>
-        <rdfs:subClassOf rdf:resource="http://goblin/demo-core.owl#Hobby"/>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="http://goblin/demo-core.owl#rolePerformed"/>
-                <owl:allValuesFrom rdf:resource="http://goblin/demo-dynamic.owl#Participant"/>
-            </owl:Restriction>
-        </rdfs:subClassOf>
+    <owl:Class rdf:about="http://goblin/demo-dynamic.owl#UrbanRoad">
+        <rdfs:subClassOf rdf:resource="http://goblin/demo-dynamic.owl#Road"/>
+        <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Urban road</rdfs:label>
     </owl:Class>
     
 
 
-    <!-- http://goblin/demo-dynamic.owl#Hobby-Constraint-2&#45;&#45;Motor sport-to-Role -->
+    <!-- http://goblin/demo-dynamic.owl#Velodrome -->
 
-    <owl:Class rdf:about="http://goblin/demo-dynamic.owl#Hobby-Constraint-2--Motor sport-to-Role">
+    <owl:Class rdf:about="http://goblin/demo-dynamic.owl#Velodrome">
+        <rdfs:subClassOf rdf:resource="http://goblin/demo-core.owl#PurposeBuiltIndoorVenue"/>
+        <rdfs:subClassOf rdf:resource="http://goblin/demo-dynamic.owl#Racetrack"/>
+        <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Velodrome</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://goblin/demo-dynamic.owl#Hobby-Constraint-3&#45;&#45;Motor sport-to-Role -->
+
+    <owl:Class rdf:about="http://goblin/demo-dynamic.owl#Hobby-Constraint-3--Motor sport-to-Role">
         <owl:equivalentClass>
             <owl:Class>
                 <owl:intersectionOf rdf:parseType="Collection">
@@ -728,42 +764,6 @@
                             <rdf:Description rdf:about="http://goblin/demo-dynamic.owl#Manager"/>
                             <rdf:Description rdf:about="http://goblin/demo-dynamic.owl#SeriousParticipant"/>
                             <rdf:Description rdf:about="http://goblin/demo-dynamic.owl#Spectator"/>
-                        </owl:unionOf>
-                    </owl:Class>
-                </owl:allValuesFrom>
-            </owl:Restriction>
-        </rdfs:subClassOf>
-    </owl:Class>
-    
-
-
-    <!-- http://goblin/demo-dynamic.owl#Hobby-Constraint-3&#45;&#45;Team sport-to-Role -->
-
-    <owl:Class rdf:about="http://goblin/demo-dynamic.owl#Hobby-Constraint-3--Team sport-to-Role">
-        <owl:equivalentClass>
-            <owl:Class>
-                <owl:intersectionOf rdf:parseType="Collection">
-                    <rdf:Description rdf:about="http://goblin/demo-core.owl#Hobby"/>
-                    <owl:Restriction>
-                        <owl:onProperty rdf:resource="http://goblin/demo-core.owl#involvesActivity"/>
-                        <owl:someValuesFrom rdf:resource="http://goblin/demo-dynamic.owl#TeamSport"/>
-                    </owl:Restriction>
-                </owl:intersectionOf>
-            </owl:Class>
-        </owl:equivalentClass>
-        <rdfs:subClassOf rdf:resource="http://goblin/demo-core.owl#Hobby"/>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="http://goblin/demo-core.owl#rolePerformed"/>
-                <owl:allValuesFrom>
-                    <owl:Class>
-                        <owl:unionOf rdf:parseType="Collection">
-                            <rdf:Description rdf:about="http://goblin/demo-dynamic.owl#EventAdministrator"/>
-                            <rdf:Description rdf:about="http://goblin/demo-dynamic.owl#Manager"/>
-                            <rdf:Description rdf:about="http://goblin/demo-dynamic.owl#Participant"/>
-                            <rdf:Description rdf:about="http://goblin/demo-dynamic.owl#Referee"/>
-                            <rdf:Description rdf:about="http://goblin/demo-dynamic.owl#Spectator"/>
-                            <rdf:Description rdf:about="http://goblin/demo-dynamic.owl#Trainer"/>
                         </owl:unionOf>
                     </owl:Class>
                 </owl:allValuesFrom>
@@ -802,6 +802,67 @@
                         </owl:unionOf>
                     </owl:Class>
                 </owl:allValuesFrom>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+    </owl:Class>
+    
+
+
+    <!-- http://goblin/demo-dynamic.owl#Hobby-Constraint-5&#45;&#45;Team sport-to-Role -->
+
+    <owl:Class rdf:about="http://goblin/demo-dynamic.owl#Hobby-Constraint-5--Team sport-to-Role">
+        <owl:equivalentClass>
+            <owl:Class>
+                <owl:intersectionOf rdf:parseType="Collection">
+                    <rdf:Description rdf:about="http://goblin/demo-core.owl#Hobby"/>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="http://goblin/demo-core.owl#involvesActivity"/>
+                        <owl:someValuesFrom rdf:resource="http://goblin/demo-dynamic.owl#TeamSport"/>
+                    </owl:Restriction>
+                </owl:intersectionOf>
+            </owl:Class>
+        </owl:equivalentClass>
+        <rdfs:subClassOf rdf:resource="http://goblin/demo-core.owl#Hobby"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://goblin/demo-core.owl#rolePerformed"/>
+                <owl:allValuesFrom>
+                    <owl:Class>
+                        <owl:unionOf rdf:parseType="Collection">
+                            <rdf:Description rdf:about="http://goblin/demo-dynamic.owl#EventAdministrator"/>
+                            <rdf:Description rdf:about="http://goblin/demo-dynamic.owl#Manager"/>
+                            <rdf:Description rdf:about="http://goblin/demo-dynamic.owl#Participant"/>
+                            <rdf:Description rdf:about="http://goblin/demo-dynamic.owl#Referee"/>
+                            <rdf:Description rdf:about="http://goblin/demo-dynamic.owl#Spectator"/>
+                            <rdf:Description rdf:about="http://goblin/demo-dynamic.owl#Trainer"/>
+                        </owl:unionOf>
+                    </owl:Class>
+                </owl:allValuesFrom>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+    </owl:Class>
+    
+
+
+    <!-- http://goblin/demo-dynamic.owl#Hobby-Constraint-6&#45;&#45;Domestic hobby-to-Role -->
+
+    <owl:Class rdf:about="http://goblin/demo-dynamic.owl#Hobby-Constraint-6--Domestic hobby-to-Role">
+        <owl:equivalentClass>
+            <owl:Class>
+                <owl:intersectionOf rdf:parseType="Collection">
+                    <rdf:Description rdf:about="http://goblin/demo-core.owl#Hobby"/>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="http://goblin/demo-core.owl#involvesActivity"/>
+                        <owl:someValuesFrom rdf:resource="http://goblin/demo-dynamic.owl#DomesticHobby"/>
+                    </owl:Restriction>
+                </owl:intersectionOf>
+            </owl:Class>
+        </owl:equivalentClass>
+        <rdfs:subClassOf rdf:resource="http://goblin/demo-core.owl#Hobby"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://goblin/demo-core.owl#rolePerformed"/>
+                <owl:allValuesFrom rdf:resource="http://goblin/demo-dynamic.owl#Participant"/>
             </owl:Restriction>
         </rdfs:subClassOf>
     </owl:Class>
