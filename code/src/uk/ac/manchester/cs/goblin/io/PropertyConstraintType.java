@@ -7,7 +7,9 @@ import uk.ac.manchester.cs.goblin.model.*;
 /**
  * @author Colin Puleston
  */
-abstract class IOConstraintType extends ConstraintType {
+abstract class PropertyConstraintType extends ConstraintType {
+
+	private EntityId targetPropertyId;
 
 	private boolean definesValidValues = true;
 	private boolean definesImpliedValues = false;
@@ -29,9 +31,15 @@ abstract class IOConstraintType extends ConstraintType {
 		return singleImpliedValues;
 	}
 
-	IOConstraintType(String name, Concept rootSourceConcept, Concept rootTargetConcept) {
+	PropertyConstraintType(
+		String name,
+		EntityId targetPropertyId,
+		Concept rootSourceConcept,
+		Concept rootTargetConcept) {
 
 		super(name, rootSourceConcept, rootTargetConcept);
+
+		this.targetPropertyId = targetPropertyId;
 	}
 
 	void setSemanticsOptions(Set<ConstraintSemantics> options) {
@@ -43,5 +51,10 @@ abstract class IOConstraintType extends ConstraintType {
 	void setSingleImpliedValues(boolean value) {
 
 		singleImpliedValues = value;
+	}
+
+	EntityId getTargetPropertyId() {
+
+		return targetPropertyId;
 	}
 }

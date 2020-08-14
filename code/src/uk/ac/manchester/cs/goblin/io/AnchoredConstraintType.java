@@ -5,12 +5,10 @@ import uk.ac.manchester.cs.goblin.model.*;
 /**
  * @author Colin Puleston
  */
-class AnchoredConstraintType extends IOConstraintType {
+class AnchoredConstraintType extends PropertyConstraintType {
 
 	private EntityId anchorConceptId;
-
 	private EntityId sourcePropertyId;
-	private EntityId targetPropertyId;
 
 	AnchoredConstraintType(
 		String name,
@@ -20,11 +18,10 @@ class AnchoredConstraintType extends IOConstraintType {
 		Concept rootSourceConcept,
 		Concept rootTargetConcept) {
 
-		super(name, rootSourceConcept, rootTargetConcept);
+		super(name, targetPropertyId, rootSourceConcept, rootTargetConcept);
 
 		this.anchorConceptId = anchorConceptId;
 		this.sourcePropertyId = sourcePropertyId;
-		this.targetPropertyId = targetPropertyId;
 	}
 
 	EntityId getAnchorConceptId() {
@@ -35,10 +32,5 @@ class AnchoredConstraintType extends IOConstraintType {
 	EntityId getSourcePropertyId() {
 
 		return sourcePropertyId;
-	}
-
-	EntityId getTargetPropertyId() {
-
-		return targetPropertyId;
 	}
 }

@@ -5,6 +5,7 @@ import java.util.*;
 
 import org.semanticweb.owlapi.model.*;
 
+import uk.ac.manchester.cs.mekon_util.*;
 import uk.ac.manchester.cs.mekon_util.config.*;
 
 import uk.ac.manchester.cs.goblin.model.*;
@@ -19,7 +20,7 @@ class CoreModelLoader extends ConfigFileVocab {
 
 	private abstract class HierarchiesLoader {
 
-		HierarchiesLoader(ModelSection section, KConfigNode node) {
+		void loadAll(ModelSection section, KConfigNode node) {
 
 			for (KConfigNode hierarchyNode : node.getChildren(getStatusTag())) {
 
@@ -47,7 +48,7 @@ class CoreModelLoader extends ConfigFileVocab {
 
 		DynamicHierarchiesLoader(ModelSection section, KConfigNode node) {
 
-			super(section, node);
+			loadAll(section, node);
 		}
 
 		String getStatusTag() {
@@ -65,7 +66,7 @@ class CoreModelLoader extends ConfigFileVocab {
 
 		ReferenceOnlyHierarchiesLoader(ModelSection section, KConfigNode node) {
 
-			super(section, node);
+			loadAll(section, node);
 		}
 
 		String getStatusTag() {
@@ -81,7 +82,7 @@ class CoreModelLoader extends ConfigFileVocab {
 
 	private abstract class ConstraintTypesLoader {
 
-		ConstraintTypesLoader(ModelSection section, KConfigNode node) {
+		void loadAll(ModelSection section, KConfigNode node) {
 
 			Iterator<Hierarchy> hierarchies = section.getDynamicHierarchies().iterator();
 
@@ -93,7 +94,7 @@ class CoreModelLoader extends ConfigFileVocab {
 
 		abstract String getTypeTag();
 
-		abstract IOConstraintType loadIOType(
+		abstract ConstraintType loadType(
 									KConfigNode node,
 									String name,
 									Concept rootSrc,
@@ -113,7 +114,15 @@ class CoreModelLoader extends ConfigFileVocab {
 			Concept rootSrc = hierarchy.getRootConcept();
 			Concept rootTgt = getRootTargetConcept(node);
 
-			IOConstraintType type = loadIOType(node, name, rootSrc, rootTgt);
+			return loadType(node, name, rootSrc, rootTgt);
+		}
+	}
+
+	private abstract class PropertyConstraintTypesLoader extends ConstraintTypesLoader {
+
+		ConstraintType loadType(KConfigNode node, String name, Concept rootSrc, Concept rootTgt) {
+
+			PropertyConstraintType type = loadPropertyType(node, name, rootSrc, rootTgt);
 
 			Set<ConstraintSemantics> semanticsOpts = getSemanticsOptions(node);
 
@@ -126,6 +135,12 @@ class CoreModelLoader extends ConfigFileVocab {
 
 			return type;
 		}
+
+		abstract PropertyConstraintType loadPropertyType(
+											KConfigNode node,
+											String name,
+											Concept rootSrc,
+											Concept rootTgt);
 
 		private Set<ConstraintSemantics> getSemanticsOptions(KConfigNode allNode) {
 
@@ -140,11 +155,11 @@ class CoreModelLoader extends ConfigFileVocab {
 		}
 	}
 
-	private class SimpleConstraintTypesLoader extends ConstraintTypesLoader {
+	private class SimpleConstraintTypesLoader extends PropertyConstraintTypesLoader {
 
 		SimpleConstraintTypesLoader(ModelSection section, KConfigNode node) {
 
-			super(section, node);
+			loadAll(section, node);
 		}
 
 		String getTypeTag() {
@@ -152,11 +167,11 @@ class CoreModelLoader extends ConfigFileVocab {
 			return SIMPLE_CONSTRAINT_TYPE_TAG;
 		}
 
-		IOConstraintType loadIOType(
-							KConfigNode node,
-							String name,
-							Concept rootSrc,
-							Concept rootTgt) {
+		PropertyConstraintType loadPropertyType(
+									KConfigNode node,
+									String name,
+									Concept rootSrc,
+									Concept rootTgt) {
 
 			EntityId lnkProp = getPropertyId(node, LINKING_PROPERTY_ATTR);
 
@@ -164,11 +179,11 @@ class CoreModelLoader extends ConfigFileVocab {
 		}
 	}
 
-	private class AnchoredConstraintTypesLoader extends ConstraintTypesLoader {
+	private class AnchoredConstraintTypesLoader extends PropertyConstraintTypesLoader {
 
 		AnchoredConstraintTypesLoader(ModelSection section, KConfigNode node) {
 
-			super(section, node);
+			loadAll(section, node);
 		}
 
 		String getTypeTag() {
@@ -176,11 +191,11 @@ class CoreModelLoader extends ConfigFileVocab {
 			return ANCHORED_CONSTRAINT_TYPE_TAG;
 		}
 
-		IOConstraintType loadIOType(
-							KConfigNode node,
-							String name,
-							Concept rootSrc,
-							Concept rootTgt) {
+		PropertyConstraintType loadPropertyType(
+									KConfigNode node,
+									String name,
+									Concept rootSrc,
+									Concept rootTgt) {
 
 			EntityId anchor = getConceptId(node, ANCHOR_CONCEPT_ATTR);
 
@@ -188,6 +203,143 @@ class CoreModelLoader extends ConfigFileVocab {
 			EntityId tgtProp = getPropertyId(node, TARGET_PROPERTY_ATTR);
 
 			return new AnchoredConstraintType(name, anchor, srcProp, tgtProp, rootSrc, rootTgt);
+		}
+	}
+
+	private class HierarchicalConstraintTypesLoader extends ConstraintTypesLoader {
+
+		private KListMap<Hierarchy, Link> linksBySource = new KListMap<Hierarchy, Link>();
+		private KSetMap<Hierarchy, EntityId> targetConstraintProps = new KSetMap<Hierarchy, EntityId>();
+
+		private class Link {
+
+			private Hierarchy source;
+			private Hierarchy target;
+
+			private Set<EntityId> sourceConstraintProps;
+
+			Link(Hierarchy source, Hierarchy target) {
+
+				this.source = source;
+				this.target = target;
+
+				sourceConstraintProps = getConstraintProps(source);
+
+				checkHierarchyOrder();
+			}
+
+			void recursivelyCheckNoPropertyConstraintLoops() {
+
+				recursivelyCheckNoPropertyConstraintLoops(target);
+			}
+
+			private void recursivelyCheckNoPropertyConstraintLoops(Hierarchy testTarget) {
+
+				checkNoPropertyConstraintLoops(testTarget);
+
+				for (Link link : linksBySource.getList(testTarget)) {
+
+					recursivelyCheckNoPropertyConstraintLoops(link.target);
+				}
+			}
+
+			private void checkNoPropertyConstraintLoops(Hierarchy testTarget) {
+
+				Set<EntityId> commonProps = findCommonPropConstraintsWithSource(testTarget);
+
+				if (!commonProps.isEmpty()) {
+
+					throwException(
+						"Potential conflicting constraints on properties: "
+						+ commonProps);
+				}
+			}
+
+			private void checkHierarchyOrder() {
+
+				List<Hierarchy> all = model.getAllHierarchies();
+
+				if (all.indexOf(source) > all.indexOf(target)) {
+
+					throwException(
+						"Source-hierarchy must be defined before "
+						+ "target-hierarchy in config file");
+				}
+			}
+
+			private Set<EntityId> findCommonPropConstraintsWithSource(Hierarchy testTarget) {
+
+				Set<EntityId> tgtConstProps = targetConstraintProps.getSet(testTarget);
+				Set<EntityId> commonProps = new HashSet<EntityId>(tgtConstProps);
+
+				commonProps.retainAll(sourceConstraintProps);
+
+				return commonProps;
+			}
+
+			private void throwException(String specificMsg) {
+
+				throw new RuntimeException(
+							"Cannot create hierarchical constraint-type: "
+							+ describeConstraintType()
+							+ ": " + specificMsg);
+			}
+
+			private String describeConstraintType() {
+
+				return "[" + getRootLabel(source) + " -> " + getRootLabel(target) + "]";
+			}
+
+			private String getRootLabel(Hierarchy hierarchy) {
+
+				return hierarchy.getRootConcept().getConceptId().getLabel();
+			}
+		}
+
+		HierarchicalConstraintTypesLoader(ModelSection section, KConfigNode node) {
+
+			loadAll(section, node);
+
+			for (Hierarchy source : linksBySource.keySet()) {
+
+				for (Link link : linksBySource.getList(source)) {
+
+					link.recursivelyCheckNoPropertyConstraintLoops();
+				}
+			}
+		}
+
+		ConstraintType loadType(KConfigNode node, String name, Concept rootSrc, Concept rootTgt) {
+
+			addLink(getHierarchy(rootSrc), getHierarchy(rootTgt));
+
+			return new HierarchicalConstraintType(name, rootSrc, rootTgt);
+		}
+
+		String getTypeTag() {
+
+			return HIERARCHICAL_CONSTRAINT_TYPE_TAG;
+		}
+
+		private void addLink(Hierarchy source, Hierarchy target) {
+
+			linksBySource.add(source, new Link(source, target));
+			targetConstraintProps.addAll(target, getConstraintProps(target));
+		}
+
+		private Set<EntityId> getConstraintProps(Hierarchy hierarchy) {
+
+			Set<EntityId> props = new HashSet<EntityId>();
+
+			for (ConstraintType type : hierarchy.getConstraintTypes()) {
+
+				if (type instanceof PropertyConstraintType) {
+
+					props.add(((PropertyConstraintType)type).getTargetPropertyId());
+				}
+			}
+
+			return props;
 		}
 	}
 
@@ -212,6 +364,7 @@ class CoreModelLoader extends ConfigFileVocab {
 
 		new SimpleConstraintTypesLoader(section, node);
 		new AnchoredConstraintTypesLoader(section, node);
+		new HierarchicalConstraintTypesLoader(section, node);
 	}
 
 	private ModelSection addSection(KConfigNode node) {
@@ -238,7 +391,7 @@ class CoreModelLoader extends ConfigFileVocab {
 
 	private Concept getRootTargetConcept(KConfigNode node) {
 
-		return model.getHierarchy(getRootTargetConceptId(node)).getRootConcept();
+		return getHierarchy(getRootTargetConceptId(node)).getRootConcept();
 	}
 
 	private EntityId getRootTargetConceptId(KConfigNode node) {
@@ -254,6 +407,16 @@ class CoreModelLoader extends ConfigFileVocab {
 	private boolean getSingleImpliedValues(KConfigNode node) {
 
 		return node.getBoolean(SINGLE_IMPLIED_VALUES_ATTR, false);
+	}
+
+	private Hierarchy getHierarchy(Concept rootConcept) {
+
+		return getHierarchy(rootConcept.getConceptId());
+	}
+
+	private Hierarchy getHierarchy(EntityId rootConceptId) {
+
+		return model.getHierarchy(rootConceptId);
 	}
 
 	private EntityId getConceptId(KConfigNode node, String tag) {

@@ -5,9 +5,7 @@ import uk.ac.manchester.cs.goblin.model.*;
 /**
  * @author Colin Puleston
  */
-class SimpleConstraintType extends IOConstraintType {
-
-	private EntityId linkingPropertyId;
+class SimpleConstraintType extends PropertyConstraintType {
 
 	SimpleConstraintType(
 		String name,
@@ -15,13 +13,6 @@ class SimpleConstraintType extends IOConstraintType {
 		Concept rootSourceConcept,
 		Concept rootTargetConcept) {
 
-		super(name, rootSourceConcept, rootTargetConcept);
-
-		this.linkingPropertyId = linkingPropertyId;
-	}
-
-	EntityId getLinkingPropertyId() {
-
-		return linkingPropertyId;
+		super(name, linkingPropertyId, rootSourceConcept, rootTargetConcept);
 	}
 }

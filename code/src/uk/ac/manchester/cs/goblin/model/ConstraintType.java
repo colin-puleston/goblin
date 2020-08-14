@@ -32,7 +32,10 @@ public abstract class ConstraintType {
 
 	public abstract boolean singleImpliedValues();
 
-	protected ConstraintType(String name, Concept rootSourceConcept, Concept rootTargetConcept) {
+	protected ConstraintType(
+				String name,
+				Concept rootSourceConcept,
+				Concept rootTargetConcept) {
 
 		this.name = name;
 		this.rootSourceConcept = rootSourceConcept;

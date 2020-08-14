@@ -45,11 +45,16 @@ class DynamicModelRenderer {
 
 				renderAnchored((AnchoredConstraintType)type);
 			}
+
+			if (type instanceof HierarchicalConstraintType) {
+
+				renderHierarchical((HierarchicalConstraintType)type);
+			}
 		}
 
 		private void renderSimple(SimpleConstraintType type) {
 
-			OWLObjectProperty prop = getObjectProperty(type.getLinkingPropertyId());
+			OWLObjectProperty prop = getObjectProperty(type.getTargetPropertyId());
 
 			addConsequenceAxiom(source, prop, targets);
 		}
@@ -64,6 +69,14 @@ class DynamicModelRenderer {
 
 			ontology.addPremiseAxiom(anchor, anchorSub, srcProp, source);
 			addConsequenceAxiom(anchorSub, tgtProp, targets);
+		}
+
+		private void renderHierarchical(HierarchicalConstraintType type) {
+
+			for (OWLClass target : targets) {
+
+				ontology.addSuperClass(source, target);
+			}
 		}
 
 		private void addConsequenceAxiom(

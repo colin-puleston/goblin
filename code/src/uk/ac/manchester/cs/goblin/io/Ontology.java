@@ -38,6 +38,26 @@ class Ontology {
 		labelAnnotationProperty = getLabelAnnotationProperty();
 	}
 
+	OWLClass addClass(OWLClass sup, IRI iri) {
+
+		OWLClass cls = getClass(iri);
+
+		addAxiom(factory.getOWLDeclarationAxiom(cls));
+		addSuperClass(cls, sup);
+
+		return cls;
+	}
+
+	void addSuperClass(OWLClass cls, OWLClass sup) {
+
+		addAxiom(getSubClassAxiom(cls, sup));
+	}
+
+	void addLabel(OWLClass cls, String label) {
+
+		addAxiom(createLabelAxiom(cls, label));
+	}
+
 	void addPremiseAxiom(
 			OWLClass rootSubject,
 			OWLClass subject,
@@ -66,21 +86,6 @@ class Ontology {
 
 			addAxiom(getSubClassAxiom(subject, getSomeValuesFrom(property, value)));
 		}
-	}
-
-	OWLClass addClass(OWLClass sup, IRI iri) {
-
-		OWLClass cls = getClass(iri);
-
-		addAxiom(factory.getOWLDeclarationAxiom(cls));
-		addAxiom(getSubClassAxiom(cls, sup));
-
-		return cls;
-	}
-
-	void addLabel(OWLClass cls, String label) {
-
-		addAxiom(createLabelAxiom(cls, label));
 	}
 
 	void removeAllClasses() {
@@ -137,6 +142,11 @@ class Ontology {
 		subs.remove(factory.getOWLNothing());
 
 		return subs;
+	}
+
+	Set<OWLClass> getSuperClasses(OWLClass cls, boolean direct) {
+
+		return reasoner.getSuperClasses(cls, direct).getFlattened();
 	}
 
 	boolean classExists(IRI iri) {

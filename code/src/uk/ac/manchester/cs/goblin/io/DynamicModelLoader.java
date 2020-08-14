@@ -17,7 +17,7 @@ class DynamicModelLoader {
 
 	private Set<OWLClass> dynamicClasses = new HashSet<OWLClass>();
 
-	private abstract class ConstraintLoader {
+	private abstract class PropertyConstraintLoader {
 
 		private ConstraintType type;
 
@@ -131,12 +131,12 @@ class DynamicModelLoader {
 			}
 		}
 
-		ConstraintLoader(ConstraintType type, OWLClass subject, EntityId targetPropertyId) {
+		PropertyConstraintLoader(PropertyConstraintType type, OWLClass subject) {
 
 			this.type = type;
 			this.subject = subject;
 
-			targetProperty = getObjectProperty(targetPropertyId);
+			targetProperty = getObjectProperty(type.getTargetPropertyId());
 			subjectAxioms = ontology.getAxioms(subject);
 
 			allTargetExtractor = new AllTargetExtractor();
@@ -280,11 +280,11 @@ class DynamicModelLoader {
 		}
 	}
 
-	private class SimpleConstraintLoader extends ConstraintLoader {
+	private class SimpleConstraintLoader extends PropertyConstraintLoader {
 
 		SimpleConstraintLoader(SimpleConstraintType type, OWLClass sourceCls) {
 
-			super(type, sourceCls, type.getLinkingPropertyId());
+			super(type, sourceCls);
 
 			Concept source = lookForConcept(sourceCls);
 
@@ -295,7 +295,7 @@ class DynamicModelLoader {
 		}
 	}
 
-	private class AnchoredConstraintLoader extends ConstraintLoader {
+	private class AnchoredConstraintLoader extends PropertyConstraintLoader {
 
 		private OWLClass anchor;
 		private OWLClass anchorSub;
@@ -340,9 +340,12 @@ class DynamicModelLoader {
 			}
 		}
 
-		AnchoredConstraintLoader(AnchoredConstraintType type, OWLClass anchor, OWLClass anchorSub) {
+		AnchoredConstraintLoader(
+			AnchoredConstraintType type,
+			OWLClass anchor,
+			OWLClass anchorSub) {
 
-			super(type, anchorSub, type.getTargetPropertyId());
+			super(type, anchorSub);
 
 			this.anchor = anchor;
 			this.anchorSub = anchorSub;
@@ -403,6 +406,58 @@ class DynamicModelLoader {
 		}
 	}
 
+	private class HierarchicalConstraintLoader {
+
+		private HierarchicalConstraintType type;
+
+		private Concept source;
+		private OWLClass sourceCls;
+
+		HierarchicalConstraintLoader(HierarchicalConstraintType type, OWLClass sourceCls) {
+
+			this.type = type;
+			this.sourceCls = sourceCls;
+
+			source = lookForConcept(sourceCls);
+
+			if (source != null) {
+
+				loadAll();
+			}
+		}
+
+		private void loadAll() {
+
+			for (OWLClass targetCls : getSuperClasses(sourceCls, true)) {
+
+				if (!rootSource(targetCls)) {
+
+					checkLoad(targetCls);
+				}
+			}
+		}
+
+		private void checkLoad(OWLClass targetCls) {
+
+			Concept target = lookForConcept(targetCls);
+
+			if (target != null && validTarget(target)) {
+
+				source.addImpliedValueConstraint(type, target);
+			}
+		}
+
+		private boolean rootSource(OWLClass cls) {
+
+			return getConceptId(cls).equals(type.getRootSourceConcept().getConceptId());
+		}
+
+		private boolean validTarget(Concept target) {
+
+			return target.descendantOf(type.getRootTargetConcept());
+		}
+	}
+
 	DynamicModelLoader(Model model, Ontology ontology) throws BadDynamicOntologyException {
 
 		this.model = model;
@@ -433,7 +488,12 @@ class DynamicModelLoader {
 
 		for (OWLClass subCls : getSubClasses(cls, true)) {
 
-			loadConceptsFrom(addSubConcept(concept, subCls), subCls);
+			Concept sub = checkAddSubConcept(concept, subCls);
+
+			if (sub != null) {
+
+				loadConceptsFrom(sub, subCls);
+			}
 		}
 	}
 
@@ -443,25 +503,30 @@ class DynamicModelLoader {
 
 			for (ConstraintType type : hierarchy.getConstraintTypes()) {
 
-				loadConstraintsOfType(type);
+				loadConstraints(type);
 			}
 		}
 	}
 
-	private void loadConstraintsOfType(ConstraintType type) {
+	private void loadConstraints(ConstraintType type) {
 
 		if (type instanceof SimpleConstraintType) {
 
-			loadConstraintsOfType((SimpleConstraintType)type);
+			loadSimpleConstraints((SimpleConstraintType)type);
 		}
 
 		if (type instanceof AnchoredConstraintType) {
 
-			loadConstraintsOfType((AnchoredConstraintType)type);
+			loadAnchoredConstraints((AnchoredConstraintType)type);
+		}
+
+		if (type instanceof HierarchicalConstraintType) {
+
+			loadHierarchicalConstraints((HierarchicalConstraintType)type);
 		}
 	}
 
-	private void loadConstraintsOfType(SimpleConstraintType type) {
+	private void loadSimpleConstraints(SimpleConstraintType type) {
 
 		OWLClass rootSource = getCls(type.getRootSourceConcept());
 
@@ -471,7 +536,7 @@ class DynamicModelLoader {
 		}
 	}
 
-	private void loadConstraintsOfType(AnchoredConstraintType type) {
+	private void loadAnchoredConstraints(AnchoredConstraintType type) {
 
 		OWLClass anchor = getCls(type.getAnchorConceptId());
 
@@ -481,19 +546,34 @@ class DynamicModelLoader {
 		}
 	}
 
-	private Concept addSubConcept(Concept concept, OWLClass subCls) {
+	private void loadHierarchicalConstraints(HierarchicalConstraintType type) {
+
+		OWLClass rootSource = getCls(type.getRootSourceConcept());
+
+		for (OWLClass source : getSubClasses(rootSource, false)) {
+
+			new HierarchicalConstraintLoader(type, source);
+		}
+	}
+
+	private Concept checkAddSubConcept(Concept concept, OWLClass subCls) {
 
 		if (dynamicClasses.add(subCls)) {
 
 			return concept.addChild(getConceptId(subCls));
 		}
 
-		throw new RuntimeException("Cannot add concept with multiple parents: " + subCls);
+		return null;
 	}
 
 	private Set<OWLClass> getSubClasses(OWLClass cls, boolean direct) {
 
 		return ontology.getSubClasses(cls, direct);
+	}
+
+	private Set<OWLClass> getSuperClasses(OWLClass cls, boolean direct) {
+
+		return ontology.getSuperClasses(cls, direct);
 	}
 
 	private OWLClass getRootClass(Concept concept) {
