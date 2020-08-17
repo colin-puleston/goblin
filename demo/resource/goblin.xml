@@ -6,7 +6,7 @@
 
 	<ModelSection>
 
-		<DynamicHierarchy
+		<Hierarchy
 			rootConcept="http://goblin/demo-core.owl#Activity">
 			<AnchoredConstraintType
 				name="role performed"
@@ -26,13 +26,13 @@
 				<SemanticsOption semantics="VALID_VALUES"/>
 				<SemanticsOption semantics="IMPLIED_VALUE"/>
 			</SimpleConstraintType>
-		</DynamicHierarchy>
+		</Hierarchy>
 
-		<DynamicHierarchy
+		<Hierarchy
 			rootConcept="http://goblin/demo-core.owl#Role">
-		</DynamicHierarchy>
+		</Hierarchy>
 
-		<DynamicHierarchy
+		<Hierarchy
 			rootConcept="http://goblin/demo-core.owl#VenueByType">
 			<HierarchicalConstraintType
 				name="venue location"
@@ -47,11 +47,12 @@
 				<SemanticsOption semantics="VALID_VALUES"/>
 				<SemanticsOption semantics="IMPLIED_VALUE"/>
 			</SimpleConstraintType>
-		</DynamicHierarchy>
+		</Hierarchy>
 
-		<ReferenceOnlyHierarchy
-			rootConcept="http://goblin/demo-core.owl#VenueByLocation">
-		</ReferenceOnlyHierarchy>
+		<Hierarchy
+			rootConcept="http://goblin/demo-core.owl#VenueByLocation"
+			referenceOnly="TRUE">
+		</Hierarchy>
 
 	</ModelSection>
 
