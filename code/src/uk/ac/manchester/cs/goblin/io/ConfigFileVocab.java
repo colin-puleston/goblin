@@ -6,8 +6,7 @@ package uk.ac.manchester.cs.goblin.io;
 class ConfigFileVocab {
 
 	static final String MODEL_SECTION_TAG = "ModelSection";
-	static final String DYNAMIC_HIERARCHY_TAG = "DynamicHierarchy";
-	static final String REFERENCE_ONLY_HIERARCHY_TAG = "ReferenceOnlyHierarchy";
+	static final String HIERARCHY_TAG = "Hierarchy";
 	static final String SIMPLE_CONSTRAINT_TYPE_TAG = "SimpleConstraintType";
 	static final String ANCHORED_CONSTRAINT_TYPE_TAG = "AnchoredConstraintType";
 	static final String HIERARCHICAL_CONSTRAINT_TYPE_TAG = "HierarchicalConstraintType";
@@ -15,6 +14,8 @@ class ConfigFileVocab {
 
 	static final String DYNAMIC_NAMESPACE_ATTR = "dynamicNamespace";
 	static final String DYNAMIC_FILE_ATTR = "dynamicFilename";
+
+	static final String REFERENCE_ONLY_HIERARCHY_ATTR = "referenceOnly";
 
 	static final String ENTITY_NAME_ATTR = "name";
 	static final String ROOT_CONCEPT_ATTR = "rootConcept";

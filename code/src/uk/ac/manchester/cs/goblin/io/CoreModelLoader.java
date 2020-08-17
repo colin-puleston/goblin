@@ -18,77 +18,18 @@ class CoreModelLoader extends ConfigFileVocab {
 	private Model model;
 	private Ontology ontology;
 
-	private abstract class HierarchiesLoader {
-
-		void loadAll(ModelSection section, KConfigNode node) {
-
-			for (KConfigNode hierarchyNode : node.getChildren(getStatusTag())) {
-
-				addHierarchy(section, hierarchyNode);
-			}
-		}
-
-		abstract String getStatusTag();
-
-		abstract Hierarchy addHierarchy(ModelSection section, EntityId rootConceptId);
-
-		private void addHierarchy(ModelSection section, KConfigNode node) {
-
-			Hierarchy hierarchy = addHierarchy(section, getRootConceptId(node));
-			String name = getEntityNameOrNull(node);
-
-			if (name != null) {
-
-				hierarchy.setName(name);
-			}
-		}
-	}
-
-	private class DynamicHierarchiesLoader extends HierarchiesLoader {
-
-		DynamicHierarchiesLoader(ModelSection section, KConfigNode node) {
-
-			loadAll(section, node);
-		}
-
-		String getStatusTag() {
-
-			return DYNAMIC_HIERARCHY_TAG;
-		}
-
-		Hierarchy addHierarchy(ModelSection section, EntityId rootConceptId) {
-
-			return section.addDynamicHierarchy(rootConceptId);
-		}
-	}
-
-	private class ReferenceOnlyHierarchiesLoader extends HierarchiesLoader {
-
-		ReferenceOnlyHierarchiesLoader(ModelSection section, KConfigNode node) {
-
-			loadAll(section, node);
-		}
-
-		String getStatusTag() {
-
-			return REFERENCE_ONLY_HIERARCHY_TAG;
-		}
-
-		Hierarchy addHierarchy(ModelSection section, EntityId rootConceptId) {
-
-			return section.addReferenceOnlyHierarchy(rootConceptId);
-		}
-	}
-
 	private abstract class ConstraintTypesLoader {
 
 		void loadAll(ModelSection section, KConfigNode node) {
 
 			Iterator<Hierarchy> hierarchies = section.getDynamicHierarchies().iterator();
 
-			for (KConfigNode hierarchyNode : node.getChildren(DYNAMIC_HIERARCHY_TAG)) {
+			for (KConfigNode hierarchyNode : node.getChildren(HIERARCHY_TAG)) {
 
-				loadHierarchyTypes(hierarchyNode, hierarchies.next());
+				if (!referenceOnlyHierarchy(hierarchyNode)) {
+
+					loadHierarchyTypes(hierarchyNode, hierarchies.next());
+				}
 			}
 		}
 
@@ -357,21 +298,42 @@ class CoreModelLoader extends ConfigFileVocab {
 		}
 	}
 
+	private ModelSection addSection(KConfigNode node) {
+
+		String name = getEntityNameOrNull(node);
+
+		return name != null ? model.addSection(name) : model.addSection();
+	}
+
 	private void loadSection(ModelSection section, KConfigNode node) {
 
-		new DynamicHierarchiesLoader(section, node);
-		new ReferenceOnlyHierarchiesLoader(section, node);
+		loadHierarchies(section, node);
 
 		new SimpleConstraintTypesLoader(section, node);
 		new AnchoredConstraintTypesLoader(section, node);
 		new HierarchicalConstraintTypesLoader(section, node);
 	}
 
-	private ModelSection addSection(KConfigNode node) {
+	private void loadHierarchies(ModelSection section, KConfigNode node) {
 
+		for (KConfigNode hierarchyNode : node.getChildren(HIERARCHY_TAG)) {
+
+			loadHierarchy(section, hierarchyNode);
+		}
+	}
+
+	private void loadHierarchy(ModelSection section, KConfigNode node) {
+
+		EntityId rootConceptId = getRootConceptId(node);
+		boolean refOnly = referenceOnlyHierarchy(node);
 		String name = getEntityNameOrNull(node);
 
-		return name != null ? model.addSection(name) : model.addSection();
+		Hierarchy hierarchy = section.addHierarchy(rootConceptId, refOnly);
+
+		if (name != null) {
+
+			hierarchy.setName(name);
+		}
 	}
 
 	private String getEntityName(KConfigNode node) {
@@ -387,6 +349,11 @@ class CoreModelLoader extends ConfigFileVocab {
 	private EntityId getRootConceptId(KConfigNode node) {
 
 		return getPropertyId(node, ROOT_CONCEPT_ATTR);
+	}
+
+	private boolean referenceOnlyHierarchy(KConfigNode node) {
+
+		return node.getBoolean(REFERENCE_ONLY_HIERARCHY_ATTR, false);
 	}
 
 	private Concept getRootTargetConcept(KConfigNode node) {

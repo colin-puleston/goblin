@@ -10,14 +10,9 @@ public class ModelSection extends HierarchyContainer {
 	private Model model;
 	private String name;
 
-	public Hierarchy addDynamicHierarchy(EntityId rootConceptId) {
+	public Hierarchy addHierarchy(EntityId rootConceptId, boolean referenceOnly) {
 
-		return addSectionHierarchy(new DynamicHierarchy(model, rootConceptId));
-	}
-
-	public Hierarchy addReferenceOnlyHierarchy(EntityId rootConceptId) {
-
-		return addSectionHierarchy(new ReferenceOnlyHierarchy(model, rootConceptId));
+		return addSectionHierarchy(createHierarchy(rootConceptId, referenceOnly));
 	}
 
 	public String getName() {
@@ -29,6 +24,13 @@ public class ModelSection extends HierarchyContainer {
 
 		this.model = model;
 		this.name = name;
+	}
+
+	private Hierarchy createHierarchy(EntityId rootConceptId, boolean referenceOnly) {
+
+		return referenceOnly
+				? new ReferenceOnlyHierarchy(model, rootConceptId)
+				: new DynamicHierarchy(model, rootConceptId);
 	}
 
 	private Hierarchy addSectionHierarchy(Hierarchy hierarchy) {
