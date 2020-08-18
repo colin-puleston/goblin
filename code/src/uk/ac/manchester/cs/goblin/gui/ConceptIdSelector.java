@@ -173,7 +173,7 @@ class ConceptIdSelector extends GDialog {
 
 			String otherValue = otherInput.currentValue;
 
-			if (otherValue == null) {
+			if (otherValue.isEmpty()) {
 
 				return false;
 			}
@@ -227,7 +227,7 @@ class ConceptIdSelector extends GDialog {
 
 			if (newValue.isEmpty()) {
 
-				return "";
+				return newValue;
 			}
 
 			if (DynamicId.validName(newValue)) {
