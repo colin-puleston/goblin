@@ -517,7 +517,7 @@ public class Concept extends EditTarget {
 
 		hierarchy.registerConcept(child);
 
-		for (ConceptListener listener : conceptListeners) {
+		for (ConceptListener listener : copyConceptListeners()) {
 
 			listener.onChildAdded(child, replacement);
 		}
@@ -525,7 +525,7 @@ public class Concept extends EditTarget {
 
 	private void onConstraintAdded(Constraint constraint) {
 
-		for (ConceptListener listener : conceptListeners) {
+		for (ConceptListener listener : copyConceptListeners()) {
 
 			listener.onConstraintAdded(constraint);
 		}
@@ -533,7 +533,7 @@ public class Concept extends EditTarget {
 
 	private void onConstraintRemoved(Constraint constraint) {
 
-		for (ConceptListener listener : conceptListeners) {
+		for (ConceptListener listener : copyConceptListeners()) {
 
 			listener.onConstraintRemoved(constraint);
 		}
@@ -543,10 +543,15 @@ public class Concept extends EditTarget {
 
 		hierarchy.deregisterConcept(this);
 
-		for (ConceptListener listener : conceptListeners) {
+		for (ConceptListener listener : copyConceptListeners()) {
 
 			listener.onConceptRemoved(this, replacing);
 		}
+	}
+
+	private List<ConceptListener> copyConceptListeners() {
+
+		return new ArrayList<ConceptListener>(conceptListeners);
 	}
 
 	private boolean canResetId(DynamicId newDynamicId) {
