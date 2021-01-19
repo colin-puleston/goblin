@@ -135,7 +135,7 @@ enum GoblinCellDisplay {
 
 		if (!validValueTargets.isEmpty()) {
 
-			display.setModifier(forValidValuesConstraintTargets(validValueTargets));
+			display.addModifier(forValidValuesConstraintTargets(validValueTargets));
 		}
 
 		return display;
