@@ -113,6 +113,11 @@ public class Concept extends EditTarget {
 		conceptListeners.add(listener);
 	}
 
+	public void removeListener(ConceptListener listener) {
+
+		conceptListeners.remove(listener);
+	}
+
 	public boolean resetId(DynamicId newDynamicId) {
 
 		if (canResetId(newDynamicId)) {

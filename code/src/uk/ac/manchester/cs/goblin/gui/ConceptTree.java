@@ -104,7 +104,10 @@ abstract class ConceptTree extends GSelectorTree {
 
 		void addChildFor(Concept concept) {
 
-			addChild(new ConceptNode(concept));
+			ConceptNode child = new ConceptNode(concept);
+
+			addChild(child);
+			child.ensureChildren();
 		}
 
 		Concept getConceptOrNull() {
@@ -190,6 +193,7 @@ abstract class ConceptTree extends GSelectorTree {
 			ModelUpdateTracker() {
 
 				concept.addListener(this);
+				onAddedConceptListener(concept, this);
 			}
 		}
 
@@ -529,6 +533,9 @@ abstract class ConceptTree extends GSelectorTree {
 	boolean requiredConcept(Concept concept) {
 
 		return true;
+	}
+
+	void onAddedConceptListener(Concept concept, ConceptListener listener) {
 	}
 
 	abstract GCellDisplay getConceptDisplay(Concept concept);

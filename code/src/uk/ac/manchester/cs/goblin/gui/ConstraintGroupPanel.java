@@ -49,6 +49,8 @@ class ConstraintGroupPanel extends JPanel {
 	private ConstraintType type;
 	private ConceptTree sourcesTree;
 
+	private Map<Concept, ConceptListener> conceptListeners = new HashMap<Concept, ConceptListener>();
+
 	private abstract class PanelPopulator {
 
 		static private final long serialVersionUID = -1;
@@ -68,6 +70,11 @@ class ConstraintGroupPanel extends JPanel {
 			void initialise(Constraint constraint) {
 
 				initialise(constraint.getTargetValues());
+			}
+
+			void onAddedConceptListener(Concept concept, ConceptListener listener) {
+
+				conceptListeners.put(concept, listener);
 			}
 
 			GCellDisplay getConceptDisplay(Concept concept) {
@@ -107,6 +114,8 @@ class ConstraintGroupPanel extends JPanel {
 		}
 
 		void repopulate() {
+
+			clearConceptListeners();
 
 			removeAll();
 			populate();
@@ -730,5 +739,13 @@ class ConstraintGroupPanel extends JPanel {
 		}
 
 		return new EditPanelPopulator(source);
+	}
+
+	private void clearConceptListeners() {
+
+		for (Concept concept : conceptListeners.keySet()) {
+
+			concept.removeListener(conceptListeners.get(concept));
+		}
 	}
 }
