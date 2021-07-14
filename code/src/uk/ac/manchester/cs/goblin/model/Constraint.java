@@ -125,9 +125,9 @@ public abstract class Constraint extends EditTarget {
 		}
 	}
 
-	Hierarchy getPrimaryEditHierarchy() {
+	Concept getEditTargetConcept() {
 
-		return getSourceValue().getHierarchy();
+		return getSourceValue();
 	}
 
 	boolean hasType(ConstraintType testType) {

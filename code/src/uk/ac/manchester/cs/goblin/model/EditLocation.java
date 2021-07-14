@@ -17,9 +17,9 @@ public class EditLocation {
 		return target instanceof Constraint;
 	}
 
-	public Hierarchy getPrimaryEditHierarchy() {
+	public Concept getEditedConcept() {
 
-		return target.getPrimaryEditHierarchy();
+		return target.getEditTargetConcept();
 	}
 
 	public Constraint getEditedConstraint() {

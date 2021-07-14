@@ -98,7 +98,7 @@ class ModelSectionPanel extends ConceptTreesPanel<Hierarchy> {
 
 	private int checkMakeHierarchyVisible(EditLocation location) {
 
-		return checkMakeSourceVisible(location.getPrimaryEditHierarchy().getRootConcept());
+		return checkMakeSourceVisible(location.getEditedConcept().getHierarchy().getRootConcept());
 	}
 
 	private HierarchyPanel getHierarchyPanel(int hierarchyIdx) {

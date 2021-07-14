@@ -9,5 +9,5 @@ abstract class EditTarget {
 
 	abstract void doRemove(boolean replacing);
 
-	abstract Hierarchy getPrimaryEditHierarchy();
+	abstract Concept getEditTargetConcept();
 }

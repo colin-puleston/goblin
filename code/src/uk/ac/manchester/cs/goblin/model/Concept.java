@@ -423,9 +423,9 @@ public class Concept extends EditTarget {
 		inwardConstraints.remove(constraint);
 	}
 
-	Hierarchy getPrimaryEditHierarchy() {
+	Concept getEditTargetConcept() {
 
-		return hierarchy;
+		return this;
 	}
 
 	private Concept(Concept replaced) {
