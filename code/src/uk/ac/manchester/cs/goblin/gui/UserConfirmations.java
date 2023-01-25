@@ -89,7 +89,7 @@ class UserConfirmations implements Confirmations {
 		private void addMessageFooter() {
 
 			info.append(describeEditProcessForQuery());
-			info.append(" and conflicting constraints?");
+			info.append(" and remove conflicting constraints?");
 			info.append("\n\n");
 		}
 

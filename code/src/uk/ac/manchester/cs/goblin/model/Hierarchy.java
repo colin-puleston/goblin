@@ -13,6 +13,8 @@ public abstract class Hierarchy {
 	private RootConcept root;
 	private Map<EntityId, Concept> conceptsById = new HashMap<EntityId, Concept>();
 
+	private List<ConstraintType> inwardConstraintTypes = new ArrayList<ConstraintType>();
+
 	public abstract void addConstraintType(ConstraintType type);
 
 	public abstract boolean dynamicHierarchy();
@@ -63,6 +65,16 @@ public abstract class Hierarchy {
 
 	public abstract List<ConstraintType> getConstraintTypes();
 
+	public boolean hasInwardConstraintTypes() {
+
+		return !inwardConstraintTypes.isEmpty();
+	}
+
+	public List<ConstraintType> getInwardConstraintTypes() {
+
+		return new ArrayList<ConstraintType>(inwardConstraintTypes);
+	}
+
 	Hierarchy(Model model, EntityId rootConceptId) {
 
 		this.model = model;
@@ -79,5 +91,10 @@ public abstract class Hierarchy {
 	void deregisterConcept(Concept concept) {
 
 		conceptsById.remove(concept.getConceptId());
+	}
+
+	void addInwardConstraintType(ConstraintType type) {
+
+		inwardConstraintTypes.add(type);
 	}
 }

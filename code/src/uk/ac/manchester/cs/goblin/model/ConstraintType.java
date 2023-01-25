@@ -11,6 +11,11 @@ public abstract class ConstraintType {
 	private Concept rootSourceConcept;
 	private Concept rootTargetConcept;
 
+	public String toString() {
+
+		return name + "(" + rootSourceConcept + " --> " + rootTargetConcept + ")";
+	}
+
 	public String getName() {
 
 		return name;

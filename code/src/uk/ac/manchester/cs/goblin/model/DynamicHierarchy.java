@@ -12,6 +12,7 @@ public class DynamicHierarchy extends Hierarchy {
 	public void addConstraintType(ConstraintType type) {
 
 		constraintTypes.add(type);
+		type.getRootTargetConcept().getHierarchy().addInwardConstraintType(type);
 
 		getRootConcept().addRootConstraint(type);
 	}

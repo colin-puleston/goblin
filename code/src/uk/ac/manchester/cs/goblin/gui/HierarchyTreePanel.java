@@ -42,9 +42,10 @@ class HierarchyTreePanel extends JPanel {
 
 	static private final String NO_EDIT_MESSAGE_LABEL = "External hierarchy / Non-editable";
 
-	static private final String NO_CONSTRAINTS_LABEL = "Hide constraints";
-	static private final String EDIT_TYPE_CONSTRAINTS_LABEL = "Show constraints: CURRENT";
-	static private final String ALL_CONSTRAINTS_LABEL = "Show constraints: ALL";
+	static private final String NO_CONSTRAINTS_LABEL = "Show NO constraints";
+	static private final String CUR_OUT_CONSTRAINTS_LABEL = "...CURRENT OUTWARD...";
+	static private final String ALL_OUT_CONSTRAINTS_LABEL = "...ALL OUTWARD...";
+	static private final String ALL_IN_CONSTRAINTS_LABEL = "...ALL INWARD...";
 
 	static private final String ADD_LABEL = "Add...";
 	static private final String REMOVE_LABEL = "Del";
@@ -77,8 +78,21 @@ class HierarchyTreePanel extends JPanel {
 		DisplayModeSelector() {
 
 			addOption(NO_CONSTRAINTS_LABEL, ConstraintsDisplayMode.NONE);
-			addOption(EDIT_TYPE_CONSTRAINTS_LABEL, ConstraintsDisplayMode.EDIT_TYPE_ONLY);
-			addOption(ALL_CONSTRAINTS_LABEL, ConstraintsDisplayMode.ALL);
+
+			if (hierarchy.hasConstraintTypes()) {
+
+				if (hierarchy.getConstraintTypes().size() > 1) {
+
+					addOption(CUR_OUT_CONSTRAINTS_LABEL, ConstraintsDisplayMode.CURRENT_OUTWARDS);
+				}
+
+				addOption(ALL_OUT_CONSTRAINTS_LABEL, ConstraintsDisplayMode.ALL_OUTWARDS);
+			}
+
+			if (hierarchy.hasInwardConstraintTypes()) {
+
+				addOption(ALL_IN_CONSTRAINTS_LABEL, ConstraintsDisplayMode.ALL_INWARDS);
+			}
 
 			activate();
 		}
@@ -418,7 +432,7 @@ class HierarchyTreePanel extends JPanel {
 
 	private JComponent createUpperComponent(Hierarchy hierarchy) {
 
-		if (hierarchy.hasConstraintTypes()) {
+		if (hierarchy.hasConstraintTypes() || hierarchy.hasInwardConstraintTypes()) {
 
 			JPanel panel = new JPanel(new BorderLayout());
 

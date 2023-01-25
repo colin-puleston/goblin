@@ -35,12 +35,15 @@ public class Concept extends EditTarget {
 	private class ConstraintMatcher {
 
 		private ConstraintType type;
+		private boolean inwards;
+
 		private ConstraintSemantics semantics = null;
 		private Set<Concept> targetValues = null;
 
-		ConstraintMatcher(ConstraintType type) {
+		ConstraintMatcher(ConstraintType type, boolean inwards) {
 
 			this.type = type;
+			this.inwards = inwards;
 		}
 
 		void setMatchSemantics(ConstraintSemantics semantics) {
@@ -74,7 +77,7 @@ public class Concept extends EditTarget {
 
 			Set<Constraint> selections = new HashSet<Constraint>();
 
-			for (Constraint candidate : getConstraints()) {
+			for (Constraint candidate : getCandidates()) {
 
 				if (match(candidate)) {
 
@@ -88,6 +91,11 @@ public class Concept extends EditTarget {
 			}
 
 			return selections;
+		}
+
+		private Set<Constraint> getCandidates() {
+
+			return (inwards ? inwardConstraints : constraints).getEntities();
 		}
 
 		private boolean match(Constraint candidate) {
@@ -265,12 +273,12 @@ public class Concept extends EditTarget {
 
 	public Set<Constraint> getConstraints(ConstraintType type) {
 
-		return new ConstraintMatcher(type).getAll();
+		return new ConstraintMatcher(type, false).getAll();
 	}
 
 	public Constraint lookForConstraint(ConstraintType type, ConstraintSemantics semantics) {
 
-		ConstraintMatcher matcher = new ConstraintMatcher(type);
+		ConstraintMatcher matcher = new ConstraintMatcher(type, false);
 
 		matcher.setMatchSemantics(semantics);
 
@@ -289,7 +297,7 @@ public class Concept extends EditTarget {
 
 	public Set<Constraint> getImpliedValueConstraints(ConstraintType type) {
 
-		ConstraintMatcher matcher = new ConstraintMatcher(type);
+		ConstraintMatcher matcher = new ConstraintMatcher(type, false);
 
 		matcher.setMatchSemantics(ConstraintSemantics.IMPLIED_VALUE);
 
@@ -321,7 +329,7 @@ public class Concept extends EditTarget {
 						ConstraintSemantics semantics,
 						Collection<Concept> targetValues) {
 
-		ConstraintMatcher matcher = new ConstraintMatcher(type);
+		ConstraintMatcher matcher = new ConstraintMatcher(type, false);
 
 		matcher.setMatchSemantics(semantics);
 		matcher.setMatchTargetValues(targetValues);
@@ -332,6 +340,11 @@ public class Concept extends EditTarget {
 	public Set<Constraint> getInwardConstraints() {
 
 		return inwardConstraints.getEntities();
+	}
+
+	public Set<Constraint> getInwardConstraints(ConstraintType type) {
+
+		return new ConstraintMatcher(type, true).getAll();
 	}
 
 	Concept(Hierarchy hierarchy, EntityId conceptId) {

@@ -29,5 +29,10 @@ package uk.ac.manchester.cs.goblin.gui;
  */
 enum ConstraintsDisplayMode {
 
-	NONE, EDIT_TYPE_ONLY, ALL;
+	NONE, CURRENT_OUTWARDS, ALL_OUTWARDS, ALL_INWARDS;
+
+	boolean anyOutwards() {
+
+		return this == CURRENT_OUTWARDS || this == ALL_OUTWARDS;
+	}
 }

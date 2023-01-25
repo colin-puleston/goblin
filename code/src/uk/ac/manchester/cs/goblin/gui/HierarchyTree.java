@@ -79,18 +79,28 @@ class HierarchyTree extends ConceptTree {
 		redisplayForConstraintsDisplayModeChange();
 	}
 
-	boolean showConstraints(ConstraintType type) {
+	boolean showAnyOutwardConstraints() {
+
+		return constraintsDisplayMode.anyOutwards();
+	}
+
+	boolean showTypeOutwardConstraints(ConstraintType type) {
 
 		switch (constraintsDisplayMode) {
 
-			case NONE:
-				return false;
-
-			case ALL:
+			case ALL_OUTWARDS:
 				return true;
+
+			case CURRENT_OUTWARDS:
+				return type == constraintTypeSelection;
 		}
 
-		return type == constraintTypeSelection;
+		throw new Error("Unexpected constraints display-mode: " + constraintsDisplayMode);
+	}
+
+	boolean showInwardConstraints() {
+
+		return constraintsDisplayMode == ConstraintsDisplayMode.ALL_INWARDS;
 	}
 
 	void update() {

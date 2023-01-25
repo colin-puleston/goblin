@@ -1,4 +1,4 @@
-/**
+/*
  * The MIT License (MIT)
  *
  * Copyright (c) 2020 University of Manchester
@@ -21,45 +21,30 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+
 package uk.ac.manchester.cs.goblin.gui;
 
-import java.awt.*;
-import javax.swing.*;
-import javax.swing.border.*;
+import java.util.*;
 
-import uk.ac.manchester.cs.mekon_util.gui.*;
+import uk.ac.manchester.cs.goblin.model.*;
 
 /**
  * @author Colin Puleston
  */
-class TitledPanels {
+class OutwardConstraintGroup extends ConstraintGroup {
 
-	static JPanel create(JComponent content, String title) {
+	OutwardConstraintGroup(Concept source, ConstraintType type) {
 
-		JPanel panel = new JPanel(new BorderLayout());
-
-		panel.add(content, BorderLayout.CENTER);
-
-		return setTitle(panel, title);
+		super(type, source.getConstraints(type));
 	}
 
-	static <P extends JPanel>P setTitle(P panel, String title) {
+	boolean inwardGroup() {
 
-		panel.setBorder(createBorder(title));
-
-		return panel;
+		return false;
 	}
 
-	static private TitledBorder createBorder(String title) {
+	void addLinkedConcepts(Constraint constraint, Set<Concept> linkedConcepts) {
 
-		TitledBorder border = new TitledBorder(title);
-		Font font = border.getTitleFont();
-
-		if (font != null) {
-
-			border.setTitleFont(GFonts.toMedium(font));
-		}
-
-		return border;
+		linkedConcepts.addAll(constraint.getTargetValues());
 	}
 }

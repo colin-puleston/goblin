@@ -295,18 +295,44 @@ abstract class ConceptTree extends GSelectorTree {
 
 		private void addConstraintChildren() {
 
+			Hierarchy hierarchy = concept.getHierarchy();
+
+			if (showAnyOutwardConstraints()) {
+
+				addRelevantOutwardConstraintChildren();
+			}
+
+			if (showInwardConstraints()) {
+
+				addAllInwardConstraintChildren();
+			}
+		}
+
+		private void addRelevantOutwardConstraintChildren() {
+
 			for (ConstraintType type : concept.getHierarchy().getConstraintTypes()) {
 
-				if (showConstraints(type)) {
+				if (showTypeOutwardConstraints(type)) {
 
-					ConstraintGroup group = new ConstraintGroup(concept, type);
-
-					if (group.anyConstraints()) {
-
-						addChild(new ConstraintGroupNode(this, group));
-						displayedConstraints.add(group);
-					}
+					checkAddConstraintsChild(new OutwardConstraintGroup(concept, type));
 				}
+			}
+		}
+
+		private void addAllInwardConstraintChildren() {
+
+			for (ConstraintType type : concept.getHierarchy().getInwardConstraintTypes()) {
+
+				checkAddConstraintsChild(new InwardConstraintGroup(concept, type));
+			}
+		}
+
+		private void checkAddConstraintsChild(ConstraintGroup group) {
+
+			if (group.anyConstraints()) {
+
+				addChild(new ConstraintGroupNode(this, group));
+				displayedConstraints.add(group);
 			}
 		}
 	}
@@ -336,9 +362,9 @@ abstract class ConceptTree extends GSelectorTree {
 			}
 		}
 
-		ConstraintsNode(ConceptNode parentNode) {
+		ConstraintsNode(ConceptNode sourceConceptNode) {
 
-			new Deselector(parentNode);
+			new Deselector(sourceConceptNode);
 		}
 	}
 
@@ -349,9 +375,9 @@ abstract class ConceptTree extends GSelectorTree {
 
 		protected void addInitialChildren() {
 
-			for (Concept target : group.getImpliedValueTargets()) {
+			for (Concept linked : group.getImpliedValueLinkedConcepts()) {
 
-				addChild(new ImpliedValueConstraintTargetNode(sourceConceptNode, target));
+				addChild(new ImpliedValueConstraintLinkedNode(sourceConceptNode, linked));
 			}
 		}
 
@@ -374,7 +400,7 @@ abstract class ConceptTree extends GSelectorTree {
 		}
 	}
 
-	private class ImpliedValueConstraintTargetNode extends ConstraintsNode {
+	private class ImpliedValueConstraintLinkedNode extends ConstraintsNode {
 
 		private GCellDisplay display;
 
@@ -383,11 +409,11 @@ abstract class ConceptTree extends GSelectorTree {
 			return display;
 		}
 
-		ImpliedValueConstraintTargetNode(ConceptNode sourceConceptNode, Concept target) {
+		ImpliedValueConstraintLinkedNode(ConceptNode sourceConceptNode, Concept linked) {
 
 			super(sourceConceptNode);
 
-			display = GoblinCellDisplay.CONCEPTS_CONSTRAINT_IMPLIED_TARGET.forConcept(target);
+			display = GoblinCellDisplay.CONCEPTS_CONSTRAINT_IMPLIED_TARGET.forConcept(linked);
 		}
 
 		void redisplayAllConstraints(boolean modeChanged, boolean parentWasCollapsed) {
@@ -476,7 +502,17 @@ abstract class ConceptTree extends GSelectorTree {
 		reselectSelected();
 	}
 
-	boolean showConstraints(ConstraintType type) {
+	boolean showAnyOutwardConstraints() {
+
+		return false;
+	}
+
+	boolean showTypeOutwardConstraints(ConstraintType type) {
+
+		return false;
+	}
+
+	boolean showInwardConstraints() {
 
 		return false;
 	}

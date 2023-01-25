@@ -31,12 +31,12 @@ import uk.ac.manchester.cs.goblin.model.*;
 /**
  * @author Colin Puleston
  */
-class ConstraintGroup {
+abstract class ConstraintGroup {
 
 	private ConstraintType type;
 
-	private Set<Concept> validValuesTargets = new HashSet<Concept>();
-	private Set<Concept> impliedValueTargets = new HashSet<Concept>();
+	private Set<Concept> validValuesLinkedConcepts = new HashSet<Concept>();
+	private Set<Concept> impliedValueLinkedConcepts = new HashSet<Concept>();
 
 	public boolean equals(Object other) {
 
@@ -45,22 +45,27 @@ class ConstraintGroup {
 
 	public int hashCode() {
 
-		return type.hashCode() + validValuesTargets.hashCode() + impliedValueTargets.hashCode();
+		return type.hashCode()
+				+ validValuesLinkedConcepts.hashCode()
+				+ impliedValueLinkedConcepts.hashCode();
 	}
 
-	ConstraintGroup(Concept source, ConstraintType type) {
+	ConstraintGroup(ConstraintType type, Set<Constraint> constraints) {
 
 		this.type = type;
 
-		for (Constraint constraint : source.getConstraints(type)) {
+		for (Constraint constraint : constraints) {
 
-			addTargets(constraint);
+			addLinkedConcepts(constraint);
 		}
 	}
 
+	abstract boolean inwardGroup();
+
 	boolean anyConstraints() {
 
-		return !validValuesTargets.isEmpty() || !impliedValueTargets.isEmpty();
+		return !validValuesLinkedConcepts.isEmpty()
+				|| !impliedValueLinkedConcepts.isEmpty();
 	}
 
 	String getTypeName() {
@@ -68,30 +73,34 @@ class ConstraintGroup {
 		return type.getName();
 	}
 
-	Set<Concept> getValidValuesTargets() {
+	Set<Concept> getValidValuesLinkedConcepts() {
 
-		return validValuesTargets;
+		return validValuesLinkedConcepts;
 	}
 
-	Set<Concept> getImpliedValueTargets() {
+	Set<Concept> getImpliedValueLinkedConcepts() {
 
-		return impliedValueTargets;
+		return impliedValueLinkedConcepts;
 	}
 
-	private void addTargets(Constraint constraint) {
+	abstract void addLinkedConcepts(Constraint constraint, Set<Concept> linkedConcepts);
 
-		getTargetSet(constraint.getSemantics()).addAll(constraint.getTargetValues());
+	private void addLinkedConcepts(Constraint constraint) {
+
+		addLinkedConcepts(constraint, getLinkedConcepts(constraint.getSemantics()));
 	}
 
-	private Set<Concept> getTargetSet(ConstraintSemantics semantics) {
+	private Set<Concept> getLinkedConcepts(ConstraintSemantics semantics) {
 
-		return semantics.validValues() ? validValuesTargets : impliedValueTargets;
+		return semantics.validValues()
+				? validValuesLinkedConcepts
+				: impliedValueLinkedConcepts;
 	}
 
 	private boolean equalsGroup(ConstraintGroup other) {
 
 		return type.equals(other.type)
-				&& validValuesTargets.equals(other.validValuesTargets)
-				&& impliedValueTargets.equals(other.impliedValueTargets);
+				&& validValuesLinkedConcepts.equals(other.validValuesLinkedConcepts)
+				&& impliedValueLinkedConcepts.equals(other.impliedValueLinkedConcepts);
 	}
 }

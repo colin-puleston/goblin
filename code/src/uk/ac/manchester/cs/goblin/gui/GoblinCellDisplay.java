@@ -128,14 +128,14 @@ enum GoblinCellDisplay {
 
 	GCellDisplay forConstraints(ConstraintGroup group) {
 
-		GCellDisplay display = new GCellDisplay(group.getTypeName(), icon);
-		Set<Concept> validValueTargets = group.getValidValuesTargets();
+		GCellDisplay display = new GCellDisplay(getConstraintsLabel(group), icon);
+		Set<Concept> linkedConcepts = group.getValidValuesLinkedConcepts();
 
 		display.setFontStyle(Font.ITALIC);
 
-		if (!validValueTargets.isEmpty()) {
+		if (!linkedConcepts.isEmpty()) {
 
-			display.addModifier(forValidValuesConstraintTargets(validValueTargets));
+			display.addModifier(forValidValuesLinkedConcepts(linkedConcepts));
 		}
 
 		return display;
@@ -149,13 +149,20 @@ enum GoblinCellDisplay {
 		}
 	}
 
-	private GCellDisplay forValidValuesConstraintTargets(Set<Concept> targets) {
+	private GCellDisplay forValidValuesLinkedConcepts(Set<Concept> concepts) {
 
-		GCellDisplay display = new GCellDisplay(getConceptSetLabel(targets));
+		GCellDisplay display = new GCellDisplay(getConceptSetLabel(concepts));
 
 		display.setFontStyle(Font.BOLD | Font.ITALIC);
 
 		return display;
+	}
+
+	private String getConstraintsLabel(ConstraintGroup group) {
+
+		String typeName = group.getTypeName();
+
+		return group.inwardGroup() ? ("<= " + typeName) : (typeName + " =>");
 	}
 
 	private String getConceptSetLabel(Set<Concept> concepts) {

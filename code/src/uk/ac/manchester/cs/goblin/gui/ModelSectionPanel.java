@@ -64,7 +64,15 @@ class ModelSectionPanel extends ConceptTreesPanel<Hierarchy> {
 
 	String getTitle(Hierarchy hierarchy) {
 
-		return hierarchy.getName() + (hierarchy.hasConstraintTypes() ? " (C)" : "");
+		String title = hierarchy.getName();
+		String suffix = getTitleSuffix(hierarchy);
+
+		if (!suffix.isEmpty()) {
+
+			title += (" " + suffix);
+		}
+
+		return title;
 	}
 
 	Concept getRootConcept(Hierarchy hierarchy) {
@@ -104,5 +112,29 @@ class ModelSectionPanel extends ConceptTreesPanel<Hierarchy> {
 	private HierarchyPanel getHierarchyPanel(int hierarchyIdx) {
 
 		return (HierarchyPanel)getComponentAt(hierarchyIdx);
+	}
+
+	private String getTitleSuffix(Hierarchy hierarchy) {
+
+		String suffix = "";
+
+		if (hierarchy.hasInwardConstraintTypes()) {
+
+			suffix += "<=";
+
+			if (hierarchy.hasConstraintTypes()) {
+
+				suffix += ">";
+			}
+		}
+		else {
+
+			if (hierarchy.hasConstraintTypes()) {
+
+				suffix += "=>";
+			}
+		}
+
+		return suffix;
 	}
 }
