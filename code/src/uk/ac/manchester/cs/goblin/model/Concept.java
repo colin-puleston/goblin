@@ -161,7 +161,7 @@ public class Concept extends EditTarget {
 
 	public Concept addChild(DynamicId dynamicId) {
 
-		return addChild(toEntityId(dynamicId), false);
+		return addChild(toEntityId(dynamicId), true);
 	}
 
 	public Concept addChild(EntityId id, boolean dynamicNamespace) {
