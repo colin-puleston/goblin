@@ -57,7 +57,7 @@ public class ModelSerialiser {
 
 		Model model = cfgReader.loadCoreModel(ont);
 
-		new DynamicModelLoader(model, ont);
+		new DynamicModelLoader(model, ont, getDynamicNamespace());
 
 		return model;
 	}

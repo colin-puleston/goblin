@@ -161,13 +161,14 @@ public class Concept extends EditTarget {
 
 	public Concept addChild(DynamicId dynamicId) {
 
-		return addChild(toEntityId(dynamicId));
+		return addChild(toEntityId(dynamicId), false);
 	}
 
-	public Concept addChild(EntityId id) {
+	public Concept addChild(EntityId id, boolean dynamicNamespace) {
 
-		Concept child = createChild(id);
+		Concept child = createChild(id, dynamicNamespace);
 
+		child.setParent(this);
 		child.add();
 
 		return child;
@@ -221,6 +222,11 @@ public class Concept extends EditTarget {
 	public boolean isLeaf() {
 
 		return children.isEmpty();
+	}
+
+	public boolean isFixed() {
+
+		return false;
 	}
 
 	public Concept getParent() {
@@ -359,11 +365,6 @@ public class Concept extends EditTarget {
 		inwardConstraints = new ConstraintTrackerSet(model);
 	}
 
-	void add() {
-
-		performAction(new AddAction(this));
-	}
-
 	EditAction checkCreateMoveAction(Concept newParent) {
 
 		ConflictResolution conflictRes = checkMoveConflicts(newParent);
@@ -453,15 +454,24 @@ public class Concept extends EditTarget {
 		inwardConstraints = replaced.inwardConstraints.copy();
 	}
 
-	private Concept createChild(EntityId id) {
+	private void add() {
 
-		Concept child = hierarchy.dynamicHierarchy()
-							? new Concept(hierarchy, id)
-							: new ReferenceOnlyConcept(hierarchy, id);
+		performAction(new AddAction(this));
+	}
 
-		child.setParent(this);
+	private Concept createChild(EntityId id, boolean dynamicNamespace) {
 
-		return child;
+		if (hierarchy.dynamicHierarchy()) {
+
+			if (dynamicNamespace) {
+
+				return new Concept(hierarchy, id);
+			}
+
+			return new FixedConcept(hierarchy, id);
+		}
+
+		return new ReferenceOnlyConcept(hierarchy, id);
 	}
 
 	private Concept createCopy(Concept newParent) {

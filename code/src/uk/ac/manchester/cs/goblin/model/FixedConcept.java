@@ -3,7 +3,7 @@ package uk.ac.manchester.cs.goblin.model;
 /**
  * @author Colin Puleston
  */
-abstract class FixedConcept extends Concept {
+class FixedConcept extends Concept {
 
 	public boolean resetId(DynamicId newDynamicId) {
 
@@ -20,6 +20,11 @@ abstract class FixedConcept extends Concept {
 		throw createInvalidOperationException();
 	}
 
+	public boolean isFixed() {
+
+		return true;
+	}
+
 	FixedConcept(Hierarchy hierarchy, EntityId rootConceptId) {
 
 		super(hierarchy, rootConceptId);
@@ -27,11 +32,6 @@ abstract class FixedConcept extends Concept {
 
 	RuntimeException createInvalidOperationException() {
 
-		return new RuntimeException(
-						"Cannot perform operation on "
-						+ getFixedConceptTypeDecriptor()
-						+ " concept!");
+		return new RuntimeException("Cannot perform operation on fixed concept!");
 	}
-
-	abstract String getFixedConceptTypeDecriptor();
 }

@@ -294,7 +294,7 @@ class HierarchyTreePanel extends JPanel {
 
 		boolean canEdit(List<Concept> selections) {
 
-			return !containsRootConcept(selections);
+			return !containsFixedConcept(selections);
 		}
 
 		void doConceptEdits(List<Concept> concepts) {
@@ -314,7 +314,7 @@ class HierarchyTreePanel extends JPanel {
 
 		boolean canEdit(List<Concept> selections) {
 
-			return !containsRootConcept(selections);
+			return !containsFixedConcept(selections);
 		}
 
 		void doConceptEdits(List<Concept> concepts) {
@@ -400,7 +400,7 @@ class HierarchyTreePanel extends JPanel {
 
 		boolean canEdit(Concept selection) {
 
-			return !isRootConcept(selection);
+			return !selection.isFixed();
 		}
 
 		void doConceptEdit(Concept concept) {
@@ -550,13 +550,16 @@ class HierarchyTreePanel extends JPanel {
 		return msg.toString();
 	}
 
-	private boolean containsRootConcept(List<Concept> concepts) {
+	private boolean containsFixedConcept(List<Concept> concepts) {
 
-		return concepts.contains(hierarchy.getRootConcept());
-	}
+		for (Concept concept : concepts) {
 
-	private boolean isRootConcept(Concept concept) {
+			if (concept.isFixed()) {
 
-		return concept.equals(hierarchy.getRootConcept());
+				return true;
+			}
+		}
+
+		return false;
 	}
 }

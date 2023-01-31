@@ -36,9 +36,4 @@ class RootConcept extends FixedConcept {
 
 		throw createInvalidOperationException();
 	}
-
-	String getFixedConceptTypeDecriptor() {
-
-		return "root";
-	}
 }

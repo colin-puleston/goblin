@@ -35,7 +35,6 @@ class HierarchyTree extends ConceptTree {
 
 	static private final long serialVersionUID = -1;
 
-	private Hierarchy hierarchy;
 	private ConceptMover conceptMover;
 
 	private ConstraintsDisplayMode constraintsDisplayMode = ConstraintsDisplayMode.NONE;
@@ -53,7 +52,6 @@ class HierarchyTree extends ConceptTree {
 
 		super(true);
 
-		this.hierarchy = hierarchy;
 		this.conceptMover = conceptMover;
 
 		initialise(hierarchy.getRootConcept());
@@ -111,16 +109,16 @@ class HierarchyTree extends ConceptTree {
 
 	GoblinCellDisplay getGoblinCellDisplay(Concept concept) {
 
-		if (hierarchy.dynamicHierarchy()) {
+		if (concept.isFixed()) {
 
-			if (conceptMover.movingConcept(concept)) {
-
-				return GoblinCellDisplay.CONCEPTS_MOVE_SUBJECT;
-			}
-
-			return GoblinCellDisplay.CONCEPTS_DEFAULT;
+			return GoblinCellDisplay.CONCEPTS_FIXED;
 		}
 
-		return GoblinCellDisplay.CONCEPTS_REFERENCE_ONLY;
+		if (conceptMover.movingConcept(concept)) {
+
+			return GoblinCellDisplay.CONCEPTS_MOVE_SUBJECT;
+		}
+
+		return GoblinCellDisplay.CONCEPTS_DEFAULT;
 	}
 }

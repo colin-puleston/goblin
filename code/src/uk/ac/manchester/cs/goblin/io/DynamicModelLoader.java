@@ -15,6 +15,7 @@ class DynamicModelLoader {
 	private Model model;
 	private Ontology ontology;
 
+	private String dynamicNamespace;
 	private Set<OWLClass> dynamicClasses = new HashSet<OWLClass>();
 
 	private abstract class PropertyConstraintLoader {
@@ -458,10 +459,15 @@ class DynamicModelLoader {
 		}
 	}
 
-	DynamicModelLoader(Model model, Ontology ontology) throws BadDynamicOntologyException {
+	DynamicModelLoader(
+		Model model,
+		Ontology ontology,
+		String dynamicNamespace)
+		throws BadDynamicOntologyException {
 
 		this.model = model;
 		this.ontology = ontology;
+		this.dynamicNamespace = dynamicNamespace;
 
 		try {
 
@@ -488,11 +494,9 @@ class DynamicModelLoader {
 
 		for (OWLClass subCls : getSubClasses(cls, true)) {
 
-			Concept sub = checkAddSubConcept(concept, subCls);
+			if (dynamicClasses.add(subCls)) {
 
-			if (sub != null) {
-
-				loadConceptsFrom(sub, subCls);
+				loadConceptsFrom(addSubConcept(concept, subCls), subCls);
 			}
 		}
 	}
@@ -556,14 +560,22 @@ class DynamicModelLoader {
 		}
 	}
 
-	private Concept checkAddSubConcept(Concept concept, OWLClass subCls) {
+	private Concept addSubConcept(Concept concept, OWLClass subCls) {
 
-		if (dynamicClasses.add(subCls)) {
+		EntityId childId = getConceptId(subCls);
+		boolean dynamicChild = dynamicConcept(childId);
 
-			return concept.addChild(getConceptId(subCls));
+		if (!dynamicChild) {
+
+			EntityId parentId = concept.getConceptId();
+
+			if (dynamicConcept(parentId)) {
+
+				throw createNonFixedParentException(parentId, childId);
+			}
 		}
 
-		return null;
+		return concept.addChild(childId, dynamicChild);
 	}
 
 	private Set<OWLClass> getSubClasses(OWLClass cls, boolean direct) {
@@ -603,6 +615,11 @@ class DynamicModelLoader {
 		return ontology.getObjectProperty(getIRI(id));
 	}
 
+	private boolean dynamicConcept(EntityId id) {
+
+		return id.getURI().toString().startsWith(dynamicNamespace);
+	}
+
 	private IRI getIRI(EntityId id) {
 
 		return IRI.create(id.getURI());
@@ -635,5 +652,12 @@ class DynamicModelLoader {
 	private void showLoadWarning(String msg) {
 
 		System.err.println("GOBLIN: MODEL LOAD WARNING: " + msg);
+	}
+
+	private RuntimeException createNonFixedParentException(EntityId parentId, EntityId childId) {
+
+		return new RuntimeException(
+						"Cannot add fixed child to dynamic parent concept: "
+						+ childId + "-->" + parentId);
 	}
 }

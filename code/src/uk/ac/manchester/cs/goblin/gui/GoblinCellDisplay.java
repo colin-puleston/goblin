@@ -40,8 +40,8 @@ enum GoblinCellDisplay {
 
 	CONCEPTS_DEFAULT(
 		largeCircle(ConceptColor.DEFAULT)),
-	CONCEPTS_REFERENCE_ONLY(
-		largeCircle(ConceptColor.REFERENCE_ONLY)),
+	CONCEPTS_FIXED(
+		largeCircle(ConceptColor.FIXED)),
 	CONCEPTS_MOVE_SUBJECT(
 		largeCircle(ConceptColor.MOVE_SUBJECT)),
 	CONCEPTS_CONSTRAINT_GROUP(
@@ -66,7 +66,7 @@ enum GoblinCellDisplay {
 	static private class ConceptColor {
 
 		static final Color DEFAULT = Color.CYAN.darker();
-		static final Color REFERENCE_ONLY = DEFAULT.darker();
+		static final Color FIXED = DEFAULT.darker();
 		static final Color MOVE_SUBJECT = Color.GRAY.brighter();
 	}
 
