@@ -7,9 +7,9 @@ public interface ConceptListener {
 
 	public void onChildAdded(Concept child, boolean replacement);
 
-	public void onConstraintAdded(Constraint constraint);
+	public void onConstraintAdded(Constraint constraint, boolean inward);
 
-	public void onConstraintRemoved(Constraint constraint);
+	public void onConstraintRemoved(Constraint constraint, boolean inward);
 
 	public void onConceptRemoved(Concept concept, boolean replacing);
 }

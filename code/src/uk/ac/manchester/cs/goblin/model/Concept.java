@@ -414,26 +414,28 @@ public class Concept extends EditTarget {
 		constraints.add(type.createRootConstraint());
 	}
 
-	void doAddConstraint(Constraint constraint) {
+	void addConstraint(Constraint constraint) {
 
 		constraints.add(constraint);
-		onConstraintAdded(constraint);
+		onConstraintAdded(constraint, false);
 	}
 
-	void doRemoveConstraint(Constraint constraint) {
+	void removeConstraint(Constraint constraint) {
 
 		constraints.remove(constraint);
-		onConstraintRemoved(constraint);
+		onConstraintRemoved(constraint, false);
 	}
 
 	void addInwardConstraint(Constraint constraint) {
 
 		inwardConstraints.add(constraint);
+		onConstraintAdded(constraint, true);
 	}
 
 	void removeInwardConstraint(Constraint constraint) {
 
 		inwardConstraints.remove(constraint);
+		onConstraintRemoved(constraint, true);
 	}
 
 	Concept getEditTargetConcept() {
@@ -541,19 +543,19 @@ public class Concept extends EditTarget {
 		}
 	}
 
-	private void onConstraintAdded(Constraint constraint) {
+	private void onConstraintAdded(Constraint constraint, boolean inward) {
 
 		for (ConceptListener listener : copyConceptListeners()) {
 
-			listener.onConstraintAdded(constraint);
+			listener.onConstraintAdded(constraint, inward);
 		}
 	}
 
-	private void onConstraintRemoved(Constraint constraint) {
+	private void onConstraintRemoved(Constraint constraint, boolean inward) {
 
 		for (ConceptListener listener : copyConceptListeners()) {
 
-			listener.onConstraintRemoved(constraint);
+			listener.onConstraintRemoved(constraint, inward);
 		}
 	}
 

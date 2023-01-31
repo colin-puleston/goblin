@@ -107,7 +107,7 @@ public abstract class Constraint extends EditTarget {
 
 	void doAdd(boolean replacement) {
 
-		getSourceValue().doAddConstraint(this);
+		getSourceValue().addConstraint(this);
 
 		for (Concept target : getTargetValues()) {
 
@@ -117,7 +117,7 @@ public abstract class Constraint extends EditTarget {
 
 	void doRemove(boolean replacing) {
 
-		getSourceValue().doRemoveConstraint(this);
+		getSourceValue().removeConstraint(this);
 
 		for (Concept target : getTargetValues()) {
 

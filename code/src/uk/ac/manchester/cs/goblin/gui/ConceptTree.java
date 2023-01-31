@@ -175,12 +175,12 @@ abstract class ConceptTree extends GSelectorTree {
 				}
 			}
 
-			public void onConstraintAdded(Constraint constraint) {
+			public void onConstraintAdded(Constraint constraint, boolean inward) {
 
 				constraintsListener.onConstraintChange();
 			}
 
-			public void onConstraintRemoved(Constraint constraint) {
+			public void onConstraintRemoved(Constraint constraint, boolean inward) {
 
 				constraintsListener.onConstraintChange();
 			}
