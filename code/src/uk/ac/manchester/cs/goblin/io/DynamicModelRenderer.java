@@ -141,7 +141,7 @@ class DynamicModelRenderer {
 
 		for (Concept sub : concept.getChildren()) {
 
-			renderHierarchyFrom(sub, addClass(cls, sub.getConceptId()));
+			renderHierarchyFrom(sub, resolveClass(cls, sub));
 		}
 	}
 
@@ -162,11 +162,19 @@ class DynamicModelRenderer {
 		}
 	}
 
-	private OWLClass addClass(OWLClass sup, EntityId conceptId) {
+	private OWLClass resolveClass(OWLClass sup, Concept concept) {
 
-		OWLClass cls = addClass(sup, getIRI(conceptId));
+		EntityId id = concept.getConceptId();
+		IRI iri = getIRI(id);
 
-		ontology.addLabel(cls, conceptId.getLabel());
+		if (concept.isFixed()) {
+
+			return ontology.getClass(iri);
+		}
+
+		OWLClass cls = addClass(sup, iri);
+
+		ontology.addLabel(cls, id.getLabel());
 
 		return cls;
 	}
