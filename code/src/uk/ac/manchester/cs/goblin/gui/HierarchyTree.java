@@ -65,16 +65,22 @@ class HierarchyTree extends ConceptTree {
 
 	void setConstraintsDisplayMode(ConstraintsDisplayMode mode) {
 
-		constraintsDisplayMode = mode;
+		if (mode != constraintsDisplayMode) {
 
-		redisplayForConstraintsDisplayModeChange();
+			constraintsDisplayMode = mode;
+
+			redisplayForConstraintsDisplayModeChange();
+		}
 	}
 
 	void setConstraintTypeSelection(ConstraintType selection) {
 
 		constraintTypeSelection = selection;
 
-		redisplayForConstraintsDisplayModeChange();
+		if (constraintsDisplayMode == ConstraintsDisplayMode.CURRENT_OUTWARDS) {
+
+			redisplayForConstraintsDisplayModeChange();
+		}
 	}
 
 	boolean showAnyOutwardConstraints() {

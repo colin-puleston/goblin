@@ -134,6 +134,42 @@ abstract class ConceptTree extends GSelectorTree {
 		}
 	}
 
+	private abstract class NonSelectableConceptTreeNode extends ConceptTreeNode {
+
+		private ConceptNode selectableAncestorConceptNode;
+
+		NonSelectableConceptTreeNode(ConceptNode selectableAncestorConceptNode) {
+
+			this.selectableAncestorConceptNode = selectableAncestorConceptNode;
+		}
+
+		private void selectSelectableAncestor() {
+
+			selectableAncestorConceptNode.select();
+		}
+	}
+
+	private class NonSelectableConceptTreeNodeDeselector extends GSelectionListener<GNode> {
+
+		private ConceptNode selectableAncestorConceptNode;
+
+		protected void onSelected(GNode node) {
+
+			if (node instanceof NonSelectableConceptTreeNode) {
+
+				((NonSelectableConceptTreeNode)node).selectSelectableAncestor();
+			}
+		}
+
+		protected void onDeselected(GNode node) {
+		}
+
+		NonSelectableConceptTreeNodeDeselector() {
+
+			addNodeSelectionListener(this);
+		}
+	}
+
 	private class RootNode extends ConceptTreeNode {
 
 		protected void addInitialChildren() {
@@ -160,7 +196,6 @@ abstract class ConceptTree extends GSelectorTree {
 	private class ConceptNode extends ConceptTreeNode {
 
 		private Concept concept;
-		private Set<ConstraintGroup> displayedConstraints = new HashSet<ConstraintGroup>();
 
 		private class ModelUpdateTracker implements ConceptListener {
 
@@ -194,51 +229,6 @@ abstract class ConceptTree extends GSelectorTree {
 
 				concept.addListener(this);
 				onAddedConceptListener(concept, this);
-			}
-		}
-
-		private class ConstraintRedisplayer {
-
-			private boolean modeChanged;
-			private boolean parentWasCollapsed;
-			private boolean wasCollapsed = collapsed();
-
-			private Set<ConstraintGroup> oldDisplayedConstraints = displayedConstraints;
-
-			ConstraintRedisplayer(boolean modeChanged, boolean parentWasCollapsed) {
-
-				this.modeChanged = modeChanged;
-				this.parentWasCollapsed = parentWasCollapsed;
-
-				displayedConstraints = new HashSet<ConstraintGroup>();
-
-				redisplayAllConstraintsOnDescendants(modeChanged, wasCollapsed);
-				addConstraintChildren();
-
-				if (requireRecollapse()) {
-
-					collapse();
-				}
-			}
-
-			private boolean requireRecollapse() {
-
-				if (parentWasCollapsed) {
-
-					return true;
-				}
-
-				if (!wasCollapsed) {
-
-					return false;
-				}
-
-				if (modeChanged) {
-
-					return displayedConstraints.isEmpty();
-				}
-
-				return displayedConstraints.equals(oldDisplayedConstraints);
 			}
 		}
 
@@ -280,7 +270,15 @@ abstract class ConceptTree extends GSelectorTree {
 
 		void redisplayAllConstraints(boolean modeChanged, boolean parentWasCollapsed) {
 
-			new ConstraintRedisplayer(modeChanged, parentWasCollapsed);
+			boolean wasCollapsed = collapsed();
+
+			redisplayAllConstraintsOnDescendants(modeChanged, wasCollapsed);
+			addConstraintChildren();
+
+			if (wasCollapsed || parentWasCollapsed) {
+
+				collapse();
+			}
 		}
 
 		Concept getConceptOrNull() {
@@ -332,43 +330,11 @@ abstract class ConceptTree extends GSelectorTree {
 			if (group.anyConstraints()) {
 
 				addChild(new ConstraintGroupNode(this, group));
-				displayedConstraints.add(group);
 			}
 		}
 	}
 
-	private abstract class ConstraintsNode extends ConceptTreeNode {
-
-		private class Deselector extends GSelectionListener<GNode> {
-
-			private ConceptNode sourceConceptNode;
-
-			protected void onSelected(GNode node) {
-
-				if (node == ConstraintsNode.this) {
-
-					sourceConceptNode.select();
-				}
-			}
-
-			protected void onDeselected(GNode node) {
-			}
-
-			Deselector(ConceptNode sourceConceptNode) {
-
-				this.sourceConceptNode = sourceConceptNode;
-
-				addNodeSelectionListener(this);
-			}
-		}
-
-		ConstraintsNode(ConceptNode sourceConceptNode) {
-
-			new Deselector(sourceConceptNode);
-		}
-	}
-
-	private class ConstraintGroupNode extends ConstraintsNode {
+	private class ConstraintGroupNode extends NonSelectableConceptTreeNode {
 
 		private ConceptNode sourceConceptNode;
 		private ConstraintGroup group;
@@ -400,7 +366,7 @@ abstract class ConceptTree extends GSelectorTree {
 		}
 	}
 
-	private class ImpliedValueConstraintLinkedNode extends ConstraintsNode {
+	private class ImpliedValueConstraintLinkedNode extends NonSelectableConceptTreeNode {
 
 		private GCellDisplay display;
 
@@ -424,7 +390,12 @@ abstract class ConceptTree extends GSelectorTree {
 
 		protected void onSelected(GNode node) {
 
-			pruneSelections(extractConcept(node));
+			Concept concept = extractConcept(node);
+
+			if (concept != null) {
+
+				pruneSelections(concept);
+			}
 		}
 
 		protected void onDeselected(GNode node) {
@@ -466,6 +437,8 @@ abstract class ConceptTree extends GSelectorTree {
 
 		setRootVisible(false);
 		setShowsRootHandles(true);
+
+		new NonSelectableConceptTreeNodeDeselector();
 
 		if (multiSelect) {
 
