@@ -67,7 +67,6 @@ abstract class ConceptTree extends GSelectorTree {
 	}
 
 	private Set<Concept> rootConcepts;
-	private ConstraintsListener constraintsListener = ConstraintsListener.INERT_LISTENER;
 
 	private abstract class ConceptTreeNode extends GNode {
 
@@ -81,15 +80,16 @@ abstract class ConceptTree extends GSelectorTree {
 			super(ConceptTree.this);
 		}
 
-		void redisplayAllConstraintsOnDescendants(boolean modeChanged, boolean wasCollapsed) {
+		void redisplayAllConstraintsOnDescendants(boolean wasCollapsed) {
 
 			for (GNode child : getChildren()) {
 
-				((ConceptTreeNode)child).redisplayAllConstraints(modeChanged, wasCollapsed);
+				if (child instanceof ConceptNode) {
+
+					((ConceptNode)child).redisplayAllConstraints(wasCollapsed);
+				}
 			}
 		}
-
-		abstract void redisplayAllConstraints(boolean modeChanged, boolean parentWasCollapsed);
 
 		void addChildrenFor(Set<Concept> concepts) {
 
@@ -182,14 +182,9 @@ abstract class ConceptTree extends GSelectorTree {
 			return GCellDisplay.NO_DISPLAY;
 		}
 
-		void redisplayAllConstraints(boolean modeChanged) {
+		void redisplayAllConstraints() {
 
-			redisplayAllConstraintsOnDescendants(modeChanged, false);
-		}
-
-		void redisplayAllConstraints(boolean modeChanged, boolean parentWasCollapsed) {
-
-			throw new Error("Method should never be invoked!");
+			redisplayAllConstraintsOnDescendants(false);
 		}
 	}
 
@@ -212,12 +207,12 @@ abstract class ConceptTree extends GSelectorTree {
 
 			public void onConstraintAdded(Constraint constraint, boolean inward) {
 
-				constraintsListener.onConstraintChange();
+				checkRedisplayConceptConstraints();
 			}
 
 			public void onConstraintRemoved(Constraint constraint, boolean inward) {
 
-				constraintsListener.onConstraintChange();
+				checkRedisplayConceptConstraints();
 			}
 
 			public void onConceptRemoved(Concept concept, boolean replacing) {
@@ -268,12 +263,12 @@ abstract class ConceptTree extends GSelectorTree {
 			new ModelUpdateTracker();
 		}
 
-		void redisplayAllConstraints(boolean modeChanged, boolean parentWasCollapsed) {
+		void redisplayAllConstraints(boolean parentWasCollapsed) {
 
 			boolean wasCollapsed = collapsed();
 
-			redisplayAllConstraintsOnDescendants(modeChanged, wasCollapsed);
-			addConstraintChildren();
+			redisplayConceptConstraints();
+			redisplayAllConstraintsOnDescendants(wasCollapsed);
 
 			if (wasCollapsed || parentWasCollapsed) {
 
@@ -289,6 +284,31 @@ abstract class ConceptTree extends GSelectorTree {
 		ConceptNode findNode(Concept forConcept) {
 
 			return concept.equals(forConcept) ? this : findDescendantNode(forConcept);
+		}
+
+		private void checkRedisplayConceptConstraints() {
+
+			if (showAnyConstraints()) {
+
+				redisplayConceptConstraints();
+			}
+		}
+
+		private void redisplayConceptConstraints() {
+
+			removeConstraintChildren();
+			addConstraintChildren();
+		}
+
+		private void removeConstraintChildren() {
+
+			for (GNode child : getChildren()) {
+
+				if (child instanceof ConstraintGroupNode) {
+
+					((ConstraintGroupNode)child).remove();
+				}
+			}
 		}
 
 		private void addConstraintChildren() {
@@ -359,11 +379,6 @@ abstract class ConceptTree extends GSelectorTree {
 			this.sourceConceptNode = sourceConceptNode;
 			this.group = group;
 		}
-
-		void redisplayAllConstraints(boolean modeChanged, boolean parentWasCollapsed) {
-
-			remove();
-		}
 	}
 
 	private class ImpliedValueConstraintLinkedNode extends NonSelectableConceptTreeNode {
@@ -380,9 +395,6 @@ abstract class ConceptTree extends GSelectorTree {
 			super(sourceConceptNode);
 
 			display = GoblinCellDisplay.CONCEPTS_CONSTRAINT_IMPLIED_TARGET.forConcept(linked);
-		}
-
-		void redisplayAllConstraints(boolean modeChanged, boolean parentWasCollapsed) {
 		}
 	}
 
@@ -446,11 +458,6 @@ abstract class ConceptTree extends GSelectorTree {
 		}
 	}
 
-	void setConstraintsListener(ConstraintsListener listener) {
-
-		constraintsListener = listener;
-	}
-
 	void initialise(Concept rootConcept) {
 
 		initialise(Collections.singleton(rootConcept));
@@ -463,16 +470,9 @@ abstract class ConceptTree extends GSelectorTree {
 		initialise(new RootNode());
 	}
 
-	void redisplayForConstraintsDisplayModeChange() {
+	void redisplayAllConstraints() {
 
-		getConceptTreeRootNode().redisplayAllConstraints(true);
-	}
-
-	void redisplayForConstraintsEdit() {
-
-		getConceptTreeRootNode().redisplayAllConstraints(false);
-
-		reselectSelected();
+		getConceptTreeRootNode().redisplayAllConstraints();
 	}
 
 	boolean showAnyOutwardConstraints() {
@@ -548,6 +548,11 @@ abstract class ConceptTree extends GSelectorTree {
 	}
 
 	abstract GCellDisplay getConceptDisplay(Concept concept);
+
+	private boolean showAnyConstraints() {
+
+		return showAnyOutwardConstraints() || showInwardConstraints();
+	}
 
 	private ConceptTreeNode lookForNodeFor(Concept concept) {
 

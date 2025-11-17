@@ -40,14 +40,6 @@ class HierarchyTree extends ConceptTree {
 	private ConstraintsDisplayMode constraintsDisplayMode = ConstraintsDisplayMode.NONE;
 	private ConstraintType constraintTypeSelection = null;
 
-	private class ConstraintEditDrivenUpdater extends ConstraintsListener {
-
-		void onConstraintChange() {
-
-			redisplayForConstraintsEdit();
-		}
-	}
-
 	HierarchyTree(Hierarchy hierarchy, ConceptMover conceptMover) {
 
 		super(true);
@@ -55,7 +47,6 @@ class HierarchyTree extends ConceptTree {
 		this.conceptMover = conceptMover;
 
 		initialise(hierarchy.getRootConcept());
-		setConstraintsListener(new ConstraintEditDrivenUpdater());
 	}
 
 	GCellDisplay getConceptDisplay(Concept concept) {
@@ -69,7 +60,7 @@ class HierarchyTree extends ConceptTree {
 
 			constraintsDisplayMode = mode;
 
-			redisplayForConstraintsDisplayModeChange();
+			redisplayAllConstraints();
 		}
 	}
 
@@ -79,7 +70,7 @@ class HierarchyTree extends ConceptTree {
 
 		if (constraintsDisplayMode == ConstraintsDisplayMode.CURRENT_OUTWARDS) {
 
-			redisplayForConstraintsDisplayModeChange();
+			redisplayAllConstraints();
 		}
 	}
 

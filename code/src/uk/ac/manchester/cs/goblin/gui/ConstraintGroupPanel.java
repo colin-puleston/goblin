@@ -458,6 +458,8 @@ class ConstraintGroupPanel extends JPanel {
 			protected void doButtonThing() {
 
 				applyEdits(source, getTargetSelections());
+
+				resetSourceConcept(source);
 			}
 
 			ApplyEditsButton() {
