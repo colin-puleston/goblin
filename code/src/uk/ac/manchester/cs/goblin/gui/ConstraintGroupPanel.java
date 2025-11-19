@@ -58,7 +58,7 @@ class ConstraintGroupPanel extends JPanel {
 		final Concept source;
 		final TargetsTree targetsTree;
 
-		private class TargetsTree extends ConceptTree {
+		private class TargetsTree extends DynamicConceptTree {
 
 			static private final long serialVersionUID = -1;
 

@@ -31,7 +31,7 @@ import uk.ac.manchester.cs.goblin.model.*;
 /**
  * @author Colin Puleston
  */
-class HierarchyTree extends ConceptTree {
+class HierarchyTree extends DynamicConceptTree {
 
 	static private final long serialVersionUID = -1;
 
@@ -40,6 +40,190 @@ class HierarchyTree extends ConceptTree {
 	private ConstraintsDisplayMode constraintsDisplayMode = ConstraintsDisplayMode.NONE;
 	private ConstraintType constraintTypeSelection = null;
 
+	private class HierarchyConceptNode extends DynamicConceptNode {
+
+		protected void addInitialChildren() {
+
+			super.addInitialChildren();
+
+			addConstraintChildren();
+		}
+
+		protected int compareChildrenPriorToLabelCompare(GNode first, GNode second) {
+
+			boolean firstIsConcept = first instanceof ConceptNode;
+			boolean secondIsConcept = second instanceof ConceptNode;
+
+			if (firstIsConcept == secondIsConcept) {
+
+				return 0;
+			}
+
+			return firstIsConcept ? -1 : 1;
+		}
+
+		HierarchyConceptNode(Concept concept) {
+
+			super(concept);
+		}
+
+		void onConstraintsUpdated() {
+
+			if (showAnyConstraints()) {
+
+				redisplayConceptConstraints();
+			}
+		}
+
+		void redisplayAllConstraints(boolean parentWasCollapsed) {
+
+			boolean wasCollapsed = collapsed();
+
+			redisplayConceptConstraints();
+			redisplayAllConstraintsOnDescendantsOf(this, wasCollapsed);
+
+			if (wasCollapsed || parentWasCollapsed) {
+
+				collapse();
+			}
+		}
+
+		private void redisplayConceptConstraints() {
+
+			removeConstraintChildren();
+			addConstraintChildren();
+		}
+
+		private void removeConstraintChildren() {
+
+			for (GNode child : getChildren()) {
+
+				if (child instanceof ConstraintGroupNode) {
+
+					((ConstraintGroupNode)child).remove();
+				}
+			}
+		}
+
+		private void addConstraintChildren() {
+
+			Hierarchy hierarchy = concept.getHierarchy();
+
+			if (showAnyOutwardConstraints()) {
+
+				addRelevantOutwardConstraintChildren();
+			}
+
+			if (showInwardConstraints()) {
+
+				addAllInwardConstraintChildren();
+			}
+		}
+
+		private void addRelevantOutwardConstraintChildren() {
+
+			for (ConstraintType type : concept.getHierarchy().getConstraintTypes()) {
+
+				if (showTypeOutwardConstraints(type)) {
+
+					checkAddConstraintsChild(new OutwardConstraintGroup(concept, type));
+				}
+			}
+		}
+
+		private void addAllInwardConstraintChildren() {
+
+			for (ConstraintType type : concept.getHierarchy().getInwardConstraintTypes()) {
+
+				checkAddConstraintsChild(new InwardConstraintGroup(concept, type));
+			}
+		}
+
+		private void checkAddConstraintsChild(ConstraintGroup group) {
+
+			if (group.anyConstraints()) {
+
+				addChild(new ConstraintGroupNode(this, group));
+			}
+		}
+	}
+
+	private abstract class ConstraintsRelatedNode extends ConceptTreeNode {
+
+		final ConceptNode linkedConceptNode;
+
+		ConstraintsRelatedNode(ConceptNode linkedConceptNode) {
+
+			this.linkedConceptNode = linkedConceptNode;
+		}
+
+		void selectLinkedConceptNode() {
+
+			linkedConceptNode.select();
+		}
+	}
+
+	private class ConstraintsRelatedNodeDeselector extends GSelectionListener<GNode> {
+
+		protected void onSelected(GNode node) {
+
+			if (node instanceof ConstraintsRelatedNode) {
+
+				((ConstraintsRelatedNode)node).selectLinkedConceptNode();
+			}
+		}
+
+		protected void onDeselected(GNode node) {
+		}
+
+		ConstraintsRelatedNodeDeselector() {
+
+			addNodeSelectionListener(this);
+		}
+	}
+
+	private class ConstraintGroupNode extends ConstraintsRelatedNode {
+
+		private ConstraintGroup group;
+
+		protected void addInitialChildren() {
+
+			for (Concept linked : group.getImpliedValueLinkedConcepts()) {
+
+				addChild(new ImpliedValueConstraintLinkedNode(linkedConceptNode, linked));
+			}
+		}
+
+		protected GCellDisplay getDisplay() {
+
+			return GoblinCellDisplay.CONCEPTS_CONSTRAINT_GROUP.forConstraints(group);
+		}
+
+		ConstraintGroupNode(ConceptNode linkedConceptNode, ConstraintGroup group) {
+
+			super(linkedConceptNode);
+
+			this.group = group;
+		}
+	}
+
+	private class ImpliedValueConstraintLinkedNode extends ConstraintsRelatedNode {
+
+		private GCellDisplay display;
+
+		protected GCellDisplay getDisplay() {
+
+			return display;
+		}
+
+		ImpliedValueConstraintLinkedNode(ConceptNode linkedConceptNode, Concept linked) {
+
+			super(linkedConceptNode);
+
+			display = GoblinCellDisplay.CONCEPTS_CONSTRAINT_IMPLIED_TARGET.forConcept(linked);
+		}
+	}
+
 	HierarchyTree(Hierarchy hierarchy, ConceptMover conceptMover) {
 
 		super(true);
@@ -47,6 +231,8 @@ class HierarchyTree extends ConceptTree {
 		this.conceptMover = conceptMover;
 
 		initialise(hierarchy.getRootConcept());
+
+		new ConstraintsRelatedNodeDeselector();
 	}
 
 	GCellDisplay getConceptDisplay(Concept concept) {
@@ -74,34 +260,15 @@ class HierarchyTree extends ConceptTree {
 		}
 	}
 
-	boolean showAnyOutwardConstraints() {
-
-		return constraintsDisplayMode.anyOutwards();
-	}
-
-	boolean showTypeOutwardConstraints(ConstraintType type) {
-
-		switch (constraintsDisplayMode) {
-
-			case ALL_OUTWARDS:
-				return true;
-
-			case CURRENT_OUTWARDS:
-				return type == constraintTypeSelection;
-		}
-
-		throw new Error("Unexpected constraints display-mode: " + constraintsDisplayMode);
-	}
-
-	boolean showInwardConstraints() {
-
-		return constraintsDisplayMode == ConstraintsDisplayMode.ALL_INWARDS;
-	}
-
 	void update() {
 
 		reselectSelected();
 		updateAllNodeDisplays();
+	}
+
+	ConceptNode createConceptNode(Concept concept) {
+
+		return new HierarchyConceptNode(concept);
 	}
 
 	GoblinCellDisplay getGoblinCellDisplay(Concept concept) {
@@ -117,5 +284,50 @@ class HierarchyTree extends ConceptTree {
 		}
 
 		return GoblinCellDisplay.CONCEPTS_DEFAULT;
+	}
+
+	private void redisplayAllConstraints() {
+
+		redisplayAllConstraintsOnDescendantsOf(getRootNode(), false);
+	}
+
+	private void redisplayAllConstraintsOnDescendantsOf(GNode node, boolean wasCollapsed) {
+
+		for (GNode child : node.getChildren()) {
+
+			if (child instanceof HierarchyConceptNode) {
+
+				((HierarchyConceptNode)child).redisplayAllConstraints(wasCollapsed);
+			}
+		}
+	}
+
+	private boolean showAnyConstraints() {
+
+		return showAnyOutwardConstraints() || showInwardConstraints();
+	}
+
+	private boolean showAnyOutwardConstraints() {
+
+		return constraintsDisplayMode.anyOutwards();
+	}
+
+	private boolean showTypeOutwardConstraints(ConstraintType type) {
+
+		switch (constraintsDisplayMode) {
+
+			case ALL_OUTWARDS:
+				return true;
+
+			case CURRENT_OUTWARDS:
+				return type == constraintTypeSelection;
+		}
+
+		throw new Error("Unexpected constraints display-mode: " + constraintsDisplayMode);
+	}
+
+	private boolean showInwardConstraints() {
+
+		return constraintsDisplayMode == ConstraintsDisplayMode.ALL_INWARDS;
 	}
 }
