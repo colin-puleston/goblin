@@ -358,11 +358,9 @@ public class Concept extends EditTarget {
 		this.hierarchy = hierarchy;
 		this.conceptId = conceptId;
 
-		Model model = getModel();
-
-		children = new ConceptTrackerSet(model);
-		constraints = new ConstraintTrackerSet(model);
-		inwardConstraints = new ConstraintTrackerSet(model);
+		children = new ConceptTrackerSet();
+		constraints = new ConstraintTrackerSet();
+		inwardConstraints = new ConstraintTrackerSet();
 	}
 
 	EditAction checkCreateMoveAction(Concept newParent) {
@@ -417,26 +415,33 @@ public class Concept extends EditTarget {
 
 	void addConstraint(Constraint constraint) {
 
-		constraints.add(constraint);
+		ConstraintTracker tracker = constraints.add(constraint);
+
 		onConstraintAdded(constraint, false);
+
+		for (Concept target : constraint.getTargetValues()) {
+
+			target.inwardConstraints.add(tracker);
+			target.onConstraintAdded(constraint, true);
+		}
 	}
 
 	void removeConstraint(Constraint constraint) {
 
-		constraints.remove(constraint);
+		ConstraintTracker tracker = constraints.remove(constraint);
+
 		onConstraintRemoved(constraint, false);
+
+		for (Concept target : constraint.getTargetValues()) {
+
+			target.inwardConstraints.remove(tracker);
+			target.onConstraintRemoved(constraint, true);
+		}
 	}
 
-	void addInwardConstraint(Constraint constraint) {
+	ConceptTracker toTracker() {
 
-		inwardConstraints.add(constraint);
-		onConstraintAdded(constraint, true);
-	}
-
-	void removeInwardConstraint(Constraint constraint) {
-
-		inwardConstraints.remove(constraint);
-		onConstraintRemoved(constraint, true);
+		return getModel().getConceptTracking().toTracker(this);
 	}
 
 	Concept getEditTargetConcept() {
@@ -494,7 +499,7 @@ public class Concept extends EditTarget {
 
 	private void setParent(Concept parent) {
 
-		this.parent = toConceptTracker(parent);
+		this.parent = parent.toTracker();
 	}
 
 	private EditAction incorporateInwardTargetRemovalEdits(EditAction action) {
@@ -514,7 +519,8 @@ public class Concept extends EditTarget {
 	private ConflictResolution checkMoveConflicts(Concept newParent) {
 
 		ConceptTracker savedParent = parent;
-		parent = toConceptTracker(newParent);
+
+		setParent(newParent);
 
 		ConflictResolution conflicts = checkMovedConflicts();
 
@@ -592,10 +598,5 @@ public class Concept extends EditTarget {
 	private EntityId toEntityId(DynamicId dynamicId) {
 
 		return getModel().toEntityId(dynamicId);
-	}
-
-	private ConceptTracker toConceptTracker(Concept concept) {
-
-		return getModel().getConceptTracking().toTracker(concept);
 	}
 }

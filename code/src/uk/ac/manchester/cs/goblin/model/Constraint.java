@@ -69,8 +69,8 @@ public abstract class Constraint extends EditTarget {
 	Constraint(ConstraintType type, Concept sourceValue, Collection<Concept> targetValues) {
 
 		this.type = type;
-		this.sourceValue = toConceptTracker(sourceValue);
-		this.targetValues = new ConceptTrackerSet(getModel(), targetValues);
+		this.sourceValue = sourceValue.toTracker();
+		this.targetValues = new ConceptTrackerSet(targetValues);
 
 		checkTargetConflicts(targetValues);
 	}
@@ -108,21 +108,21 @@ public abstract class Constraint extends EditTarget {
 	void doAdd(boolean replacement) {
 
 		getSourceValue().addConstraint(this);
-
-		for (Concept target : getTargetValues()) {
-
-			target.addInwardConstraint(this);
-		}
 	}
 
 	void doRemove(boolean replacing) {
 
 		getSourceValue().removeConstraint(this);
+	}
 
-		for (Concept target : getTargetValues()) {
+	Constraint lookForConflictingConstraintOnSource() {
 
-			target.removeInwardConstraint(this);
+		if (type.singleImpliedValues()) {
+
+			return getSourceValue().lookForConstraint(type, getSemantics());
 		}
+
+		return null;
 	}
 
 	Concept getEditTargetConcept() {
@@ -136,11 +136,6 @@ public abstract class Constraint extends EditTarget {
 	}
 
 	abstract boolean singleConstraintOfTypeAndSemanticsPerConcept();
-
-	private ConceptTracker toConceptTracker(Concept concept) {
-
-		return concept.getModel().getConceptTracking().toTracker(concept);
-	}
 
 	private void checkTargetConflicts(Collection<Concept> targetValues) {
 

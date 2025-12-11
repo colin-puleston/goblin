@@ -5,12 +5,12 @@ package uk.ac.manchester.cs.goblin.model;
  */
 abstract class ReplaceAction<T extends EditTarget> extends EditAction {
 
-	private Atomic add;
-	private Atomic remove;
+	private ComponentAction add;
+	private ComponentAction remove;
 
-	private abstract class Atomic extends AtomicEditAction<T> {
+	private abstract class ComponentAction extends AtomicEditAction<T> {
 
-		Atomic(T target) {
+		ComponentAction(T target) {
 
 			super(target);
 		}
@@ -21,7 +21,7 @@ abstract class ReplaceAction<T extends EditTarget> extends EditAction {
 		}
 	}
 
-	private class Add extends Atomic {
+	private class Add extends ComponentAction {
 
 		Add(T target) {
 
@@ -34,7 +34,7 @@ abstract class ReplaceAction<T extends EditTarget> extends EditAction {
 		}
 	}
 
-	private class Remove extends Atomic {
+	private class Remove extends ComponentAction {
 
 		Remove(T target) {
 
@@ -70,20 +70,12 @@ abstract class ReplaceAction<T extends EditTarget> extends EditAction {
 		return forward ? add : remove;
 	}
 
-	abstract EntityTracking<T, ?> getTargetTracking(T target);
+	abstract void performInterSubActionUpdates(T target1, T target2);
 
-	private void perform(boolean forward, Atomic first, Atomic second) {
+	private void perform(boolean forward, ComponentAction first, ComponentAction second) {
 
 		first.perform(forward);
-		updateTargetTracking(first, second);
+		performInterSubActionUpdates(first.getTarget(), second.getTarget());
 		second.perform(forward);
-	}
-
-	private void updateTargetTracking(Atomic first, Atomic second) {
-
-		T target1 = first.getTarget();
-		T target2 = second.getTarget();
-
-		getTargetTracking(target1).updateForReplacement(target1, target2);
 	}
 }

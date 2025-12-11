@@ -16,7 +16,6 @@ public class Model extends HierarchyContainer {
 
 	private EditActions editActions;
 	private ConceptTracking conceptTracking;
-	private ConstraintTracking constraintTracking;
 	private ConflictResolver conflictResolver;
 
 	public Model(String dynamicNamespace) {
@@ -25,7 +24,6 @@ public class Model extends HierarchyContainer {
 
 		editActions = new EditActions();
 		conceptTracking = new ConceptTracking();
-		constraintTracking = new ConstraintTracking();
 		conflictResolver = new ConflictResolver();
 	}
 
@@ -123,11 +121,6 @@ public class Model extends HierarchyContainer {
 	ConceptTracking getConceptTracking() {
 
 		return conceptTracking;
-	}
-
-	ConstraintTracking getConstraintTracking() {
-
-		return constraintTracking;
 	}
 
 	ConflictResolver getConflictResolver() {

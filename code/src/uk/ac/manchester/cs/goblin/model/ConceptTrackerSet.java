@@ -5,21 +5,33 @@ import java.util.*;
 /**
  * @author Colin Puleston
  */
-class ConceptTrackerSet extends EntityTrackerSet<Concept> {
+class ConceptTrackerSet extends EntityTrackerSet<Concept, ConceptTracker> {
 
-	ConceptTrackerSet(Model model) {
-
-		super(model.getConceptTracking());
+	ConceptTrackerSet() {
 	}
 
-	ConceptTrackerSet(Model model, Collection<Concept> concepts) {
+	ConceptTrackerSet(Collection<Concept> concepts) {
 
-		super(model.getConceptTracking(), concepts);
+		super(concepts);
 	}
 
 	ConceptTrackerSet copy() {
 
 		return new ConceptTrackerSet(this);
+	}
+
+	ConceptTracker add(Concept concept) {
+
+		ConceptTracker tracker = concept.toTracker();
+
+		add(tracker);
+
+		return tracker;
+	}
+
+	void remove(Concept concept) {
+
+		remove(concept.toTracker());
 	}
 
 	private ConceptTrackerSet(ConceptTrackerSet template) {

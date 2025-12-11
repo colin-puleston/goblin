@@ -10,8 +10,6 @@ class ReplaceConstraintAction extends ReplaceAction<Constraint> {
 		super(removeTarget, addTarget);
 	}
 
-	ConstraintTracking getTargetTracking(Constraint target) {
-
-		return target.getModel().getConstraintTracking();
+	void performInterSubActionUpdates(Constraint target1, Constraint target2) {
 	}
 }

@@ -10,7 +10,12 @@ class ReplaceConceptAction extends ReplaceAction<Concept> {
 		super(removeTarget, addTarget);
 	}
 
-	ConceptTracking getTargetTracking(Concept target) {
+	void performInterSubActionUpdates(Concept target1, Concept target2) {
+
+		getTargetTracking(target1).updateForReplacement(target1, target2);
+	}
+
+	private ConceptTracking getTargetTracking(Concept target) {
 
 		return target.getModel().getConceptTracking();
 	}

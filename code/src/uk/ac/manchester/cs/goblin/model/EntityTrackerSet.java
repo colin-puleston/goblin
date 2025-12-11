@@ -5,19 +5,14 @@ import java.util.*;
 /**
  * @author Colin Puleston
  */
-class EntityTrackerSet<E> {
+abstract class EntityTrackerSet<E, T extends EntityTracker<E>> {
 
-	private EntityTracking<E, ?> tracking;
-	private Set<EntityTracker<E>> trackers = new HashSet<EntityTracker<E>>();
+	private Set<T> trackers = new HashSet<T>();
 
-	EntityTrackerSet(EntityTracking<E, ?> tracking) {
-
-		this.tracking = tracking;
+	EntityTrackerSet() {
 	}
 
-	EntityTrackerSet(EntityTracking<E, ?> tracking, Collection<E> entities) {
-
-		this(tracking);
+	EntityTrackerSet(Collection<E> entities) {
 
 		for (E entity : entities) {
 
@@ -25,21 +20,19 @@ class EntityTrackerSet<E> {
 		}
 	}
 
-	EntityTrackerSet(EntityTrackerSet<E> template) {
-
-		tracking = template.tracking;
+	EntityTrackerSet(EntityTrackerSet<E, T> template) {
 
 		trackers.addAll(template.trackers);
 	}
 
-	void add(E entity) {
+	void add(T tracker) {
 
-		trackers.add(tracking.toTracker(entity));
+		trackers.add(tracker);
 	}
 
-	void remove(E entity) {
+	void remove(T tracker) {
 
-		trackers.remove(tracking.toTracker(entity));
+		trackers.remove(tracker);
 	}
 
 	boolean isEmpty() {
@@ -51,11 +44,26 @@ class EntityTrackerSet<E> {
 
 		Set<E> entities = new HashSet<E>();
 
-		for (EntityTracker<E> tracker : trackers) {
+		for (T tracker : trackers) {
 
 			entities.add(tracker.getEntity());
 		}
 
 		return entities;
 	}
+
+	T getTrackerFor(E entity) {
+
+		for (T tracker : trackers) {
+
+			if (tracker.getEntity().equals(entity)) {
+
+				return tracker;
+			}
+		}
+
+		throw new Error("Cannot find tracker for: " + entity);
+	}
+
+	abstract T add(E entity);
 }

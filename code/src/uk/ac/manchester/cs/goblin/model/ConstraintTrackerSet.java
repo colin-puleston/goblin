@@ -5,21 +5,37 @@ import java.util.*;
 /**
  * @author Colin Puleston
  */
-class ConstraintTrackerSet extends EntityTrackerSet<Constraint> {
+class ConstraintTrackerSet extends EntityTrackerSet<Constraint, ConstraintTracker> {
 
-	ConstraintTrackerSet(Model model) {
-
-		super(model.getConstraintTracking());
+	ConstraintTrackerSet() {
 	}
 
-	ConstraintTrackerSet(Model model, Collection<Constraint> constraints) {
+	ConstraintTrackerSet(Collection<Constraint> constraints) {
 
-		super(model.getConstraintTracking(), constraints);
+		super(constraints);
 	}
 
 	ConstraintTrackerSet copy() {
 
 		return new ConstraintTrackerSet(this);
+	}
+
+	ConstraintTracker add(Constraint constraint) {
+
+		ConstraintTracker tracker = new ConstraintTracker(constraint);
+
+		add(tracker);
+
+		return tracker;
+	}
+
+	ConstraintTracker remove(Constraint constraint) {
+
+		ConstraintTracker tracker = getTrackerFor(constraint);
+
+		remove(tracker);
+
+		return tracker;
 	}
 
 	private ConstraintTrackerSet(ConstraintTrackerSet template) {

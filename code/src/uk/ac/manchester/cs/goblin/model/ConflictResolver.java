@@ -229,7 +229,7 @@ class ConflictResolver {
 
 			List<Constraint> conflicts = new ArrayList<Constraint>();
 
-			Constraint localConflict = lookForLocalConflict(constraint);
+			Constraint localConflict = constraint.lookForConflictingConstraintOnSource();
 
 			if (localConflict != null) {
 
@@ -240,25 +240,6 @@ class ConflictResolver {
 			conflicts.addAll(new DownwardsConflictFinder(constraint).findAll());
 
 			return conflicts;
-		}
-
-		private Constraint lookForLocalConflict(Constraint constraint) {
-
-			ConstraintType type = constraint.getType();
-
-			if (type.singleImpliedValues()) {
-
-				Concept source = constraint.getSourceValue();
-
-				if (constraint.getSemantics().impliedValue()) {
-
-					return source.lookForValidValuesConstraint(type);
-				}
-
-				return source.lookForImpliedValueConstraint(type);
-			}
-
-			return null;
 		}
 	}
 
