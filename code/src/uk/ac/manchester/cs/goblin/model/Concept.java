@@ -25,10 +25,10 @@ public class Concept extends EditTarget {
 	private EntityId conceptId;
 
 	private ConceptTracker parent;
-	private ConceptTrackerSet children;
+	private ConceptTrackerSet children = new ConceptTrackerSet();
 
-	private ConstraintTrackerSet constraints;
-	private ConstraintTrackerSet inwardConstraints;
+	private ConstraintTrackerSet constraints = new ConstraintTrackerSet();
+	private ConstraintTrackerSet inwardConstraints = new ConstraintTrackerSet();
 
 	private List<ConceptListener> conceptListeners = new ArrayList<ConceptListener>();
 
@@ -357,10 +357,6 @@ public class Concept extends EditTarget {
 
 		this.hierarchy = hierarchy;
 		this.conceptId = conceptId;
-
-		children = new ConceptTrackerSet();
-		constraints = new ConstraintTrackerSet();
-		inwardConstraints = new ConstraintTrackerSet();
 	}
 
 	EditAction checkCreateMoveAction(Concept newParent) {

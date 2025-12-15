@@ -20,22 +20,9 @@ class ConstraintTrackerSet extends EntityTrackerSet<Constraint, ConstraintTracke
 		return new ConstraintTrackerSet(this);
 	}
 
-	ConstraintTracker add(Constraint constraint) {
+	ConstraintTracker toTracker(Constraint constraint) {
 
-		ConstraintTracker tracker = new ConstraintTracker(constraint);
-
-		add(tracker);
-
-		return tracker;
-	}
-
-	ConstraintTracker remove(Constraint constraint) {
-
-		ConstraintTracker tracker = getTrackerFor(constraint);
-
-		remove(tracker);
-
-		return tracker;
+		return new ConstraintTracker(constraint);
 	}
 
 	private ConstraintTrackerSet(ConstraintTrackerSet template) {

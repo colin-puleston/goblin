@@ -20,18 +20,9 @@ class ConceptTrackerSet extends EntityTrackerSet<Concept, ConceptTracker> {
 		return new ConceptTrackerSet(this);
 	}
 
-	ConceptTracker add(Concept concept) {
+	ConceptTracker toTracker(Concept concept) {
 
-		ConceptTracker tracker = concept.toTracker();
-
-		add(tracker);
-
-		return tracker;
-	}
-
-	void remove(Concept concept) {
-
-		remove(concept.toTracker());
+		return concept.toTracker();
 	}
 
 	private ConceptTrackerSet(ConceptTrackerSet template) {

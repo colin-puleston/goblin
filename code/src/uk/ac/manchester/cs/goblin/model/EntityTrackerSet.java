@@ -35,6 +35,24 @@ abstract class EntityTrackerSet<E, T extends EntityTracker<E>> {
 		trackers.remove(tracker);
 	}
 
+	T add(E entity) {
+
+		T tracker = toTracker(entity);
+
+		add(tracker);
+
+		return tracker;
+	}
+
+	T remove(E entity) {
+
+		T tracker = getTrackerFor(entity);
+
+		remove(tracker);
+
+		return tracker;
+	}
+
 	boolean isEmpty() {
 
 		return trackers.isEmpty();
@@ -65,5 +83,5 @@ abstract class EntityTrackerSet<E, T extends EntityTracker<E>> {
 		throw new Error("Cannot find tracker for: " + entity);
 	}
 
-	abstract T add(E entity);
+	abstract T toTracker(E entity);
 }
