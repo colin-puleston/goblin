@@ -122,7 +122,9 @@ class HierarchyPanel extends GSplitPane {
 
 	void makeConstraintVisible(Constraint constraint) {
 
+		hierarchyTree.clearSelection();
 		hierarchyTree.selectConcept(constraint.getSourceValue());
+
 		constraintsPanel.makeSourceVisible(constraint.getType());
 	}
 
