@@ -34,6 +34,23 @@ public class EntityId {
 		return uri;
 	}
 
+	public String getName() {
+
+		String u = uri.toString();
+
+		for (char c : URI_FINAL_SEPARATOR_CHARS) {
+
+			int i = u.lastIndexOf(c);
+
+			if (i != -1 && i != u.length() - 1) {
+
+				return u.substring(i + 1);
+			}
+		}
+
+		return u;
+	}
+
 	public String getLabel() {
 
 		return label;
@@ -58,23 +75,6 @@ public class EntityId {
 
 	private String resolveLabel(String labelOrNull) {
 
-		return labelOrNull == null ? createDefaultLabel() : labelOrNull;
-	}
-
-	private String createDefaultLabel() {
-
-		String u = uri.toString();
-
-		for (char c : URI_FINAL_SEPARATOR_CHARS) {
-
-			int i = u.lastIndexOf(c);
-
-			if (i != -1 && i != u.length() - 1) {
-
-				return u.substring(i + 1);
-			}
-		}
-
-		return u;
+		return labelOrNull == null ? getName() : labelOrNull;
 	}
 }

@@ -26,7 +26,9 @@ package uk.ac.manchester.cs.goblin.gui;
 
 import java.awt.BorderLayout;
 import java.util.*;
+
 import javax.swing.*;
+import javax.swing.event.*;
 
 import uk.ac.manchester.cs.mekon_util.gui.*;
 
@@ -51,12 +53,43 @@ class ConstraintGroupPanel extends JPanel {
 
 	private Map<Concept, ConceptListener> conceptListeners = new HashMap<Concept, ConceptListener>();
 
+	private int currentActionTabIndex = -1;
+
+	private class ActionTabsSelectionMonitor implements ChangeListener {
+
+		private JTabbedPane actionTabs;
+
+		public void stateChanged(ChangeEvent e) {
+
+			currentActionTabIndex = actionTabs.getSelectedIndex();
+		}
+
+		ActionTabsSelectionMonitor(JTabbedPane actionTabs) {
+
+			this.actionTabs = actionTabs;
+
+			actionTabs.addChangeListener(this);
+
+			if (currentActionTabIndex != -1
+				&& currentActionTabIndex < actionTabs.getTabCount()) {
+
+				actionTabs.setSelectedIndex(currentActionTabIndex);
+			}
+			else {
+
+				currentActionTabIndex = actionTabs.getSelectedIndex();
+			}
+		}
+	}
+
 	private abstract class PanelPopulator {
 
 		static private final long serialVersionUID = -1;
 
 		final Concept source;
 		final TargetsTree targetsTree;
+
+		private int currentEditActionsPanelIndex = 0;
 
 		private class TargetsTree extends DynamicConceptTree {
 
@@ -159,6 +192,8 @@ class ConstraintGroupPanel extends JPanel {
 
 		private ConstraintTargetsDisplay targetsDisplay;
 
+		private int currentActionsPanelIndex = 0;
+
 		private class ShowPotentiallyValidsOptionSelector extends GCheckBox {
 
 			static private final long serialVersionUID = -1;
@@ -192,7 +227,7 @@ class ConstraintGroupPanel extends JPanel {
 
 			super.populate();
 
-			add(createActionsTabs(), BorderLayout.SOUTH);
+			add(createActionTabs(), BorderLayout.SOUTH);
 		}
 
 		JComponent createHeaderPanel() {
@@ -220,7 +255,7 @@ class ConstraintGroupPanel extends JPanel {
 			return targetsDisplay.getCellDisplay(concept);
 		}
 
-		private JTabbedPane createActionsTabs() {
+		private JTabbedPane createActionTabs() {
 
 			JTabbedPane tabs = new JTabbedPane();
 
@@ -233,6 +268,8 @@ class ConstraintGroupPanel extends JPanel {
 
 				addActionsTab(tabs, createImpliedValuesPanel());
 			}
+
+			new ActionTabsSelectionMonitor(tabs);
 
 			return tabs;
 		}
@@ -255,7 +292,7 @@ class ConstraintGroupPanel extends JPanel {
 		private ConstraintTargetsDisplay createTargetsDisplay() {
 
 			Constraint validValues = getValidValuesConstraint();
-			Set<Constraint> impliedValues = source.getImpliedValueConstraints(type);
+			List<Constraint> impliedValues = source.getImpliedValueConstraints(type);
 
 			return new ConstraintTargetsDisplay(validValues, impliedValues);
 		}
@@ -276,7 +313,7 @@ class ConstraintGroupPanel extends JPanel {
 		static private final long serialVersionUID = -1;
 
 		private Concept source;
-		private Set<Concept> currentTargets = new HashSet<Concept>();
+		private List<Concept> currentTargets = new ArrayList<Concept>();
 
 		private ConceptTree targetsTree;
 		private TargetSelectionsList targetSelectionsList = new TargetSelectionsList();
@@ -290,7 +327,7 @@ class ConstraintGroupPanel extends JPanel {
 				super(true, true);
 			}
 
-			void addTargets(Set<Concept> targets) {
+			void addTargets(List<Concept> targets) {
 
 				for (Concept target : targets) {
 
@@ -449,9 +486,9 @@ class ConstraintGroupPanel extends JPanel {
 					setEnabled(!getTargetSelectionsSet().equals(currentTargets));
 				}
 
-				private Set<Concept> getTargetSelectionsSet() {
+				private List<Concept> getTargetSelectionsSet() {
 
-					return new HashSet<Concept>(getTargetSelections());
+					return new ArrayList<Concept>(getTargetSelections());
 				}
 			}
 
@@ -698,7 +735,7 @@ class ConstraintGroupPanel extends JPanel {
 
 			Concept selected = sourcesTree.getSelectedConcept();
 
-			if (selected != null) {
+			if (selected != null && constraintTypeStillApplicable(selected)) {
 
 				resetSourceConcept(selected);
 			}
@@ -707,6 +744,11 @@ class ConstraintGroupPanel extends JPanel {
 		protected void onDeselected(GNode node) {
 
 			clearSourceConcept();
+		}
+
+		private boolean constraintTypeStillApplicable(Concept selected) {
+
+			return selected.subsumedBy(type.getRootSourceConcept());
 		}
 	}
 

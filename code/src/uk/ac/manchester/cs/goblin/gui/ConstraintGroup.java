@@ -50,7 +50,7 @@ abstract class ConstraintGroup {
 				+ impliedValueLinkedConcepts.hashCode();
 	}
 
-	ConstraintGroup(ConstraintType type, Set<Constraint> constraints) {
+	ConstraintGroup(ConstraintType type, Collection<Constraint> constraints) {
 
 		this.type = type;
 

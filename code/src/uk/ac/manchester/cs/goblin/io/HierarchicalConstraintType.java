@@ -7,7 +7,13 @@ import uk.ac.manchester.cs.goblin.model.*;
  */
 class HierarchicalConstraintType extends ConstraintType {
 
+	private String name;
 	private boolean singleSuperConcepts = false;
+
+	public String getName() {
+
+		return name;
+	}
 
 	public boolean definesValidValues() {
 
@@ -24,12 +30,11 @@ class HierarchicalConstraintType extends ConstraintType {
 		return singleSuperConcepts;
 	}
 
-	HierarchicalConstraintType(
-		String name,
-		Concept rootSourceConcept,
-		Concept rootTargetConcept) {
+	HierarchicalConstraintType(String name, Concept rootSourceConcept, Concept rootTargetConcept) {
 
-		super(name, rootSourceConcept, rootTargetConcept);
+		super(rootSourceConcept, rootTargetConcept);
+
+		this.name = name;
 	}
 
 	void setSingleSuperConcepts(boolean value) {

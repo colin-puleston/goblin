@@ -19,7 +19,7 @@ public abstract class Constraint extends EditTarget {
 
 	public String toString() {
 
-		return getSourceValue() + " --> " + getTargetValues();
+		return getSemantics() + ": " + getSourceValue() + " --> " + getTargetValues();
 	}
 
 	public Model getModel() {
@@ -37,14 +37,14 @@ public abstract class Constraint extends EditTarget {
 		return sourceValue.getEntity();
 	}
 
-	public Set<Concept> getTargetValues() {
+	public List<Concept> getTargetValues() {
 
 		return targetValues.getEntities();
 	}
 
 	public Concept getTargetValue() {
 
-		Set<Concept> targets = getTargetValues();
+		List<Concept> targets = getTargetValues();
 
 		if (targets.size() == 1) {
 
@@ -113,16 +113,6 @@ public abstract class Constraint extends EditTarget {
 	void doRemove(boolean replacing) {
 
 		getSourceValue().removeConstraint(this);
-	}
-
-	Constraint lookForConflictingConstraintOnSource() {
-
-		if (type.singleImpliedValues()) {
-
-			return getSourceValue().lookForConstraint(type, getSemantics());
-		}
-
-		return null;
 	}
 
 	Concept getEditTargetConcept() {

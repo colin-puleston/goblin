@@ -35,6 +35,7 @@ class HierarchyTree extends DynamicConceptTree {
 
 	static private final long serialVersionUID = -1;
 
+	private Hierarchy hierarchy;
 	private ConceptMover conceptMover;
 
 	private ConstraintsDisplayMode constraintsDisplayMode = ConstraintsDisplayMode.NONE;
@@ -107,11 +108,9 @@ class HierarchyTree extends DynamicConceptTree {
 
 		private void addConstraintChildren() {
 
-			Hierarchy hierarchy = concept.getHierarchy();
-
 			if (showAnyOutwardConstraints()) {
 
-				addRelevantOutwardConstraintChildren();
+				addApplicableOutwardConstraintChildren();
 			}
 
 			if (showInwardConstraints()) {
@@ -120,9 +119,9 @@ class HierarchyTree extends DynamicConceptTree {
 			}
 		}
 
-		private void addRelevantOutwardConstraintChildren() {
+		private void addApplicableOutwardConstraintChildren() {
 
-			for (ConstraintType type : concept.getHierarchy().getConstraintTypes()) {
+			for (ConstraintType type : concept.getApplicableConstraintTypes()) {
 
 				if (showTypeOutwardConstraints(type)) {
 
@@ -133,7 +132,7 @@ class HierarchyTree extends DynamicConceptTree {
 
 		private void addAllInwardConstraintChildren() {
 
-			for (ConstraintType type : concept.getHierarchy().getInwardConstraintTypes()) {
+			for (ConstraintType type : concept.getApplicableInwardConstraintTypes()) {
 
 				checkAddConstraintsChild(new InwardConstraintGroup(concept, type));
 			}
@@ -228,11 +227,17 @@ class HierarchyTree extends DynamicConceptTree {
 
 		super(true);
 
+		this.hierarchy = hierarchy;
 		this.conceptMover = conceptMover;
 
 		initialise(hierarchy.getRootConcept());
 
 		new ConstraintsRelatedNodeDeselector();
+	}
+
+	Hierarchy getHierarchy() {
+
+		return hierarchy;
 	}
 
 	GCellDisplay getConceptDisplay(Concept concept) {
@@ -273,9 +278,9 @@ class HierarchyTree extends DynamicConceptTree {
 
 	GoblinCellDisplay getGoblinCellDisplay(Concept concept) {
 
-		if (concept.isFixed()) {
+		if (concept.coreConcept()) {
 
-			return GoblinCellDisplay.CONCEPTS_FIXED;
+			return GoblinCellDisplay.CONCEPTS_CORE;
 		}
 
 		if (conceptMover.movingConcept(concept)) {
@@ -283,7 +288,7 @@ class HierarchyTree extends DynamicConceptTree {
 			return GoblinCellDisplay.CONCEPTS_MOVE_SUBJECT;
 		}
 
-		return GoblinCellDisplay.CONCEPTS_DEFAULT;
+		return GoblinCellDisplay.CONCEPTS_DYNAMIC;
 	}
 
 	private void redisplayAllConstraints() {

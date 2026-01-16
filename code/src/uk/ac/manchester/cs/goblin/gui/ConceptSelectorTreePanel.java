@@ -39,7 +39,7 @@ abstract class ConceptSelectorTreePanel extends JPanel {
 
 	static private final long serialVersionUID = -1;
 
-	private Set<Concept> rootConcepts;
+	private Collection<Concept> rootConcepts;
 
 	private SelectorTree tree;
 	private FilterPanel filterPanel = new FilterPanel();
@@ -89,7 +89,7 @@ abstract class ConceptSelectorTreePanel extends JPanel {
 			tree.reinitialise();
 		}
 
-		protected Set<Concept> getRootNodes() {
+		protected Collection<Concept> getRootNodes() {
 
 			return rootConcepts;
 		}
@@ -131,7 +131,7 @@ abstract class ConceptSelectorTreePanel extends JPanel {
 		this(Collections.singleton(rootConcept));
 	}
 
-	ConceptSelectorTreePanel(Set<Concept> rootConcepts) {
+	ConceptSelectorTreePanel(Collection<Concept> rootConcepts) {
 
 		super(new BorderLayout());
 

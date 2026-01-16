@@ -16,157 +16,28 @@ class DynamicModelLoader {
 	private Ontology ontology;
 
 	private String dynamicNamespace;
-	private Set<OWLClass> dynamicClasses = new HashSet<OWLClass>();
 
-	private abstract class PropertyConstraintLoader {
+	private Map<OWLClass, Concept> dynamicClassesToConcepts = new HashMap<OWLClass, Concept>();
 
-		private ConstraintType type;
+	private abstract class RestrictionAxiomReader {
 
-		private OWLClass subject;
-		private OWLObjectProperty targetProperty;
+		private OWLClass sourceCls;
 
-		private Set<OWLClassAxiom> subjectAxioms;
+		RestrictionAxiomReader(OWLClass sourceCls) {
 
-		private TargetExtractor allTargetExtractor;
-		private TargetExtractor someTargetExtractor;
-
-		abstract class ConceptExtractor {
-
-			Concept extractOneOrNone(OWLClassExpression expr) {
-
-				return lookForOne(extractAll(expr));
-			}
-
-			Set<Concept> extractAll(OWLClassExpression expr) {
-
-				Set<Concept> concepts = new HashSet<Concept>();
-
-				for (OWLClass cls : extractClasses(expr)) {
-
-					Concept concept = lookForConcept(cls);
-
-					if (concept != null) {
-
-						concepts.add(concept);
-					}
-				}
-
-				return concepts;
-			}
-
-			abstract OWLObjectProperty getProperty();
-
-			abstract Class<? extends OWLQuantifiedObjectRestriction> getRestrictionType();
-
-			private Set<OWLClass> extractClasses(OWLClassExpression expr) {
-
-				OWLQuantifiedObjectRestriction restriction = asRestrictionOrNull(expr);
-
-				if (restriction != null && restriction.getProperty().equals(getProperty())) {
-
-					OWLClassExpression filler = restriction.getFiller();
-
-					if (filler instanceof OWLClass) {
-
-						return Collections.singleton((OWLClass)filler);
-					}
-
-					if (allowUnionFiller(restriction) && filler instanceof OWLObjectUnionOf) {
-
-						return getClassOperands((OWLObjectUnionOf)filler);
-					}
-				}
-
-				return Collections.emptySet();
-			}
-
-			private boolean allowUnionFiller(OWLQuantifiedObjectRestriction restriction) {
-
-				return restriction instanceof OWLObjectAllValuesFrom;
-			}
-
-			private Set<OWLClass> getClassOperands(OWLObjectUnionOf union) {
-
-				Set<OWLClass> classes = new HashSet<OWLClass>();
-
-				for (OWLClassExpression expr : union.getOperands()) {
-
-					if (!(expr instanceof OWLClass)) {
-
-						throw createBadAxiomsException();
-					}
-
-					classes.add((OWLClass)expr);
-				}
-
-				return classes;
-			}
-
-			private OWLQuantifiedObjectRestriction asRestrictionOrNull(OWLClassExpression expr) {
-
-				return asTypeOrNull(expr, getRestrictionType());
-			}
+			this.sourceCls = sourceCls;
 		}
 
-		private abstract class TargetExtractor extends ConceptExtractor {
+		OWLClass getSourceClass() {
 
-			OWLObjectProperty getProperty() {
-
-				return targetProperty;
-			}
+			return sourceCls;
 		}
 
-		private class AllTargetExtractor extends TargetExtractor {
-
-			Class<OWLObjectAllValuesFrom> getRestrictionType() {
-
-				return OWLObjectAllValuesFrom.class;
-			}
-		}
-
-		private class SomeTargetExtractor extends TargetExtractor {
-
-			Class<OWLObjectSomeValuesFrom> getRestrictionType() {
-
-				return OWLObjectSomeValuesFrom.class;
-			}
-		}
-
-		PropertyConstraintLoader(PropertyConstraintType type, OWLClass subject) {
-
-			this.type = type;
-			this.subject = subject;
-
-			targetProperty = getObjectProperty(type.getTargetPropertyId());
-			subjectAxioms = ontology.getAxioms(subject);
-
-			allTargetExtractor = new AllTargetExtractor();
-			someTargetExtractor = new SomeTargetExtractor();
-		}
-
-		void checkLoad(Concept source) {
-
-			Set<OWLClassExpression> targetExprs = lookForTargetsExprs();
-
-			if (!targetExprs.isEmpty()) {
-
-				if (type.definesValidValues()) {
-
-					checkLoadValidValuesConstraint(source, targetExprs);
-				}
-
-				if (type.definesImpliedValues()) {
-
-					checkLoadImpliedValueConstraints(source, targetExprs);
-				}
-			}
-		}
-
-		<T extends OWLClassAxiom>Set<T> getSubjectAxioms(Class<T> axiomCls) {
+		<T extends OWLClassAxiom>Set<T> getSourceAxioms(Class<T> axiomCls) {
 
 			Set<T> axioms = new HashSet<T>();
 
-			for (OWLClassAxiom axiom : subjectAxioms) {
+			for (OWLClassAxiom axiom : ontology.getAxioms(sourceCls)) {
 
 				if (axiomCls.isAssignableFrom(axiom.getClass())) {
 
@@ -177,107 +48,372 @@ class DynamicModelLoader {
 			return axioms;
 		}
 
-		<E>E lookForOne(Set<E> elements) {
+		<E>E extractExactlyOne(Set<E> elements) {
 
-			if (elements.size() > 1) {
+			if (elements.size() != 1) {
 
 				throw createBadAxiomsException();
 			}
 
-			return elements.isEmpty() ? null : elements.iterator().next();
+			return elements.iterator().next();
+		}
+
+		<E>E extractAtMostOne(Set<E> elements) {
+
+			return elements.isEmpty() ? null : extractExactlyOne(elements);
 		}
 
 		RuntimeException createBadAxiomsException() {
 
 			return new RuntimeException(
 						"Illegal set of axioms for constraint-definition class: "
-						+ subject);
+						+ sourceCls);
+		}
+	}
+
+	private abstract class TypeRestrictionReader
+							<R extends OWLQuantifiedObjectRestriction>
+							extends RestrictionAxiomReader {
+
+		private Class<R> restrictionType;
+
+		TypeRestrictionReader(OWLClass sourceCls, Class<R> restrictionType) {
+
+			super(sourceCls);
+
+			this.restrictionType = restrictionType;
 		}
 
-		private void checkLoadValidValuesConstraint(
-						Concept source,
-						Set<OWLClassExpression> targetExprs) {
+		R findAtMostOneRequiredRestriction() {
 
-			Set<Concept> targets = extractAllTargetConcepts(targetExprs);
-
-			if (!targets.isEmpty()) {
-
-				source.addValidValuesConstraint(type, targets);
-			}
+			return extractAtMostOne(findAllRequiredRestrictions());
 		}
 
-		private void checkLoadImpliedValueConstraints(
-						Concept source,
-						Set<OWLClassExpression> targetExprs) {
+		Set<R> findAllRequiredRestrictions() {
 
-			for (Concept target : extractSomeTargetConcepts(targetExprs)) {
+			Set<R> restrictions = new HashSet<R>();
 
-				source.addImpliedValueConstraint(type, target);
-			}
-		}
+			for (OWLSubClassOfAxiom axiom : getSourceAxioms(OWLSubClassOfAxiom.class)) {
 
-		private Set<Concept> extractAllTargetConcepts(Set<OWLClassExpression> exprs) {
+				if (axiom.getSubClass().equals(getSourceClass())) {
 
-			for (OWLClassExpression expr : exprs) {
+					R restriction = asRequiredRestrictionOrNull(axiom.getSuperClass());
 
-				Set<Concept> targets = allTargetExtractor.extractAll(expr);
+					if (restriction != null) {
 
-				if (!targets.isEmpty()) {
-
-					return targets;
+						restrictions.add(restriction);
+					}
 				}
+			}
+
+			return restrictions;
+		}
+
+		R asRequiredRestriction(OWLClassExpression expr) {
+
+			R restriction = asRequiredRestrictionOrNull(expr);
+
+			if (restriction == null) {
+
+				throw createBadAxiomsException();
+			}
+
+			return restriction;
+		}
+
+		R asRequiredRestrictionOrNull(OWLClassExpression expr) {
+
+			R restriction = asTypeOrNull(expr, restrictionType);
+
+			if (restriction != null && requiredProperty(restriction.getProperty())) {
+
+				return restriction;
+			}
+
+			return null;
+		}
+
+		Concept extractSingleConceptFromFiller(R restriction) {
+
+			return extractExactlyOne(extractFillerConcepts(restriction));
+		}
+
+		Set<Concept> extractFillerConcepts(R restriction) {
+
+			Set<Concept> concepts = new HashSet<Concept>();
+
+			for (OWLClass cls : extractFillerClasses(restriction)) {
+
+				concepts.add(fillerToConcept(cls));
+			}
+
+			return concepts;
+		}
+
+		abstract boolean requiredProperty(OWLObjectProperty property);
+
+		Concept fillerToConcept(OWLClass cls) {
+
+			return getConcept(cls);
+		}
+
+		private boolean requiredProperty(OWLObjectPropertyExpression expr) {
+
+			return expr instanceof OWLObjectProperty && requiredProperty((OWLObjectProperty)expr);
+		}
+
+		private Set<OWLClass> extractFillerClasses(R restriction) {
+
+			OWLClassExpression filler = restriction.getFiller();
+
+			if (filler instanceof OWLClass) {
+
+				return Collections.singleton((OWLClass)filler);
+			}
+
+			if (allowUnionFiller() && filler instanceof OWLObjectUnionOf) {
+
+				return getClassOperands((OWLObjectUnionOf)filler);
 			}
 
 			return Collections.emptySet();
 		}
 
-		private Set<Concept> extractSomeTargetConcepts(Set<OWLClassExpression> exprs) {
+		private boolean allowUnionFiller() {
 
-			Set<Concept> targets = new HashSet<Concept>();
-
-			for (OWLClassExpression expr : exprs) {
-
-				Concept target = someTargetExtractor.extractOneOrNone(expr);
-
-				if (target != null) {
-
-					targets.add(target);
-				}
-			}
-
-			return targets;
+			return restrictionType == OWLObjectAllValuesFrom.class;
 		}
 
-		private Set<OWLClassExpression> lookForTargetsExprs() {
+		private Set<OWLClass> getClassOperands(OWLObjectUnionOf union) {
 
-			Set<OWLClassExpression> exprs = new HashSet<OWLClassExpression>();
+			Set<OWLClass> classes = new HashSet<OWLClass>();
 
-			for (OWLSubClassOfAxiom axiom : getSubjectAxioms(OWLSubClassOfAxiom.class)) {
+			for (OWLClassExpression expr : union.getOperands()) {
 
-				OWLClassExpression expr = lookForTargetsExpr(axiom);
+				if (!(expr instanceof OWLClass)) {
 
-				if (expr != null) {
-
-					exprs.add(expr);
+					throw createBadAxiomsException();
 				}
+
+				classes.add((OWLClass)expr);
 			}
 
-			return exprs;
+			return classes;
+		}
+	}
+
+	private class ConstraintTypeLoader {
+
+		private Set<DynamicId> loadedTypePropertyIds = new HashSet<DynamicId>();
+
+		private class ClassConstraintTypeLoader
+						extends
+							TypeRestrictionReader<OWLObjectAllValuesFrom> {
+
+			private Concept source;
+			private List<DynamicId> localTypePropertyIds = new ArrayList<DynamicId>();
+
+			ClassConstraintTypeLoader(Concept source, OWLClass sourceCls) {
+
+				super(sourceCls, OWLObjectAllValuesFrom.class);
+
+				this.source = source;
+			}
+
+			Collection<DynamicId> loadAllForClass() {
+
+				Iterator<DynamicId> propIdIter = localTypePropertyIds.iterator();
+
+				for (OWLObjectAllValuesFrom restriction : findAllRequiredRestrictions()) {
+
+					Concept target = extractSingleConceptFromFiller(restriction);
+
+					source.addDynamicConstraintType(propIdIter.next(), target);
+				}
+
+				return localTypePropertyIds;
+			}
+
+			boolean requiredProperty(OWLObjectProperty property) {
+
+				DynamicId propertyId = getDynamicIdOrNull(property);
+
+				if (propertyId == null || loadedTypePropertyIds.contains(propertyId)) {
+
+					return false;
+				}
+
+				if (localTypePropertyIds.contains(propertyId)) {
+
+					throw createDuplicateTypeException(propertyId);
+				}
+
+				localTypePropertyIds.add(propertyId);
+
+				return true;
+			}
+
+			Concept fillerToConcept(OWLClass cls) {
+
+				DynamicId id = getDynamicId(cls);
+				Concept concept = model.lookForDynamicConcept(id);
+
+				if (concept != null) {
+
+					return concept;
+				}
+
+				return loadValueHierarchy(id, cls);
+			}
+
+			private Concept loadValueHierarchy(DynamicId rootConceptId, OWLClass rootCls) {
+
+				Hierarchy hierarchy = createValueHierarchy(rootConceptId);
+				Concept rootConcept = hierarchy.getRootConcept();
+
+				loadConceptsFrom(rootConcept, rootCls);
+
+				return rootConcept;
+			}
+
+			private Hierarchy createValueHierarchy(DynamicId rootConceptId) {
+
+				return model.createDynamicValueHierarchy(rootConceptId);
+			}
+
+			private RuntimeException createDuplicateTypeException(DynamicId propertyId) {
+
+				return new RuntimeException(
+							"Dynamic constraint-type already defined for property: "
+							+ propertyId + ", on concept: " + getSourceClass());
+			}
 		}
 
-		private OWLClassExpression lookForTargetsExpr(OWLSubClassOfAxiom axiom) {
+		ConstraintTypeLoader(Hierarchy hierarchy) {
 
-			if (axiom.getSubClass().equals(subject)) {
+			Concept root = hierarchy.getRootConcept();
 
-				OWLClassExpression sup = axiom.getSuperClass();
+			loadFrom(root, getRootClass(root));
+		}
 
-				if (sup.containsEntityInSignature(targetProperty)) {
+		private void loadFrom(Concept concept, OWLClass cls) {
 
-					return sup;
-				}
+			Collection<DynamicId> localTypePropertyIds = loadFor(concept, cls);
+
+			loadedTypePropertyIds.addAll(localTypePropertyIds);
+
+			for (OWLClass subCls : getSubClasses(cls, true)) {
+
+				loadFrom(dynamicClassesToConcepts.get(subCls), subCls);
 			}
 
-			return null;
+			loadedTypePropertyIds.removeAll(localTypePropertyIds);
+		}
+
+		private Collection<DynamicId> loadFor(Concept concept, OWLClass cls) {
+
+			return new ClassConstraintTypeLoader(concept, cls).loadAllForClass();
+		}
+	}
+
+	private abstract class PropertyConstraintLoader {
+
+		private ConstraintType type;
+
+		private OWLObjectProperty targetProperty;
+
+		private AllTargetExtractor allTargetExtractor;
+		private SomeTargetExtractor someTargetExtractor;
+
+		private abstract class TargetExtractor
+									<R extends OWLQuantifiedObjectRestriction>
+									extends TypeRestrictionReader<R> {
+
+			TargetExtractor(OWLClass sourceCls, Class<R> restrictionType) {
+
+				super(sourceCls, restrictionType);
+			}
+
+			boolean requiredProperty(OWLObjectProperty property) {
+
+				return property.equals(targetProperty);
+			}
+		}
+
+		private class AllTargetExtractor extends TargetExtractor<OWLObjectAllValuesFrom> {
+
+			AllTargetExtractor(OWLClass sourceCls) {
+
+				super(sourceCls, OWLObjectAllValuesFrom.class);
+			}
+
+			Set<Concept> lookForAllTargetConcepts() {
+
+				OWLObjectAllValuesFrom restriction = findAtMostOneRequiredRestriction();
+
+				return restriction != null ? extractFillerConcepts(restriction) : null;
+			}
+		}
+
+		private class SomeTargetExtractor extends TargetExtractor<OWLObjectSomeValuesFrom> {
+
+			SomeTargetExtractor(OWLClass sourceCls) {
+
+				super(sourceCls, OWLObjectSomeValuesFrom.class);
+			}
+
+			Set<Concept> findAllSomeTargetConcepts() {
+
+				Set<Concept> concepts = new HashSet<Concept>();
+
+				for (OWLObjectSomeValuesFrom restriction : findAllRequiredRestrictions()) {
+
+					concepts.add(extractSingleConceptFromFiller(restriction));
+				}
+
+				return concepts;
+			}
+		}
+
+		PropertyConstraintLoader(PropertyConstraintType type, OWLClass sourceCls) {
+
+			this.type = type;
+
+			targetProperty = getObjectProperty(type.getTargetPropertyId());
+
+			allTargetExtractor = new AllTargetExtractor(sourceCls);
+			someTargetExtractor = new SomeTargetExtractor(sourceCls);
+		}
+
+		void checkLoad(Concept source) {
+
+			if (type.definesValidValues()) {
+
+				checkLoadValidValuesConstraint(source);
+			}
+
+			if (type.definesImpliedValues()) {
+
+				checkLoadImpliedValueConstraints(source);
+			}
+		}
+
+		private void checkLoadValidValuesConstraint(Concept source) {
+
+			Set<Concept> targets = allTargetExtractor.lookForAllTargetConcepts();
+
+			if (targets != null) {
+
+				source.addValidValuesConstraint(type, targets);
+			}
+		}
+
+		private void checkLoadImpliedValueConstraints(Concept source) {
+
+			for (Concept target : someTargetExtractor.findAllSomeTargetConcepts()) {
+
+				source.addImpliedValueConstraint(type, target);
+			}
 		}
 	}
 
@@ -287,12 +423,7 @@ class DynamicModelLoader {
 
 			super(type, sourceCls);
 
-			Concept source = lookForConcept(sourceCls);
-
-			if (source != null) {
-
-				checkLoad(source);
-			}
+			checkLoad(getConcept(sourceCls));
 		}
 	}
 
@@ -300,32 +431,76 @@ class DynamicModelLoader {
 
 		private OWLClass anchor;
 		private OWLClass anchorSub;
-		private OWLObjectProperty sourceProperty;
 
-		private SourceExtractor sourceExtractor;
+		private class SourceExtractor extends TypeRestrictionReader<OWLObjectSomeValuesFrom> {
 
-		private class SourceExtractor extends ConceptExtractor {
+			private OWLObjectProperty sourceProperty;
 
-			Set<Concept> extractAll(OWLClassExpression expr) {
+			SourceExtractor(AnchoredConstraintType type) {
 
-				Set<OWLClassExpression> ops = asIntersection(expr).getOperands();
+				super(anchorSub, OWLObjectSomeValuesFrom.class);
 
-				if (ops.remove(anchor) && ops.size() == 1) {
+				sourceProperty = getObjectProperty(type.getSourcePropertyId());
+			}
 
-					return super.extractAll(ops.iterator().next());
+			Concept lookForSourceConcept() {
+
+				OWLObjectSomeValuesFrom restriction = lookForRequiredRestriction();
+
+				if (restriction != null) {
+
+					return extractSingleConceptFromFiller(restriction);
 				}
 
-				throw createBadAxiomsException();
+				return null;
 			}
 
-			OWLObjectProperty getProperty() {
+			boolean requiredProperty(OWLObjectProperty property) {
 
-				return sourceProperty;
+				return property.equals(sourceProperty);
 			}
 
-			Class<OWLObjectSomeValuesFrom> getRestrictionType() {
+			private OWLObjectSomeValuesFrom lookForRequiredRestriction() {
 
-				return OWLObjectSomeValuesFrom.class;
+				OWLClassExpression equivExpr = lookForAnchorSubEquivExpr();
+
+				if (equivExpr != null) {
+
+					Set<OWLClassExpression> ops = asIntersection(equivExpr).getOperands();
+
+					if (!ops.remove(anchor)) {
+
+						throw createBadAxiomsException();
+					}
+
+					return asRequiredRestriction(extractExactlyOne(ops));
+				}
+
+				return null;
+			}
+
+			private OWLClassExpression lookForAnchorSubEquivExpr() {
+
+				Set<OWLClassExpression> exprs = new HashSet<OWLClassExpression>();
+
+				for (OWLEquivalentClassesAxiom axiom : getSourceAxioms(OWLEquivalentClassesAxiom.class)) {
+
+					exprs.add(extractAnchorSubEquivExpr(axiom));
+				}
+
+				return extractExactlyOne(exprs);
+			}
+
+			private OWLClassExpression extractAnchorSubEquivExpr(OWLEquivalentClassesAxiom axiom) {
+
+				Set<OWLClassExpression> exprs = axiom.getClassExpressions();
+
+				if (!exprs.remove(anchorSub)) {
+
+					throw createBadAxiomsException();
+				}
+
+				return extractExactlyOne(exprs);
 			}
 
 			private OWLObjectIntersectionOf asIntersection(OWLClassExpression expr) {
@@ -341,69 +516,19 @@ class DynamicModelLoader {
 			}
 		}
 
-		AnchoredConstraintLoader(
-			AnchoredConstraintType type,
-			OWLClass anchor,
-			OWLClass anchorSub) {
+		AnchoredConstraintLoader(AnchoredConstraintType type, OWLClass anchor, OWLClass anchorSub) {
 
 			super(type, anchorSub);
 
 			this.anchor = anchor;
 			this.anchorSub = anchorSub;
 
-			sourceProperty = getObjectProperty(type.getSourcePropertyId());
-			sourceExtractor = new SourceExtractor();
+			Concept source = new SourceExtractor(type).lookForSourceConcept();
 
-			checkLoad();
-		}
+			if (source != null) {
 
-		private void checkLoad() {
-
-			OWLClassExpression expr = lookForSourceExpr();
-
-			if (expr != null) {
-
-				Concept source = sourceExtractor.extractOneOrNone(expr);
-
-				if (source != null) {
-
-					checkLoad(source);
-				}
+				checkLoad(source);
 			}
-		}
-
-		private OWLClassExpression lookForSourceExpr() {
-
-			Set<OWLClassExpression> exprs = new HashSet<OWLClassExpression>();
-
-			for (OWLEquivalentClassesAxiom axiom : getSubjectAxioms(OWLEquivalentClassesAxiom.class)) {
-
-				OWLClassExpression expr = lookForSourceExpr(axiom);
-
-				if (expr != null) {
-
-					exprs.add(expr);
-				}
-			}
-
-			return lookForOne(exprs);
-		}
-
-		private OWLClassExpression lookForSourceExpr(OWLEquivalentClassesAxiom axiom) {
-
-			Set<OWLClassExpression> exprs = axiom.getClassExpressions();
-
-			if (exprs.size() == 2 && exprs.remove(anchorSub)) {
-
-				OWLClassExpression expr = exprs.iterator().next();
-
-				if (expr.containsEntityInSignature(sourceProperty)) {
-
-					return expr;
-				}
-			}
-
-			return null;
 		}
 	}
 
@@ -411,38 +536,31 @@ class DynamicModelLoader {
 
 		private HierarchicalConstraintType type;
 
-		private Concept source;
-		private OWLClass sourceCls;
-
 		HierarchicalConstraintLoader(HierarchicalConstraintType type, OWLClass sourceCls) {
 
 			this.type = type;
-			this.sourceCls = sourceCls;
 
-			source = lookForConcept(sourceCls);
-
-			if (source != null) {
-
-				loadAll();
-			}
+			loadAll(sourceCls);
 		}
 
-		private void loadAll() {
+		private void loadAll(OWLClass sourceCls) {
+
+			Concept source = getConcept(sourceCls);
 
 			for (OWLClass targetCls : getSuperClasses(sourceCls, true)) {
 
 				if (!rootSource(targetCls)) {
 
-					checkLoad(targetCls);
+					checkLoad(source, targetCls);
 				}
 			}
 		}
 
-		private void checkLoad(OWLClass targetCls) {
+		private void checkLoad(Concept source, OWLClass targetCls) {
 
-			Concept target = lookForConcept(targetCls);
+			Concept target = getConcept(targetCls);
 
-			if (target != null && validTarget(target)) {
+			if (validTarget(target)) {
 
 				source.addImpliedValueConstraint(type, target);
 			}
@@ -450,7 +568,7 @@ class DynamicModelLoader {
 
 		private boolean rootSource(OWLClass cls) {
 
-			return getConceptId(cls).equals(type.getRootSourceConcept().getConceptId());
+			return getEntityId(cls).equals(type.getRootSourceConcept().getConceptId());
 		}
 
 		private boolean validTarget(Concept target) {
@@ -472,6 +590,7 @@ class DynamicModelLoader {
 		try {
 
 			loadConcepts();
+			loadConstraintTypes();
 			loadConstraints();
 		}
 		catch (RuntimeException e) {
@@ -494,10 +613,22 @@ class DynamicModelLoader {
 
 		for (OWLClass subCls : getSubClasses(cls, true)) {
 
-			if (dynamicClasses.add(subCls)) {
+			if (!dynamicClassesToConcepts.containsKey(subCls)) {
 
-				loadConceptsFrom(addSubConcept(concept, subCls), subCls);
+				Concept subConcept = addSubConcept(concept, subCls);
+
+				dynamicClassesToConcepts.put(subCls, subConcept);
+
+				loadConceptsFrom(subConcept, subCls);
 			}
+		}
+	}
+
+	private void loadConstraintTypes() {
+
+		for (Hierarchy hierarchy : model.getDynamicHierarchies()) {
+
+			new ConstraintTypeLoader(hierarchy);
 		}
 	}
 
@@ -505,7 +636,7 @@ class DynamicModelLoader {
 
 		for (Hierarchy hierarchy : model.getDynamicHierarchies()) {
 
-			for (ConstraintType type : hierarchy.getConstraintTypes()) {
+			for (ConstraintType type : hierarchy.getCoreConstraintTypes()) {
 
 				loadConstraints(type);
 			}
@@ -562,10 +693,10 @@ class DynamicModelLoader {
 
 	private Concept addSubConcept(Concept concept, OWLClass subCls) {
 
-		EntityId childId = getConceptId(subCls);
-		boolean dynamicChild = dynamicConcept(childId);
+		EntityId childId = getEntityId(subCls);
+		boolean dynamic = dynamicConcept(childId);
 
-		if (!dynamicChild) {
+		if (!dynamic) {
 
 			EntityId parentId = concept.getConceptId();
 
@@ -575,7 +706,7 @@ class DynamicModelLoader {
 			}
 		}
 
-		return concept.addChild(childId, dynamicChild);
+		return concept.addChild(childId, dynamic);
 	}
 
 	private Set<OWLClass> getSubClasses(OWLClass cls, boolean direct) {
@@ -625,33 +756,47 @@ class DynamicModelLoader {
 		return IRI.create(id.getURI());
 	}
 
-	private Concept lookForConcept(OWLClass cls) {
+	private Concept getConcept(OWLClass cls) {
 
-		Concept concept = model.lookForConcept(getConceptId(cls));
+		Concept concept = model.lookForConcept(getEntityId(cls));
 
-		if (concept == null) {
+		if (concept != null) {
 
-			showLoadWarning("Referenced concept not loaded: " + cls);
+			return concept;
 		}
 
-		return concept;
+		throw new RuntimeException("Referenced concept not loaded: " + cls);
 	}
 
-	private EntityId getConceptId(OWLClass cls) {
+	private EntityId getEntityId(OWLEntity entity) {
 
-		URI uri = cls.getIRI().toURI();
+		URI uri = entity.getIRI().toURI();
 
-		return model.createEntityId(uri, ontology.lookForLabel(cls));
+		return model.createEntityId(uri, ontology.lookForLabel(entity));
+	}
+
+	private DynamicId getDynamicId(OWLEntity entity) {
+
+		DynamicId id = getDynamicIdOrNull(entity);
+
+		if (id != null) {
+
+			return id;
+		}
+
+		throw new RuntimeException("Referenced entity does not have dynamic URI: " + entity);
+	}
+
+	private DynamicId getDynamicIdOrNull(OWLEntity entity) {
+
+		URI uri = entity.getIRI().toURI();
+
+		return DynamicId.fromURIOrNull(uri, dynamicNamespace);
 	}
 
 	private <T>T asTypeOrNull(Object obj, Class<T> type) {
 
 		return type.isAssignableFrom(obj.getClass()) ? type.cast(obj) : null;
-	}
-
-	private void showLoadWarning(String msg) {
-
-		System.err.println("GOBLIN: MODEL LOAD WARNING: " + msg);
 	}
 
 	private RuntimeException createNonFixedParentException(EntityId parentId, EntityId childId) {

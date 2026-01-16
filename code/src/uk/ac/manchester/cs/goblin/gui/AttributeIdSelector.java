@@ -24,45 +24,24 @@
 
 package uk.ac.manchester.cs.goblin.gui;
 
-import java.util.*;
+import javax.swing.*;
 
 import uk.ac.manchester.cs.goblin.model.*;
 
 /**
  * @author Colin Puleston
  */
-class ConstraintTargetsDisplay {
+class AttributeIdSelector extends DynamicIdSelector {
 
-	private Constraint validValues;
-	private Set<Concept> impliedTargets = new HashSet<Concept>();
+	static private final long serialVersionUID = -1;
 
-	ConstraintTargetsDisplay(Constraint validValues, Collection<Constraint> impliedValues) {
+	AttributeIdSelector(JComponent parent, DynamicId currentId) {
 
-		this.validValues = validValues;
-
-		for (Constraint impliedValue : impliedValues) {
-
-			impliedTargets.add(impliedValue.getTargetValue());
-		}
+		super(parent, currentId, "Attribute");
 	}
 
-	GoblinCellDisplay getCellDisplay(Concept concept) {
+	char toInitialCharRequiredCase(char c) {
 
-		if (!validTarget(concept)) {
-
-			return GoblinCellDisplay.CONSTRAINTS_POTENTIAL_TARGET;
-		}
-
-		if (impliedTargets.contains(concept)) {
-
-			return GoblinCellDisplay.CONSTRAINTS_IMPLIED_TARGET;
-		}
-
-		return GoblinCellDisplay.CONSTRAINTS_VALID_TARGET;
-	}
-
-	private boolean validTarget(Concept concept) {
-
-		return concept.subsumedByAny(validValues.getTargetValues());
+		return Character.toLowerCase(c);
 	}
 }

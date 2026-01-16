@@ -36,30 +36,32 @@ class DynamicModelRenderer {
 
 			ConstraintType type = constraint.getType();
 
-			if (type instanceof SimpleConstraintType) {
-
-				renderSimple((SimpleConstraintType)type);
-			}
-
-			if (type instanceof AnchoredConstraintType) {
-
-				renderAnchored((AnchoredConstraintType)type);
-			}
-
 			if (type instanceof HierarchicalConstraintType) {
 
-				renderHierarchical((HierarchicalConstraintType)type);
+				renderHierarchicalType((HierarchicalConstraintType)type);
+			}
+			else if (type instanceof AnchoredConstraintType) {
+
+				renderAnchoredType((AnchoredConstraintType)type);
+			}
+			else if (type instanceof PropertyConstraintType) {
+
+				renderSimpleType((PropertyConstraintType)type);
+			}
+			else {
+
+				throw new Error("Unrecognised ConstraintType: " + type);
 			}
 		}
 
-		private void renderSimple(SimpleConstraintType type) {
+		private void renderSimpleType(PropertyConstraintType type) {
 
 			OWLObjectProperty prop = getObjectProperty(type.getTargetPropertyId());
 
 			addConsequenceAxiom(source, prop, targets);
 		}
 
-		private void renderAnchored(AnchoredConstraintType type) {
+		private void renderAnchoredType(AnchoredConstraintType type) {
 
 			OWLClass anchor = getCls(type.getAnchorConceptId());
 			OWLClass anchorSub = addClass(anchor, createAnchorSubIRI(type));
@@ -71,7 +73,7 @@ class DynamicModelRenderer {
 			addConsequenceAxiom(anchorSub, tgtProp, targets);
 		}
 
-		private void renderHierarchical(HierarchicalConstraintType type) {
+		private void renderHierarchicalType(HierarchicalConstraintType type) {
 
 			for (OWLClass target : targets) {
 
@@ -113,13 +115,13 @@ class DynamicModelRenderer {
 
 		ontology.removeAllClasses();
 
-		renderNewHierarchies(model);
-		renderNewConstraints(model);
+		renderDynamicHierarchies(model);
+		renderDynamicConstraints(model);
 
 		ontology.write(dynamicFile);
 	}
 
-	private void renderNewHierarchies(Model model) {
+	private void renderDynamicHierarchies(Model model) {
 
 		for (Hierarchy hierarchy : model.getDynamicHierarchies()) {
 
@@ -129,7 +131,7 @@ class DynamicModelRenderer {
 		}
 	}
 
-	private void renderNewConstraints(Model model) {
+	private void renderDynamicConstraints(Model model) {
 
 		for (Hierarchy hierarchy : model.getDynamicHierarchies()) {
 
@@ -167,7 +169,7 @@ class DynamicModelRenderer {
 		EntityId id = concept.getConceptId();
 		IRI iri = getIRI(id);
 
-		if (concept.isFixed()) {
+		if (concept.coreConcept()) {
 
 			return ontology.getClass(iri);
 		}
@@ -189,7 +191,7 @@ class DynamicModelRenderer {
 		return ontology.getSubClasses(cls, direct);
 	}
 
-	private Set<OWLClass> getClasses(Set<Concept> concepts) {
+	private Set<OWLClass> getClasses(Collection<Concept> concepts) {
 
 		Set<OWLClass> classes = new HashSet<OWLClass>();
 

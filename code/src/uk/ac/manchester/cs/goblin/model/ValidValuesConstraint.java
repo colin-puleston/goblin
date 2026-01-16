@@ -27,7 +27,7 @@ class ValidValuesConstraint extends Constraint {
 
 	EditAction createTargetValueRemovalEditAction(Concept target) {
 
-		Set<Concept> targets = getTargetValues();
+		Collection<Concept> targets = getTargetValues();
 
 		if (targets.size() == 1) {
 

@@ -40,26 +40,26 @@ class HierarchyTreePanel extends JPanel {
 
 	static private final long serialVersionUID = -1;
 
-	static private final String NO_EDIT_MESSAGE_LABEL = "External hierarchy / Non-editable";
+	static private final String NO_EDIT_MESSAGE_LABEL = "External hierarchy / non-editable";
 
 	static private final String NO_CONSTRAINTS_LABEL = "Hide ALL constraints";
 	static private final String ALL_OUT_CONSTRAINTS_LABEL = "Show ALL => constraints";
-	static private final String CURRENT_OUT_CONSTRAINTS_LABEL = "Show selected hierarchy => constraints";
+	static private final String CURRENT_OUT_CONSTRAINTS_LABEL = "Show selected attribute => constraints";
 	static private final String ALL_IN_CONSTRAINTS_LABEL = "Show ALL <= constraints";
 
+	static private final String RESET_ID_LABEL = "Id...";
 	static private final String ADD_LABEL = "Add...";
 	static private final String REMOVE_LABEL = "Del";
 	static private final String CUT_LABEL = "Mv-";
 	static private final String STOP_CUT_LABEL = "Mv!";
 	static private final String PASTE_LABEL = "Mv+";
-	static private final String RESET_ID_LABEL = "Id...";
 
+	static private final int RESET_ID_TRIGGER_KEY = KeyEvent.VK_I;
 	static private final int ADD_TRIGGER_KEY = KeyEvent.VK_ADD;
 	static private final int REMOVE_TRIGGER_KEY = KeyEvent.VK_DELETE;
 	static private final int CUT_TRIGGER_KEY = KeyEvent.VK_X;
 	static private final int STOP_CUT_TRIGGER_KEY = KeyEvent.VK_ESCAPE;
 	static private final int PASTE_TRIGGER_KEY = KeyEvent.VK_V;
-	static private final int RESET_ID_TRIGGER_KEY = KeyEvent.VK_I;
 
 	private Hierarchy hierarchy;
 	private HierarchyTree tree;
@@ -77,22 +77,18 @@ class HierarchyTreePanel extends JPanel {
 
 		DisplayModeSelector() {
 
-			addOption(NO_CONSTRAINTS_LABEL, ConstraintsDisplayMode.NONE);
-
-			if (hierarchy.hasConstraintTypes()) {
+			if (hierarchy.hasPotentialConstraintTypes()) {
 
 				addOption(ALL_OUT_CONSTRAINTS_LABEL, ConstraintsDisplayMode.ALL_OUTWARDS);
-
-				if (hierarchy.getConstraintTypes().size() > 1) {
-
-					addOption(CURRENT_OUT_CONSTRAINTS_LABEL, ConstraintsDisplayMode.CURRENT_OUTWARDS);
-				}
+				addOption(CURRENT_OUT_CONSTRAINTS_LABEL, ConstraintsDisplayMode.CURRENT_OUTWARDS);
 			}
 
-			if (hierarchy.hasInwardConstraintTypes()) {
+			if (hierarchy.hasInwardCoreConstraintTypes()) {
 
 				addOption(ALL_IN_CONSTRAINTS_LABEL, ConstraintsDisplayMode.ALL_INWARDS);
 			}
+
+			addOption(NO_CONSTRAINTS_LABEL, ConstraintsDisplayMode.NONE);
 
 			activate();
 		}
@@ -258,6 +254,29 @@ class HierarchyTreePanel extends JPanel {
 		abstract void doConceptEdits(List<Concept> concepts);
 	}
 
+	private class ResetIdButton extends SingleSelectEditButton {
+
+		static private final long serialVersionUID = -1;
+
+		ResetIdButton() {
+
+			super(RESET_ID_LABEL, RESET_ID_TRIGGER_KEY);
+		}
+
+		boolean canEdit(Concept selection) {
+
+			return selection.canResetId();
+		}
+
+		void doConceptEdit(Concept concept) {
+
+			if (checkResetConceptId(concept)) {
+
+				tree.update();
+			}
+		}
+	}
+
 	private class AddButton extends SingleSelectEditButton {
 
 		static private final long serialVersionUID = -1;
@@ -294,7 +313,7 @@ class HierarchyTreePanel extends JPanel {
 
 		boolean canEdit(List<Concept> selections) {
 
-			return !containsFixedConcept(selections);
+			return !containsImmovableConcept(selections);
 		}
 
 		void doConceptEdits(List<Concept> concepts) {
@@ -314,7 +333,7 @@ class HierarchyTreePanel extends JPanel {
 
 		boolean canEdit(List<Concept> selections) {
 
-			return !containsFixedConcept(selections);
+			return !containsImmovableConcept(selections);
 		}
 
 		void doConceptEdits(List<Concept> concepts) {
@@ -389,29 +408,6 @@ class HierarchyTreePanel extends JPanel {
 		}
 	}
 
-	private class ResetIdButton extends SingleSelectEditButton {
-
-		static private final long serialVersionUID = -1;
-
-		ResetIdButton() {
-
-			super(RESET_ID_LABEL, RESET_ID_TRIGGER_KEY);
-		}
-
-		boolean canEdit(Concept selection) {
-
-			return !selection.isFixed();
-		}
-
-		void doConceptEdit(Concept concept) {
-
-			if (checkResetConceptId(concept)) {
-
-				tree.update();
-			}
-		}
-	}
-
 	HierarchyTreePanel(Hierarchy hierarchy) {
 
 		super(new BorderLayout());
@@ -432,7 +428,7 @@ class HierarchyTreePanel extends JPanel {
 
 	private JComponent createUpperComponent(Hierarchy hierarchy) {
 
-		if (hierarchy.hasConstraintTypes() || hierarchy.hasInwardConstraintTypes()) {
+		if (hierarchy.hasPotentialConstraintTypes() || hierarchy.hasInwardCoreConstraintTypes()) {
 
 			JPanel panel = new JPanel(new BorderLayout());
 
@@ -447,20 +443,20 @@ class HierarchyTreePanel extends JPanel {
 
 	private JComponent createLowerComponent(Hierarchy hierarchy) {
 
-		return hierarchy.dynamicHierarchy()
-					? createEditButtonsPanel()
-					: createNoEditMessageLabel();
+		return hierarchy.referenceOnly()
+					? createNoEditMessageLabel()
+					: createEditButtonsPanel();
 	}
 
 	private JComponent createEditButtonsPanel() {
 
 		return ControlsPanel.horizontal(
+					new ResetIdButton(),
 					new AddButton(),
 					new RemoveButton(),
 					new CutButton(),
 					new PasteButton(),
-					new StopCutButton(),
-					new ResetIdButton());
+					new StopCutButton());
 	}
 
 	private JLabel createNoEditMessageLabel() {
@@ -550,11 +546,11 @@ class HierarchyTreePanel extends JPanel {
 		return msg.toString();
 	}
 
-	private boolean containsFixedConcept(List<Concept> concepts) {
+	private boolean containsImmovableConcept(List<Concept> concepts) {
 
 		for (Concept concept : concepts) {
 
-			if (concept.isFixed()) {
+			if (!concept.canMove()) {
 
 				return true;
 			}

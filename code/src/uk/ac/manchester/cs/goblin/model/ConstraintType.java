@@ -5,21 +5,17 @@ import java.util.*;
 /**
  * @author Colin Puleston
  */
-public abstract class ConstraintType {
+public abstract class ConstraintType extends EditTarget {
 
-	private String name;
 	private Concept rootSourceConcept;
 	private Concept rootTargetConcept;
 
 	public String toString() {
 
-		return name + "(" + rootSourceConcept + " --> " + rootTargetConcept + ")";
+		return getName() + "(" + rootSourceConcept + " --> " + rootTargetConcept + ")";
 	}
 
-	public String getName() {
-
-		return name;
-	}
+	public abstract String getName();
 
 	public Concept getRootSourceConcept() {
 
@@ -31,20 +27,41 @@ public abstract class ConstraintType {
 		return rootTargetConcept;
 	}
 
+	public boolean dynamicConstraintType() {
+
+		return false;
+	}
+
 	public abstract boolean definesValidValues();
 
 	public abstract boolean definesImpliedValues();
 
 	public abstract boolean singleImpliedValues();
 
-	protected ConstraintType(
-				String name,
-				Concept rootSourceConcept,
-				Concept rootTargetConcept) {
+	protected ConstraintType(Concept rootSourceConcept, Concept rootTargetConcept) {
 
-		this.name = name;
 		this.rootSourceConcept = rootSourceConcept;
 		this.rootTargetConcept = rootTargetConcept;
+	}
+
+	void doAdd(boolean replacement) {
+
+		throw createDynamicOperationException();
+	}
+
+	void doRemove(boolean replacing) {
+
+		throw createDynamicOperationException();
+	}
+
+	Model getModel() {
+
+		return rootSourceConcept.getModel();
+	}
+
+	Concept getEditTargetConcept() {
+
+		return rootSourceConcept;
 	}
 
 	Constraint createRootConstraint() {
@@ -90,5 +107,10 @@ public abstract class ConstraintType {
 						function + "-value concept \"" + value + "\""
 						+ " not a descendant-concept of \"" + root + "\"");
 		}
+	}
+
+	private RuntimeException createDynamicOperationException() {
+
+		return new RuntimeException("Cannot operation on non-dynamic constraint-type!");
 	}
 }

@@ -35,7 +35,7 @@ class ConflictResolver {
 			return conflicts;
 		}
 
-		abstract Set<Concept> getLinkedConcepts(Concept current);
+		abstract List<Concept> getLinkedConcepts(Concept current);
 
 		abstract Constraint getAncestorConstraint(Constraint candidate);
 
@@ -93,7 +93,7 @@ class ConflictResolver {
 			super(constraint);
 		}
 
-		Set<Concept> getLinkedConcepts(Concept current) {
+		List<Concept> getLinkedConcepts(Concept current) {
 
 			return current.getParents();
 		}
@@ -116,7 +116,7 @@ class ConflictResolver {
 			super(constraint);
 		}
 
-		Set<Concept> getLinkedConcepts(Concept current) {
+		List<Concept> getLinkedConcepts(Concept current) {
 
 			return current.getChildren();
 		}
@@ -152,7 +152,7 @@ class ConflictResolver {
 			}
 		}
 
-		private void findFor(Set<Constraint> constraints, boolean upOnly) {
+		private void findFor(List<Constraint> constraints, boolean upOnly) {
 
 			for (Constraint constraint : constraints) {
 
@@ -228,13 +228,6 @@ class ConflictResolver {
 		private List<Constraint> findConflicts(Constraint constraint) {
 
 			List<Constraint> conflicts = new ArrayList<Constraint>();
-
-			Constraint localConflict = constraint.lookForConflictingConstraintOnSource();
-
-			if (localConflict != null) {
-
-				conflicts.add(localConflict);
-			}
 
 			conflicts.addAll(new UpwardsConflictFinder(constraint).findAll());
 			conflicts.addAll(new DownwardsConflictFinder(constraint).findAll());

@@ -24,6 +24,8 @@
 
 package uk.ac.manchester.cs.goblin.gui;
 
+import javax.swing.tree.*;
+
 import uk.ac.manchester.cs.goblin.model.*;
 
 /**
@@ -37,15 +39,16 @@ abstract class DynamicConceptTree extends ConceptTree {
 
 		private class ModelUpdateTracker implements ConceptListener {
 
+			public void onIdReset(Concept concept) {
+
+				((DefaultTreeModel)getModel()).nodeChanged(DynamicConceptNode.this);
+			}
+
 			public void onChildAdded(Concept child, boolean replacement) {
 
-				ConceptTreeNode parentNode = findParentNodeFor(child);
+				addChildFor(child);
 
-				if (parentNode != null) {
-
-					parentNode.addChildFor(child);
-					parentNode.expand();
-				}
+				expand();
 			}
 
 			public void onConstraintAdded(Constraint constraint, boolean inward) {
@@ -90,5 +93,8 @@ abstract class DynamicConceptTree extends ConceptTree {
 	ConceptNode createConceptNode(Concept concept) {
 
 		return new DynamicConceptNode(concept);
+	}
+
+	void onAddedConceptListener(Concept concept, ConceptListener listener) {
 	}
 }

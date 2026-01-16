@@ -24,9 +24,13 @@
 
 package uk.ac.manchester.cs.goblin.gui;
 
+import java.awt.Component;
+import java.awt.Font;
 import java.util.*;
 
 import javax.swing.*;
+
+import uk.ac.manchester.cs.mekon_util.gui.*;
 
 import uk.ac.manchester.cs.goblin.model.*;
 
@@ -37,6 +41,74 @@ abstract class ConceptTreesPanel<S> extends JTabbedPane {
 
 	static private final long serialVersionUID = -1;
 
+	private List<S> sources;
+
+	private class Repopulater {
+
+		private List<S> currentSources = getSources();
+		private int selectedIndex = getSelectedIndex();
+
+		Repopulater() {
+
+			if (selectedIndex != -1 && !selectionStillValid()) {
+
+				selectedIndex = -1;
+			}
+
+			removeOldTabs();
+			insertNewTabs();
+
+			sources = currentSources;
+
+			if (selectedIndex != -1) {
+
+				setSelectedIndex(selectedIndex);
+			}
+		}
+
+		private boolean selectionStillValid() {
+
+			return currentSources.contains(sources.get(selectedIndex));
+		}
+
+		private void removeOldTabs() {
+
+			int tab = 0;
+
+			for (S source : sources) {
+
+				if (currentSources.contains(source)) {
+
+					tab++;
+				}
+				else {
+
+					removeTabAt(tab);
+				}
+			}
+		}
+
+		private void insertNewTabs() {
+
+			int tabIdx = 0;
+			int oldSourceIdx = 0;
+
+			for (S source : currentSources) {
+
+				if (oldSourceIdx < sources.size() && sources.get(oldSourceIdx).equals(source)) {
+
+					oldSourceIdx++;
+				}
+				else {
+
+					addSourceTab(source, tabIdx);
+				}
+
+				tabIdx++;
+			}
+		}
+	}
+
 	ConceptTreesPanel(int tabPlacement) {
 
 		super(tabPlacement);
@@ -44,30 +116,36 @@ abstract class ConceptTreesPanel<S> extends JTabbedPane {
 
 	void populate() {
 
-		int i = 0;
+		sources = getSources();
 
-		for (S source : getSources()) {
+		int index = 0;
 
-			addTab(getTitle(source), createComponent(source));
+		for (S source : sources) {
+
+			addSourceTab(source, index++);
 		}
 	}
 
 	void repopulate() {
 
-		removeAll();
-		populate();
+		new Repopulater();
+	}
+
+	void resetTabLabel(S source) {
+
+		setTabLabel(source, sources.indexOf(source));
 	}
 
 	void makeSourceVisible(S source) {
 
-		setSelectedIndex(getSources().indexOf(source));
+		setSelectedIndex(sources.indexOf(source));
 	}
 
 	int checkMakeSourceVisible(Concept rootConcept) {
 
 		int i = 0;
 
-		for (S source : getSources()) {
+		for (S source : sources) {
 
 			if (getRootConcept(source).equals(rootConcept)) {
 
@@ -84,9 +162,43 @@ abstract class ConceptTreesPanel<S> extends JTabbedPane {
 
 	abstract List<S> getSources();
 
-	abstract String getTitle(S treeSource);
+	abstract String getTitle(S source);
 
-	abstract Concept getRootConcept(S treeSource);
+	abstract Concept getRootConcept(S source);
 
-	abstract JComponent createComponent(S treeSource);
+	abstract JComponent createComponent(S source);
+
+	boolean requiresItalicizedLabel(S source) {
+
+		return false;
+	}
+
+	private void addSourceTab(S source, int index) {
+
+		insertTab("", null, createComponent(source), null, index);
+
+		setTabLabel(source, index);
+	}
+
+	private void setTabLabel(S source, int index) {
+
+		setTabComponentAt(index, createTabLabel(source, index));
+	}
+
+	private JLabel createTabLabel(S source, int index) {
+
+		JLabel label = new JLabel(getTitle(source));
+		Font font = label.getFont();
+
+		font = GFonts.toMedium(font);
+
+		if (requiresItalicizedLabel(source)) {
+
+			font = font.deriveFont(Font.ITALIC);
+		}
+
+		label.setFont(font);
+
+		return label;
+	}
 }

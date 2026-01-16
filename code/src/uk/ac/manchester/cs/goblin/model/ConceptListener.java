@@ -5,6 +5,8 @@ package uk.ac.manchester.cs.goblin.model;
  */
 public interface ConceptListener {
 
+	public void onIdReset(Concept concept);
+
 	public void onChildAdded(Concept child, boolean replacement);
 
 	public void onConstraintAdded(Constraint constraint, boolean inward);

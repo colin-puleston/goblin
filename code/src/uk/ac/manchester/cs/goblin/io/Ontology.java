@@ -172,9 +172,9 @@ class Ontology {
 		return factory.getOWLObjectProperty(iri);
 	}
 
-	String lookForLabel(OWLClass cls) {
+	String lookForLabel(OWLEntity entity) {
 
-		for (OWLAnnotation anno : getLabelAnnotations(cls)) {
+		for (OWLAnnotation anno : getLabelAnnotations(entity)) {
 
 			OWLAnnotationValue value = anno.getValue();
 
@@ -294,8 +294,8 @@ class Ontology {
 		return factory.getOWLAnnotationProperty(LABEL_ANNOTATION_IRI);
 	}
 
-	private Collection<OWLAnnotation> getLabelAnnotations(OWLClass cls) {
+	private Collection<OWLAnnotation> getLabelAnnotations(OWLEntity entity) {
 
-		return EntitySearcher.getAnnotations(cls, allOntologies, labelAnnotationProperty);
+		return EntitySearcher.getAnnotations(entity, allOntologies, labelAnnotationProperty);
 	}
 }

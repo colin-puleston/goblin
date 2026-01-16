@@ -110,7 +110,7 @@ class UserConfirmations implements Confirmations {
 			info.append('\n');
 		}
 
-		private void addTargets(Set<Concept> targets) {
+		private void addTargets(Collection<Concept> targets) {
 
 			int i = 0;
 
@@ -136,7 +136,7 @@ class UserConfirmations implements Confirmations {
 			checkAddTargetsBracket(']', targets);
 		}
 
-		private void checkAddTargetsBracket(char c, Set<Concept> targets) {
+		private void checkAddTargetsBracket(char c, Collection<Concept> targets) {
 
 			if (targets.size() > 1) {
 

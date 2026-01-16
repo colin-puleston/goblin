@@ -22,6 +22,13 @@ public class DynamicId {
 		return name != null ? new DynamicId(name, label) : null;
 	}
 
+	static public DynamicId fromURIOrNull(URI uri, String dynamicNamespace) {
+
+		String name = uriToDynamicNameOrNull(uri, dynamicNamespace);
+
+		return name != null ? fromName(name) : null;
+	}
+
 	static public boolean validName(String name) {
 
 		return !name.isEmpty() && encodeName(name).equals(name);
@@ -89,6 +96,18 @@ public class DynamicId {
 		}
 	}
 
+	static private String uriToDynamicNameOrNull(URI uri, String dynamicNamespace) {
+
+		String u = uri.toString();
+
+		if (u.startsWith(dynamicNamespace + '#')) {
+
+			return u.substring(dynamicNamespace.length() + 1);
+		}
+
+		return null;
+	}
+
 	private String name;
 	private String label;
 
@@ -118,24 +137,24 @@ public class DynamicId {
 		return !nameToLabel(name).equals(label);
 	}
 
-	EntityId toEntityId(String namespace) {
+	EntityId toEntityId(String dynamicNamespace) {
 
-		EntityId entityId = new EntityId(nameToURI(namespace), label);
+		EntityId entityId = new EntityId(nameToURI(dynamicNamespace), label);
 
 		entityId.setDynamicId(this);
 
 		return entityId;
 	}
 
-	private URI nameToURI(String namespace) {
+	private URI nameToURI(String dynamicNamespace) {
 
 		try {
 
-			return new URI(namespace + '#' + name);
+			return new URI(dynamicNamespace + '#' + name);
 		}
 		catch (URISyntaxException e) {
 
-			throw new Error("Not a valid URI fragment: " + name);
+			throw new RuntimeException("Not a valid URI fragment: " + name);
 		}
 	}
 }

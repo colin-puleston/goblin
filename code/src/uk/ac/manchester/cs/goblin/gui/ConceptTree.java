@@ -66,7 +66,7 @@ abstract class ConceptTree extends GSelectorTree {
 		return node != null ? node.getConceptOrNull() : null;
 	}
 
-	private Set<Concept> rootConcepts;
+	private Collection<Concept> rootConcepts;
 
 	abstract class ConceptTreeNode extends GNode {
 
@@ -80,7 +80,7 @@ abstract class ConceptTree extends GSelectorTree {
 			super(ConceptTree.this);
 		}
 
-		void addChildrenFor(Set<Concept> concepts) {
+		void addChildrenFor(Collection<Concept> concepts) {
 
 			for (Concept concept : concepts) {
 
@@ -234,14 +234,14 @@ abstract class ConceptTree extends GSelectorTree {
 		initialise(Collections.singleton(rootConcept));
 	}
 
-	void initialise(Set<Concept> rootConcepts) {
+	void initialise(Collection<Concept> rootConcepts) {
 
 		this.rootConcepts = rootConcepts;
 
 		initialise(new RootNode());
 	}
 
-	Set<Concept> getRootConcepts() {
+	Collection<Concept> getRootConcepts() {
 
 		return rootConcepts;
 	}
@@ -295,19 +295,9 @@ abstract class ConceptTree extends GSelectorTree {
 		return true;
 	}
 
-	void onAddedConceptListener(Concept concept, ConceptListener listener) {
-	}
-
 	ConceptNode createConceptNode(Concept concept) {
 
 		return new ConceptNode(concept);
-	}
-
-	ConceptTreeNode findParentNodeFor(Concept concept) {
-
-		ConceptTreeNode root = getConceptTreeRootNode();
-
-		return concept.isRoot() ? root : root.findDescendantNode(concept.getParent());
 	}
 
 	abstract GCellDisplay getConceptDisplay(Concept concept);

@@ -5,9 +5,11 @@ import java.util.*;
 /**
  * @author Colin Puleston
  */
-public class Concept extends EditTarget {
+public abstract class Concept extends EditTarget {
 
-	static public boolean allSubsumed(Set<Concept> testSubsumers, Set<Concept> testSubsumeds) {
+	static public boolean allSubsumed(
+							Collection<Concept> testSubsumers,
+							Collection<Concept> testSubsumeds) {
 
 		for (Concept testSubsumed : testSubsumeds) {
 
@@ -22,15 +24,54 @@ public class Concept extends EditTarget {
 
 	private Hierarchy hierarchy;
 
-	private EntityId conceptId;
+	private ConceptId conceptId;
 
 	private ConceptTracker parent;
 	private ConceptTrackerSet children = new ConceptTrackerSet();
 
+	private ConstraintTypeTrackerSet dynamicConstraintTypes = new ConstraintTypeTrackerSet();
+	private ConstraintTypeTrackerSet inwardDynamicConstraintTypes = new ConstraintTypeTrackerSet();
+
 	private ConstraintTrackerSet constraints = new ConstraintTrackerSet();
 	private ConstraintTrackerSet inwardConstraints = new ConstraintTrackerSet();
 
-	private List<ConceptListener> conceptListeners = new ArrayList<ConceptListener>();
+	private List<ConceptListener> listeners = new ArrayList<ConceptListener>();
+
+	private class ConceptId extends EditTarget {
+
+		final EntityId id;
+
+		ConceptId(EntityId id) {
+
+			this.id = id;
+		}
+
+		void doAdd(boolean replacement) {
+
+			conceptId = this;
+
+			onIdReset();
+		}
+
+		void doRemove(boolean replacing) {
+		}
+
+		Concept getEditTargetConcept() {
+
+			return Concept.this;
+		}
+	}
+
+	private class ReplaceConceptIdAction extends ReplaceAction<ConceptId> {
+
+		ReplaceConceptIdAction(ConceptId removeTarget, ConceptId addTarget) {
+
+			super(removeTarget, addTarget);
+		}
+
+		void performInterSubActionUpdates(ConceptId target1, ConceptId target2) {
+		}
+	}
 
 	private class ConstraintMatcher {
 
@@ -38,7 +79,7 @@ public class Concept extends EditTarget {
 		private boolean inwards;
 
 		private ConstraintSemantics semantics = null;
-		private Set<Concept> targetValues = null;
+		private List<Concept> targetValues = null;
 
 		ConstraintMatcher(ConstraintType type, boolean inwards) {
 
@@ -53,7 +94,7 @@ public class Concept extends EditTarget {
 
 		void setMatchTargetValues(Collection<Concept> targetValues) {
 
-			this.targetValues = new HashSet<Concept>(targetValues);
+			this.targetValues = new ArrayList<Concept>(targetValues);
 		}
 
 		boolean anyMatches() {
@@ -61,21 +102,21 @@ public class Concept extends EditTarget {
 			return !findMatches(true).isEmpty();
 		}
 
-		Set<Constraint> getAll() {
+		List<Constraint> getAll() {
 
 			return findMatches(false);
 		}
 
 		Constraint getOneOrZero() {
 
-			Set<Constraint> matches = findMatches(true);
+			List<Constraint> matches = findMatches(true);
 
 			return matches.isEmpty() ? null : matches.iterator().next();
 		}
 
-		private Set<Constraint> findMatches(boolean maxOne) {
+		private List<Constraint> findMatches(boolean maxOne) {
 
-			Set<Constraint> selections = new HashSet<Constraint>();
+			List<Constraint> selections = new ArrayList<Constraint>();
 
 			for (Constraint candidate : getCandidates()) {
 
@@ -93,7 +134,7 @@ public class Concept extends EditTarget {
 			return selections;
 		}
 
-		private Set<Constraint> getCandidates() {
+		private List<Constraint> getCandidates() {
 
 			return (inwards ? inwardConstraints : constraints).getEntities();
 		}
@@ -118,21 +159,23 @@ public class Concept extends EditTarget {
 
 	public void addListener(ConceptListener listener) {
 
-		conceptListeners.add(listener);
+		listeners.add(listener);
 	}
 
 	public void removeListener(ConceptListener listener) {
 
-		conceptListeners.remove(listener);
+		listeners.remove(listener);
 	}
 
 	public boolean resetId(DynamicId newDynamicId) {
 
-		if (canResetId(newDynamicId)) {
+		checkCanPerformOperation(canResetId());
 
-			Concept replacement = createCopy(toEntityId(newDynamicId));
+		if (canResetIdTo(newDynamicId)) {
 
-			performAction(new ReplaceConceptAction(this, replacement));
+			EntityId newId = toEntityId(newDynamicId);
+
+			performAction(new ReplaceConceptIdAction(conceptId, new ConceptId(newId)));
 
 			return true;
 		}
@@ -141,6 +184,8 @@ public class Concept extends EditTarget {
 	}
 
 	public boolean move(Concept newParent) {
+
+		checkCanPerformOperation(canMove());
 
 		EditAction action = checkCreateMoveAction(newParent);
 
@@ -156,22 +201,41 @@ public class Concept extends EditTarget {
 
 	public void remove() {
 
+		checkCanPerformOperation(canMove());
+
 		performAction(createRemoveAction());
 	}
 
-	public Concept addChild(DynamicId dynamicId) {
+	public Concept addChild(DynamicId id) {
 
-		return addChild(toEntityId(dynamicId), true);
+		return addChild(toEntityId(id), true);
 	}
 
-	public Concept addChild(EntityId id, boolean dynamicNamespace) {
+	public Concept addChild(EntityId id, boolean dynamic) {
 
-		Concept child = createChild(id, dynamicNamespace);
+		Concept child = createChild(id, dynamic);
 
 		child.setParent(this);
 		child.add();
 
 		return child;
+	}
+
+	public boolean addDynamicConstraintType(DynamicId attrId, DynamicId rootTargetConceptId) {
+
+		Hierarchy targets = getModel().createDynamicValueHierarchy(rootTargetConceptId);
+
+		return addDynamicConstraintType(attrId, targets.getRootConcept());
+	}
+
+	public boolean addDynamicConstraintType(DynamicId attrId, Concept rootTargetConcept) {
+
+		if (applicableDynamicConstraintType(attrId)) {
+
+			return false;
+		}
+
+		return new DynamicConstraintType(toEntityId(attrId), this, rootTargetConcept).add();
 	}
 
 	public boolean addValidValuesConstraint(ConstraintType type, Collection<Concept> targetValues) {
@@ -196,7 +260,7 @@ public class Concept extends EditTarget {
 
 	public String toString() {
 
-		return conceptId.toString();
+		return conceptId.id.toString();
 	}
 
 	public Model getModel() {
@@ -211,7 +275,7 @@ public class Concept extends EditTarget {
 
 	public EntityId getConceptId() {
 
-		return conceptId;
+		return conceptId.id;
 	}
 
 	public boolean isRoot() {
@@ -224,10 +288,11 @@ public class Concept extends EditTarget {
 		return children.isEmpty();
 	}
 
-	public boolean isFixed() {
+	public abstract boolean coreConcept();
 
-		return false;
-	}
+	public abstract boolean canResetId();
+
+	public abstract boolean canMove();
 
 	public Concept getParent() {
 
@@ -239,12 +304,12 @@ public class Concept extends EditTarget {
 		return parent.getEntity();
 	}
 
-	public Set<Concept> getParents() {
+	public List<Concept> getParents() {
 
-		return Collections.singleton(getParent());
+		return Collections.singletonList(getParent());
 	}
 
-	public Set<Concept> getChildren() {
+	public List<Concept> getChildren() {
 
 		return children.getEntities();
 	}
@@ -254,7 +319,7 @@ public class Concept extends EditTarget {
 		return equals(testSubsumer) || descendantOf(testSubsumer);
 	}
 
-	public boolean subsumedByAny(Set<Concept> testSubsumers) {
+	public boolean subsumedByAny(Collection<Concept> testSubsumers) {
 
 		for (Concept testSubsumer : testSubsumers) {
 
@@ -272,12 +337,52 @@ public class Concept extends EditTarget {
 		return getParent().equals(testAncestor) || getParent().descendantOf(testAncestor);
 	}
 
-	public Set<Constraint> getConstraints() {
+	public List<ConstraintType> getApplicableConstraintTypes() {
+
+		List<ConstraintType> types = new ArrayList<ConstraintType>();
+
+		types.addAll(hierarchy.getCoreConstraintTypes());
+		collectDynamicConstraintTypesUpwards(types);
+
+		return types;
+	}
+
+	public List<ConstraintType> getApplicableInwardConstraintTypes() {
+
+		List<ConstraintType> types = new ArrayList<ConstraintType>();
+
+		types.addAll(hierarchy.getInwardCoreConstraintTypes());
+		collectInwardDynamicConstraintTypesUpwards(types);
+
+		return types;
+	}
+
+	public boolean applicableDynamicConstraintType(DynamicId attrId) {
+
+		for (ConstraintType type : dynamicConstraintTypes.getEntities()) {
+
+			DynamicConstraintType pType = (DynamicConstraintType)type;
+
+			if (pType.getTargetPropertyId().toDynamicId().equals(attrId)) {
+
+				return true;
+			}
+		}
+
+		if (isRoot()) {
+
+			return false;
+		}
+
+		return getParent().applicableDynamicConstraintType(attrId);
+	}
+
+	public List<Constraint> getConstraints() {
 
 		return constraints.getEntities();
 	}
 
-	public Set<Constraint> getConstraints(ConstraintType type) {
+	public List<Constraint> getConstraints(ConstraintType type) {
 
 		return new ConstraintMatcher(type, false).getAll();
 	}
@@ -301,7 +406,7 @@ public class Concept extends EditTarget {
 		return lookForConstraint(type, ConstraintSemantics.IMPLIED_VALUE);
 	}
 
-	public Set<Constraint> getImpliedValueConstraints(ConstraintType type) {
+	public List<Constraint> getImpliedValueConstraints(ConstraintType type) {
 
 		ConstraintMatcher matcher = new ConstraintMatcher(type, false);
 
@@ -322,33 +427,12 @@ public class Concept extends EditTarget {
 		return getParent().getClosestValidValuesConstraint(type);
 	}
 
-	public boolean constraintExists(
-						ConstraintType type,
-						ConstraintSemantics semantics,
-						Concept targetValue) {
-
-		return constraintExists(type, semantics, Collections.singleton(targetValue));
-	}
-
-	public boolean constraintExists(
-						ConstraintType type,
-						ConstraintSemantics semantics,
-						Collection<Concept> targetValues) {
-
-		ConstraintMatcher matcher = new ConstraintMatcher(type, false);
-
-		matcher.setMatchSemantics(semantics);
-		matcher.setMatchTargetValues(targetValues);
-
-		return matcher.anyMatches();
-	}
-
-	public Set<Constraint> getInwardConstraints() {
+	public List<Constraint> getInwardConstraints() {
 
 		return inwardConstraints.getEntities();
 	}
 
-	public Set<Constraint> getInwardConstraints(ConstraintType type) {
+	public List<Constraint> getInwardConstraints(ConstraintType type) {
 
 		return new ConstraintMatcher(type, true).getAll();
 	}
@@ -356,7 +440,18 @@ public class Concept extends EditTarget {
 	Concept(Hierarchy hierarchy, EntityId conceptId) {
 
 		this.hierarchy = hierarchy;
-		this.conceptId = conceptId;
+		this.conceptId = new ConceptId(conceptId);
+	}
+
+	Concept(Concept replaced, Concept newParent) {
+
+		hierarchy = replaced.hierarchy;
+		conceptId = new ConceptId(replaced.conceptId.id);
+		children = replaced.children.copy();
+		constraints = replaced.constraints.copy();
+		inwardConstraints = replaced.inwardConstraints.copy();
+
+		parent = newParent.toTracker();
 	}
 
 	EditAction checkCreateMoveAction(Concept newParent) {
@@ -365,7 +460,7 @@ public class Concept extends EditTarget {
 
 		if (conflictRes.resolvable()) {
 
-			Concept replacement = createCopy(newParent);
+			Concept replacement = createMovedReplacement(newParent);
 			EditAction action = new ReplaceConceptAction(this, replacement);
 
 			return conflictRes.incorporateResolvingEdits(action);
@@ -404,9 +499,26 @@ public class Concept extends EditTarget {
 		removeAllSubTreeListeners();
 	}
 
-	void addRootConstraint(ConstraintType type) {
+	void addDynamicConstraintType(DynamicConstraintType type) {
 
-		constraints.add(type.createRootConstraint());
+		dynamicConstraintTypes.add(type);
+
+		type.getRootTargetConcept().inwardDynamicConstraintTypes.add(type);
+
+		addConstraint(type.createRootConstraint());
+
+		hierarchy.onAddedDynamicConstraintType(type);
+	}
+
+	void removeDynamicConstraintType(DynamicConstraintType type) {
+
+		dynamicConstraintTypes.remove(type);
+
+		type.getRootTargetConcept().inwardDynamicConstraintTypes.remove(type);
+
+		removeAllTypeDynamicConstraints(type);
+
+		hierarchy.onRemovedDynamicConstraintType(type);
 	}
 
 	void addConstraint(Constraint constraint) {
@@ -445,14 +557,29 @@ public class Concept extends EditTarget {
 		return this;
 	}
 
-	private Concept(Concept replaced) {
+	List<ConstraintType> getDynamicConstraintTypesDownwards() {
 
-		hierarchy = replaced.hierarchy;
-		conceptId = replaced.conceptId;
-		parent = replaced.parent.copy();
-		children = replaced.children.copy();
-		constraints = replaced.constraints.copy();
-		inwardConstraints = replaced.inwardConstraints.copy();
+		List<ConstraintType> types = new ArrayList<ConstraintType>();
+
+		collectDynamicConstraintTypesDownwards(types);
+
+		return types;
+	}
+
+	List<Constraint> getConstraintsDownwards(ConstraintType type) {
+
+		List<Constraint> constraints = new ArrayList<Constraint>();
+
+		collectConstraintsDownwards(type, constraints);
+
+		return constraints;
+	}
+
+	abstract Concept createMovedReplacement(Concept newParent);
+
+	RuntimeException createInvalidOperationException() {
+
+		return new RuntimeException("Cannot perform operation on this concept!");
 	}
 
 	private void add() {
@@ -460,37 +587,19 @@ public class Concept extends EditTarget {
 		performAction(new AddAction(this));
 	}
 
-	private Concept createChild(EntityId id, boolean dynamicNamespace) {
+	private Concept createChild(EntityId id, boolean dynamic) {
 
-		if (hierarchy.dynamicHierarchy()) {
+		if (dynamic) {
 
-			if (dynamicNamespace) {
+			if (hierarchy.referenceOnly()) {
 
-				return new Concept(hierarchy, id);
+				throw createInvalidOperationException();
 			}
 
-			return new FixedConcept(hierarchy, id);
+			return new NonRootDynamicConcept(hierarchy, id);
 		}
 
-		return new ReferenceOnlyConcept(hierarchy, id);
-	}
-
-	private Concept createCopy(Concept newParent) {
-
-		Concept copy = new Concept(this);
-
-		copy.setParent(newParent);
-
-		return copy;
-	}
-
-	private Concept createCopy(EntityId newConceptId) {
-
-		Concept copy = new Concept(this);
-
-		copy.conceptId = newConceptId;
-
-		return copy;
+		return new NonRootCoreConcept(hierarchy, id);
 	}
 
 	private void setParent(Concept parent) {
@@ -535,9 +644,22 @@ public class Concept extends EditTarget {
 		getModel().getEditActions().perform(action);
 	}
 
+	private void removeAllTypeDynamicConstraints(ConstraintType type) {
+
+		for (Constraint constraint : getConstraints(type)) {
+
+			removeConstraint(constraint);
+		}
+
+		for (Concept sub : getChildren()) {
+
+			sub.removeAllTypeDynamicConstraints(type);
+		}
+	}
+
 	private void removeAllSubTreeListeners() {
 
-		conceptListeners.clear();
+		listeners.clear();
 
 		for (Concept sub : getChildren()) {
 
@@ -545,11 +667,80 @@ public class Concept extends EditTarget {
 		}
 	}
 
+	private void collectDynamicConstraintTypesUpwards(List<ConstraintType> types) {
+
+		if (!isRoot()) {
+
+			getParent().collectDynamicConstraintTypesUpwards(types);
+		}
+
+		types.addAll(dynamicConstraintTypes.getEntities());
+	}
+
+	private void collectInwardDynamicConstraintTypesUpwards(List<ConstraintType> types) {
+
+		if (!isRoot()) {
+
+			getParent().collectInwardDynamicConstraintTypesUpwards(types);
+		}
+
+		types.addAll(inwardDynamicConstraintTypes.getEntities());
+	}
+
+	private void collectDynamicConstraintTypesDownwards(List<ConstraintType> types) {
+
+		types.addAll(dynamicConstraintTypes.getEntities());
+
+		for (Concept child : getChildren()) {
+
+			child.collectDynamicConstraintTypesDownwards(types);
+		}
+	}
+
+	private void collectConstraintsDownwards(ConstraintType type, List<Constraint> constraints) {
+
+		constraints.addAll(getConstraints(type));
+
+		for (Concept child : getChildren()) {
+
+			child.collectConstraintsDownwards(type, constraints);
+		}
+	}
+
+	private boolean constraintExists(
+						ConstraintType type,
+						ConstraintSemantics semantics,
+						Concept targetValue) {
+
+		return constraintExists(type, semantics, Collections.singleton(targetValue));
+	}
+
+	private boolean constraintExists(
+						ConstraintType type,
+						ConstraintSemantics semantics,
+						Collection<Concept> targetValues) {
+
+		ConstraintMatcher matcher = new ConstraintMatcher(type, false);
+
+		matcher.setMatchSemantics(semantics);
+		matcher.setMatchTargetValues(targetValues);
+
+		return matcher.anyMatches();
+	}
+
+	private void onIdReset() {
+
+		for (ConceptListener listener : copyListeners()) {
+
+			listener.onIdReset(this);
+		}
+	}
+
 	private void onChildAdded(Concept child, boolean replacement) {
 
 		hierarchy.registerConcept(child);
 
-		for (ConceptListener listener : copyConceptListeners()) {
+		for (ConceptListener listener : copyListeners()) {
 
 			listener.onChildAdded(child, replacement);
 		}
@@ -557,7 +748,7 @@ public class Concept extends EditTarget {
 
 	private void onConstraintAdded(Constraint constraint, boolean inward) {
 
-		for (ConceptListener listener : copyConceptListeners()) {
+		for (ConceptListener listener : copyListeners()) {
 
 			listener.onConstraintAdded(constraint, inward);
 		}
@@ -565,7 +756,7 @@ public class Concept extends EditTarget {
 
 	private void onConstraintRemoved(Constraint constraint, boolean inward) {
 
-		for (ConceptListener listener : copyConceptListeners()) {
+		for (ConceptListener listener : copyListeners()) {
 
 			listener.onConstraintRemoved(constraint, inward);
 		}
@@ -575,18 +766,18 @@ public class Concept extends EditTarget {
 
 		hierarchy.deregisterConcept(this);
 
-		for (ConceptListener listener : copyConceptListeners()) {
+		for (ConceptListener listener : copyListeners()) {
 
 			listener.onConceptRemoved(this, replacing);
 		}
 	}
 
-	private List<ConceptListener> copyConceptListeners() {
+	private List<ConceptListener> copyListeners() {
 
-		return new ArrayList<ConceptListener>(conceptListeners);
+		return new ArrayList<ConceptListener>(listeners);
 	}
 
-	private boolean canResetId(DynamicId newDynamicId) {
+	private boolean canResetIdTo(DynamicId newDynamicId) {
 
 		return getModel().canResetDynamicConceptId(this, newDynamicId);
 	}
@@ -594,5 +785,13 @@ public class Concept extends EditTarget {
 	private EntityId toEntityId(DynamicId dynamicId) {
 
 		return getModel().toEntityId(dynamicId);
+	}
+
+	private void checkCanPerformOperation(boolean canDo) {
+
+		if (!canDo) {
+
+			throw createInvalidOperationException();
+		}
 	}
 }

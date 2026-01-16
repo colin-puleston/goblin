@@ -45,7 +45,7 @@ class CoreModelLoader extends ConfigFileVocab {
 
 			for (KConfigNode typeNode : hierarchyNode.getChildren(getTypeTag())) {
 
-				hierarchy.addConstraintType(loadType(typeNode, hierarchy));
+				hierarchy.addCoreConstraintType(loadType(typeNode, hierarchy));
 			}
 		}
 
@@ -63,7 +63,7 @@ class CoreModelLoader extends ConfigFileVocab {
 
 		ConstraintType loadType(KConfigNode node, String name, Concept rootSrc, Concept rootTgt) {
 
-			PropertyConstraintType type = loadPropertyType(node, name, rootSrc, rootTgt);
+			CorePropertyConstraintType type = loadPropertyType(node, name, rootSrc, rootTgt);
 
 			Set<ConstraintSemantics> semanticsOpts = getSemanticsOptions(node);
 
@@ -77,11 +77,11 @@ class CoreModelLoader extends ConfigFileVocab {
 			return type;
 		}
 
-		abstract PropertyConstraintType loadPropertyType(
-											KConfigNode node,
-											String name,
-											Concept rootSrc,
-											Concept rootTgt);
+		abstract CorePropertyConstraintType loadPropertyType(
+												KConfigNode node,
+												String name,
+												Concept rootSrc,
+												Concept rootTgt);
 
 		private Set<ConstraintSemantics> getSemanticsOptions(KConfigNode allNode) {
 
@@ -108,11 +108,11 @@ class CoreModelLoader extends ConfigFileVocab {
 			return SIMPLE_CONSTRAINT_TYPE_TAG;
 		}
 
-		PropertyConstraintType loadPropertyType(
-									KConfigNode node,
-									String name,
-									Concept rootSrc,
-									Concept rootTgt) {
+		CorePropertyConstraintType loadPropertyType(
+										KConfigNode node,
+										String name,
+										Concept rootSrc,
+										Concept rootTgt) {
 
 			EntityId lnkProp = getPropertyId(node, LINKING_PROPERTY_ATTR);
 
@@ -132,11 +132,11 @@ class CoreModelLoader extends ConfigFileVocab {
 			return ANCHORED_CONSTRAINT_TYPE_TAG;
 		}
 
-		PropertyConstraintType loadPropertyType(
-									KConfigNode node,
-									String name,
-									Concept rootSrc,
-									Concept rootTgt) {
+		CorePropertyConstraintType loadPropertyType(
+										KConfigNode node,
+										String name,
+										Concept rootSrc,
+										Concept rootTgt) {
 
 			EntityId anchor = getConceptId(node, ANCHOR_CONCEPT_ATTR);
 
@@ -272,7 +272,7 @@ class CoreModelLoader extends ConfigFileVocab {
 
 			Set<EntityId> props = new HashSet<EntityId>();
 
-			for (ConstraintType type : hierarchy.getConstraintTypes()) {
+			for (ConstraintType type : hierarchy.getCoreConstraintTypes()) {
 
 				if (type instanceof PropertyConstraintType) {
 
@@ -328,7 +328,7 @@ class CoreModelLoader extends ConfigFileVocab {
 		boolean refOnly = referenceOnlyHierarchy(node);
 		String name = getEntityNameOrNull(node);
 
-		Hierarchy hierarchy = section.addHierarchy(rootConceptId, refOnly);
+		Hierarchy hierarchy = section.addCoreHierarchy(rootConceptId, refOnly);
 
 		if (name != null) {
 

@@ -56,6 +56,11 @@ public class Model extends HierarchyContainer {
 		editActions.addListener(listener);
 	}
 
+	public Hierarchy createDynamicValueHierarchy(DynamicId rootConceptId) {
+
+		return new DynamicValueHierarchy(this, toEntityId(rootConceptId));
+	}
+
 	public List<ModelSection> getSections() {
 
 		return new ArrayList<ModelSection>(sections);
@@ -91,14 +96,14 @@ public class Model extends HierarchyContainer {
 		return new EntityId(uri, labelOrNull);
 	}
 
-	public boolean containsDynamicConcept(DynamicId dynamicId) {
+	public Concept lookForDynamicConcept(DynamicId conceptId) {
 
-		return containsConcept(toEntityId(dynamicId));
+		return lookForConcept(toEntityId(conceptId));
 	}
 
-	boolean modelLoaded() {
+	public boolean containsDynamicConcept(DynamicId conceptId) {
 
-		return editActions.trackingStarted();
+		return containsConcept(toEntityId(conceptId));
 	}
 
 	boolean canResetDynamicConceptId(Concept concept, DynamicId newDynamicId) {

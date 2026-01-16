@@ -38,10 +38,10 @@ import uk.ac.manchester.cs.goblin.model.*;
  */
 enum GoblinCellDisplay {
 
-	CONCEPTS_DEFAULT(
-		largeCircle(ConceptColor.DEFAULT)),
-	CONCEPTS_FIXED(
-		largeCircle(ConceptColor.FIXED)),
+	CONCEPTS_DYNAMIC(
+		largeCircle(ConceptColor.DYNAMIC)),
+	CONCEPTS_CORE(
+		largeCircle(ConceptColor.CORE)),
 	CONCEPTS_MOVE_SUBJECT(
 		largeCircle(ConceptColor.MOVE_SUBJECT)),
 	CONCEPTS_CONSTRAINT_GROUP(
@@ -65,8 +65,8 @@ enum GoblinCellDisplay {
 
 	static private class ConceptColor {
 
-		static final Color DEFAULT = Color.CYAN.darker();
-		static final Color FIXED = DEFAULT.darker();
+		static final Color DYNAMIC = Color.CYAN.darker();
+		static final Color CORE = DYNAMIC.darker();
 		static final Color MOVE_SUBJECT = Color.GRAY.brighter();
 	}
 

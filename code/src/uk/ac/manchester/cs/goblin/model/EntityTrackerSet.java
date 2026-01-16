@@ -7,7 +7,7 @@ import java.util.*;
  */
 abstract class EntityTrackerSet<E, T extends EntityTracker<E>> {
 
-	private Set<T> trackers = new HashSet<T>();
+	private List<T> trackers = new ArrayList<T>();
 
 	EntityTrackerSet() {
 	}
@@ -58,9 +58,9 @@ abstract class EntityTrackerSet<E, T extends EntityTracker<E>> {
 		return trackers.isEmpty();
 	}
 
-	Set<E> getEntities() {
+	List<E> getEntities() {
 
-		Set<E> entities = new HashSet<E>();
+		List<E> entities = new ArrayList<E>();
 
 		for (T tracker : trackers) {
 

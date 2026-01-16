@@ -16,12 +16,12 @@ public abstract class HierarchyContainer {
 
 	public List<Hierarchy> getDynamicHierarchies() {
 
-		return getStatusHierarchies(true);
+		return getStatusHierarchies(false);
 	}
 
 	public List<Hierarchy> getReferenceOnlyHierarchies() {
 
-		return getStatusHierarchies(false);
+		return getStatusHierarchies(true);
 	}
 
 	public Hierarchy getHierarchy(EntityId rootConceptId) {
@@ -60,7 +60,7 @@ public abstract class HierarchyContainer {
 
 		for (Hierarchy hierarchy : hierarchies) {
 
-			if (hierarchy.hasConcept(conceptId)) {
+			if (hierarchy.containsConcept(conceptId)) {
 
 				return hierarchy.getConcept(conceptId);
 			}
@@ -74,13 +74,13 @@ public abstract class HierarchyContainer {
 		hierarchies.add(hierarchy);
 	}
 
-	private List<Hierarchy> getStatusHierarchies(boolean dynamic) {
+	private List<Hierarchy> getStatusHierarchies(boolean referenceOnly) {
 
 		List<Hierarchy> statusHierarchies = new ArrayList<Hierarchy>();
 
 		for (Hierarchy hierarchy : hierarchies) {
 
-			if (hierarchy.dynamicHierarchy() == dynamic) {
+			if (hierarchy.referenceOnly() == referenceOnly) {
 
 				statusHierarchies.add(hierarchy);
 			}

@@ -5,7 +5,7 @@ import java.util.*;
 /**
  * @author Colin Puleston
  */
-class RootConcept extends FixedConcept {
+abstract class RootConcept extends Concept {
 
 	public boolean addValidValuesConstraint(ConstraintType type, Collection<Concept> targetValues) {
 
@@ -17,9 +17,9 @@ class RootConcept extends FixedConcept {
 		throw createInvalidOperationException();
 	}
 
-	public Set<Concept> getParents() {
+	public List<Concept> getParents() {
 
-		return Collections.emptySet();
+		return Collections.emptyList();
 	}
 
 	public boolean descendantOf(Concept testAncestor) {
@@ -27,9 +27,19 @@ class RootConcept extends FixedConcept {
 		return false;
 	}
 
-	RootConcept(Hierarchy hierarchy, EntityId rootConceptId) {
+	public boolean canMove() {
 
-		super(hierarchy, rootConceptId);
+		return false;
+	}
+
+	RootConcept(Hierarchy hierarchy, EntityId conceptId) {
+
+		super(hierarchy, conceptId);
+	}
+
+	Concept createMovedReplacement(Concept newParent) {
+
+		throw createInvalidOperationException();
 	}
 
 	void doRemoveConstraint(Constraint constraint) {

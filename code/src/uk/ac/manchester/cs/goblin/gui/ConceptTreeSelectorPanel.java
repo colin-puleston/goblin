@@ -132,7 +132,7 @@ abstract class ConceptTreeSelectorPanel extends JPanel {
 			new TargetTreeConceptSelector();
 		}
 
-		private void populate(Set<Concept> concepts) {
+		private void populate(Collection<Concept> concepts) {
 
 			for (Concept concept : concepts) {
 

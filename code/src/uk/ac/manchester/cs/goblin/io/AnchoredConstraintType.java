@@ -1,11 +1,13 @@
 package uk.ac.manchester.cs.goblin.io;
 
+import java.util.*;
+
 import uk.ac.manchester.cs.goblin.model.*;
 
 /**
  * @author Colin Puleston
  */
-class AnchoredConstraintType extends PropertyConstraintType {
+class AnchoredConstraintType extends CorePropertyConstraintType {
 
 	private EntityId anchorConceptId;
 	private EntityId sourcePropertyId;
@@ -32,5 +34,10 @@ class AnchoredConstraintType extends PropertyConstraintType {
 	EntityId getSourcePropertyId() {
 
 		return sourcePropertyId;
+	}
+
+	Collection<EntityId> getInvolvedPropertyIds() {
+
+		return Arrays.asList(getTargetPropertyId(), sourcePropertyId);
 	}
 }

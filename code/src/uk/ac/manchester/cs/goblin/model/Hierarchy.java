@@ -8,20 +8,31 @@ import java.util.*;
 public abstract class Hierarchy {
 
 	private Model model;
-
 	private String name;
-	private RootConcept root;
+
+	private RootConcept rootConcept;
 	private Map<EntityId, Concept> conceptsById = new HashMap<EntityId, Concept>();
 
-	private List<ConstraintType> inwardConstraintTypes = new ArrayList<ConstraintType>();
+	private List<ConstraintType> inwardCoreConstraintTypes = new ArrayList<ConstraintType>();
 
-	public abstract void addConstraintType(ConstraintType type);
+	public void addListener(HierarchyListener listener) {
 
-	public abstract boolean dynamicHierarchy();
+		throw createListenerOperationException();
+	}
+
+	public void removeListener(HierarchyListener listener) {
+
+		throw createListenerOperationException();
+	}
 
 	public void setName(String name) {
 
 		this.name = name;
+	}
+
+	public void addCoreConstraintType(ConstraintType type) {
+
+		throw createConstraintTypeAddException(type, "outward");
 	}
 
 	public Model getModel() {
@@ -34,17 +45,27 @@ public abstract class Hierarchy {
 		return name;
 	}
 
+	public boolean referenceOnly() {
+
+		return false;
+	}
+
+	public boolean dynamicConstraintsEnabled() {
+
+		return false;
+	}
+
 	public Concept getRootConcept() {
 
-		return root;
+		return rootConcept;
 	}
 
 	public boolean hasRootConcept(EntityId conceptId) {
 
-		return root.getConceptId().equals(conceptId);
+		return rootConcept.getConceptId().equals(conceptId);
 	}
 
-	public boolean hasConcept(EntityId conceptId) {
+	public boolean containsConcept(EntityId conceptId) {
 
 		return conceptsById.containsKey(conceptId);
 	}
@@ -61,18 +82,34 @@ public abstract class Hierarchy {
 		return concept;
 	}
 
-	public abstract boolean hasConstraintTypes();
+	public boolean hasCoreConstraintTypes() {
 
-	public abstract List<ConstraintType> getConstraintTypes();
-
-	public boolean hasInwardConstraintTypes() {
-
-		return !inwardConstraintTypes.isEmpty();
+		return false;
 	}
 
-	public List<ConstraintType> getInwardConstraintTypes() {
+	public boolean hasPotentialConstraintTypes() {
 
-		return new ArrayList<ConstraintType>(inwardConstraintTypes);
+		return hasCoreConstraintTypes() || dynamicConstraintsEnabled();
+	}
+
+	public boolean hasInwardCoreConstraintTypes() {
+
+		return !inwardCoreConstraintTypes.isEmpty();
+	}
+
+	public List<ConstraintType> getAllConstraintTypes() {
+
+		return Collections.emptyList();
+	}
+
+	public List<ConstraintType> getCoreConstraintTypes() {
+
+		return Collections.emptyList();
+	}
+
+	public List<ConstraintType> getInwardCoreConstraintTypes() {
+
+		return new ArrayList<ConstraintType>(inwardCoreConstraintTypes);
 	}
 
 	Hierarchy(Model model, EntityId rootConceptId) {
@@ -80,8 +117,10 @@ public abstract class Hierarchy {
 		this.model = model;
 
 		name = rootConceptId.getLabel();
-		root = new RootConcept(this, rootConceptId);
+		rootConcept = createRootConcept(rootConceptId);
 	}
+
+	abstract RootConcept createRootConcept(EntityId rootConceptId);
 
 	void registerConcept(Concept concept) {
 
@@ -93,8 +132,32 @@ public abstract class Hierarchy {
 		conceptsById.remove(concept.getConceptId());
 	}
 
-	void addInwardConstraintType(ConstraintType type) {
+	void addInwardCoreConstraintType(ConstraintType type) {
 
-		inwardConstraintTypes.add(type);
+		inwardCoreConstraintTypes.add(type);
+	}
+
+	void onAddedDynamicConstraintType(DynamicConstraintType type) {
+
+		throw createListenerOperationException();
+	}
+
+	void onRemovedDynamicConstraintType(DynamicConstraintType type) {
+
+		throw createListenerOperationException();
+	}
+
+	private RuntimeException createListenerOperationException() {
+
+		return new RuntimeException("Illegal operation on non-editable hierachy: " + name);
+	}
+
+	private RuntimeException createConstraintTypeAddException(
+								ConstraintType type,
+								String direction) {
+
+		return new RuntimeException(
+						"Cannot add " + direction + " constraint-types to: "
+						+ getClass().getSimpleName());
 	}
 }

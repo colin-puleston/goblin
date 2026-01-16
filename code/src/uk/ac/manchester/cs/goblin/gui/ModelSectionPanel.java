@@ -28,8 +28,6 @@ import java.util.*;
 
 import javax.swing.*;
 
-import uk.ac.manchester.cs.mekon_util.gui.*;
-
 import uk.ac.manchester.cs.goblin.model.*;
 
 /**
@@ -46,8 +44,6 @@ class ModelSectionPanel extends ConceptTreesPanel<Hierarchy> {
 		super(JTabbedPane.LEFT);
 
 		this.section = section;
-
-		setFont(GFonts.toMedium(getFont()));
 
 		populate();
 	}
@@ -82,7 +78,7 @@ class ModelSectionPanel extends ConceptTreesPanel<Hierarchy> {
 
 	JComponent createComponent(Hierarchy hierarchy) {
 
-		return new HierarchyPanel(hierarchy);
+		return new CoreHierarchyPanel(hierarchy);
 	}
 
 	boolean checkMakeEditVisible(EditLocation location) {
@@ -98,7 +94,7 @@ class ModelSectionPanel extends ConceptTreesPanel<Hierarchy> {
 
 			Constraint constraint = location.getEditedConstraint();
 
-			getHierarchyPanel(hierarchyIdx).makeConstraintVisible(constraint);
+			getCoreHierarchyPanel(hierarchyIdx).makeConstraintVisible(constraint);
 		}
 
 		return true;
@@ -109,27 +105,27 @@ class ModelSectionPanel extends ConceptTreesPanel<Hierarchy> {
 		return checkMakeSourceVisible(location.getEditedConcept().getHierarchy().getRootConcept());
 	}
 
-	private HierarchyPanel getHierarchyPanel(int hierarchyIdx) {
+	private CoreHierarchyPanel getCoreHierarchyPanel(int hierarchyIdx) {
 
-		return (HierarchyPanel)getComponentAt(hierarchyIdx);
+		return (CoreHierarchyPanel)getComponentAt(hierarchyIdx);
 	}
 
 	private String getTitleSuffix(Hierarchy hierarchy) {
 
 		String suffix = "";
 
-		if (hierarchy.hasInwardConstraintTypes()) {
+		if (hierarchy.hasInwardCoreConstraintTypes()) {
 
 			suffix += "<=";
 
-			if (hierarchy.hasConstraintTypes()) {
+			if (hierarchy.hasPotentialConstraintTypes()) {
 
 				suffix += ">";
 			}
 		}
 		else {
 
-			if (hierarchy.hasConstraintTypes()) {
+			if (hierarchy.hasPotentialConstraintTypes()) {
 
 				suffix += "=>";
 			}
