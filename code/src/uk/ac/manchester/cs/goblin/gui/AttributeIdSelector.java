@@ -35,7 +35,7 @@ class AttributeIdSelector extends DynamicIdSelector {
 
 	static private final long serialVersionUID = -1;
 
-	AttributeIdSelector(JComponent parent, DynamicId currentId) {
+	AttributeIdSelector(JComponent parent, EntityId currentId) {
 
 		super(parent, currentId, "Attribute");
 	}

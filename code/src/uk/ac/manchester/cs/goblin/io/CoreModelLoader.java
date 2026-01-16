@@ -1,6 +1,5 @@
 package uk.ac.manchester.cs.goblin.io;
 
-import java.net.*;
 import java.util.*;
 
 import org.semanticweb.owlapi.model.*;
@@ -388,18 +387,21 @@ class CoreModelLoader extends ConfigFileVocab {
 
 	private EntityId getConceptId(KConfigNode node, String tag) {
 
-		URI uri = node.getURI(tag);
-
-		return model.createEntityId(uri, lookForConceptLabel(uri));
+		return getCoreId(ontology.getClass(getIRI(node, tag)));
 	}
 
 	private EntityId getPropertyId(KConfigNode node, String tag) {
 
-		return model.createEntityId(node.getURI(tag), null);
+		return getCoreId(ontology.getObjectProperty(getIRI(node, tag)));
 	}
 
-	private String lookForConceptLabel(URI uri) {
+	private EntityId getCoreId(OWLEntity entity) {
 
-		return ontology.lookForLabel(ontology.getClass(IRI.create(uri)));
+		return new CoreId(entity.getIRI(), ontology.lookForLabel(entity));
+	}
+
+	private IRI getIRI(KConfigNode node, String tag) {
+
+		return IRI.create(node.getURI(tag));
 	}
 }

@@ -470,11 +470,11 @@ class HierarchyTreePanel extends JPanel {
 
 	private void checkAddConcept(Concept parent) {
 
-		DynamicId id = checkObtainConceptId(null);
+		EntityId id = checkObtainConceptId(null);
 
 		if (id != null) {
 
-			if (hierarchy.getModel().containsDynamicConcept(id)) {
+			if (hierarchy.getModel().containsConcept(id)) {
 
 				showConceptAlreadyExistsMessage(id);
 			}
@@ -487,8 +487,8 @@ class HierarchyTreePanel extends JPanel {
 
 	private boolean checkResetConceptId(Concept concept) {
 
-		DynamicId currentId = concept.getConceptId().toDynamicId();
-		DynamicId newId = checkObtainConceptId(currentId);
+		EntityId currentId = concept.getConceptId();
+		EntityId newId = checkObtainConceptId(currentId);
 
 		if (newId != null) {
 
@@ -511,12 +511,12 @@ class HierarchyTreePanel extends JPanel {
 		}
 	}
 
-	private DynamicId checkObtainConceptId(DynamicId currentId) {
+	private EntityId checkObtainConceptId(EntityId currentId) {
 
 		return new ConceptIdSelector(this, currentId).getSelection();
 	}
 
-	private void showConceptAlreadyExistsMessage(DynamicId id) {
+	private void showConceptAlreadyExistsMessage(EntityId id) {
 
 		InfoDisplay.inform("Concept already exists: " + id.getName());
 	}

@@ -50,8 +50,8 @@ abstract class DynamicIdSelector extends GDialog {
 
 	static private final Dimension WINDOW_SIZE = new Dimension(300, 150);
 
-	private DynamicId currentId;
-	private DynamicId selectedId = null;
+	private EntityId currentId;
+	private EntityId selectedId = null;
 
 	private ControlButton okButton = new ControlButton(OK_BUTTON_LABEL);
 
@@ -159,7 +159,7 @@ abstract class DynamicIdSelector extends GDialog {
 			add(autoSetButton, BorderLayout.EAST);
 		}
 
-		abstract String extractValue(DynamicId id);
+		abstract String extractValue(EntityId id);
 
 		abstract String resolveNewValue(String newValue);
 
@@ -167,7 +167,7 @@ abstract class DynamicIdSelector extends GDialog {
 
 		abstract String createAutoValueOrNull(String otherValue);
 
-		abstract DynamicId createSelection(String value, String otherValue);
+		abstract EntityId createSelection(String value, String otherValue);
 
 		private boolean canSetAutoValue() {
 
@@ -183,7 +183,7 @@ abstract class DynamicIdSelector extends GDialog {
 			return autoValue != null && !autoValue.equals(currentValue);
 		}
 
-		private DynamicId resolveSelection() {
+		private EntityId resolveSelection() {
 
 			if (valueEdited() || otherInput.valueEdited()) {
 
@@ -193,7 +193,7 @@ abstract class DynamicIdSelector extends GDialog {
 			return null;
 		}
 
-		private DynamicId resolveSelection(String otherValue) {
+		private EntityId resolveSelection(String otherValue) {
 
 			return valuePresent() ? createSelection(currentValue, otherValue) : null;
 		}
@@ -218,7 +218,7 @@ abstract class DynamicIdSelector extends GDialog {
 			super(NAME_FIELD_TITLE);
 		}
 
-		String extractValue(DynamicId id) {
+		String extractValue(EntityId id) {
 
 			return id.getName();
 		}
@@ -230,7 +230,7 @@ abstract class DynamicIdSelector extends GDialog {
 				return newValue;
 			}
 
-			if (DynamicId.validName(newValue)) {
+			if (EntityId.validName(newValue)) {
 
 				return ensureStartsWithRequiredCase(newValue);
 			}
@@ -252,12 +252,10 @@ abstract class DynamicIdSelector extends GDialog {
 
 		String createAutoValueOrNull(String otherValue) {
 
-			DynamicId id = DynamicId.fromLabelOrNull(otherValue);
-
-			return id != null ? id.getName() : null;
+			return EntityId.labelToNameOrNull(otherValue);
 		}
 
-		DynamicId createSelection(String value, String otherValue) {
+		EntityId createSelection(String value, String otherValue) {
 
 			return new DynamicId(value, otherValue);
 		}
@@ -277,7 +275,7 @@ abstract class DynamicIdSelector extends GDialog {
 			super(LABEL_FIELD_TITLE);
 		}
 
-		String extractValue(DynamicId id) {
+		String extractValue(EntityId id) {
 
 			return id.getLabel();
 		}
@@ -289,7 +287,7 @@ abstract class DynamicIdSelector extends GDialog {
 
 		String createAutoValue(String otherValue) {
 
-			return DynamicId.fromName(otherValue).getLabel();
+			return EntityId.nameToLabel(otherValue);
 		}
 
 		String createAutoValueOrNull(String otherValue) {
@@ -297,7 +295,7 @@ abstract class DynamicIdSelector extends GDialog {
 			return createAutoValue(otherValue);
 		}
 
-		DynamicId createSelection(String value, String otherValue) {
+		EntityId createSelection(String value, String otherValue) {
 
 			return new DynamicId(otherValue, value);
 		}
@@ -331,7 +329,7 @@ abstract class DynamicIdSelector extends GDialog {
 		}
 	}
 
-	DynamicIdSelector(JComponent parent, DynamicId currentId, String entityType) {
+	DynamicIdSelector(JComponent parent, EntityId currentId, String entityType) {
 
 		super(parent, String.format(TITLE_FORMAT, entityType), true);
 
@@ -343,7 +341,7 @@ abstract class DynamicIdSelector extends GDialog {
 		display(createDisplay());
 	}
 
-	DynamicId getSelection() {
+	EntityId getSelection() {
 
 		return selectedId;
 	}

@@ -167,20 +167,21 @@ public abstract class Concept extends EditTarget {
 		listeners.remove(listener);
 	}
 
-	public boolean resetId(DynamicId newDynamicId) {
+	public boolean resetId(EntityId newConceptId) {
 
 		checkCanPerformOperation(canResetId());
 
-		if (canResetIdTo(newDynamicId)) {
+		if (!getConceptId().equals(newConceptId)) {
 
-			EntityId newId = toEntityId(newDynamicId);
+			if (getModel().containsConcept(newConceptId)) {
 
-			performAction(new ReplaceConceptIdAction(conceptId, new ConceptId(newId)));
+				return false;
+			}
 
-			return true;
+			performAction(createReplaceIdAction(newConceptId));
 		}
 
-		return false;
+		return true;
 	}
 
 	public boolean move(Concept newParent) {
@@ -206,14 +207,9 @@ public abstract class Concept extends EditTarget {
 		performAction(createRemoveAction());
 	}
 
-	public Concept addChild(DynamicId id) {
+	public Concept addChild(EntityId id) {
 
-		return addChild(toEntityId(id), true);
-	}
-
-	public Concept addChild(EntityId id, boolean dynamic) {
-
-		Concept child = createChild(id, dynamic);
+		Concept child = createChild(id);
 
 		child.setParent(this);
 		child.add();
@@ -221,21 +217,21 @@ public abstract class Concept extends EditTarget {
 		return child;
 	}
 
-	public boolean addDynamicConstraintType(DynamicId attrId, DynamicId rootTargetConceptId) {
+	public boolean addDynamicConstraintType(EntityId attrId, EntityId rootTargetConceptId) {
 
 		Hierarchy targets = getModel().createDynamicValueHierarchy(rootTargetConceptId);
 
 		return addDynamicConstraintType(attrId, targets.getRootConcept());
 	}
 
-	public boolean addDynamicConstraintType(DynamicId attrId, Concept rootTargetConcept) {
+	public boolean addDynamicConstraintType(EntityId attrId, Concept rootTargetConcept) {
 
 		if (applicableDynamicConstraintType(attrId)) {
 
 			return false;
 		}
 
-		return new DynamicConstraintType(toEntityId(attrId), this, rootTargetConcept).add();
+		return new DynamicConstraintType(attrId, this, rootTargetConcept).add();
 	}
 
 	public boolean addValidValuesConstraint(ConstraintType type, Collection<Concept> targetValues) {
@@ -357,13 +353,13 @@ public abstract class Concept extends EditTarget {
 		return types;
 	}
 
-	public boolean applicableDynamicConstraintType(DynamicId attrId) {
+	public boolean applicableDynamicConstraintType(EntityId attrId) {
 
 		for (ConstraintType type : dynamicConstraintTypes.getEntities()) {
 
 			DynamicConstraintType pType = (DynamicConstraintType)type;
 
-			if (pType.getTargetPropertyId().toDynamicId().equals(attrId)) {
+			if (pType.getTargetPropertyId().equals(attrId)) {
 
 				return true;
 			}
@@ -587,9 +583,9 @@ public abstract class Concept extends EditTarget {
 		performAction(new AddAction(this));
 	}
 
-	private Concept createChild(EntityId id, boolean dynamic) {
+	private Concept createChild(EntityId id) {
 
-		if (dynamic) {
+		if (id.dynamicId()) {
 
 			if (hierarchy.referenceOnly()) {
 
@@ -605,6 +601,11 @@ public abstract class Concept extends EditTarget {
 	private void setParent(Concept parent) {
 
 		this.parent = parent.toTracker();
+	}
+
+	private ReplaceConceptIdAction createReplaceIdAction(EntityId newId) {
+
+		return new ReplaceConceptIdAction(conceptId, new ConceptId(newId));
 	}
 
 	private EditAction incorporateInwardTargetRemovalEdits(EditAction action) {
@@ -775,16 +776,6 @@ public abstract class Concept extends EditTarget {
 	private List<ConceptListener> copyListeners() {
 
 		return new ArrayList<ConceptListener>(listeners);
-	}
-
-	private boolean canResetIdTo(DynamicId newDynamicId) {
-
-		return getModel().canResetDynamicConceptId(this, newDynamicId);
-	}
-
-	private EntityId toEntityId(DynamicId dynamicId) {
-
-		return getModel().toEntityId(dynamicId);
 	}
 
 	private void checkCanPerformOperation(boolean canDo) {

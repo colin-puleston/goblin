@@ -35,7 +35,7 @@ class ConceptIdSelector extends DynamicIdSelector {
 
 	static private final long serialVersionUID = -1;
 
-	ConceptIdSelector(JComponent parent, DynamicId currentId) {
+	ConceptIdSelector(JComponent parent, EntityId currentId) {
 
 		super(parent, currentId, "Concept");
 	}

@@ -1,54 +1,102 @@
 package uk.ac.manchester.cs.goblin.model;
 
+import java.io.*;
 import java.net.*;
+
+import uk.ac.manchester.cs.mekon_util.*;
 
 /**
  * @author Colin Puleston
  */
-public class EntityId {
+public abstract class EntityId {
 
-	static private final char[] URI_FINAL_SEPARATOR_CHARS = new char[]{'#', '/', ':'};
+	static public boolean validName(String name) {
 
-	private URI uri;
-	private String label;
-
-	private DynamicId dynamicId = null;
-
-	public boolean equals(Object other) {
-
-		return other instanceof EntityId && uri.equals(((EntityId)other).uri);
+		return !name.isEmpty() && encodeName(name).equals(name);
 	}
 
-	public int hashCode() {
+	static public String nameToLabel(String name) {
 
-		return uri.hashCode();
+		return KLabel.create(checkValidName(name));
 	}
 
-	public String toString() {
+	static public String labelToNameOrNull(String label) {
+
+		checkValidLabel(label);
+
+		do {
+
+			String name = KLabel.recreateName(label);
+
+			if (validName(name)) {
+
+				return name;
+			}
+
+			label = label.substring(0, label.length() - 1);
+		}
+		while (label.length() != 0);
+
+		return null;
+	}
+
+	static private String resolveLabel(String name, String labelOrNull) {
+
+		return labelOrNull != null ? checkValidLabel(labelOrNull) : nameToLabel(name);
+	}
+
+	static private String checkValidName(String name) {
+
+		if (name.isEmpty()) {
+
+			throw new RuntimeException("Name is empty!");
+		}
+
+		if (!validName(name)) {
+
+			throw new RuntimeException("Not a valid name: " + name);
+		}
+
+		return name;
+	}
+
+	static private String checkValidLabel(String label) {
+
+		if (label.isEmpty()) {
+
+			throw new RuntimeException("Label is empty!");
+		}
 
 		return label;
 	}
 
-	public URI getURI() {
+	static private String encodeName(String name) {
 
-		return uri;
+		try {
+
+			return URLEncoder.encode(name, "UTF-8");
+		}
+		catch (UnsupportedEncodingException e) {
+
+			throw new Error(e);
+		}
+	}
+
+	private String name;
+	private String label;
+
+	public abstract boolean equals(Object other);
+
+	public abstract int hashCode();
+
+	public String toString() {
+
+		return name + "(" + label + ")";
 	}
 
 	public String getName() {
 
-		String u = uri.toString();
-
-		for (char c : URI_FINAL_SEPARATOR_CHARS) {
-
-			int i = u.lastIndexOf(c);
-
-			if (i != -1 && i != u.length() - 1) {
-
-				return u.substring(i + 1);
-			}
-		}
-
-		return u;
+		return name;
 	}
 
 	public String getLabel() {
@@ -56,25 +104,11 @@ public class EntityId {
 		return label;
 	}
 
-	public DynamicId toDynamicId() {
+	public abstract boolean dynamicId();
 
-		return dynamicId;
-	}
+	protected EntityId(String name, String labelOrNull) {
 
-	EntityId(URI uri, String labelOrNull) {
-
-		this.uri = uri;
-
-		label = resolveLabel(labelOrNull);
-	}
-
-	void setDynamicId(DynamicId dynamicId) {
-
-		this.dynamicId = dynamicId;
-	}
-
-	private String resolveLabel(String labelOrNull) {
-
-		return labelOrNull == null ? getName() : labelOrNull;
+		this.name = checkValidName(name);
+		this.label = resolveLabel(name, labelOrNull);
 	}
 }

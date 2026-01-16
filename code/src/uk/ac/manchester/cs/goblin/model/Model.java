@@ -10,22 +10,11 @@ public class Model extends HierarchyContainer {
 
 	static private final String DEFAULT_SECTION_NAME_PREFIX = "Section-";
 
-	private String dynamicNamespace;
-
 	private List<ModelSection> sections = new ArrayList<ModelSection>();
 
-	private EditActions editActions;
-	private ConceptTracking conceptTracking;
-	private ConflictResolver conflictResolver;
-
-	public Model(String dynamicNamespace) {
-
-		this.dynamicNamespace = dynamicNamespace;
-
-		editActions = new EditActions();
-		conceptTracking = new ConceptTracking();
-		conflictResolver = new ConflictResolver();
-	}
+	private EditActions editActions = new EditActions();
+	private ConceptTracking conceptTracking = new ConceptTracking();
+	private ConflictResolver conflictResolver = new ConflictResolver();
 
 	public void setConfirmations(Confirmations confirmations) {
 
@@ -56,9 +45,9 @@ public class Model extends HierarchyContainer {
 		editActions.addListener(listener);
 	}
 
-	public Hierarchy createDynamicValueHierarchy(DynamicId rootConceptId) {
+	public Hierarchy createDynamicValueHierarchy(EntityId rootConceptId) {
 
-		return new DynamicValueHierarchy(this, toEntityId(rootConceptId));
+		return new DynamicValueHierarchy(this, rootConceptId);
 	}
 
 	public List<ModelSection> getSections() {
@@ -86,38 +75,6 @@ public class Model extends HierarchyContainer {
 		return editActions.redo();
 	}
 
-	public EntityId createEntityId(URI uri, String labelOrNull) {
-
-		if (hasDynamicNamespace(uri)) {
-
-			return toEntityId(createDynamicId(uri, labelOrNull));
-		}
-
-		return new EntityId(uri, labelOrNull);
-	}
-
-	public Concept lookForDynamicConcept(DynamicId conceptId) {
-
-		return lookForConcept(toEntityId(conceptId));
-	}
-
-	public boolean containsDynamicConcept(DynamicId conceptId) {
-
-		return containsConcept(toEntityId(conceptId));
-	}
-
-	boolean canResetDynamicConceptId(Concept concept, DynamicId newDynamicId) {
-
-		EntityId newId = toEntityId(newDynamicId);
-
-		return concept.getConceptId().equals(newId) || !containsConcept(newId);
-	}
-
-	EntityId toEntityId(DynamicId dynamicId) {
-
-		return dynamicId.toEntityId(dynamicNamespace);
-	}
-
 	EditActions getEditActions() {
 
 		return editActions;
@@ -131,19 +88,5 @@ public class Model extends HierarchyContainer {
 	ConflictResolver getConflictResolver() {
 
 		return conflictResolver;
-	}
-
-	private boolean hasDynamicNamespace(URI uri) {
-
-		return uri.toString().startsWith(dynamicNamespace + '#');
-	}
-
-	private DynamicId createDynamicId(URI uri, String labelOrNull) {
-
-		String name = uri.getFragment();
-
-		return labelOrNull != null
-					? new DynamicId(name, labelOrNull)
-					: DynamicId.fromName(name);
 	}
 }

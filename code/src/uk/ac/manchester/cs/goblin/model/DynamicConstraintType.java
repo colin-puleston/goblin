@@ -68,7 +68,7 @@ public class DynamicConstraintType extends PropertyConstraintType {
 		}
 	}
 
-	public void resetAttributeId(DynamicId attrId) {
+	public void resetAttributeId(EntityId attrId) {
 
 		Concept source = getRootSourceConcept();
 
@@ -77,9 +77,7 @@ public class DynamicConstraintType extends PropertyConstraintType {
 			throw new RuntimeException("Attribute already exists for concept: " + source);
 		}
 
-		EntityId id = toEntityId(attrId);
-
-		performAction(new ReplaceAttributeIdAction(attributeId, new AttributeId(id)));
+		performAction(createReplaceAttributeIdAction(attrId));
 	}
 
 	public void remove() {
@@ -126,7 +124,7 @@ public class DynamicConstraintType extends PropertyConstraintType {
 
 	boolean add() {
 
-		performAction(action);
+		performAction(new AddAction(this));
 
 		return true;
 	}
@@ -139,6 +137,11 @@ public class DynamicConstraintType extends PropertyConstraintType {
 	void doRemove(boolean replacing) {
 
 		getRootSourceConcept().removeDynamicConstraintType(this);
+	}
+
+	private ReplaceAttributeIdAction createReplaceAttributeIdAction(EntityId newId) {
+
+		return new ReplaceAttributeIdAction(attributeId, new AttributeId(newId));
 	}
 
 	private EditAction createRemoveAction() {
@@ -192,10 +195,5 @@ public class DynamicConstraintType extends PropertyConstraintType {
 	private List<DynamicConstraintTypeListener> copyListeners() {
 
 		return new ArrayList<DynamicConstraintTypeListener>(listeners);
-	}
-
-	private EntityId toEntityId(DynamicId attrId) {
-
-		return getModel().toEntityId(attrId);
 	}
 }

@@ -1,6 +1,5 @@
 package uk.ac.manchester.cs.goblin.io;
 
-import java.net.*;
 import java.util.*;
 
 import org.semanticweb.owlapi.model.*;
@@ -204,14 +203,14 @@ class DynamicModelLoader {
 
 	private class ConstraintTypeLoader {
 
-		private Set<DynamicId> loadedTypePropertyIds = new HashSet<DynamicId>();
+		private Set<EntityId> loadedTypePropertyIds = new HashSet<EntityId>();
 
 		private class ClassConstraintTypeLoader
 						extends
 							TypeRestrictionReader<OWLObjectAllValuesFrom> {
 
 			private Concept source;
-			private List<DynamicId> localTypePropertyIds = new ArrayList<DynamicId>();
+			private List<EntityId> localTypePropertyIds = new ArrayList<EntityId>();
 
 			ClassConstraintTypeLoader(Concept source, OWLClass sourceCls) {
 
@@ -220,9 +219,9 @@ class DynamicModelLoader {
 				this.source = source;
 			}
 
-			Collection<DynamicId> loadAllForClass() {
+			Collection<EntityId> loadAllForClass() {
 
-				Iterator<DynamicId> propIdIter = localTypePropertyIds.iterator();
+				Iterator<EntityId> propIdIter = localTypePropertyIds.iterator();
 
 				for (OWLObjectAllValuesFrom restriction : findAllRequiredRestrictions()) {
 
@@ -236,9 +235,9 @@ class DynamicModelLoader {
 
 			boolean requiredProperty(OWLObjectProperty property) {
 
-				DynamicId propertyId = getDynamicIdOrNull(property);
+				EntityId propertyId = getEntityId(property);
 
-				if (propertyId == null || loadedTypePropertyIds.contains(propertyId)) {
+				if (!propertyId.dynamicId() || loadedTypePropertyIds.contains(propertyId)) {
 
 					return false;
 				}
@@ -255,8 +254,8 @@ class DynamicModelLoader {
 
 			Concept fillerToConcept(OWLClass cls) {
 
-				DynamicId id = getDynamicId(cls);
-				Concept concept = model.lookForDynamicConcept(id);
+				EntityId id = getEntityId(cls);
+				Concept concept = model.lookForConcept(id);
 
 				if (concept != null) {
 
@@ -266,7 +265,7 @@ class DynamicModelLoader {
 				return loadValueHierarchy(id, cls);
 			}
 
-			private Concept loadValueHierarchy(DynamicId rootConceptId, OWLClass rootCls) {
+			private Concept loadValueHierarchy(EntityId rootConceptId, OWLClass rootCls) {
 
 				Hierarchy hierarchy = createValueHierarchy(rootConceptId);
 				Concept rootConcept = hierarchy.getRootConcept();
@@ -276,12 +275,12 @@ class DynamicModelLoader {
 				return rootConcept;
 			}
 
-			private Hierarchy createValueHierarchy(DynamicId rootConceptId) {
+			private Hierarchy createValueHierarchy(EntityId rootConceptId) {
 
 				return model.createDynamicValueHierarchy(rootConceptId);
 			}
 
-			private RuntimeException createDuplicateTypeException(DynamicId propertyId) {
+			private RuntimeException createDuplicateTypeException(EntityId propertyId) {
 
 				return new RuntimeException(
 							"Dynamic constraint-type already defined for property: "
@@ -298,7 +297,7 @@ class DynamicModelLoader {
 
 		private void loadFrom(Concept concept, OWLClass cls) {
 
-			Collection<DynamicId> localTypePropertyIds = loadFor(concept, cls);
+			Collection<EntityId> localTypePropertyIds = loadFor(concept, cls);
 
 			loadedTypePropertyIds.addAll(localTypePropertyIds);
 
@@ -310,7 +309,7 @@ class DynamicModelLoader {
 			loadedTypePropertyIds.removeAll(localTypePropertyIds);
 		}
 
-		private Collection<DynamicId> loadFor(Concept concept, OWLClass cls) {
+		private Collection<EntityId> loadFor(Concept concept, OWLClass cls) {
 
 			return new ClassConstraintTypeLoader(concept, cls).loadAllForClass();
 		}
@@ -379,7 +378,7 @@ class DynamicModelLoader {
 
 			this.type = type;
 
-			targetProperty = getObjectProperty(type.getTargetPropertyId());
+			targetProperty = getCoreObjectProperty(type.getTargetPropertyId());
 
 			allTargetExtractor = new AllTargetExtractor(sourceCls);
 			someTargetExtractor = new SomeTargetExtractor(sourceCls);
@@ -440,7 +439,7 @@ class DynamicModelLoader {
 
 				super(anchorSub, OWLObjectSomeValuesFrom.class);
 
-				sourceProperty = getObjectProperty(type.getSourcePropertyId());
+				sourceProperty = getCoreObjectProperty(type.getSourcePropertyId());
 			}
 
 			Concept lookForSourceConcept() {
@@ -663,7 +662,7 @@ class DynamicModelLoader {
 
 	private void loadSimpleConstraints(SimpleConstraintType type) {
 
-		OWLClass rootSource = getCls(type.getRootSourceConcept());
+		OWLClass rootSource = getCoreClass(type.getRootSourceConcept());
 
 		for (OWLClass source : getSubClasses(rootSource, false)) {
 
@@ -673,7 +672,7 @@ class DynamicModelLoader {
 
 	private void loadAnchoredConstraints(AnchoredConstraintType type) {
 
-		OWLClass anchor = getCls(type.getAnchorConceptId());
+		OWLClass anchor = getCoreClass(type.getAnchorConceptId());
 
 		for (OWLClass anchorSub : getSubClasses(anchor, false)) {
 
@@ -683,7 +682,7 @@ class DynamicModelLoader {
 
 	private void loadHierarchicalConstraints(HierarchicalConstraintType type) {
 
-		OWLClass rootSource = getCls(type.getRootSourceConcept());
+		OWLClass rootSource = getCoreClass(type.getRootSourceConcept());
 
 		for (OWLClass source : getSubClasses(rootSource, false)) {
 
@@ -694,19 +693,18 @@ class DynamicModelLoader {
 	private Concept addSubConcept(Concept concept, OWLClass subCls) {
 
 		EntityId childId = getEntityId(subCls);
-		boolean dynamic = dynamicConcept(childId);
 
-		if (!dynamic) {
+		if (!childId.dynamicId()) {
 
 			EntityId parentId = concept.getConceptId();
 
-			if (dynamicConcept(parentId)) {
+			if (parentId.dynamicId()) {
 
 				throw createNonFixedParentException(parentId, childId);
 			}
 		}
 
-		return concept.addChild(childId, dynamic);
+		return concept.addChild(childId);
 	}
 
 	private Set<OWLClass> getSubClasses(OWLClass cls, boolean direct) {
@@ -721,7 +719,7 @@ class DynamicModelLoader {
 
 	private OWLClass getRootClass(Concept concept) {
 
-		IRI iri = getIRI(concept.getConceptId());
+		IRI iri = getCoreIRI(concept.getConceptId());
 
 		if (ontology.classExists(iri)) {
 
@@ -731,29 +729,29 @@ class DynamicModelLoader {
 		throw new RuntimeException("Cannot find hierarchy root-class: " + iri);
 	}
 
-	private OWLClass getCls(Concept concept) {
+	private OWLClass getCoreClass(Concept concept) {
 
-		return getCls(concept.getConceptId());
+		return getCoreClass(concept.getConceptId());
 	}
 
-	private OWLClass getCls(EntityId id) {
+	private OWLClass getCoreClass(EntityId id) {
 
-		return ontology.getClass(getIRI(id));
+		return ontology.getClass(getCoreIRI(id));
 	}
 
-	private OWLObjectProperty getObjectProperty(EntityId id) {
+	private OWLObjectProperty getCoreObjectProperty(EntityId id) {
 
-		return ontology.getObjectProperty(getIRI(id));
+		return ontology.getObjectProperty(getCoreIRI(id));
 	}
 
-	private boolean dynamicConcept(EntityId id) {
+	private IRI getCoreIRI(EntityId id) {
 
-		return id.getURI().toString().startsWith(dynamicNamespace);
-	}
+		if (id instanceof CoreId) {
 
-	private IRI getIRI(EntityId id) {
+			return ((CoreId)id).getIRI();
+		}
 
-		return IRI.create(id.getURI());
+		throw new RuntimeException("Unexpected dynamic entity: " + id);
 	}
 
 	private Concept getConcept(OWLClass cls) {
@@ -770,28 +768,24 @@ class DynamicModelLoader {
 
 	private EntityId getEntityId(OWLEntity entity) {
 
-		URI uri = entity.getIRI().toURI();
+		IRI iri = entity.getIRI();
 
-		return model.createEntityId(uri, ontology.lookForLabel(entity));
+		String dynamicName = toDynamicNameOrNull(iri);
+		String label = ontology.lookForLabel(entity);
+
+		return dynamicName != null ? new DynamicId(dynamicName, label) : new CoreId(iri, label);
 	}
 
-	private DynamicId getDynamicId(OWLEntity entity) {
+	private String toDynamicNameOrNull(IRI iri) {
 
-		DynamicId id = getDynamicIdOrNull(entity);
+		String i = iri.toString();
 
-		if (id != null) {
+		if (i.startsWith(dynamicNamespace + '#')) {
 
-			return id;
+			return i.substring(dynamicNamespace.length() + 1);
 		}
 
-		throw new RuntimeException("Referenced entity does not have dynamic URI: " + entity);
-	}
-
-	private DynamicId getDynamicIdOrNull(OWLEntity entity) {
-
-		URI uri = entity.getIRI().toURI();
-
-		return DynamicId.fromURIOrNull(uri, dynamicNamespace);
+		return null;
 	}
 
 	private <T>T asTypeOrNull(Object obj, Class<T> type) {

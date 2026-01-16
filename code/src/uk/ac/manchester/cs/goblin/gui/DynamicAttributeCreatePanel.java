@@ -80,7 +80,7 @@ class DynamicAttributeCreatePanel extends JPanel {
 
 		protected void doButtonThing() {
 
-			DynamicId attrId = checkObtainAttributeId();
+			EntityId attrId = checkObtainAttributeId();
 
 			if (attrId != null) {
 
@@ -104,9 +104,9 @@ class DynamicAttributeCreatePanel extends JPanel {
 			new Enabler();
 		}
 
-		abstract boolean checkCreateAttribute(Concept source, DynamicId attrId);
+		abstract boolean checkCreateAttribute(Concept source, EntityId attrId);
 
-		private DynamicId checkObtainAttributeId() {
+		private EntityId checkObtainAttributeId() {
 
 			return new AttributeIdSelector(this, null).getSelection();
 		}
@@ -128,29 +128,29 @@ class DynamicAttributeCreatePanel extends JPanel {
 			super(NEW_VALUES_DESCRIPTOR);
 		}
 
-		boolean checkCreateAttribute(Concept source, DynamicId attrId) {
+		boolean checkCreateAttribute(Concept source, EntityId attrId) {
 
-			DynamicId rootTargetId = createRootTargetConceptId(attrId, source);
+			EntityId rootTargetId = createRootTargetConceptId(attrId, source);
 
 			return source.addDynamicConstraintType(attrId, rootTargetId);
 		}
 
-		private DynamicId createRootTargetConceptId(DynamicId attrId, Concept source) {
+		private EntityId createRootTargetConceptId(EntityId attrId, Concept source) {
 
 			String name = createRootTargetConceptName(attrId, source);
-			DynamicId id = DynamicId.fromName(name);
+			EntityId id = new DynamicId(name);
 
 			int suffix = 0;
 
 			while (conceptExists(id)) {
 
-				id = DynamicId.fromName(name + "-" + suffix++);
+				id = new DynamicId(name + "-" + suffix++);
 			}
 
 			return id;
 		}
 
-		private String createRootTargetConceptName(DynamicId attrId, Concept source) {
+		private String createRootTargetConceptName(EntityId attrId, Concept source) {
 
 			return String.format(
 					NEW_ROOT_TARGET_CONCEPT_NAME_FORMAT,
@@ -168,7 +168,7 @@ class DynamicAttributeCreatePanel extends JPanel {
 			super(LINKED_VALUES_DESCRIPTOR);
 		}
 
-		boolean checkCreateAttribute(Concept source, DynamicId attrId) {
+		boolean checkCreateAttribute(Concept source, EntityId attrId) {
 
 			return false;
 		}
@@ -197,8 +197,8 @@ class DynamicAttributeCreatePanel extends JPanel {
 		return hierarchyTree.getSelectedConcept();
 	}
 
-	private boolean conceptExists(DynamicId id) {
+	private boolean conceptExists(EntityId id) {
 
-		return hierarchyTree.getHierarchy().getModel().containsDynamicConcept(id);
+		return hierarchyTree.getHierarchy().getModel().containsConcept(id);
 	}
 }

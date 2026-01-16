@@ -133,8 +133,8 @@ class DynamicAttributeEditPanel extends JPanel {
 
 	private boolean checkResetAttributeId() {
 
-		DynamicId currentId = type.getTargetPropertyId().toDynamicId();
-		DynamicId newId = checkObtainAttributeId(currentId);
+		EntityId currentId = type.getTargetPropertyId();
+		EntityId newId = checkObtainAttributeId(currentId);
 
 		if (newId != null) {
 
@@ -161,7 +161,7 @@ class DynamicAttributeEditPanel extends JPanel {
 		}
 	}
 
-	private DynamicId checkObtainAttributeId(DynamicId currentId) {
+	private EntityId checkObtainAttributeId(EntityId currentId) {
 
 		return new AttributeIdSelector(this, currentId).getSelection();
 	}

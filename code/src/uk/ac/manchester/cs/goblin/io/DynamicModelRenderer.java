@@ -1,6 +1,7 @@
 package uk.ac.manchester.cs.goblin.io;
 
 import java.io.*;
+import java.net.*;
 import java.util.*;
 
 import org.semanticweb.owlapi.model.*;
@@ -13,6 +14,8 @@ import uk.ac.manchester.cs.goblin.model.*;
 class DynamicModelRenderer {
 
 	private Ontology ontology;
+	private String dynamicNamespace;
+
 	private AnchoredConstraintClassIRIs anchoredConstraintClassIRIs;
 
 	private class ConstraintRenderer {
@@ -107,6 +110,7 @@ class DynamicModelRenderer {
 	DynamicModelRenderer(Ontology ontology, String dynamicNamespace) {
 
 		this.ontology = ontology;
+		this.dynamicNamespace = dynamicNamespace;
 
 		anchoredConstraintClassIRIs = new AnchoredConstraintClassIRIs(dynamicNamespace);
 	}
@@ -220,6 +224,11 @@ class DynamicModelRenderer {
 
 	private IRI getIRI(EntityId id) {
 
-		return IRI.create(id.getURI());
+		return id instanceof CoreId ? ((CoreId)id).getIRI() : createDynamicIRI(id);
+	}
+
+	private IRI createDynamicIRI(EntityId id) {
+
+		return IRI.create(dynamicNamespace + '#' + id.getName());
 	}
 }
