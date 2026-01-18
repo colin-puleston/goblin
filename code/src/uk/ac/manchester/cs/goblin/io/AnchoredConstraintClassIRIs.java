@@ -13,18 +13,18 @@ class AnchoredConstraintClassIRIs {
 
 	static private final String NAME_FORMAT = "%s-Constraint-%d--%s-to-%s";
 
-	private String dynamicNamespace;
+	private DynamicIRIs dynamicIRIs;
 
 	private Map<String, Integer> indexesByAnchorName = new HashMap<String, Integer>();
 
-	AnchoredConstraintClassIRIs(String dynamicNamespace) {
+	AnchoredConstraintClassIRIs(DynamicIRIs dynamicIRIs) {
 
-		this.dynamicNamespace = dynamicNamespace;
+		this.dynamicIRIs = dynamicIRIs;
 	}
 
 	IRI create(Constraint constraint, AnchoredConstraintType type) {
 
-		return IRI.create(dynamicNamespace + '#' + createName(constraint, type));
+		return dynamicIRIs.toDynamicIRI(createName(constraint, type));
 	}
 
 	private String createName(Constraint constraint, AnchoredConstraintType type) {

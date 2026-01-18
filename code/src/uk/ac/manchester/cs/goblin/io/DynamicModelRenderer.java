@@ -14,7 +14,7 @@ import uk.ac.manchester.cs.goblin.model.*;
 class DynamicModelRenderer {
 
 	private Ontology ontology;
-	private String dynamicNamespace;
+	private EntityIds entityIds;
 
 	private AnchoredConstraintClassIRIs anchoredConstraintClassIRIs;
 
@@ -107,12 +107,12 @@ class DynamicModelRenderer {
 		}
 	}
 
-	DynamicModelRenderer(Ontology ontology, String dynamicNamespace) {
+	DynamicModelRenderer(Ontology ontology, DynamicIRIs dynamicIRIs) {
 
 		this.ontology = ontology;
-		this.dynamicNamespace = dynamicNamespace;
 
-		anchoredConstraintClassIRIs = new AnchoredConstraintClassIRIs(dynamicNamespace);
+		entityIds = new EntityIds(dynamicIRIs);
+		anchoredConstraintClassIRIs = new AnchoredConstraintClassIRIs(dynamicIRIs);
 	}
 
 	void write(Model model, File dynamicFile) {
@@ -224,11 +224,6 @@ class DynamicModelRenderer {
 
 	private IRI getIRI(EntityId id) {
 
-		return id instanceof CoreId ? ((CoreId)id).getIRI() : createDynamicIRI(id);
-	}
-
-	private IRI createDynamicIRI(EntityId id) {
-
-		return IRI.create(dynamicNamespace + '#' + id.getName());
+		return entityIds.toIRI(id);
 	}
 }

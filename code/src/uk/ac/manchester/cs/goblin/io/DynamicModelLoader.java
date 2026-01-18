@@ -14,7 +14,7 @@ class DynamicModelLoader {
 	private Model model;
 	private Ontology ontology;
 
-	private String dynamicNamespace;
+	private EntityIds entityIds;
 
 	private Map<OWLClass, Concept> dynamicClassesToConcepts = new HashMap<OWLClass, Concept>();
 
@@ -579,12 +579,13 @@ class DynamicModelLoader {
 	DynamicModelLoader(
 		Model model,
 		Ontology ontology,
-		String dynamicNamespace)
+		DynamicIRIs dynamicIRIs)
 		throws BadDynamicOntologyException {
 
 		this.model = model;
 		this.ontology = ontology;
-		this.dynamicNamespace = dynamicNamespace;
+
+		entityIds = new EntityIds(dynamicIRIs);
 
 		try {
 
@@ -768,24 +769,7 @@ class DynamicModelLoader {
 
 	private EntityId getEntityId(OWLEntity entity) {
 
-		IRI iri = entity.getIRI();
-
-		String dynamicName = toDynamicNameOrNull(iri);
-		String label = ontology.lookForLabel(entity);
-
-		return dynamicName != null ? new DynamicId(dynamicName, label) : new CoreId(iri, label);
-	}
-
-	private String toDynamicNameOrNull(IRI iri) {
-
-		String i = iri.toString();
-
-		if (i.startsWith(dynamicNamespace + '#')) {
-
-			return i.substring(dynamicNamespace.length() + 1);
-		}
-
-		return null;
+		return entityIds.getId(entity, ontology.lookForLabel(entity));
 	}
 
 	private <T>T asTypeOrNull(Object obj, Class<T> type) {

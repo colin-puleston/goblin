@@ -16,7 +16,7 @@ public class ModelSerialiser extends ConfigFileVocab {
 	private KConfigNode configRootNode;
 
 	private File dynamicFile;
-	private String dynamicNamespace;
+	private DynamicIRIs dynamicIRIs;
 
 	private Ontology ontology;
 
@@ -25,7 +25,8 @@ public class ModelSerialiser extends ConfigFileVocab {
 		configRootNode = new KConfigFile(CONFIG_FILE_NAME).getRootNode();
 
 		dynamicFile = getDynamicFileFromConfig();
-		dynamicNamespace = getDynamicNamespaceFromConfig();
+		dynamicIRIs = new DynamicIRIs(getDynamicNamespaceFromConfig());
+
 		ontology = new Ontology(dynamicFile);
 	}
 
@@ -47,7 +48,7 @@ public class ModelSerialiser extends ConfigFileVocab {
 
 	public void save(Model model) {
 
-		new DynamicModelRenderer(ontology, dynamicNamespace).write(model, dynamicFile);
+		new DynamicModelRenderer(ontology, dynamicIRIs).write(model, dynamicFile);
 	}
 
 	public void saveAs(Model model, File file) {
@@ -67,7 +68,7 @@ public class ModelSerialiser extends ConfigFileVocab {
 		Model model = new Model();
 
 		new CoreModelLoader(model, ont).load(configRootNode);
-		new DynamicModelLoader(model, ont, dynamicNamespace);
+		new DynamicModelLoader(model, ont, dynamicIRIs);
 
 		return model;
 	}
