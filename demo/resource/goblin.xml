@@ -8,8 +8,8 @@
 
 		<Hierarchy
 			rootConcept="http://goblin/demo-core.owl#Activity">
-			<AnchoredConstraintType
-				name="role performed"
+			<AnchoredAttribute
+				label="role performed"
 				anchorConcept="http://goblin/demo-core.owl#Hobby"
 				sourceProperty="http://goblin/demo-core.owl#involvesActivity"
 				targetProperty="http://goblin/demo-core.owl#rolePerformed"
@@ -17,15 +17,15 @@
 				singleImpliedValues="TRUE">
 				<SemanticsOption semantics="VALID_VALUES"/>
 				<SemanticsOption semantics="IMPLIED_VALUE"/>
-			</AnchoredConstraintType>
-			<SimpleConstraintType
-				name="activity venue"
+			</AnchoredAttribute>
+			<SimpleAttribute
+				label="activity venue"
 				linkingProperty="http://goblin/demo-core.owl#performedInLocation"
 				rootTargetConcept="http://goblin/demo-core.owl#VenueByType"
 				singleImpliedValues="FALSE">
 				<SemanticsOption semantics="VALID_VALUES"/>
 				<SemanticsOption semantics="IMPLIED_VALUE"/>
-			</SimpleConstraintType>
+			</SimpleAttribute>
 		</Hierarchy>
 
 		<Hierarchy
@@ -34,11 +34,11 @@
 
 		<Hierarchy
 			rootConcept="http://goblin/demo-core.owl#VenueByType">
-			<HierarchicalConstraintType
-				name="venue location"
+			<HierarchicalAttribute
+				label="venue location"
 				rootTargetConcept="http://goblin/demo-core.owl#VenueByLocation"
 				singleImpliedValues="TRUE">
-			</HierarchicalConstraintType>
+			</HierarchicalAttribute>
 		</Hierarchy>
 
 		<Hierarchy
