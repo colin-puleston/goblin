@@ -62,7 +62,7 @@ class CoreModelLoader extends ConfigFileVocab {
 
 		ConstraintType loadType(KConfigNode node, String name, Concept rootSrc, Concept rootTgt) {
 
-			CorePropertyConstraintType type = loadPropertyType(node, name, rootSrc, rootTgt);
+			PropertyConstraintType type = loadPropertyType(node, name, rootSrc, rootTgt);
 
 			Set<ConstraintSemantics> semanticsOpts = getSemanticsOptions(node);
 
@@ -76,7 +76,7 @@ class CoreModelLoader extends ConfigFileVocab {
 			return type;
 		}
 
-		abstract CorePropertyConstraintType loadPropertyType(
+		abstract PropertyConstraintType loadPropertyType(
 												KConfigNode node,
 												String name,
 												Concept rootSrc,
@@ -107,7 +107,7 @@ class CoreModelLoader extends ConfigFileVocab {
 			return SIMPLE_CONSTRAINT_TYPE_TAG;
 		}
 
-		CorePropertyConstraintType loadPropertyType(
+		PropertyConstraintType loadPropertyType(
 										KConfigNode node,
 										String name,
 										Concept rootSrc,
@@ -131,7 +131,7 @@ class CoreModelLoader extends ConfigFileVocab {
 			return ANCHORED_CONSTRAINT_TYPE_TAG;
 		}
 
-		CorePropertyConstraintType loadPropertyType(
+		PropertyConstraintType loadPropertyType(
 										KConfigNode node,
 										String name,
 										Concept rootSrc,

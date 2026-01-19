@@ -133,8 +133,7 @@ class DynamicAttributeEditPanel extends JPanel {
 
 	private boolean checkResetAttributeId() {
 
-		EntityId currentId = type.getTargetPropertyId();
-		EntityId newId = checkObtainAttributeId(currentId);
+		EntityId newId = checkObtainAttributeId();
 
 		if (newId != null) {
 
@@ -161,9 +160,9 @@ class DynamicAttributeEditPanel extends JPanel {
 		}
 	}
 
-	private EntityId checkObtainAttributeId(EntityId currentId) {
+	private EntityId checkObtainAttributeId() {
 
-		return new AttributeIdSelector(this, currentId).getSelection();
+		return new AttributeIdSelector(this, type.getAttributeId()).getSelection();
 	}
 
 	private void showAttributeAlreadyExistsMessage(Concept source) {
@@ -182,7 +181,7 @@ class DynamicAttributeEditPanel extends JPanel {
 
 		StringBuilder msg = new StringBuilder();
 
-		msg.append("Removing attribute: " + type.getTargetPropertyId().getLabel());
+		msg.append("Removing attribute: " + type.getAttributeId().getLabel());
 		msg.append(" plus any associated constraints");
 
 		return msg.toString();

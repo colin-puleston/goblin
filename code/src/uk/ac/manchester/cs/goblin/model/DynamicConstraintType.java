@@ -5,7 +5,7 @@ import java.util.*;
 /**
  * @author Colin Puleston
  */
-public class DynamicConstraintType extends PropertyConstraintType {
+public class DynamicConstraintType extends ConstraintType {
 
 	private AttributeId attributeId;
 
@@ -87,10 +87,10 @@ public class DynamicConstraintType extends PropertyConstraintType {
 
 	public String getName() {
 
-		return getTargetPropertyId().getLabel();
+		return attributeId.id.getLabel();
 	}
 
-	public EntityId getTargetPropertyId() {
+	public EntityId getAttributeId() {
 
 		return attributeId.id;
 	}

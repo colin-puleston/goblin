@@ -7,7 +7,7 @@ import uk.ac.manchester.cs.goblin.model.*;
 /**
  * @author Colin Puleston
  */
-class SimpleConstraintType extends CorePropertyConstraintType {
+class SimpleConstraintType extends PropertyConstraintType {
 
 	SimpleConstraintType(
 		String name,

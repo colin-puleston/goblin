@@ -7,7 +7,7 @@ import uk.ac.manchester.cs.goblin.model.*;
 /**
  * @author Colin Puleston
  */
-class AnchoredConstraintType extends CorePropertyConstraintType {
+class AnchoredConstraintType extends PropertyConstraintType {
 
 	private EntityId anchorConceptId;
 	private EntityId sourcePropertyId;

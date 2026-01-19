@@ -7,7 +7,7 @@ import uk.ac.manchester.cs.goblin.model.*;
 /**
  * @author Colin Puleston
  */
-abstract class CorePropertyConstraintType extends PropertyConstraintType {
+abstract class PropertyConstraintType extends ConstraintType {
 
 	private String name;
 	private EntityId targetPropertyId;
@@ -17,25 +17,9 @@ abstract class CorePropertyConstraintType extends PropertyConstraintType {
 
 	private boolean singleImpliedValues = false;
 
-	public void setSemanticsOptions(Set<ConstraintSemantics> options) {
-
-		definesValidValues = options.contains(ConstraintSemantics.VALID_VALUES);
-		definesImpliedValues = options.contains(ConstraintSemantics.IMPLIED_VALUE);
-	}
-
-	public void setSingleImpliedValues(boolean value) {
-
-		singleImpliedValues = value;
-	}
-
 	public String getName() {
 
 		return name;
-	}
-
-	public EntityId getTargetPropertyId() {
-
-		return targetPropertyId;
 	}
 
 	public boolean definesValidValues() {
@@ -53,7 +37,7 @@ abstract class CorePropertyConstraintType extends PropertyConstraintType {
 		return singleImpliedValues;
 	}
 
-	CorePropertyConstraintType(
+	PropertyConstraintType(
 		String name,
 		EntityId targetPropertyId,
 		Concept rootSourceConcept,
@@ -63,6 +47,22 @@ abstract class CorePropertyConstraintType extends PropertyConstraintType {
 
 		this.name = name;
 		this.targetPropertyId = targetPropertyId;
+	}
+
+	void setSemanticsOptions(Set<ConstraintSemantics> options) {
+
+		definesValidValues = options.contains(ConstraintSemantics.VALID_VALUES);
+		definesImpliedValues = options.contains(ConstraintSemantics.IMPLIED_VALUE);
+	}
+
+	void setSingleImpliedValues(boolean value) {
+
+		singleImpliedValues = value;
+	}
+
+	EntityId getTargetPropertyId() {
+
+		return targetPropertyId;
 	}
 
 	abstract Collection<EntityId> getInvolvedPropertyIds();

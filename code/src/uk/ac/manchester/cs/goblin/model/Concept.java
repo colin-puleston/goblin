@@ -357,9 +357,7 @@ public abstract class Concept extends EditTarget {
 
 		for (ConstraintType type : dynamicConstraintTypes.getEntities()) {
 
-			DynamicConstraintType pType = (DynamicConstraintType)type;
-
-			if (pType.getTargetPropertyId().equals(attrId)) {
+			if (((DynamicConstraintType)type).getAttributeId().equals(attrId)) {
 
 				return true;
 			}
