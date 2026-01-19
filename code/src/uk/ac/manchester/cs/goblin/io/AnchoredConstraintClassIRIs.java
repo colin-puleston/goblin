@@ -22,16 +22,16 @@ class AnchoredConstraintClassIRIs {
 		this.dynamicIRIs = dynamicIRIs;
 	}
 
-	IRI create(Constraint constraint, AnchoredConstraintType type) {
+	IRI create(AnchoredAttribute attribute, Constraint constraint) {
 
-		return dynamicIRIs.toDynamicIRI(createName(constraint, type));
+		return dynamicIRIs.toDynamicIRI(createName(attribute, constraint));
 	}
 
-	private String createName(Constraint constraint, AnchoredConstraintType type) {
+	private String createName(AnchoredAttribute attribute, Constraint constraint) {
 
-		String anchor = type.getAnchorConceptId().getLabel();
+		String anchor = attribute.getAnchorConceptId().getLabel();
 		String source = getConceptLabel(constraint.getSourceValue());
-		String target = getConceptLabel(type.getRootTargetConcept());
+		String target = getConceptLabel(attribute.getRootTargetConcept());
 
 		int index = nextIndex(anchor);
 

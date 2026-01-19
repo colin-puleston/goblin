@@ -7,9 +7,9 @@ class ConfigFileVocab {
 
 	static final String MODEL_SECTION_TAG = "ModelSection";
 	static final String HIERARCHY_TAG = "Hierarchy";
-	static final String SIMPLE_CONSTRAINT_TYPE_TAG = "SimpleConstraintType";
-	static final String ANCHORED_CONSTRAINT_TYPE_TAG = "AnchoredConstraintType";
-	static final String HIERARCHICAL_CONSTRAINT_TYPE_TAG = "HierarchicalConstraintType";
+	static final String SIMPLE_CONSTRAINT_TYPE_TAG = "SimpleAttribute";
+	static final String ANCHORED_CONSTRAINT_TYPE_TAG = "AnchoredAttribute";
+	static final String HIERARCHICAL_CONSTRAINT_TYPE_TAG = "HierarchicalAttribute";
 	static final String SEMANTICS_OPTION_TAG = "SemanticsOption";
 
 	static final String DYNAMIC_NAMESPACE_ATTR = "dynamicNamespace";

@@ -13,7 +13,7 @@ public abstract class Hierarchy {
 	private RootConcept rootConcept;
 	private Map<EntityId, Concept> conceptsById = new HashMap<EntityId, Concept>();
 
-	private List<ConstraintType> inwardCoreConstraintTypes = new ArrayList<ConstraintType>();
+	private List<Attribute> inwardCoreAttributes = new ArrayList<Attribute>();
 
 	public void addListener(HierarchyListener listener) {
 
@@ -30,9 +30,9 @@ public abstract class Hierarchy {
 		this.name = name;
 	}
 
-	public void addCoreConstraintType(ConstraintType type) {
+	public void addCoreAttribute(Attribute attribute) {
 
-		throw createConstraintTypeAddException(type, "outward");
+		throw createAttributeAddException(attribute, "outward");
 	}
 
 	public Model getModel() {
@@ -82,34 +82,34 @@ public abstract class Hierarchy {
 		return concept;
 	}
 
-	public boolean hasCoreConstraintTypes() {
+	public boolean hasCoreAttributes() {
 
 		return false;
 	}
 
-	public boolean hasPotentialConstraintTypes() {
+	public boolean hasPotentialAttributes() {
 
-		return hasCoreConstraintTypes() || dynamicConstraintsEnabled();
+		return hasCoreAttributes() || dynamicConstraintsEnabled();
 	}
 
-	public boolean hasInwardCoreConstraintTypes() {
+	public boolean hasInwardCoreAttributes() {
 
-		return !inwardCoreConstraintTypes.isEmpty();
+		return !inwardCoreAttributes.isEmpty();
 	}
 
-	public List<ConstraintType> getAllConstraintTypes() {
+	public List<Attribute> getAllAttributes() {
 
 		return Collections.emptyList();
 	}
 
-	public List<ConstraintType> getCoreConstraintTypes() {
+	public List<Attribute> getCoreAttributes() {
 
 		return Collections.emptyList();
 	}
 
-	public List<ConstraintType> getInwardCoreConstraintTypes() {
+	public List<Attribute> getInwardCoreAttributes() {
 
-		return new ArrayList<ConstraintType>(inwardCoreConstraintTypes);
+		return new ArrayList<Attribute>(inwardCoreAttributes);
 	}
 
 	Hierarchy(Model model, EntityId rootConceptId) {
@@ -132,17 +132,17 @@ public abstract class Hierarchy {
 		conceptsById.remove(concept.getConceptId());
 	}
 
-	void addInwardCoreConstraintType(ConstraintType type) {
+	void addInwardCoreAttribute(Attribute attribute) {
 
-		inwardCoreConstraintTypes.add(type);
+		inwardCoreAttributes.add(attribute);
 	}
 
-	void onAddedDynamicConstraintType(DynamicConstraintType type) {
+	void onAddedDynamicAttribute(DynamicAttribute attribute) {
 
 		throw createListenerOperationException();
 	}
 
-	void onRemovedDynamicConstraintType(DynamicConstraintType type) {
+	void onRemovedDynamicAttribute(DynamicAttribute attribute) {
 
 		throw createListenerOperationException();
 	}
@@ -152,12 +152,12 @@ public abstract class Hierarchy {
 		return new RuntimeException("Illegal operation on non-editable hierachy: " + name);
 	}
 
-	private RuntimeException createConstraintTypeAddException(
-								ConstraintType type,
+	private RuntimeException createAttributeAddException(
+								Attribute attribute,
 								String direction) {
 
 		return new RuntimeException(
-						"Cannot add " + direction + " constraint-types to: "
+						"Cannot add " + direction + " attribute to: "
 						+ getClass().getSimpleName());
 	}
 }

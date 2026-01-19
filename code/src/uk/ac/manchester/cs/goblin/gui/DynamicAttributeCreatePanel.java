@@ -86,7 +86,7 @@ class DynamicAttributeCreatePanel extends JPanel {
 
 				Concept source = getSelectedConcept();
 
-				if (source.applicableDynamicConstraintType(attrId)) {
+				if (source.applicableDynamicAttribute(attrId)) {
 
 					showAttributeAlreadyExistsMessage(source);
 				}
@@ -132,7 +132,7 @@ class DynamicAttributeCreatePanel extends JPanel {
 
 			EntityId rootTargetId = createRootTargetConceptId(attrId, source);
 
-			return source.addDynamicConstraintType(attrId, rootTargetId);
+			return source.addDynamicAttribute(attrId, rootTargetId);
 		}
 
 		private EntityId createRootTargetConceptId(EntityId attrId, Concept source) {

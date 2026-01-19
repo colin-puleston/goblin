@@ -160,9 +160,9 @@ enum GoblinCellDisplay {
 
 	private String getConstraintsLabel(ConstraintGroup group) {
 
-		String typeName = group.getTypeName();
+		String attrLabel = group.getAttribute().getName();
 
-		return group.inwardGroup() ? ("<= " + typeName) : (typeName + " =>");
+		return group.inwardGroup() ? ("<= " + attrLabel) : (attrLabel + " =>");
 	}
 
 	private String getConceptSetLabel(Set<Concept> concepts) {

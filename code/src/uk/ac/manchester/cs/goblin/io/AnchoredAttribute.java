@@ -7,12 +7,12 @@ import uk.ac.manchester.cs.goblin.model.*;
 /**
  * @author Colin Puleston
  */
-class AnchoredConstraintType extends PropertyConstraintType {
+class AnchoredAttribute extends PropertyAttribute {
 
 	private EntityId anchorConceptId;
 	private EntityId sourcePropertyId;
 
-	AnchoredConstraintType(
+	AnchoredAttribute(
 		String name,
 		EntityId anchorConceptId,
 		EntityId sourcePropertyId,

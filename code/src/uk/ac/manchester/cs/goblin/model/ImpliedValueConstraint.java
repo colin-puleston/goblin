@@ -10,9 +10,9 @@ class ImpliedValueConstraint extends Constraint {
 		return ConstraintSemantics.IMPLIED_VALUE;
 	}
 
-	ImpliedValueConstraint(ConstraintType type, Concept sourceValue, Concept targetValue) {
+	ImpliedValueConstraint(Attribute attribute, Concept sourceValue, Concept targetValue) {
 
-		super(type, sourceValue, targetValue);
+		super(attribute, sourceValue, targetValue);
 	}
 
 	EditAction createTargetValueRemovalEditAction(Concept target) {
@@ -20,8 +20,25 @@ class ImpliedValueConstraint extends Constraint {
 		return new RemoveAction(this);
 	}
 
-	boolean singleConstraintOfTypeAndSemanticsPerConcept() {
+	EditAction checkIncorporateConstraintRemoval(EditAction action) {
 
-		return getType().singleImpliedValues();
+		Attribute attribute = getAttribute();
+
+		if (attribute.singleImpliedValues()) {
+
+			Constraint constraint = lookForImpliedValueConstraint(attribute);
+
+			if (constraint != null) {
+
+				return new CompoundEditAction(new RemoveAction(constraint), action);
+			}
+		}
+
+		return action;
+	}
+
+	private Constraint lookForImpliedValueConstraint(Attribute attribute) {
+
+		return getSourceValue().lookForConstraint(attribute, ConstraintSemantics.IMPLIED_VALUE);
 	}
 }

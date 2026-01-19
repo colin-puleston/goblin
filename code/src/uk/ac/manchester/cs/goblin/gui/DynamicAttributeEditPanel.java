@@ -47,7 +47,7 @@ class DynamicAttributeEditPanel extends JPanel {
 
 	static private final Dimension VALUES_DIALOG_SIZE = new Dimension(500, 600);
 
-	private DynamicConstraintType type;
+	private DynamicAttribute attribute;
 
 	private class ValuesEditDialog extends GDialog {
 
@@ -109,11 +109,11 @@ class DynamicAttributeEditPanel extends JPanel {
 		}
 	}
 
-	DynamicAttributeEditPanel(ConstraintType type) {
+	DynamicAttributeEditPanel(Attribute attribute) {
 
 		super(new BorderLayout());
 
-		this.type = (DynamicConstraintType)type;
+		this.attribute = (DynamicAttribute)attribute;
 
 		TitledPanels.setTitle(this, TITLE);
 
@@ -123,7 +123,7 @@ class DynamicAttributeEditPanel extends JPanel {
 
 	private JPanel createValuesPanel() {
 
-		return new HierarchyTreePanel(type.getRootTargetConcept().getHierarchy());
+		return new HierarchyTreePanel(attribute.getRootTargetConcept().getHierarchy());
 	}
 
 	private JPanel createEditButtonsPanel() {
@@ -137,15 +137,15 @@ class DynamicAttributeEditPanel extends JPanel {
 
 		if (newId != null) {
 
-			Concept source = type.getRootSourceConcept();
+			Concept source = attribute.getRootSourceConcept();
 
-			if (source.applicableDynamicConstraintType(newId)) {
+			if (source.applicableDynamicAttribute(newId)) {
 
 				showAttributeAlreadyExistsMessage(source);
 			}
 			else {
 
-				type.resetAttributeId(newId);
+				attribute.resetAttributeId(newId);
 			}
 		}
 
@@ -156,13 +156,13 @@ class DynamicAttributeEditPanel extends JPanel {
 
 		if (obtainAttributeRemovalConfirmation()) {
 
-			type.remove();
+			attribute.remove();
 		}
 	}
 
 	private EntityId checkObtainAttributeId() {
 
-		return new AttributeIdSelector(this, type.getAttributeId()).getSelection();
+		return new AttributeIdSelector(this, attribute.getAttributeId()).getSelection();
 	}
 
 	private void showAttributeAlreadyExistsMessage(Concept source) {
@@ -181,7 +181,7 @@ class DynamicAttributeEditPanel extends JPanel {
 
 		StringBuilder msg = new StringBuilder();
 
-		msg.append("Removing attribute: " + type.getAttributeId().getLabel());
+		msg.append("Removing attribute: " + attribute.getAttributeId().getLabel());
 		msg.append(" plus any associated constraints");
 
 		return msg.toString();
@@ -189,6 +189,6 @@ class DynamicAttributeEditPanel extends JPanel {
 
 	private Hierarchy getValuesHierarchy() {
 
-		return type.getRootTargetConcept().getHierarchy();
+		return attribute.getRootTargetConcept().getHierarchy();
 	}
 }

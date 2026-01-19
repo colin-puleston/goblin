@@ -7,7 +7,7 @@ import uk.ac.manchester.cs.goblin.model.*;
 /**
  * @author Colin Puleston
  */
-abstract class PropertyConstraintType extends ConstraintType {
+abstract class PropertyAttribute extends Attribute {
 
 	private String name;
 	private EntityId targetPropertyId;
@@ -37,7 +37,7 @@ abstract class PropertyConstraintType extends ConstraintType {
 		return singleImpliedValues;
 	}
 
-	PropertyConstraintType(
+	PropertyAttribute(
 		String name,
 		EntityId targetPropertyId,
 		Concept rootSourceConcept,

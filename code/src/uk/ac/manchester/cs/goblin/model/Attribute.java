@@ -5,7 +5,7 @@ import java.util.*;
 /**
  * @author Colin Puleston
  */
-public abstract class ConstraintType extends EditTarget {
+public abstract class Attribute extends EditTarget {
 
 	private Concept rootSourceConcept;
 	private Concept rootTargetConcept;
@@ -27,7 +27,7 @@ public abstract class ConstraintType extends EditTarget {
 		return rootTargetConcept;
 	}
 
-	public boolean dynamicConstraintType() {
+	public boolean dynamicAttribute() {
 
 		return false;
 	}
@@ -38,7 +38,7 @@ public abstract class ConstraintType extends EditTarget {
 
 	public abstract boolean singleImpliedValues();
 
-	protected ConstraintType(Concept rootSourceConcept, Concept rootTargetConcept) {
+	protected Attribute(Concept rootSourceConcept, Concept rootTargetConcept) {
 
 		this.rootSourceConcept = rootSourceConcept;
 		this.rootTargetConcept = rootTargetConcept;
@@ -111,6 +111,6 @@ public abstract class ConstraintType extends EditTarget {
 
 	private RuntimeException createDynamicOperationException() {
 
-		return new RuntimeException("Cannot operation on non-dynamic constraint-type!");
+		return new RuntimeException("Cannot perform operation on non-dynamic attribute!");
 	}
 }

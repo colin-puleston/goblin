@@ -114,18 +114,18 @@ class ModelSectionPanel extends ConceptTreesPanel<Hierarchy> {
 
 		String suffix = "";
 
-		if (hierarchy.hasInwardCoreConstraintTypes()) {
+		if (hierarchy.hasInwardCoreAttributes()) {
 
 			suffix += "<=";
 
-			if (hierarchy.hasPotentialConstraintTypes()) {
+			if (hierarchy.hasPotentialAttributes()) {
 
 				suffix += ">";
 			}
 		}
 		else {
 
-			if (hierarchy.hasPotentialConstraintTypes()) {
+			if (hierarchy.hasPotentialAttributes()) {
 
 				suffix += "=>";
 			}

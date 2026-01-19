@@ -7,7 +7,7 @@ import java.util.*;
  */
 public abstract class Constraint extends EditTarget {
 
-	private ConstraintType type;
+	private Attribute attribute;
 
 	private ConceptTracker sourceValue;
 	private ConceptTrackerSet targetValues;
@@ -27,9 +27,9 @@ public abstract class Constraint extends EditTarget {
 		return getSourceValue().getModel();
 	}
 
-	public ConstraintType getType() {
+	public Attribute getAttribute() {
 
-		return type;
+		return attribute;
 	}
 
 	public Concept getSourceValue() {
@@ -61,14 +61,14 @@ public abstract class Constraint extends EditTarget {
 
 	public abstract ConstraintSemantics getSemantics();
 
-	Constraint(ConstraintType type, Concept sourceValue, Concept targetValue) {
+	Constraint(Attribute attribute, Concept sourceValue, Concept targetValue) {
 
-		this(type, sourceValue, Collections.singletonList(targetValue));
+		this(attribute, sourceValue, Collections.singletonList(targetValue));
 	}
 
-	Constraint(ConstraintType type, Concept sourceValue, Collection<Concept> targetValues) {
+	Constraint(Attribute attribute, Concept sourceValue, Collection<Concept> targetValues) {
 
-		this.type = type;
+		this.attribute = attribute;
 		this.sourceValue = sourceValue.toTracker();
 		this.targetValues = new ConceptTrackerSet(targetValues);
 
@@ -77,7 +77,7 @@ public abstract class Constraint extends EditTarget {
 
 	Constraint(Constraint template, Concept minusTargetValue) {
 
-		type = template.type;
+		attribute = template.attribute;
 		sourceValue = template.sourceValue;
 		targetValues = template.targetValues.copy();
 
@@ -120,12 +120,12 @@ public abstract class Constraint extends EditTarget {
 		return getSourceValue();
 	}
 
-	boolean hasType(ConstraintType testType) {
+	boolean onAttribute(Attribute testAttr) {
 
-		return testType.equals(type);
+		return testAttr.equals(attribute);
 	}
 
-	abstract boolean singleConstraintOfTypeAndSemanticsPerConcept();
+	abstract EditAction checkIncorporateConstraintRemoval(EditAction action);
 
 	private void checkTargetConflicts(Collection<Concept> targetValues) {
 
@@ -141,26 +141,6 @@ public abstract class Constraint extends EditTarget {
 				}
 			}
 		}
-	}
-
-	private EditAction checkIncorporateConstraintRemoval(EditAction action) {
-
-		if (singleConstraintOfTypeAndSemanticsPerConcept()) {
-
-			Constraint constraint = lookForTypeAndSemanticsConstraint();
-
-			if (constraint != null) {
-
-				return new CompoundEditAction(new RemoveAction(constraint), action);
-			}
-		}
-
-		return action;
-	}
-
-	private Constraint lookForTypeAndSemanticsConstraint() {
-
-		return getSourceValue().lookForConstraint(type, getSemantics());
 	}
 
 	private void performAction(EditAction action) {

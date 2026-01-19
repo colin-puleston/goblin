@@ -201,18 +201,18 @@ class DynamicModelLoader {
 		}
 	}
 
-	private class ConstraintTypeLoader {
+	private class DynamicAttributeLoader {
 
-		private Set<EntityId> loadedTypePropertyIds = new HashSet<EntityId>();
+		private Set<EntityId> loadedAttributeIds = new HashSet<EntityId>();
 
-		private class ClassConstraintTypeLoader
+		private class ClassAttributeLoader
 						extends
 							TypeRestrictionReader<OWLObjectAllValuesFrom> {
 
 			private Concept source;
-			private List<EntityId> localTypePropertyIds = new ArrayList<EntityId>();
+			private List<EntityId> localAttributeIds = new ArrayList<EntityId>();
 
-			ClassConstraintTypeLoader(Concept source, OWLClass sourceCls) {
+			ClassAttributeLoader(Concept source, OWLClass sourceCls) {
 
 				super(sourceCls, OWLObjectAllValuesFrom.class);
 
@@ -221,33 +221,33 @@ class DynamicModelLoader {
 
 			Collection<EntityId> loadAllForClass() {
 
-				Iterator<EntityId> propIdIter = localTypePropertyIds.iterator();
+				Iterator<EntityId> localAttrIds = localAttributeIds.iterator();
 
 				for (OWLObjectAllValuesFrom restriction : findAllRequiredRestrictions()) {
 
 					Concept target = extractSingleConceptFromFiller(restriction);
 
-					source.addDynamicConstraintType(propIdIter.next(), target);
+					source.addDynamicAttribute(localAttrIds.next(), target);
 				}
 
-				return localTypePropertyIds;
+				return localAttributeIds;
 			}
 
 			boolean requiredProperty(OWLObjectProperty property) {
 
-				EntityId propertyId = getEntityId(property);
+				EntityId attrId = getEntityId(property);
 
-				if (!propertyId.dynamicId() || loadedTypePropertyIds.contains(propertyId)) {
+				if (!attrId.dynamicId() || loadedAttributeIds.contains(attrId)) {
 
 					return false;
 				}
 
-				if (localTypePropertyIds.contains(propertyId)) {
+				if (localAttributeIds.contains(attrId)) {
 
-					throw createDuplicateTypeException(propertyId);
+					throw createDuplicateAttributeIdException(attrId);
 				}
 
-				localTypePropertyIds.add(propertyId);
+				localAttributeIds.add(attrId);
 
 				return true;
 			}
@@ -280,15 +280,15 @@ class DynamicModelLoader {
 				return model.createDynamicValueHierarchy(rootConceptId);
 			}
 
-			private RuntimeException createDuplicateTypeException(EntityId propertyId) {
+			private RuntimeException createDuplicateAttributeIdException(EntityId attrId) {
 
 				return new RuntimeException(
-							"Dynamic constraint-type already defined for property: "
-							+ propertyId + ", on concept: " + getSourceClass());
+							"Dynamic attribute already defined for property: "
+							+ attrId + ", on concept: " + getSourceClass());
 			}
 		}
 
-		ConstraintTypeLoader(Hierarchy hierarchy) {
+		DynamicAttributeLoader(Hierarchy hierarchy) {
 
 			Concept root = hierarchy.getRootConcept();
 
@@ -297,27 +297,27 @@ class DynamicModelLoader {
 
 		private void loadFrom(Concept concept, OWLClass cls) {
 
-			Collection<EntityId> localTypePropertyIds = loadFor(concept, cls);
+			Collection<EntityId> localAttributeIds = loadFor(concept, cls);
 
-			loadedTypePropertyIds.addAll(localTypePropertyIds);
+			loadedAttributeIds.addAll(localAttributeIds);
 
 			for (OWLClass subCls : getSubClasses(cls, true)) {
 
 				loadFrom(dynamicClassesToConcepts.get(subCls), subCls);
 			}
 
-			loadedTypePropertyIds.removeAll(localTypePropertyIds);
+			loadedAttributeIds.removeAll(localAttributeIds);
 		}
 
 		private Collection<EntityId> loadFor(Concept concept, OWLClass cls) {
 
-			return new ClassConstraintTypeLoader(concept, cls).loadAllForClass();
+			return new ClassAttributeLoader(concept, cls).loadAllForClass();
 		}
 	}
 
 	private abstract class PropertyConstraintLoader {
 
-		private ConstraintType type;
+		private Attribute attribute;
 
 		private OWLObjectProperty targetProperty;
 
@@ -374,11 +374,11 @@ class DynamicModelLoader {
 			}
 		}
 
-		PropertyConstraintLoader(PropertyConstraintType type, OWLClass sourceCls) {
+		PropertyConstraintLoader(PropertyAttribute attribute, OWLClass sourceCls) {
 
-			this.type = type;
+			this.attribute = attribute;
 
-			targetProperty = getCoreObjectProperty(type.getTargetPropertyId());
+			targetProperty = getCoreObjectProperty(attribute.getTargetPropertyId());
 
 			allTargetExtractor = new AllTargetExtractor(sourceCls);
 			someTargetExtractor = new SomeTargetExtractor(sourceCls);
@@ -386,12 +386,12 @@ class DynamicModelLoader {
 
 		void checkLoad(Concept source) {
 
-			if (type.definesValidValues()) {
+			if (attribute.definesValidValues()) {
 
 				checkLoadValidValuesConstraint(source);
 			}
 
-			if (type.definesImpliedValues()) {
+			if (attribute.definesImpliedValues()) {
 
 				checkLoadImpliedValueConstraints(source);
 			}
@@ -403,7 +403,7 @@ class DynamicModelLoader {
 
 			if (targets != null) {
 
-				source.addValidValuesConstraint(type, targets);
+				source.addValidValuesConstraint(attribute, targets);
 			}
 		}
 
@@ -411,16 +411,16 @@ class DynamicModelLoader {
 
 			for (Concept target : someTargetExtractor.findAllSomeTargetConcepts()) {
 
-				source.addImpliedValueConstraint(type, target);
+				source.addImpliedValueConstraint(attribute, target);
 			}
 		}
 	}
 
 	private class SimpleConstraintLoader extends PropertyConstraintLoader {
 
-		SimpleConstraintLoader(SimpleConstraintType type, OWLClass sourceCls) {
+		SimpleConstraintLoader(SimpleAttribute attribute, OWLClass sourceCls) {
 
-			super(type, sourceCls);
+			super(attribute, sourceCls);
 
 			checkLoad(getConcept(sourceCls));
 		}
@@ -435,11 +435,11 @@ class DynamicModelLoader {
 
 			private OWLObjectProperty sourceProperty;
 
-			SourceExtractor(AnchoredConstraintType type) {
+			SourceExtractor(AnchoredAttribute attribute) {
 
 				super(anchorSub, OWLObjectSomeValuesFrom.class);
 
-				sourceProperty = getCoreObjectProperty(type.getSourcePropertyId());
+				sourceProperty = getCoreObjectProperty(attribute.getSourcePropertyId());
 			}
 
 			Concept lookForSourceConcept() {
@@ -515,14 +515,14 @@ class DynamicModelLoader {
 			}
 		}
 
-		AnchoredConstraintLoader(AnchoredConstraintType type, OWLClass anchor, OWLClass anchorSub) {
+		AnchoredConstraintLoader(AnchoredAttribute attribute, OWLClass anchor, OWLClass anchorSub) {
 
-			super(type, anchorSub);
+			super(attribute, anchorSub);
 
 			this.anchor = anchor;
 			this.anchorSub = anchorSub;
 
-			Concept source = new SourceExtractor(type).lookForSourceConcept();
+			Concept source = new SourceExtractor(attribute).lookForSourceConcept();
 
 			if (source != null) {
 
@@ -533,11 +533,11 @@ class DynamicModelLoader {
 
 	private class HierarchicalConstraintLoader {
 
-		private HierarchicalConstraintType type;
+		private HierarchicalAttribute attribute;
 
-		HierarchicalConstraintLoader(HierarchicalConstraintType type, OWLClass sourceCls) {
+		HierarchicalConstraintLoader(HierarchicalAttribute attribute, OWLClass sourceCls) {
 
-			this.type = type;
+			this.attribute = attribute;
 
 			loadAll(sourceCls);
 		}
@@ -561,18 +561,18 @@ class DynamicModelLoader {
 
 			if (validTarget(target)) {
 
-				source.addImpliedValueConstraint(type, target);
+				source.addImpliedValueConstraint(attribute, target);
 			}
 		}
 
 		private boolean rootSource(OWLClass cls) {
 
-			return getEntityId(cls).equals(type.getRootSourceConcept().getConceptId());
+			return getEntityId(cls).equals(attribute.getRootSourceConcept().getConceptId());
 		}
 
 		private boolean validTarget(Concept target) {
 
-			return target.descendantOf(type.getRootTargetConcept());
+			return target.descendantOf(attribute.getRootTargetConcept());
 		}
 	}
 
@@ -590,7 +590,7 @@ class DynamicModelLoader {
 		try {
 
 			loadConcepts();
-			loadConstraintTypes();
+			loadDynamicAttributes();
 			loadConstraints();
 		}
 		catch (RuntimeException e) {
@@ -624,11 +624,11 @@ class DynamicModelLoader {
 		}
 	}
 
-	private void loadConstraintTypes() {
+	private void loadDynamicAttributes() {
 
 		for (Hierarchy hierarchy : model.getDynamicHierarchies()) {
 
-			new ConstraintTypeLoader(hierarchy);
+			new DynamicAttributeLoader(hierarchy);
 		}
 	}
 
@@ -636,58 +636,58 @@ class DynamicModelLoader {
 
 		for (Hierarchy hierarchy : model.getDynamicHierarchies()) {
 
-			for (ConstraintType type : hierarchy.getCoreConstraintTypes()) {
+			for (Attribute attribute : hierarchy.getCoreAttributes()) {
 
-				loadConstraints(type);
+				loadConstraints(attribute);
 			}
 		}
 	}
 
-	private void loadConstraints(ConstraintType type) {
+	private void loadConstraints(Attribute attribute) {
 
-		if (type instanceof SimpleConstraintType) {
+		if (attribute instanceof SimpleAttribute) {
 
-			loadSimpleConstraints((SimpleConstraintType)type);
+			loadSimpleConstraints((SimpleAttribute)attribute);
 		}
 
-		if (type instanceof AnchoredConstraintType) {
+		if (attribute instanceof AnchoredAttribute) {
 
-			loadAnchoredConstraints((AnchoredConstraintType)type);
+			loadAnchoredConstraints((AnchoredAttribute)attribute);
 		}
 
-		if (type instanceof HierarchicalConstraintType) {
+		if (attribute instanceof HierarchicalAttribute) {
 
-			loadHierarchicalConstraints((HierarchicalConstraintType)type);
+			loadHierarchicalConstraints((HierarchicalAttribute)attribute);
 		}
 	}
 
-	private void loadSimpleConstraints(SimpleConstraintType type) {
+	private void loadSimpleConstraints(SimpleAttribute attribute) {
 
-		OWLClass rootSource = getCoreClass(type.getRootSourceConcept());
+		OWLClass rootSource = getCoreClass(attribute.getRootSourceConcept());
 
 		for (OWLClass source : getSubClasses(rootSource, false)) {
 
-			new SimpleConstraintLoader(type, source);
+			new SimpleConstraintLoader(attribute, source);
 		}
 	}
 
-	private void loadAnchoredConstraints(AnchoredConstraintType type) {
+	private void loadAnchoredConstraints(AnchoredAttribute attribute) {
 
-		OWLClass anchor = getCoreClass(type.getAnchorConceptId());
+		OWLClass anchor = getCoreClass(attribute.getAnchorConceptId());
 
 		for (OWLClass anchorSub : getSubClasses(anchor, false)) {
 
-			new AnchoredConstraintLoader(type, anchor, anchorSub);
+			new AnchoredConstraintLoader(attribute, anchor, anchorSub);
 		}
 	}
 
-	private void loadHierarchicalConstraints(HierarchicalConstraintType type) {
+	private void loadHierarchicalConstraints(HierarchicalAttribute attribute) {
 
-		OWLClass rootSource = getCoreClass(type.getRootSourceConcept());
+		OWLClass rootSource = getCoreClass(attribute.getRootSourceConcept());
 
 		for (OWLClass source : getSubClasses(rootSource, false)) {
 
-			new HierarchicalConstraintLoader(type, source);
+			new HierarchicalConstraintLoader(attribute, source);
 		}
 	}
 

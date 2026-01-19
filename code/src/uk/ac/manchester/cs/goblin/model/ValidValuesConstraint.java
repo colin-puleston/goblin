@@ -12,17 +12,17 @@ class ValidValuesConstraint extends Constraint {
 		return ConstraintSemantics.VALID_VALUES;
 	}
 
-	ValidValuesConstraint(ConstraintType type, Concept sourceValue, Concept targetValue) {
+	ValidValuesConstraint(Attribute attribute, Concept sourceValue, Concept targetValue) {
 
-		super(type, sourceValue, targetValue);
+		super(attribute, sourceValue, targetValue);
 	}
 
 	ValidValuesConstraint(
-		ConstraintType type,
+		Attribute attribute,
 		Concept sourceValue,
 		Collection<Concept> targetValues) {
 
-		super(type, sourceValue, targetValues);
+		super(attribute, sourceValue, targetValues);
 	}
 
 	EditAction createTargetValueRemovalEditAction(Concept target) {
@@ -37,9 +37,9 @@ class ValidValuesConstraint extends Constraint {
 		return new ReplaceConstraintAction(this, new ValidValuesConstraint(this, target));
 	}
 
-	boolean singleConstraintOfTypeAndSemanticsPerConcept() {
+	EditAction checkIncorporateConstraintRemoval(EditAction action) {
 
-		return true;
+		return action;
 	}
 
 	private ValidValuesConstraint(ValidValuesConstraint template, Concept minusTargetValue) {

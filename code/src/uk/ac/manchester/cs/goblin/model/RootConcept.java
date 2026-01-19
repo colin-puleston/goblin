@@ -7,12 +7,12 @@ import java.util.*;
  */
 abstract class RootConcept extends Concept {
 
-	public boolean addValidValuesConstraint(ConstraintType type, Collection<Concept> targetValues) {
+	public boolean addValidValuesConstraint(Attribute attribute, Collection<Concept> targetValues) {
 
 		throw createInvalidOperationException();
 	}
 
-	public boolean addImpliedValueConstraint(ConstraintType type, Concept targetValue) {
+	public boolean addImpliedValueConstraint(Attribute attribute, Concept targetValue) {
 
 		throw createInvalidOperationException();
 	}

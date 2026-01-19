@@ -33,9 +33,9 @@ import uk.ac.manchester.cs.goblin.model.*;
  */
 class OutwardConstraintGroup extends ConstraintGroup {
 
-	OutwardConstraintGroup(Concept source, ConstraintType type) {
+	OutwardConstraintGroup(Concept source, Attribute attribute) {
 
-		super(type, source.getConstraints(type));
+		super(attribute, source.getConstraints(attribute));
 	}
 
 	boolean inwardGroup() {

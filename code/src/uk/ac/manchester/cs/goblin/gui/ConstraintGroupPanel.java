@@ -48,7 +48,7 @@ class ConstraintGroupPanel extends JPanel {
 	static private final String CLEAR_TARGETS_LABEL = "Clear";
 	static private final String APPLY_EDITS_LABEL = "Apply edits";
 
-	private ConstraintType type;
+	private Attribute attribute;
 	private ConceptTree sourcesTree;
 
 	private Map<Concept, ConceptListener> conceptListeners = new HashMap<Concept, ConceptListener>();
@@ -171,12 +171,12 @@ class ConstraintGroupPanel extends JPanel {
 
 		DefaultPanelPopulator() {
 
-			super(type.getRootSourceConcept());
+			super(attribute.getRootSourceConcept());
 		}
 
 		Constraint getValidValuesConstraint() {
 
-			return source.lookForValidValuesConstraint(type);
+			return source.lookForValidValuesConstraint(attribute);
 		}
 
 		GoblinCellDisplay getCellDisplay(Concept concept) {
@@ -217,8 +217,8 @@ class ConstraintGroupPanel extends JPanel {
 
 			super(source);
 
-			potentialValidValues = source.getClosestAncestorValidValuesConstraint(type);
-			localValidValues = source.lookForValidValuesConstraint(type);
+			potentialValidValues = source.getClosestAncestorValidValuesConstraint(attribute);
+			localValidValues = source.lookForValidValuesConstraint(attribute);
 
 			targetsDisplay = createTargetsDisplay();
 		}
@@ -232,7 +232,7 @@ class ConstraintGroupPanel extends JPanel {
 
 		JComponent createHeaderPanel() {
 
-			if (type.definesValidValues()) {
+			if (attribute.definesValidValues()) {
 
 				JPanel panel = new JPanel(new BorderLayout());
 
@@ -259,12 +259,12 @@ class ConstraintGroupPanel extends JPanel {
 
 			JTabbedPane tabs = new JTabbedPane();
 
-			if (type.definesValidValues()) {
+			if (attribute.definesValidValues()) {
 
 				addActionsTab(tabs, createValidValuesPanel());
 			}
 
-			if (type.definesImpliedValues()) {
+			if (attribute.definesImpliedValues()) {
 
 				addActionsTab(tabs, createImpliedValuesPanel());
 			}
@@ -292,7 +292,7 @@ class ConstraintGroupPanel extends JPanel {
 		private ConstraintTargetsDisplay createTargetsDisplay() {
 
 			Constraint validValues = getValidValuesConstraint();
-			List<Constraint> impliedValues = source.getImpliedValueConstraints(type);
+			List<Constraint> impliedValues = source.getImpliedValueConstraints(attribute);
 
 			return new ConstraintTargetsDisplay(validValues, impliedValues);
 		}
@@ -547,7 +547,7 @@ class ConstraintGroupPanel extends JPanel {
 
 		private List<Constraint> getEditConstraints() {
 
-			return getSemantics().select(source.getConstraints(type));
+			return getSemantics().select(source.getConstraints(attribute));
 		}
 
 		private JComponent createButtonsPanel() {
@@ -655,7 +655,7 @@ class ConstraintGroupPanel extends JPanel {
 			}
 			else {
 
-				source.addValidValuesConstraint(type, targets);
+				source.addValidValuesConstraint(attribute, targets);
 			}
 		}
 	}
@@ -678,7 +678,7 @@ class ConstraintGroupPanel extends JPanel {
 
 			this.validValues = validValues;
 
-			for (Constraint constraint : source.getImpliedValueConstraints(type)) {
+			for (Constraint constraint : source.getImpliedValueConstraints(attribute)) {
 
 				impliedValuesByTarget.put(constraint.getTargetValue(), constraint);
 			}
@@ -686,7 +686,7 @@ class ConstraintGroupPanel extends JPanel {
 
 		String getTitle() {
 
-			return super.getTitle() + (type.singleImpliedValues() ? "" : "(s)");
+			return super.getTitle() + (attribute.singleImpliedValues() ? "" : "(s)");
 		}
 
 		ConstraintSemantics getSemantics() {
@@ -696,7 +696,7 @@ class ConstraintGroupPanel extends JPanel {
 
 		boolean singleTargetSelection() {
 
-			return type.singleImpliedValues();
+			return attribute.singleImpliedValues();
 		}
 
 		boolean validTargetSelection(Concept selection) {
@@ -718,7 +718,7 @@ class ConstraintGroupPanel extends JPanel {
 
 				if (!impliedValuesByTarget.keySet().contains(target)) {
 
-					source.addImpliedValueConstraint(type, target);
+					source.addImpliedValueConstraint(attribute, target);
 				}
 			}
 		}
@@ -735,7 +735,7 @@ class ConstraintGroupPanel extends JPanel {
 
 			Concept selected = sourcesTree.getSelectedConcept();
 
-			if (selected != null && constraintTypeStillApplicable(selected)) {
+			if (selected != null && attributeStillApplicable(selected)) {
 
 				resetSourceConcept(selected);
 			}
@@ -746,17 +746,17 @@ class ConstraintGroupPanel extends JPanel {
 			clearSourceConcept();
 		}
 
-		private boolean constraintTypeStillApplicable(Concept selected) {
+		private boolean attributeStillApplicable(Concept selected) {
 
-			return selected.subsumedBy(type.getRootSourceConcept());
+			return selected.subsumedBy(attribute.getRootSourceConcept());
 		}
 	}
 
-	ConstraintGroupPanel(ConstraintType type, ConceptTree sourcesTree) {
+	ConstraintGroupPanel(Attribute attribute, ConceptTree sourcesTree) {
 
 		super(new BorderLayout());
 
-		this.type = type;
+		this.attribute = attribute;
 		this.sourcesTree = sourcesTree;
 
 		new DefaultPanelPopulator().populate();
@@ -776,7 +776,7 @@ class ConstraintGroupPanel extends JPanel {
 
 	private PanelPopulator createPanelPopulator(Concept source) {
 
-		if (source.equals(type.getRootSourceConcept())) {
+		if (source.equals(attribute.getRootSourceConcept())) {
 
 			return new DefaultPanelPopulator();
 		}

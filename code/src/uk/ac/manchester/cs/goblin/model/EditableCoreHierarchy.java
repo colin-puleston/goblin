@@ -9,7 +9,7 @@ public class EditableCoreHierarchy extends CoreHierarchy {
 
 	private boolean dynamicConstraintsEnabled = true;
 
-	private List<ConstraintType> coreConstraintTypes = new ArrayList<ConstraintType>();
+	private List<Attribute> coreAttributes = new ArrayList<Attribute>();
 
 	private List<HierarchyListener> listeners = new ArrayList<HierarchyListener>();
 
@@ -28,13 +28,13 @@ public class EditableCoreHierarchy extends CoreHierarchy {
 		dynamicConstraintsEnabled = enabled;
 	}
 
-	public void addCoreConstraintType(ConstraintType type) {
+	public void addCoreAttribute(Attribute attribute) {
 
-		coreConstraintTypes.add(type);
+		coreAttributes.add(attribute);
 
-		type.getRootTargetConcept().getHierarchy().addInwardCoreConstraintType(type);
+		attribute.getRootTargetConcept().getHierarchy().addInwardCoreAttribute(attribute);
 
-		type.getRootSourceConcept().addConstraint(type.createRootConstraint());
+		attribute.getRootSourceConcept().addConstraint(attribute.createRootConstraint());
 	}
 
 	public boolean dynamicConstraintsEnabled() {
@@ -42,23 +42,23 @@ public class EditableCoreHierarchy extends CoreHierarchy {
 		return dynamicConstraintsEnabled;
 	}
 
-	public boolean hasCoreConstraintTypes() {
+	public boolean hasCoreAttributes() {
 
-		return !coreConstraintTypes.isEmpty();
+		return !coreAttributes.isEmpty();
 	}
 
-	public List<ConstraintType> getAllConstraintTypes() {
+	public List<Attribute> getAllAttributes() {
 
-		List<ConstraintType> types = getCoreConstraintTypes();
+		List<Attribute> attributes = getCoreAttributes();
 
-		types.addAll(getRootConcept().getDynamicConstraintTypesDownwards());
+		attributes.addAll(getRootConcept().getDynamicAttributesDownwards());
 
-		return types;
+		return attributes;
 	}
 
-	public List<ConstraintType> getCoreConstraintTypes() {
+	public List<Attribute> getCoreAttributes() {
 
-		return new ArrayList<ConstraintType>(coreConstraintTypes);
+		return new ArrayList<Attribute>(coreAttributes);
 	}
 
 	EditableCoreHierarchy(Model model, EntityId rootConceptId) {
@@ -66,19 +66,19 @@ public class EditableCoreHierarchy extends CoreHierarchy {
 		super(model, rootConceptId);
 	}
 
-	void onAddedDynamicConstraintType(DynamicConstraintType type) {
+	void onAddedDynamicAttribute(DynamicAttribute attribute) {
 
 		for (HierarchyListener listener : copyListeners()) {
 
-			listener.onAddedDynamicConstraintType(type);
+			listener.onAddedDynamicAttribute(attribute);
 		}
 	}
 
-	void onRemovedDynamicConstraintType(DynamicConstraintType type) {
+	void onRemovedDynamicAttribute(DynamicAttribute attribute) {
 
 		for (HierarchyListener listener : copyListeners()) {
 
-			listener.onRemovedDynamicConstraintType(type);
+			listener.onRemovedDynamicAttribute(attribute);
 		}
 	}
 

@@ -5,7 +5,7 @@ import uk.ac.manchester.cs.goblin.model.*;
 /**
  * @author Colin Puleston
  */
-class HierarchicalConstraintType extends ConstraintType {
+class HierarchicalAttribute extends Attribute {
 
 	private String name;
 	private boolean singleSuperConcepts = false;
@@ -30,7 +30,7 @@ class HierarchicalConstraintType extends ConstraintType {
 		return singleSuperConcepts;
 	}
 
-	HierarchicalConstraintType(String name, Concept rootSourceConcept, Concept rootTargetConcept) {
+	HierarchicalAttribute(String name, Concept rootSourceConcept, Concept rootTargetConcept) {
 
 		super(rootSourceConcept, rootTargetConcept);
 

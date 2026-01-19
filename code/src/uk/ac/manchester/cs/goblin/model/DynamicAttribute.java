@@ -5,11 +5,11 @@ import java.util.*;
 /**
  * @author Colin Puleston
  */
-public class DynamicConstraintType extends ConstraintType {
+public class DynamicAttribute extends Attribute {
 
 	private AttributeId attributeId;
 
-	private List<DynamicConstraintTypeListener> listeners = new ArrayList<DynamicConstraintTypeListener>();
+	private List<DynamicAttributeListener> listeners = new ArrayList<DynamicAttributeListener>();
 
 	private class AttributeId extends EditTarget {
 
@@ -47,21 +47,21 @@ public class DynamicConstraintType extends ConstraintType {
 		}
 	}
 
-	public void addListener(DynamicConstraintTypeListener listener) {
+	public void addListener(DynamicAttributeListener listener) {
 
 		listeners.add(listener);
 	}
 
-	public void removeListener(DynamicConstraintTypeListener listener) {
+	public void removeListener(DynamicAttributeListener listener) {
 
 		listeners.remove(listener);
 	}
 
-	public void removeTypeListeners(Class<? extends DynamicConstraintTypeListener> removeType) {
+	public void removeListenersOfType(Class<? extends DynamicAttributeListener> type) {
 
-		for (DynamicConstraintTypeListener listener : copyListeners()) {
+		for (DynamicAttributeListener listener : copyListeners()) {
 
-			if (removeType.isAssignableFrom(listener.getClass())) {
+			if (type.isAssignableFrom(listener.getClass())) {
 
 				listeners.remove(listener);
 			}
@@ -72,7 +72,7 @@ public class DynamicConstraintType extends ConstraintType {
 
 		Concept source = getRootSourceConcept();
 
-		if (source.applicableDynamicConstraintType(attrId)) {
+		if (source.applicableDynamicAttribute(attrId)) {
 
 			throw new RuntimeException("Attribute already exists for concept: " + source);
 		}
@@ -95,7 +95,7 @@ public class DynamicConstraintType extends ConstraintType {
 		return attributeId.id;
 	}
 
-	public boolean dynamicConstraintType() {
+	public boolean dynamicAttribute() {
 
 		return true;
 	}
@@ -115,7 +115,7 @@ public class DynamicConstraintType extends ConstraintType {
 		return false;
 	}
 
-	DynamicConstraintType(EntityId attrId, Concept rootSourceConcept, Concept rootTargetConcept) {
+	DynamicAttribute(EntityId attrId, Concept rootSourceConcept, Concept rootTargetConcept) {
 
 		super(rootSourceConcept, rootTargetConcept);
 
@@ -131,12 +131,12 @@ public class DynamicConstraintType extends ConstraintType {
 
 	void doAdd(boolean replacement) {
 
-		getRootSourceConcept().addDynamicConstraintType(this);
+		getRootSourceConcept().addDynamicAttribute(this);
 	}
 
 	void doRemove(boolean replacing) {
 
-		getRootSourceConcept().removeDynamicConstraintType(this);
+		getRootSourceConcept().removeDynamicAttribute(this);
 	}
 
 	private ReplaceAttributeIdAction createReplaceAttributeIdAction(EntityId newId) {
@@ -148,7 +148,7 @@ public class DynamicConstraintType extends ConstraintType {
 
 		EditAction action = new RemoveAction(this);
 
-		List<Constraint> constraints = getAllConstraintsOfType();
+		List<Constraint> constraints = getAllConstraintsForAttribute();
 
 		if (!constraints.isEmpty()) {
 
@@ -174,7 +174,7 @@ public class DynamicConstraintType extends ConstraintType {
 		return cpmd;
 	}
 
-	private List<Constraint> getAllConstraintsOfType() {
+	private List<Constraint> getAllConstraintsForAttribute() {
 
 		return getRootSourceConcept().getConstraintsDownwards(this);
 	}
@@ -186,14 +186,14 @@ public class DynamicConstraintType extends ConstraintType {
 
 	private void onAttributeIdReset() {
 
-		for (DynamicConstraintTypeListener listener : copyListeners()) {
+		for (DynamicAttributeListener listener : copyListeners()) {
 
 			listener.onAttributeIdReset();
 		}
 	}
 
-	private List<DynamicConstraintTypeListener> copyListeners() {
+	private List<DynamicAttributeListener> copyListeners() {
 
-		return new ArrayList<DynamicConstraintTypeListener>(listeners);
+		return new ArrayList<DynamicAttributeListener>(listeners);
 	}
 }

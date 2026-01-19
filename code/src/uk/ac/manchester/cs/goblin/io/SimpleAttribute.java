@@ -7,9 +7,9 @@ import uk.ac.manchester.cs.goblin.model.*;
 /**
  * @author Colin Puleston
  */
-class SimpleConstraintType extends PropertyConstraintType {
+class SimpleAttribute extends PropertyAttribute {
 
-	SimpleConstraintType(
+	SimpleAttribute(
 		String name,
 		EntityId linkingPropertyId,
 		Concept rootSourceConcept,

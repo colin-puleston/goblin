@@ -39,7 +39,7 @@ class HierarchyTree extends DynamicConceptTree {
 	private ConceptMover conceptMover;
 
 	private ConstraintsDisplayMode constraintsDisplayMode = ConstraintsDisplayMode.NONE;
-	private ConstraintType constraintTypeSelection = null;
+	private Attribute attributeSelection = null;
 
 	private class HierarchyConceptNode extends DynamicConceptNode {
 
@@ -121,20 +121,20 @@ class HierarchyTree extends DynamicConceptTree {
 
 		private void addApplicableOutwardConstraintChildren() {
 
-			for (ConstraintType type : concept.getApplicableConstraintTypes()) {
+			for (Attribute attribute : concept.getApplicableAttributes()) {
 
-				if (showTypeOutwardConstraints(type)) {
+				if (showOutwardConstraintsFor(attribute)) {
 
-					checkAddConstraintsChild(new OutwardConstraintGroup(concept, type));
+					checkAddConstraintsChild(new OutwardConstraintGroup(concept, attribute));
 				}
 			}
 		}
 
 		private void addAllInwardConstraintChildren() {
 
-			for (ConstraintType type : concept.getApplicableInwardConstraintTypes()) {
+			for (Attribute attribute : concept.getApplicableInwardAttributes()) {
 
-				checkAddConstraintsChild(new InwardConstraintGroup(concept, type));
+				checkAddConstraintsChild(new InwardConstraintGroup(concept, attribute));
 			}
 		}
 
@@ -255,9 +255,9 @@ class HierarchyTree extends DynamicConceptTree {
 		}
 	}
 
-	void setConstraintTypeSelection(ConstraintType selection) {
+	void setAttributeSelection(Attribute selection) {
 
-		constraintTypeSelection = selection;
+		attributeSelection = selection;
 
 		if (constraintsDisplayMode == ConstraintsDisplayMode.CURRENT_OUTWARDS) {
 
@@ -317,7 +317,7 @@ class HierarchyTree extends DynamicConceptTree {
 		return constraintsDisplayMode.anyOutwards();
 	}
 
-	private boolean showTypeOutwardConstraints(ConstraintType type) {
+	private boolean showOutwardConstraintsFor(Attribute attribute) {
 
 		switch (constraintsDisplayMode) {
 
@@ -325,7 +325,7 @@ class HierarchyTree extends DynamicConceptTree {
 				return true;
 
 			case CURRENT_OUTWARDS:
-				return type == constraintTypeSelection;
+				return attribute == attributeSelection;
 		}
 
 		throw new Error("Unexpected constraints display-mode: " + constraintsDisplayMode);

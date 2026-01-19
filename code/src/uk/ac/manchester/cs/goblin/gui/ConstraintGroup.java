@@ -33,7 +33,7 @@ import uk.ac.manchester.cs.goblin.model.*;
  */
 abstract class ConstraintGroup {
 
-	private ConstraintType type;
+	private Attribute attribute;
 
 	private Set<Concept> validValuesLinkedConcepts = new HashSet<Concept>();
 	private Set<Concept> impliedValueLinkedConcepts = new HashSet<Concept>();
@@ -45,14 +45,14 @@ abstract class ConstraintGroup {
 
 	public int hashCode() {
 
-		return type.hashCode()
+		return attribute.hashCode()
 				+ validValuesLinkedConcepts.hashCode()
 				+ impliedValueLinkedConcepts.hashCode();
 	}
 
-	ConstraintGroup(ConstraintType type, Collection<Constraint> constraints) {
+	ConstraintGroup(Attribute attribute, Collection<Constraint> constraints) {
 
-		this.type = type;
+		this.attribute = attribute;
 
 		for (Constraint constraint : constraints) {
 
@@ -68,9 +68,9 @@ abstract class ConstraintGroup {
 				|| !impliedValueLinkedConcepts.isEmpty();
 	}
 
-	String getTypeName() {
+	Attribute getAttribute() {
 
-		return type.getName();
+		return attribute;
 	}
 
 	Set<Concept> getValidValuesLinkedConcepts() {
@@ -99,7 +99,7 @@ abstract class ConstraintGroup {
 
 	private boolean equalsGroup(ConstraintGroup other) {
 
-		return type.equals(other.type)
+		return attribute.equals(other.attribute)
 				&& validValuesLinkedConcepts.equals(other.validValuesLinkedConcepts)
 				&& impliedValueLinkedConcepts.equals(other.impliedValueLinkedConcepts);
 	}

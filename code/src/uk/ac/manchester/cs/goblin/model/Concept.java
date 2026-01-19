@@ -29,8 +29,8 @@ public abstract class Concept extends EditTarget {
 	private ConceptTracker parent;
 	private ConceptTrackerSet children = new ConceptTrackerSet();
 
-	private ConstraintTypeTrackerSet dynamicConstraintTypes = new ConstraintTypeTrackerSet();
-	private ConstraintTypeTrackerSet inwardDynamicConstraintTypes = new ConstraintTypeTrackerSet();
+	private AttributeTrackerSet dynamicAttributes = new AttributeTrackerSet();
+	private AttributeTrackerSet inwardDynamicAttributes = new AttributeTrackerSet();
 
 	private ConstraintTrackerSet constraints = new ConstraintTrackerSet();
 	private ConstraintTrackerSet inwardConstraints = new ConstraintTrackerSet();
@@ -75,15 +75,15 @@ public abstract class Concept extends EditTarget {
 
 	private class ConstraintMatcher {
 
-		private ConstraintType type;
+		private Attribute attribute;
 		private boolean inwards;
 
 		private ConstraintSemantics semantics = null;
 		private List<Concept> targetValues = null;
 
-		ConstraintMatcher(ConstraintType type, boolean inwards) {
+		ConstraintMatcher(Attribute attribute, boolean inwards) {
 
-			this.type = type;
+			this.attribute = attribute;
 			this.inwards = inwards;
 		}
 
@@ -141,7 +141,7 @@ public abstract class Concept extends EditTarget {
 
 		private boolean match(Constraint candidate) {
 
-			return candidate.hasType(type)
+			return candidate.onAttribute(attribute)
 					&& checkSemanticsMatch(candidate)
 					&& checkTargetValuesMatch(candidate);
 		}
@@ -217,41 +217,41 @@ public abstract class Concept extends EditTarget {
 		return child;
 	}
 
-	public boolean addDynamicConstraintType(EntityId attrId, EntityId rootTargetConceptId) {
+	public boolean addDynamicAttribute(EntityId attrId, EntityId rootTargetConceptId) {
 
 		Hierarchy targets = getModel().createDynamicValueHierarchy(rootTargetConceptId);
 
-		return addDynamicConstraintType(attrId, targets.getRootConcept());
+		return addDynamicAttribute(attrId, targets.getRootConcept());
 	}
 
-	public boolean addDynamicConstraintType(EntityId attrId, Concept rootTargetConcept) {
+	public boolean addDynamicAttribute(EntityId attrId, Concept rootTargetConcept) {
 
-		if (applicableDynamicConstraintType(attrId)) {
+		if (applicableDynamicAttribute(attrId)) {
 
 			return false;
 		}
 
-		return new DynamicConstraintType(attrId, this, rootTargetConcept).add();
+		return new DynamicAttribute(attrId, this, rootTargetConcept).add();
 	}
 
-	public boolean addValidValuesConstraint(ConstraintType type, Collection<Concept> targetValues) {
+	public boolean addValidValuesConstraint(Attribute attribute, Collection<Concept> targetValues) {
 
-		if (constraintExists(type, ConstraintSemantics.VALID_VALUES, targetValues)) {
+		if (constraintExists(attribute, ConstraintSemantics.VALID_VALUES, targetValues)) {
 
 			return false;
 		}
 
-		return type.createValidValues(this, targetValues).add();
+		return attribute.createValidValues(this, targetValues).add();
 	}
 
-	public boolean addImpliedValueConstraint(ConstraintType type, Concept targetValue) {
+	public boolean addImpliedValueConstraint(Attribute attribute, Concept targetValue) {
 
-		if (constraintExists(type, ConstraintSemantics.IMPLIED_VALUE, targetValue)) {
+		if (constraintExists(attribute, ConstraintSemantics.IMPLIED_VALUE, targetValue)) {
 
 			return false;
 		}
 
-		return type.createImpliedValue(this, targetValue).add();
+		return attribute.createImpliedValue(this, targetValue).add();
 	}
 
 	public String toString() {
@@ -333,31 +333,31 @@ public abstract class Concept extends EditTarget {
 		return getParent().equals(testAncestor) || getParent().descendantOf(testAncestor);
 	}
 
-	public List<ConstraintType> getApplicableConstraintTypes() {
+	public List<Attribute> getApplicableAttributes() {
 
-		List<ConstraintType> types = new ArrayList<ConstraintType>();
+		List<Attribute> attributes = new ArrayList<Attribute>();
 
-		types.addAll(hierarchy.getCoreConstraintTypes());
-		collectDynamicConstraintTypesUpwards(types);
+		attributes.addAll(hierarchy.getCoreAttributes());
+		collectDynamicAttributesUpwards(attributes);
 
-		return types;
+		return attributes;
 	}
 
-	public List<ConstraintType> getApplicableInwardConstraintTypes() {
+	public List<Attribute> getApplicableInwardAttributes() {
 
-		List<ConstraintType> types = new ArrayList<ConstraintType>();
+		List<Attribute> attributes = new ArrayList<Attribute>();
 
-		types.addAll(hierarchy.getInwardCoreConstraintTypes());
-		collectInwardDynamicConstraintTypesUpwards(types);
+		attributes.addAll(hierarchy.getInwardCoreAttributes());
+		collectInwardDynamicAttributesUpwards(attributes);
 
-		return types;
+		return attributes;
 	}
 
-	public boolean applicableDynamicConstraintType(EntityId attrId) {
+	public boolean applicableDynamicAttribute(EntityId attrId) {
 
-		for (ConstraintType type : dynamicConstraintTypes.getEntities()) {
+		for (Attribute attribute : dynamicAttributes.getEntities()) {
 
-			if (((DynamicConstraintType)type).getAttributeId().equals(attrId)) {
+			if (((DynamicAttribute)attribute).getAttributeId().equals(attrId)) {
 
 				return true;
 			}
@@ -368,7 +368,7 @@ public abstract class Concept extends EditTarget {
 			return false;
 		}
 
-		return getParent().applicableDynamicConstraintType(attrId);
+		return getParent().applicableDynamicAttribute(attrId);
 	}
 
 	public List<Constraint> getConstraints() {
@@ -376,49 +376,49 @@ public abstract class Concept extends EditTarget {
 		return constraints.getEntities();
 	}
 
-	public List<Constraint> getConstraints(ConstraintType type) {
+	public List<Constraint> getConstraints(Attribute attribute) {
 
-		return new ConstraintMatcher(type, false).getAll();
+		return new ConstraintMatcher(attribute, false).getAll();
 	}
 
-	public Constraint lookForConstraint(ConstraintType type, ConstraintSemantics semantics) {
+	public Constraint lookForConstraint(Attribute attribute, ConstraintSemantics semantics) {
 
-		ConstraintMatcher matcher = new ConstraintMatcher(type, false);
+		ConstraintMatcher matcher = new ConstraintMatcher(attribute, false);
 
 		matcher.setMatchSemantics(semantics);
 
 		return matcher.getOneOrZero();
 	}
 
-	public Constraint lookForValidValuesConstraint(ConstraintType type) {
+	public Constraint lookForValidValuesConstraint(Attribute attribute) {
 
-		return lookForConstraint(type, ConstraintSemantics.VALID_VALUES);
+		return lookForConstraint(attribute, ConstraintSemantics.VALID_VALUES);
 	}
 
-	public Constraint lookForImpliedValueConstraint(ConstraintType type) {
+	public Constraint lookForImpliedValueConstraint(Attribute attribute) {
 
-		return lookForConstraint(type, ConstraintSemantics.IMPLIED_VALUE);
+		return lookForConstraint(attribute, ConstraintSemantics.IMPLIED_VALUE);
 	}
 
-	public List<Constraint> getImpliedValueConstraints(ConstraintType type) {
+	public List<Constraint> getImpliedValueConstraints(Attribute attribute) {
 
-		ConstraintMatcher matcher = new ConstraintMatcher(type, false);
+		ConstraintMatcher matcher = new ConstraintMatcher(attribute, false);
 
 		matcher.setMatchSemantics(ConstraintSemantics.IMPLIED_VALUE);
 
 		return matcher.getAll();
 	}
 
-	public Constraint getClosestValidValuesConstraint(ConstraintType type) {
+	public Constraint getClosestValidValuesConstraint(Attribute attribute) {
 
-		Constraint sub = lookForValidValuesConstraint(type);
+		Constraint sub = lookForValidValuesConstraint(attribute);
 
-		return sub != null ? sub : getClosestAncestorValidValuesConstraint(type);
+		return sub != null ? sub : getClosestAncestorValidValuesConstraint(attribute);
 	}
 
-	public Constraint getClosestAncestorValidValuesConstraint(ConstraintType type) {
+	public Constraint getClosestAncestorValidValuesConstraint(Attribute attribute) {
 
-		return getParent().getClosestValidValuesConstraint(type);
+		return getParent().getClosestValidValuesConstraint(attribute);
 	}
 
 	public List<Constraint> getInwardConstraints() {
@@ -426,9 +426,9 @@ public abstract class Concept extends EditTarget {
 		return inwardConstraints.getEntities();
 	}
 
-	public List<Constraint> getInwardConstraints(ConstraintType type) {
+	public List<Constraint> getInwardConstraints(Attribute attribute) {
 
-		return new ConstraintMatcher(type, true).getAll();
+		return new ConstraintMatcher(attribute, true).getAll();
 	}
 
 	Concept(Hierarchy hierarchy, EntityId conceptId) {
@@ -493,26 +493,26 @@ public abstract class Concept extends EditTarget {
 		removeAllSubTreeListeners();
 	}
 
-	void addDynamicConstraintType(DynamicConstraintType type) {
+	void addDynamicAttribute(DynamicAttribute attribute) {
 
-		dynamicConstraintTypes.add(type);
+		dynamicAttributes.add(attribute);
 
-		type.getRootTargetConcept().inwardDynamicConstraintTypes.add(type);
+		attribute.getRootTargetConcept().inwardDynamicAttributes.add(attribute);
 
-		addConstraint(type.createRootConstraint());
+		addConstraint(attribute.createRootConstraint());
 
-		hierarchy.onAddedDynamicConstraintType(type);
+		hierarchy.onAddedDynamicAttribute(attribute);
 	}
 
-	void removeDynamicConstraintType(DynamicConstraintType type) {
+	void removeDynamicAttribute(DynamicAttribute attribute) {
 
-		dynamicConstraintTypes.remove(type);
+		dynamicAttributes.remove(attribute);
 
-		type.getRootTargetConcept().inwardDynamicConstraintTypes.remove(type);
+		attribute.getRootTargetConcept().inwardDynamicAttributes.remove(attribute);
 
-		removeAllTypeDynamicConstraints(type);
+		removeAllConstraintsForDynamicAttribute(attribute);
 
-		hierarchy.onRemovedDynamicConstraintType(type);
+		hierarchy.onRemovedDynamicAttribute(attribute);
 	}
 
 	void addConstraint(Constraint constraint) {
@@ -551,20 +551,20 @@ public abstract class Concept extends EditTarget {
 		return this;
 	}
 
-	List<ConstraintType> getDynamicConstraintTypesDownwards() {
+	List<Attribute> getDynamicAttributesDownwards() {
 
-		List<ConstraintType> types = new ArrayList<ConstraintType>();
+		List<Attribute> attributes = new ArrayList<Attribute>();
 
-		collectDynamicConstraintTypesDownwards(types);
+		collectDynamicAttributesDownwards(attributes);
 
-		return types;
+		return attributes;
 	}
 
-	List<Constraint> getConstraintsDownwards(ConstraintType type) {
+	List<Constraint> getConstraintsDownwards(Attribute attribute) {
 
 		List<Constraint> constraints = new ArrayList<Constraint>();
 
-		collectConstraintsDownwards(type, constraints);
+		collectConstraintsDownwards(attribute, constraints);
 
 		return constraints;
 	}
@@ -643,16 +643,16 @@ public abstract class Concept extends EditTarget {
 		getModel().getEditActions().perform(action);
 	}
 
-	private void removeAllTypeDynamicConstraints(ConstraintType type) {
+	private void removeAllConstraintsForDynamicAttribute(Attribute attribute) {
 
-		for (Constraint constraint : getConstraints(type)) {
+		for (Constraint constraint : getConstraints(attribute)) {
 
 			removeConstraint(constraint);
 		}
 
 		for (Concept sub : getChildren()) {
 
-			sub.removeAllTypeDynamicConstraints(type);
+			sub.removeAllConstraintsForDynamicAttribute(attribute);
 		}
 	}
 
@@ -666,60 +666,60 @@ public abstract class Concept extends EditTarget {
 		}
 	}
 
-	private void collectDynamicConstraintTypesUpwards(List<ConstraintType> types) {
+	private void collectDynamicAttributesUpwards(List<Attribute> attributes) {
 
 		if (!isRoot()) {
 
-			getParent().collectDynamicConstraintTypesUpwards(types);
+			getParent().collectDynamicAttributesUpwards(attributes);
 		}
 
-		types.addAll(dynamicConstraintTypes.getEntities());
+		attributes.addAll(dynamicAttributes.getEntities());
 	}
 
-	private void collectInwardDynamicConstraintTypesUpwards(List<ConstraintType> types) {
+	private void collectInwardDynamicAttributesUpwards(List<Attribute> attributes) {
 
 		if (!isRoot()) {
 
-			getParent().collectInwardDynamicConstraintTypesUpwards(types);
+			getParent().collectInwardDynamicAttributesUpwards(attributes);
 		}
 
-		types.addAll(inwardDynamicConstraintTypes.getEntities());
+		attributes.addAll(inwardDynamicAttributes.getEntities());
 	}
 
-	private void collectDynamicConstraintTypesDownwards(List<ConstraintType> types) {
+	private void collectDynamicAttributesDownwards(List<Attribute> attributes) {
 
-		types.addAll(dynamicConstraintTypes.getEntities());
+		attributes.addAll(dynamicAttributes.getEntities());
 
 		for (Concept child : getChildren()) {
 
-			child.collectDynamicConstraintTypesDownwards(types);
+			child.collectDynamicAttributesDownwards(attributes);
 		}
 	}
 
-	private void collectConstraintsDownwards(ConstraintType type, List<Constraint> constraints) {
+	private void collectConstraintsDownwards(Attribute attribute, List<Constraint> constraints) {
 
-		constraints.addAll(getConstraints(type));
+		constraints.addAll(getConstraints(attribute));
 
 		for (Concept child : getChildren()) {
 
-			child.collectConstraintsDownwards(type, constraints);
+			child.collectConstraintsDownwards(attribute, constraints);
 		}
 	}
 
 	private boolean constraintExists(
-						ConstraintType type,
+						Attribute attribute,
 						ConstraintSemantics semantics,
 						Concept targetValue) {
 
-		return constraintExists(type, semantics, Collections.singleton(targetValue));
+		return constraintExists(attribute, semantics, Collections.singleton(targetValue));
 	}
 
 	private boolean constraintExists(
-						ConstraintType type,
+						Attribute attribute,
 						ConstraintSemantics semantics,
 						Collection<Concept> targetValues) {
 
-		ConstraintMatcher matcher = new ConstraintMatcher(type, false);
+		ConstraintMatcher matcher = new ConstraintMatcher(attribute, false);
 
 		matcher.setMatchSemantics(semantics);
 		matcher.setMatchTargetValues(targetValues);

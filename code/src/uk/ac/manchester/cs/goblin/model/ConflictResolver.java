@@ -13,14 +13,14 @@ class ConflictResolver {
 
 		final Constraint subject;
 
-		private ConstraintType type;
+		private Attribute attribute;
 		private List<Constraint> conflicts = new ArrayList<Constraint>();
 
 		ConflictFinder(Constraint subject) {
 
 			this.subject = subject;
 
-			type = subject.getType();
+			attribute = subject.getAttribute();
 		}
 
 		boolean any() {
@@ -51,7 +51,7 @@ class ConflictResolver {
 
 		private void findFrom(Concept current) {
 
-			for (Constraint candidate : current.getConstraints(type)) {
+			for (Constraint candidate : current.getConstraints(attribute)) {
 
 				if (conflicts(candidate)) {
 
@@ -71,7 +71,7 @@ class ConflictResolver {
 
 				if (dec.getSemantics().impliedValue()) {
 
-					if (type.singleImpliedValues()) {
+					if (attribute.singleImpliedValues()) {
 
 						return !dec.getTargetValue().descendantOf(anc.getTargetValue());
 					}

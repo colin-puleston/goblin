@@ -5,7 +5,7 @@ package uk.ac.manchester.cs.goblin.model;
  */
 public interface HierarchyListener {
 
-	public void onAddedDynamicConstraintType(DynamicConstraintType type);
+	public void onAddedDynamicAttribute(DynamicAttribute attribute);
 
-	public void onRemovedDynamicConstraintType(DynamicConstraintType type);
+	public void onRemovedDynamicAttribute(DynamicAttribute attribute);
 }

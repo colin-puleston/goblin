@@ -37,7 +37,7 @@ import uk.ac.manchester.cs.goblin.model.*;
 /**
  * @author Colin Puleston
  */
-class AttributesEditPanel extends ConceptTreesPanel<ConstraintType> {
+class AttributesEditPanel extends ConceptTreesPanel<Attribute> {
 
 	static private final long serialVersionUID = -1;
 
@@ -66,11 +66,11 @@ class AttributesEditPanel extends ConceptTreesPanel<ConstraintType> {
 
 		private void updateTree(int index) {
 
-			List<ConstraintType> types = getHierarchy().getAllConstraintTypes();
+			List<Attribute> attributes = getHierarchy().getAllAttributes();
 
-			if (types.size() > index) {
+			if (attributes.size() > index) {
 
-				hierarchyTree.setConstraintTypeSelection(types.get(index));
+				hierarchyTree.setAttributeSelection(attributes.get(index));
 			}
 		}
 	}
@@ -95,16 +95,16 @@ class AttributesEditPanel extends ConceptTreesPanel<ConstraintType> {
 
 	private class DynamicAttributeOpsDrivenRepopulator implements HierarchyListener {
 
-		private DynamicConstraintType type;
+		private DynamicAttribute attribute;
 
-		public void onAddedDynamicConstraintType(DynamicConstraintType type) {
+		public void onAddedDynamicAttribute(DynamicAttribute attribute) {
 
 			repopulate();
 
 			setSelectedIndex(getTabCount() - 1);
 		}
 
-		public void onRemovedDynamicConstraintType(DynamicConstraintType type) {
+		public void onRemovedDynamicAttribute(DynamicAttribute attribute) {
 
 			repopulate();
 		}
@@ -115,21 +115,21 @@ class AttributesEditPanel extends ConceptTreesPanel<ConstraintType> {
 		}
 	}
 
-	private class DynamicAttributeLabelUpdater implements DynamicConstraintTypeListener {
+	private class DynamicAttributeLabelUpdater implements DynamicAttributeListener {
 
-		private DynamicConstraintType type;
+		private DynamicAttribute attribute;
 
 		public void onAttributeIdReset() {
 
-			resetTabLabel(type);
+			resetTabLabel(attribute);
 		}
 
-		DynamicAttributeLabelUpdater(DynamicConstraintType type) {
+		DynamicAttributeLabelUpdater(DynamicAttribute attribute) {
 
-			this.type = type;
+			this.attribute = attribute;
 
-			type.removeTypeListeners(getClass());
-			type.addListener(this);
+			attribute.removeListenersOfType(getClass());
+			attribute.addListener(this);
 		}
 	}
 
@@ -139,7 +139,7 @@ class AttributesEditPanel extends ConceptTreesPanel<ConstraintType> {
 
 		this.hierarchyTree = hierarchyTree;
 
-		if (getHierarchy().hasPotentialConstraintTypes()) {
+		if (getHierarchy().hasPotentialAttributes()) {
 
 			new HierarchyTreeUpdater();
 
@@ -152,37 +152,37 @@ class AttributesEditPanel extends ConceptTreesPanel<ConstraintType> {
 		populate();
 	}
 
-	List<ConstraintType> getSources() {
+	List<Attribute> getSources() {
 
 		Concept concept = hierarchyTree.getSelectedConcept();
 
 		return concept != null
-				? concept.getApplicableConstraintTypes()
-				: getHierarchy().getCoreConstraintTypes();
+				? concept.getApplicableAttributes()
+				: getHierarchy().getCoreAttributes();
 	}
 
-	String getTitle(ConstraintType type) {
+	String getTitle(Attribute attribute) {
 
-		return type.getName();
+		return attribute.getName();
 	}
 
-	Concept getRootConcept(ConstraintType type) {
+	Concept getRootConcept(Attribute attribute) {
 
-		return type.getRootTargetConcept();
+		return attribute.getRootTargetConcept();
 	}
 
-	JComponent createComponent(ConstraintType type) {
+	JComponent createComponent(Attribute attribute) {
 
-		JComponent constComp = createConstraintsComponent(type);
+		JComponent constComp = createConstraintsComponent(attribute);
 
-		if (type.dynamicConstraintType()) {
+		if (attribute.dynamicAttribute()) {
 
 			JPanel panel = new JPanel(new BorderLayout());
 
 			panel.add(constComp, BorderLayout.CENTER);
-			panel.add(new DynamicAttributeEditPanel(type), BorderLayout.SOUTH);
+			panel.add(new DynamicAttributeEditPanel(attribute), BorderLayout.SOUTH);
 
-			new DynamicAttributeLabelUpdater((DynamicConstraintType)type);
+			new DynamicAttributeLabelUpdater((DynamicAttribute)attribute);
 
 			return panel;
 		}
@@ -190,19 +190,19 @@ class AttributesEditPanel extends ConceptTreesPanel<ConstraintType> {
 		return constComp;
 	}
 
-	boolean requiresItalicizedLabel(ConstraintType type) {
+	boolean requiresItalicizedLabel(Attribute attribute) {
 
-		return type.dynamicConstraintType();
+		return attribute.dynamicAttribute();
 	}
 
-	private JComponent createConstraintsComponent(ConstraintType type) {
+	private JComponent createConstraintsComponent(Attribute attribute) {
 
-		return TitledPanels.create(createConstraintsPanel(type), CONSTRAINTS_TITLE);
+		return TitledPanels.create(createConstraintsPanel(attribute), CONSTRAINTS_TITLE);
 	}
 
-	private JComponent createConstraintsPanel(ConstraintType type) {
+	private JComponent createConstraintsPanel(Attribute attribute) {
 
-		return new ConstraintGroupPanel(type, hierarchyTree);
+		return new ConstraintGroupPanel(attribute, hierarchyTree);
 	}
 
 	private Hierarchy getHierarchy() {

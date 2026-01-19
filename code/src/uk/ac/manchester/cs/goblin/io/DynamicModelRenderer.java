@@ -37,46 +37,46 @@ class DynamicModelRenderer {
 
 		private void render() {
 
-			ConstraintType type = constraint.getType();
+			Attribute attribute = constraint.getAttribute();
 
-			if (type instanceof HierarchicalConstraintType) {
+			if (attribute instanceof HierarchicalAttribute) {
 
-				renderHierarchicalType((HierarchicalConstraintType)type);
+				renderHierarchicalAttribute((HierarchicalAttribute)attribute);
 			}
-			else if (type instanceof AnchoredConstraintType) {
+			else if (attribute instanceof AnchoredAttribute) {
 
-				renderAnchoredType((AnchoredConstraintType)type);
+				renderAnchoredAttribute((AnchoredAttribute)attribute);
 			}
-			else if (type instanceof PropertyConstraintType) {
+			else if (attribute instanceof PropertyAttribute) {
 
-				renderSimpleType((PropertyConstraintType)type);
+				renderSimpleAttribute((PropertyAttribute)attribute);
 			}
 			else {
 
-				throw new Error("Unrecognised ConstraintType: " + type);
+				throw new Error("Unrecognised Attribute: " + attribute);
 			}
 		}
 
-		private void renderSimpleType(PropertyConstraintType type) {
+		private void renderSimpleAttribute(PropertyAttribute attribute) {
 
-			OWLObjectProperty prop = getObjectProperty(type.getTargetPropertyId());
+			OWLObjectProperty prop = getObjectProperty(attribute.getTargetPropertyId());
 
 			addConsequenceAxiom(source, prop, targets);
 		}
 
-		private void renderAnchoredType(AnchoredConstraintType type) {
+		private void renderAnchoredAttribute(AnchoredAttribute attribute) {
 
-			OWLClass anchor = getCls(type.getAnchorConceptId());
-			OWLClass anchorSub = addClass(anchor, createAnchorSubIRI(type));
+			OWLClass anchor = getCls(attribute.getAnchorConceptId());
+			OWLClass anchorSub = addClass(anchor, createAnchorSubIRI(attribute));
 
-			OWLObjectProperty srcProp = getObjectProperty(type.getSourcePropertyId());
-			OWLObjectProperty tgtProp = getObjectProperty(type.getTargetPropertyId());
+			OWLObjectProperty srcProp = getObjectProperty(attribute.getSourcePropertyId());
+			OWLObjectProperty tgtProp = getObjectProperty(attribute.getTargetPropertyId());
 
 			ontology.addPremiseAxiom(anchor, anchorSub, srcProp, source);
 			addConsequenceAxiom(anchorSub, tgtProp, targets);
 		}
 
-		private void renderHierarchicalType(HierarchicalConstraintType type) {
+		private void renderHierarchicalAttribute(HierarchicalAttribute attribute) {
 
 			for (OWLClass target : targets) {
 
@@ -101,9 +101,9 @@ class DynamicModelRenderer {
 			}
 		}
 
-		private IRI createAnchorSubIRI(AnchoredConstraintType type) {
+		private IRI createAnchorSubIRI(AnchoredAttribute attribute) {
 
-			return anchoredConstraintClassIRIs.create(constraint, type);
+			return anchoredConstraintClassIRIs.create(attribute, constraint);
 		}
 	}
 
