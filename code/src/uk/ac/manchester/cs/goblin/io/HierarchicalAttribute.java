@@ -7,12 +7,12 @@ import uk.ac.manchester.cs.goblin.model.*;
  */
 class HierarchicalAttribute extends Attribute {
 
-	private String name;
+	private String label;
 	private boolean singleSuperConcepts = false;
 
-	public String getName() {
+	public String getLabel() {
 
-		return name;
+		return label;
 	}
 
 	public boolean definesValidValues() {
@@ -30,11 +30,11 @@ class HierarchicalAttribute extends Attribute {
 		return singleSuperConcepts;
 	}
 
-	HierarchicalAttribute(String name, Concept rootSourceConcept, Concept rootTargetConcept) {
+	HierarchicalAttribute(String label, Concept rootSourceConcept, Concept rootTargetConcept) {
 
 		super(rootSourceConcept, rootTargetConcept);
 
-		this.name = name;
+		this.label = label;
 	}
 
 	void setSingleSuperConcepts(boolean value) {

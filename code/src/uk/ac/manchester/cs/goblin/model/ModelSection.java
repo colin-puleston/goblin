@@ -8,7 +8,7 @@ import java.util.*;
 public class ModelSection extends HierarchyContainer {
 
 	private Model model;
-	private String name;
+	private String label;
 
 	public Hierarchy addCoreHierarchy(EntityId rootConceptId, boolean referenceOnly) {
 
@@ -20,15 +20,15 @@ public class ModelSection extends HierarchyContainer {
 		return hierarchy;
 	}
 
-	public String getName() {
+	public String getLabel() {
 
-		return name;
+		return label;
 	}
 
-	ModelSection(Model model, String name) {
+	ModelSection(Model model, String label) {
 
 		this.model = model;
-		this.name = name;
+		this.label = label;
 	}
 
 	private Hierarchy createHierarchy(EntityId rootConceptId, boolean referenceOnly) {

@@ -9,7 +9,7 @@ import uk.ac.manchester.cs.goblin.model.*;
  */
 abstract class PropertyAttribute extends Attribute {
 
-	private String name;
+	private String label;
 	private EntityId targetPropertyId;
 
 	private boolean definesValidValues = true;
@@ -17,9 +17,9 @@ abstract class PropertyAttribute extends Attribute {
 
 	private boolean singleImpliedValues = false;
 
-	public String getName() {
+	public String getLabel() {
 
-		return name;
+		return label;
 	}
 
 	public boolean definesValidValues() {
@@ -38,14 +38,14 @@ abstract class PropertyAttribute extends Attribute {
 	}
 
 	PropertyAttribute(
-		String name,
+		String label,
 		EntityId targetPropertyId,
 		Concept rootSourceConcept,
 		Concept rootTargetConcept) {
 
 		super(rootSourceConcept, rootTargetConcept);
 
-		this.name = name;
+		this.label = label;
 		this.targetPropertyId = targetPropertyId;
 	}
 

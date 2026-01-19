@@ -12,10 +12,10 @@ public abstract class Attribute extends EditTarget {
 
 	public String toString() {
 
-		return getName() + "(" + rootSourceConcept + " --> " + rootTargetConcept + ")";
+		return getLabel() + "(" + rootSourceConcept + " --> " + rootTargetConcept + ")";
 	}
 
-	public abstract String getName();
+	public abstract String getLabel();
 
 	public Concept getRootSourceConcept() {
 

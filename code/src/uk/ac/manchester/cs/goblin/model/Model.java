@@ -26,9 +26,9 @@ public class Model extends HierarchyContainer {
 		return addSection(DEFAULT_SECTION_NAME_PREFIX + sections.size());
 	}
 
-	public ModelSection addSection(String name) {
+	public ModelSection addSection(String label) {
 
-		ModelSection section = new ModelSection(this, name);
+		ModelSection section = new ModelSection(this, label);
 
 		sections.add(section);
 

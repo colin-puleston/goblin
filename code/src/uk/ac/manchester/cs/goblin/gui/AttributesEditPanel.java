@@ -163,7 +163,7 @@ class AttributesEditPanel extends ConceptTreesPanel<Attribute> {
 
 	String getTitle(Attribute attribute) {
 
-		return attribute.getName();
+		return attribute.getLabel();
 	}
 
 	Concept getRootConcept(Attribute attribute) {

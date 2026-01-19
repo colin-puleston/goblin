@@ -8,7 +8,7 @@ import java.util.*;
 public abstract class Hierarchy {
 
 	private Model model;
-	private String name;
+	private String label;
 
 	private RootConcept rootConcept;
 	private Map<EntityId, Concept> conceptsById = new HashMap<EntityId, Concept>();
@@ -25,9 +25,9 @@ public abstract class Hierarchy {
 		throw createListenerOperationException();
 	}
 
-	public void setName(String name) {
+	public void setLabel(String label) {
 
-		this.name = name;
+		this.label = label;
 	}
 
 	public void addCoreAttribute(Attribute attribute) {
@@ -40,9 +40,9 @@ public abstract class Hierarchy {
 		return model;
 	}
 
-	public String getName() {
+	public String getLabel() {
 
-		return name;
+		return label;
 	}
 
 	public boolean referenceOnly() {
@@ -116,7 +116,7 @@ public abstract class Hierarchy {
 
 		this.model = model;
 
-		name = rootConceptId.getLabel();
+		label = rootConceptId.getLabel();
 		rootConcept = createRootConcept(rootConceptId);
 	}
 
@@ -149,7 +149,7 @@ public abstract class Hierarchy {
 
 	private RuntimeException createListenerOperationException() {
 
-		return new RuntimeException("Illegal operation on non-editable hierachy: " + name);
+		return new RuntimeException("Illegal operation on non-editable hierachy: " + label);
 	}
 
 	private RuntimeException createAttributeAddException(

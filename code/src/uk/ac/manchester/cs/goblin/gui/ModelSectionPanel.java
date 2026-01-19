@@ -50,7 +50,7 @@ class ModelSectionPanel extends ConceptTreesPanel<Hierarchy> {
 
 	String getTitle() {
 
-		return section.getName();
+		return section.getLabel();
 	}
 
 	List<Hierarchy> getSources() {
@@ -60,7 +60,7 @@ class ModelSectionPanel extends ConceptTreesPanel<Hierarchy> {
 
 	String getTitle(Hierarchy hierarchy) {
 
-		String title = hierarchy.getName();
+		String title = hierarchy.getLabel();
 		String suffix = getTitleSuffix(hierarchy);
 
 		if (!suffix.isEmpty()) {

@@ -10,12 +10,12 @@ import uk.ac.manchester.cs.goblin.model.*;
 class SimpleAttribute extends PropertyAttribute {
 
 	SimpleAttribute(
-		String name,
+		String label,
 		EntityId linkingPropertyId,
 		Concept rootSourceConcept,
 		Concept rootTargetConcept) {
 
-		super(name, linkingPropertyId, rootSourceConcept, rootTargetConcept);
+		super(label, linkingPropertyId, rootSourceConcept, rootTargetConcept);
 	}
 
 	Collection<EntityId> getInvolvedPropertyIds() {

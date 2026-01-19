@@ -17,7 +17,7 @@ class ConfigFileVocab {
 
 	static final String REFERENCE_ONLY_HIERARCHY_ATTR = "referenceOnly";
 
-	static final String ENTITY_NAME_ATTR = "name";
+	static final String ENTITY_LABEL_ATTR = "label";
 	static final String ROOT_CONCEPT_ATTR = "rootConcept";
 	static final String ANCHOR_CONCEPT_ATTR = "anchorConcept";
 	static final String SOURCE_PROPERTY_ATTR = "sourceProperty";

@@ -13,14 +13,14 @@ class AnchoredAttribute extends PropertyAttribute {
 	private EntityId sourcePropertyId;
 
 	AnchoredAttribute(
-		String name,
+		String label,
 		EntityId anchorConceptId,
 		EntityId sourcePropertyId,
 		EntityId targetPropertyId,
 		Concept rootSourceConcept,
 		Concept rootTargetConcept) {
 
-		super(name, targetPropertyId, rootSourceConcept, rootTargetConcept);
+		super(label, targetPropertyId, rootSourceConcept, rootTargetConcept);
 
 		this.anchorConceptId = anchorConceptId;
 		this.sourcePropertyId = sourcePropertyId;

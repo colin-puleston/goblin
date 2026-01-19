@@ -36,7 +36,7 @@ class CoreModelLoader extends ConfigFileVocab {
 
 		abstract Attribute loadAttribute(
 									KConfigNode node,
-									String name,
+									String label,
 									Concept rootSrc,
 									Concept rootTgt);
 
@@ -50,19 +50,19 @@ class CoreModelLoader extends ConfigFileVocab {
 
 		private Attribute loadAttribute(KConfigNode node, Hierarchy hierarchy) {
 
-			String name = getEntityName(node);
+			String label = getEntityLabel(node);
 			Concept rootSrc = hierarchy.getRootConcept();
 			Concept rootTgt = getRootTargetConcept(node);
 
-			return loadAttribute(node, name, rootSrc, rootTgt);
+			return loadAttribute(node, label, rootSrc, rootTgt);
 		}
 	}
 
 	private abstract class PropertyAttributesLoader extends AttributesLoader {
 
-		Attribute loadAttribute(KConfigNode node, String name, Concept rootSrc, Concept rootTgt) {
+		Attribute loadAttribute(KConfigNode node, String label, Concept rootSrc, Concept rootTgt) {
 
-			PropertyAttribute attribute = loadPropertyAttribute(node, name, rootSrc, rootTgt);
+			PropertyAttribute attribute = loadPropertyAttribute(node, label, rootSrc, rootTgt);
 
 			Set<ConstraintSemantics> semanticsOpts = getSemanticsOptions(node);
 
@@ -78,7 +78,7 @@ class CoreModelLoader extends ConfigFileVocab {
 
 		abstract PropertyAttribute loadPropertyAttribute(
 										KConfigNode node,
-										String name,
+										String label,
 										Concept rootSrc,
 										Concept rootTgt);
 
@@ -109,13 +109,13 @@ class CoreModelLoader extends ConfigFileVocab {
 
 		PropertyAttribute loadPropertyAttribute(
 								KConfigNode node,
-								String name,
+								String label,
 								Concept rootSrc,
 								Concept rootTgt) {
 
 			EntityId lnkProp = getPropertyId(node, LINKING_PROPERTY_ATTR);
 
-			return new SimpleAttribute(name, lnkProp, rootSrc, rootTgt);
+			return new SimpleAttribute(label, lnkProp, rootSrc, rootTgt);
 		}
 	}
 
@@ -133,7 +133,7 @@ class CoreModelLoader extends ConfigFileVocab {
 
 		PropertyAttribute loadPropertyAttribute(
 								KConfigNode node,
-								String name,
+								String label,
 								Concept rootSrc,
 								Concept rootTgt) {
 
@@ -142,7 +142,7 @@ class CoreModelLoader extends ConfigFileVocab {
 			EntityId srcProp = getPropertyId(node, SOURCE_PROPERTY_ATTR);
 			EntityId tgtProp = getPropertyId(node, TARGET_PROPERTY_ATTR);
 
-			return new AnchoredAttribute(name, anchor, srcProp, tgtProp, rootSrc, rootTgt);
+			return new AnchoredAttribute(label, anchor, srcProp, tgtProp, rootSrc, rootTgt);
 		}
 	}
 
@@ -249,11 +249,11 @@ class CoreModelLoader extends ConfigFileVocab {
 			}
 		}
 
-		Attribute loadAttribute(KConfigNode node, String name, Concept rootSrc, Concept rootTgt) {
+		Attribute loadAttribute(KConfigNode node, String label, Concept rootSrc, Concept rootTgt) {
 
 			addLink(getHierarchy(rootSrc), getHierarchy(rootTgt));
 
-			return new HierarchicalAttribute(name, rootSrc, rootTgt);
+			return new HierarchicalAttribute(label, rootSrc, rootTgt);
 		}
 
 		String getAttributeTag() {
@@ -299,9 +299,9 @@ class CoreModelLoader extends ConfigFileVocab {
 
 	private ModelSection addSection(KConfigNode node) {
 
-		String name = getEntityNameOrNull(node);
+		String label = getEntityLabelOrNull(node);
 
-		return name != null ? model.addSection(name) : model.addSection();
+		return label != null ? model.addSection(label) : model.addSection();
 	}
 
 	private void loadSection(ModelSection section, KConfigNode node) {
@@ -325,24 +325,24 @@ class CoreModelLoader extends ConfigFileVocab {
 
 		EntityId rootConceptId = getRootConceptId(node);
 		boolean refOnly = referenceOnlyHierarchy(node);
-		String name = getEntityNameOrNull(node);
+		String label = getEntityLabelOrNull(node);
 
 		Hierarchy hierarchy = section.addCoreHierarchy(rootConceptId, refOnly);
 
-		if (name != null) {
+		if (label != null) {
 
-			hierarchy.setName(name);
+			hierarchy.setLabel(label);
 		}
 	}
 
-	private String getEntityName(KConfigNode node) {
+	private String getEntityLabel(KConfigNode node) {
 
-		return node.getString(ENTITY_NAME_ATTR);
+		return node.getString(ENTITY_LABEL_ATTR);
 	}
 
-	private String getEntityNameOrNull(KConfigNode node) {
+	private String getEntityLabelOrNull(KConfigNode node) {
 
-		return node.getString(ENTITY_NAME_ATTR, null);
+		return node.getString(ENTITY_LABEL_ATTR, null);
 	}
 
 	private EntityId getRootConceptId(KConfigNode node) {
