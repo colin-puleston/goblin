@@ -7,27 +7,30 @@ import org.semanticweb.owlapi.model.*;
  */
 class DynamicIRIs {
 
-	private String dynamicNamespace;
+	private String dynamicIRIPrefix;
 
 	DynamicIRIs(String dynamicNamespace) {
 
-		this.dynamicNamespace = dynamicNamespace;
+		dynamicIRIPrefix = dynamicNamespace + '#';
+	}
+
+	boolean isDynamicIRI(IRI iri) {
+
+		return iri.toString().startsWith(dynamicIRIPrefix);
 	}
 
 	IRI toDynamicIRI(String name) {
 
-		return IRI.create(dynamicNamespace + '#' + name);
+		return IRI.create(dynamicIRIPrefix + name);
 	}
 
 	String toDynamicNameOrNull(IRI iri) {
 
-		String i = iri.toString();
+		return isDynamicIRI(iri) ? extractDynamicName(iri) : null;
+	}
 
-		if (i.startsWith(dynamicNamespace + '#')) {
+	private String extractDynamicName(IRI iri) {
 
-			return i.substring(dynamicNamespace.length() + 1);
-		}
-
-		return null;
+		return iri.toString().substring(dynamicIRIPrefix.length());
 	}
 }

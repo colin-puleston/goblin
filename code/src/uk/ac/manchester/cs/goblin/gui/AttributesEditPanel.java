@@ -139,7 +139,7 @@ class AttributesEditPanel extends ConceptTreesPanel<Attribute> {
 
 		this.hierarchyTree = hierarchyTree;
 
-		if (getHierarchy().hasPotentialAttributes()) {
+		if (getHierarchy().potentiallyHasAttributes()) {
 
 			new HierarchyTreeUpdater();
 

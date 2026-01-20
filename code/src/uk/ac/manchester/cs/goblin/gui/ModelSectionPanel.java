@@ -118,14 +118,14 @@ class ModelSectionPanel extends ConceptTreesPanel<Hierarchy> {
 
 			suffix += "<=";
 
-			if (hierarchy.hasPotentialAttributes()) {
+			if (hierarchy.potentiallyHasAttributes()) {
 
 				suffix += ">";
 			}
 		}
 		else {
 
-			if (hierarchy.hasPotentialAttributes()) {
+			if (hierarchy.potentiallyHasAttributes()) {
 
 				suffix += "=>";
 			}

@@ -17,17 +17,19 @@ class CoreModelLoader extends ConfigFileVocab {
 	private Model model;
 	private Ontology ontology;
 
-	private abstract class AttributesLoader {
+	private abstract class CoreAttributesLoader {
 
 		void loadAll(ModelSection section, KConfigNode node) {
 
-			Iterator<Hierarchy> hierarchies = section.getDynamicHierarchies().iterator();
+			Iterator<Hierarchy> hierarchies = section.getCoreHierarchies().iterator();
 
 			for (KConfigNode hierarchyNode : node.getChildren(HIERARCHY_TAG)) {
 
-				if (!referenceOnlyHierarchy(hierarchyNode)) {
+				Hierarchy hierarchy = hierarchies.next();
 
-					loadHierarchyAttributes(hierarchyNode, hierarchies.next());
+				if (!hierarchy.referenceOnly()) {
+
+					loadHierarchyAttributes(hierarchyNode, hierarchy);
 				}
 			}
 		}
@@ -35,10 +37,10 @@ class CoreModelLoader extends ConfigFileVocab {
 		abstract String getAttributeTag();
 
 		abstract Attribute loadAttribute(
-									KConfigNode node,
-									String label,
-									Concept rootSrc,
-									Concept rootTgt);
+								KConfigNode node,
+								String label,
+								Concept rootSrc,
+								Concept rootTgt);
 
 		private void loadHierarchyAttributes(KConfigNode hierarchyNode, Hierarchy hierarchy) {
 
@@ -58,7 +60,7 @@ class CoreModelLoader extends ConfigFileVocab {
 		}
 	}
 
-	private abstract class PropertyAttributesLoader extends AttributesLoader {
+	private abstract class PropertyAttributesLoader extends CoreAttributesLoader {
 
 		Attribute loadAttribute(KConfigNode node, String label, Concept rootSrc, Concept rootTgt) {
 
@@ -146,7 +148,7 @@ class CoreModelLoader extends ConfigFileVocab {
 		}
 	}
 
-	private class HierarchicalAttributesLoader extends AttributesLoader {
+	private class HierarchicalAttributesLoader extends CoreAttributesLoader {
 
 		private KListMap<Hierarchy, Link> linksBySource = new KListMap<Hierarchy, Link>();
 		private KSetMap<Hierarchy, EntityId> targetConstraintProps = new KSetMap<Hierarchy, EntityId>();

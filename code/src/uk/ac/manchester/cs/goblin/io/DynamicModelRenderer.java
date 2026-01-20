@@ -1,7 +1,6 @@
 package uk.ac.manchester.cs.goblin.io;
 
 import java.io.*;
-import java.net.*;
 import java.util.*;
 
 import org.semanticweb.owlapi.model.*;
@@ -17,6 +16,8 @@ class DynamicModelRenderer {
 	private EntityIds entityIds;
 
 	private AnchoredConstraintClassIRIs anchoredConstraintClassIRIs;
+
+	private Set<Hierarchy> renderedDynamicValueHierarchies = new HashSet<Hierarchy>();
 
 	private class ConstraintRenderer {
 
@@ -39,29 +40,31 @@ class DynamicModelRenderer {
 
 			Attribute attribute = constraint.getAttribute();
 
-			if (attribute instanceof HierarchicalAttribute) {
+			if (attribute instanceof SimpleAttribute) {
 
-				renderHierarchicalAttribute((HierarchicalAttribute)attribute);
+				renderSimpleAttribute((SimpleAttribute)attribute);
 			}
 			else if (attribute instanceof AnchoredAttribute) {
 
 				renderAnchoredAttribute((AnchoredAttribute)attribute);
 			}
-			else if (attribute instanceof PropertyAttribute) {
+			else if (attribute instanceof HierarchicalAttribute) {
 
-				renderSimpleAttribute((PropertyAttribute)attribute);
+				renderHierarchicalAttribute((HierarchicalAttribute)attribute);
+			}
+			else if (attribute instanceof DynamicAttribute) {
+
+				renderDynamicAttribute((DynamicAttribute)attribute);
 			}
 			else {
 
-				throw new Error("Unrecognised Attribute: " + attribute);
+				throw new Error("Unrecognised Attribute type: " + attribute);
 			}
 		}
 
 		private void renderSimpleAttribute(PropertyAttribute attribute) {
 
-			OWLObjectProperty prop = getObjectProperty(attribute.getTargetPropertyId());
-
-			addConsequenceAxiom(source, prop, targets);
+			renderDirectAttribute(attribute.getTargetPropertyId());
 		}
 
 		private void renderAnchoredAttribute(AnchoredAttribute attribute) {
@@ -82,6 +85,16 @@ class DynamicModelRenderer {
 
 				ontology.addSuperClass(source, target);
 			}
+		}
+
+		private void renderDynamicAttribute(DynamicAttribute attribute) {
+
+			renderDirectAttribute(attribute.getAttributeId());
+		}
+
+		private void renderDirectAttribute(EntityId propertyId) {
+
+			addConsequenceAxiom(source, getObjectProperty(propertyId), targets);
 		}
 
 		private void addConsequenceAxiom(
@@ -127,20 +140,38 @@ class DynamicModelRenderer {
 
 	private void renderDynamicHierarchies(Model model) {
 
-		for (Hierarchy hierarchy : model.getDynamicHierarchies()) {
+		for (Hierarchy hierarchy : model.getCoreHierarchies()) {
 
-			Concept root = hierarchy.getRootConcept();
+			if (!hierarchy.referenceOnly()) {
 
-			renderHierarchyFrom(root, getCls(root));
+				renderHierarchy(hierarchy);
+
+				if (hierarchy.dynamicAttributesEnabled()) {
+
+					renderDynamicValueHierarchies(hierarchy);
+				}
+			}
 		}
 	}
 
-	private void renderDynamicConstraints(Model model) {
+	private void renderDynamicValueHierarchies(Hierarchy coreHierarchy) {
 
-		for (Hierarchy hierarchy : model.getDynamicHierarchies()) {
+		for (Attribute attribute : coreHierarchy.getDynamicAttributes()) {
 
-			renderConstraintsFrom(hierarchy.getRootConcept());
+			Hierarchy valueHierarchy = attribute.getRootTargetConcept().getHierarchy();
+
+			if (renderedDynamicValueHierarchies.add(valueHierarchy)) {
+
+				renderHierarchy(valueHierarchy);
+			}
 		}
+	}
+
+	private void renderHierarchy(Hierarchy hierarchy) {
+
+		Concept root = hierarchy.getRootConcept();
+
+		renderHierarchyFrom(root, getCls(root));
 	}
 
 	private void renderHierarchyFrom(Concept concept, OWLClass cls) {
@@ -148,6 +179,17 @@ class DynamicModelRenderer {
 		for (Concept sub : concept.getChildren()) {
 
 			renderHierarchyFrom(sub, resolveClass(cls, sub));
+		}
+	}
+
+	private void renderDynamicConstraints(Model model) {
+
+		for (Hierarchy hierarchy : model.getCoreHierarchies()) {
+
+			if (hierarchy.potentiallyHasAttributes()) {
+
+				renderConstraintsFrom(hierarchy.getRootConcept());
+			}
 		}
 	}
 

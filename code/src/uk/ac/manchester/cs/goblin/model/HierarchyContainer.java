@@ -14,14 +14,9 @@ public abstract class HierarchyContainer {
 		return new ArrayList<Hierarchy>(hierarchies);
 	}
 
-	public List<Hierarchy> getDynamicHierarchies() {
+	public List<Hierarchy> getCoreHierarchies() {
 
-		return getStatusHierarchies(false);
-	}
-
-	public List<Hierarchy> getReferenceOnlyHierarchies() {
-
-		return getStatusHierarchies(true);
+		return new ArrayList<Hierarchy>(hierarchies);
 	}
 
 	public Hierarchy getHierarchy(EntityId rootConceptId) {
@@ -72,20 +67,5 @@ public abstract class HierarchyContainer {
 	void addHierarchy(Hierarchy hierarchy) {
 
 		hierarchies.add(hierarchy);
-	}
-
-	private List<Hierarchy> getStatusHierarchies(boolean referenceOnly) {
-
-		List<Hierarchy> statusHierarchies = new ArrayList<Hierarchy>();
-
-		for (Hierarchy hierarchy : hierarchies) {
-
-			if (hierarchy.referenceOnly() == referenceOnly) {
-
-				statusHierarchies.add(hierarchy);
-			}
-		}
-
-		return statusHierarchies;
 	}
 }

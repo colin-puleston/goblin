@@ -77,7 +77,7 @@ class CoreHierarchyPanel extends GSplitPane {
 
 		panel.add(attributesEditPanel, BorderLayout.CENTER);
 
-		if (hierarchyTree.getHierarchy().dynamicConstraintsEnabled()) {
+		if (hierarchyTree.getHierarchy().dynamicAttributesEnabled()) {
 
 			panel.add(new DynamicAttributeCreatePanel(hierarchyTree), BorderLayout.SOUTH);
 		}

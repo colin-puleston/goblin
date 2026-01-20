@@ -50,11 +50,6 @@ public abstract class Hierarchy {
 		return false;
 	}
 
-	public boolean dynamicConstraintsEnabled() {
-
-		return false;
-	}
-
 	public Concept getRootConcept() {
 
 		return rootConcept;
@@ -87,9 +82,14 @@ public abstract class Hierarchy {
 		return false;
 	}
 
-	public boolean hasPotentialAttributes() {
+	public boolean dynamicAttributesEnabled() {
 
-		return hasCoreAttributes() || dynamicConstraintsEnabled();
+		return false;
+	}
+
+	public boolean potentiallyHasAttributes() {
+
+		return hasCoreAttributes() || dynamicAttributesEnabled();
 	}
 
 	public boolean hasInwardCoreAttributes() {
@@ -103,6 +103,11 @@ public abstract class Hierarchy {
 	}
 
 	public List<Attribute> getCoreAttributes() {
+
+		return Collections.emptyList();
+	}
+
+	public List<Attribute> getDynamicAttributes() {
 
 		return Collections.emptyList();
 	}

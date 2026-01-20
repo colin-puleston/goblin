@@ -26,16 +26,62 @@ class EntityIds {
 
 	IRI toIRI(EntityId id) {
 
-		if (id instanceof CoreId) {
+		IRI iri = toCoreIRIOrNull(id);
 
-			return ((CoreId)id).getIRI();
+		if (iri == null) {
+
+			iri = toDynamicIRIOrNull(id);
 		}
 
-		return dynamicIRIs.toDynamicIRI(id.getName());
+		if (iri != null) {
+
+			return iri;
+		}
+
+		throw new Error("Unrecognised EntityId type: " + id.getClass());
+	}
+
+	IRI toCoreIRI(EntityId id) {
+
+		IRI iri = toCoreIRIOrNull(id);
+
+		if (iri != null) {
+
+			return iri;
+		}
+
+		throw new RuntimeException("Unexpected dynamic entity: " + id);
+	}
+
+	IRI toDynamicIRI(EntityId id) {
+
+		IRI iri = toDynamicIRIOrNull(id);
+
+		if (iri != null) {
+
+			return iri;
+		}
+
+		throw new RuntimeException("Unexpected non-dynamic entity: " + id);
 	}
 
 	private String toDynamicNameOrNull(IRI iri) {
 
 		return dynamicIRIs.toDynamicNameOrNull(iri);
+	}
+
+	private IRI toCoreIRIOrNull(EntityId id) {
+
+		return id instanceof CoreId ? ((CoreId)id).getIRI() : null;
+	}
+
+	private IRI toDynamicIRIOrNull(EntityId id) {
+
+		return id instanceof DynamicId ? toDynamicIRI((DynamicId)id) : null;
+	}
+
+	private IRI toDynamicIRI(DynamicId id) {
+
+		return dynamicIRIs.toDynamicIRI(id.getName());
 	}
 }

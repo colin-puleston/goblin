@@ -221,13 +221,13 @@ class DynamicModelLoader {
 
 			Collection<EntityId> loadAllForClass() {
 
-				Iterator<EntityId> localAttrIds = localAttributeIds.iterator();
+				int i = 0;
 
 				for (OWLObjectAllValuesFrom restriction : findAllRequiredRestrictions()) {
 
 					Concept target = extractSingleConceptFromFiller(restriction);
 
-					source.addDynamicAttribute(localAttrIds.next(), target);
+					source.addDynamicAttribute(localAttributeIds.get(i++), target);
 				}
 
 				return localAttributeIds;
@@ -374,11 +374,13 @@ class DynamicModelLoader {
 			}
 		}
 
-		PropertyConstraintLoader(PropertyAttribute attribute, OWLClass sourceCls) {
+		PropertyConstraintLoader(
+			Attribute attribute,
+			OWLClass sourceCls,
+			OWLObjectProperty targetProperty) {
 
 			this.attribute = attribute;
-
-			targetProperty = getCoreObjectProperty(attribute.getTargetPropertyId());
+			this.targetProperty = targetProperty;
 
 			allTargetExtractor = new AllTargetExtractor(sourceCls);
 			someTargetExtractor = new SomeTargetExtractor(sourceCls);
@@ -420,7 +422,7 @@ class DynamicModelLoader {
 
 		SimpleConstraintLoader(SimpleAttribute attribute, OWLClass sourceCls) {
 
-			super(attribute, sourceCls);
+			super(attribute, sourceCls, getCoreObjectProperty(attribute.getTargetPropertyId()));
 
 			checkLoad(getConcept(sourceCls));
 		}
@@ -517,7 +519,7 @@ class DynamicModelLoader {
 
 		AnchoredConstraintLoader(AnchoredAttribute attribute, OWLClass anchor, OWLClass anchorSub) {
 
-			super(attribute, anchorSub);
+			super(attribute, anchorSub, getCoreObjectProperty(attribute.getTargetPropertyId()));
 
 			this.anchor = anchor;
 			this.anchorSub = anchorSub;
@@ -576,6 +578,16 @@ class DynamicModelLoader {
 		}
 	}
 
+	private class DynamicConstraintLoader extends PropertyConstraintLoader {
+
+		DynamicConstraintLoader(DynamicAttribute attribute, OWLClass sourceCls) {
+
+			super(attribute, sourceCls, getDynamicObjectProperty(attribute.getAttributeId()));
+
+			checkLoad(getConcept(sourceCls));
+		}
+	}
+
 	DynamicModelLoader(
 		Model model,
 		Ontology ontology,
@@ -626,19 +638,25 @@ class DynamicModelLoader {
 
 	private void loadDynamicAttributes() {
 
-		for (Hierarchy hierarchy : model.getDynamicHierarchies()) {
+		for (Hierarchy hierarchy : model.getCoreHierarchies()) {
 
-			new DynamicAttributeLoader(hierarchy);
+			if (hierarchy.dynamicAttributesEnabled()) {
+
+				new DynamicAttributeLoader(hierarchy);
+			}
 		}
 	}
 
 	private void loadConstraints() {
 
-		for (Hierarchy hierarchy : model.getDynamicHierarchies()) {
+		for (Hierarchy hierarchy : model.getCoreHierarchies()) {
 
-			for (Attribute attribute : hierarchy.getCoreAttributes()) {
+			if (hierarchy.potentiallyHasAttributes()) {
 
-				loadConstraints(attribute);
+				for (Attribute attribute : hierarchy.getAllAttributes()) {
+
+					loadConstraints(attribute);
+				}
 			}
 		}
 	}
@@ -647,21 +665,26 @@ class DynamicModelLoader {
 
 		if (attribute instanceof SimpleAttribute) {
 
-			loadSimpleConstraints((SimpleAttribute)attribute);
+			loadSimpleAttributeConstraints((SimpleAttribute)attribute);
 		}
 
 		if (attribute instanceof AnchoredAttribute) {
 
-			loadAnchoredConstraints((AnchoredAttribute)attribute);
+			loadAnchoredAttributeConstraints((AnchoredAttribute)attribute);
 		}
 
 		if (attribute instanceof HierarchicalAttribute) {
 
-			loadHierarchicalConstraints((HierarchicalAttribute)attribute);
+			loadHierarchicalAttributeConstraints((HierarchicalAttribute)attribute);
+		}
+
+		if (attribute instanceof DynamicAttribute) {
+
+			loadDynamicAttributeConstraints((DynamicAttribute)attribute);
 		}
 	}
 
-	private void loadSimpleConstraints(SimpleAttribute attribute) {
+	private void loadSimpleAttributeConstraints(SimpleAttribute attribute) {
 
 		OWLClass rootSource = getCoreClass(attribute.getRootSourceConcept());
 
@@ -671,7 +694,7 @@ class DynamicModelLoader {
 		}
 	}
 
-	private void loadAnchoredConstraints(AnchoredAttribute attribute) {
+	private void loadAnchoredAttributeConstraints(AnchoredAttribute attribute) {
 
 		OWLClass anchor = getCoreClass(attribute.getAnchorConceptId());
 
@@ -681,13 +704,23 @@ class DynamicModelLoader {
 		}
 	}
 
-	private void loadHierarchicalConstraints(HierarchicalAttribute attribute) {
+	private void loadHierarchicalAttributeConstraints(HierarchicalAttribute attribute) {
 
 		OWLClass rootSource = getCoreClass(attribute.getRootSourceConcept());
 
 		for (OWLClass source : getSubClasses(rootSource, false)) {
 
 			new HierarchicalConstraintLoader(attribute, source);
+		}
+	}
+
+	private void loadDynamicAttributeConstraints(DynamicAttribute attribute) {
+
+		OWLClass rootSource = getDynamicClass(attribute.getRootSourceConcept());
+
+		for (OWLClass source : getSubClasses(rootSource, false)) {
+
+			new DynamicConstraintLoader(attribute, source);
 		}
 	}
 
@@ -745,14 +778,29 @@ class DynamicModelLoader {
 		return ontology.getObjectProperty(getCoreIRI(id));
 	}
 
+	private OWLClass getDynamicClass(Concept concept) {
+
+		return getDynamicClass(concept.getConceptId());
+	}
+
+	private OWLClass getDynamicClass(EntityId id) {
+
+		return ontology.getClass(getDynamicIRI(id));
+	}
+
+	private OWLObjectProperty getDynamicObjectProperty(EntityId id) {
+
+		return ontology.getObjectProperty(getDynamicIRI(id));
+	}
+
 	private IRI getCoreIRI(EntityId id) {
 
-		if (id instanceof CoreId) {
+		return entityIds.toCoreIRI(id);
+	}
 
-			return ((CoreId)id).getIRI();
-		}
+	private IRI getDynamicIRI(EntityId id) {
 
-		throw new RuntimeException("Unexpected dynamic entity: " + id);
+		return entityIds.toDynamicIRI(id);
 	}
 
 	private Concept getConcept(OWLClass cls) {

@@ -7,7 +7,7 @@ import java.util.*;
  */
 public class EditableCoreHierarchy extends CoreHierarchy {
 
-	private boolean dynamicConstraintsEnabled = true;
+	private boolean dynamicAttributesEnabled = true;
 
 	private List<Attribute> coreAttributes = new ArrayList<Attribute>();
 
@@ -25,7 +25,7 @@ public class EditableCoreHierarchy extends CoreHierarchy {
 
 	public void setDynamicConstraintsEnabled(boolean enabled) {
 
-		dynamicConstraintsEnabled = enabled;
+		dynamicAttributesEnabled = enabled;
 	}
 
 	public void addCoreAttribute(Attribute attribute) {
@@ -37,21 +37,21 @@ public class EditableCoreHierarchy extends CoreHierarchy {
 		attribute.getRootSourceConcept().addConstraint(attribute.createRootConstraint());
 	}
 
-	public boolean dynamicConstraintsEnabled() {
-
-		return dynamicConstraintsEnabled;
-	}
-
 	public boolean hasCoreAttributes() {
 
 		return !coreAttributes.isEmpty();
+	}
+
+	public boolean dynamicAttributesEnabled() {
+
+		return dynamicAttributesEnabled;
 	}
 
 	public List<Attribute> getAllAttributes() {
 
 		List<Attribute> attributes = getCoreAttributes();
 
-		attributes.addAll(getRootConcept().getDynamicAttributesDownwards());
+		attributes.addAll(getDynamicAttributes());
 
 		return attributes;
 	}
@@ -59,6 +59,16 @@ public class EditableCoreHierarchy extends CoreHierarchy {
 	public List<Attribute> getCoreAttributes() {
 
 		return new ArrayList<Attribute>(coreAttributes);
+	}
+
+	public List<Attribute> getDynamicAttributes() {
+
+		if (dynamicAttributesEnabled()) {
+
+			return getRootConcept().getDynamicAttributesDownwards();
+		}
+
+		return Collections.emptyList();
 	}
 
 	EditableCoreHierarchy(Model model, EntityId rootConceptId) {
