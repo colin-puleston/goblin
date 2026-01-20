@@ -7,10 +7,9 @@ import uk.ac.manchester.cs.goblin.model.*;
 /**
  * @author Colin Puleston
  */
-abstract class PropertyAttribute extends Attribute {
+abstract class CorePropertyAttribute extends Attribute {
 
 	private String label;
-	private EntityId targetPropertyId;
 
 	private boolean definesValidValues = true;
 	private boolean definesImpliedValues = false;
@@ -37,16 +36,11 @@ abstract class PropertyAttribute extends Attribute {
 		return singleImpliedValues;
 	}
 
-	PropertyAttribute(
-		String label,
-		EntityId targetPropertyId,
-		Concept rootSourceConcept,
-		Concept rootTargetConcept) {
+	CorePropertyAttribute(String label, Concept rootSourceConcept, Concept rootTargetConcept) {
 
 		super(rootSourceConcept, rootTargetConcept);
 
 		this.label = label;
-		this.targetPropertyId = targetPropertyId;
 	}
 
 	void setSemanticsOptions(Set<ConstraintSemantics> options) {
@@ -59,11 +53,4 @@ abstract class PropertyAttribute extends Attribute {
 
 		singleImpliedValues = value;
 	}
-
-	EntityId getTargetPropertyId() {
-
-		return targetPropertyId;
-	}
-
-	abstract Collection<EntityId> getInvolvedPropertyIds();
 }

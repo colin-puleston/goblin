@@ -64,7 +64,7 @@ class CoreModelLoader extends ConfigFileVocab {
 
 		Attribute loadAttribute(KConfigNode node, String label, Concept rootSrc, Concept rootTgt) {
 
-			PropertyAttribute attribute = loadPropertyAttribute(node, label, rootSrc, rootTgt);
+			CorePropertyAttribute attribute = loadPropertyAttribute(node, label, rootSrc, rootTgt);
 
 			Set<ConstraintSemantics> semanticsOpts = getSemanticsOptions(node);
 
@@ -78,11 +78,11 @@ class CoreModelLoader extends ConfigFileVocab {
 			return attribute;
 		}
 
-		abstract PropertyAttribute loadPropertyAttribute(
-										KConfigNode node,
-										String label,
-										Concept rootSrc,
-										Concept rootTgt);
+		abstract CorePropertyAttribute loadPropertyAttribute(
+											KConfigNode node,
+											String label,
+											Concept rootSrc,
+											Concept rootTgt);
 
 		private Set<ConstraintSemantics> getSemanticsOptions(KConfigNode allNode) {
 
@@ -109,11 +109,11 @@ class CoreModelLoader extends ConfigFileVocab {
 			return SIMPLE_CONSTRAINT_TYPE_TAG;
 		}
 
-		PropertyAttribute loadPropertyAttribute(
-								KConfigNode node,
-								String label,
-								Concept rootSrc,
-								Concept rootTgt) {
+		CorePropertyAttribute loadPropertyAttribute(
+									KConfigNode node,
+									String label,
+									Concept rootSrc,
+									Concept rootTgt) {
 
 			EntityId lnkProp = getPropertyId(node, LINKING_PROPERTY_ATTR);
 
@@ -133,11 +133,11 @@ class CoreModelLoader extends ConfigFileVocab {
 			return ANCHORED_CONSTRAINT_TYPE_TAG;
 		}
 
-		PropertyAttribute loadPropertyAttribute(
-								KConfigNode node,
-								String label,
-								Concept rootSrc,
-								Concept rootTgt) {
+		CorePropertyAttribute loadPropertyAttribute(
+									KConfigNode node,
+									String label,
+									Concept rootSrc,
+									Concept rootTgt) {
 
 			EntityId anchor = getConceptId(node, ANCHOR_CONCEPT_ATTR);
 
@@ -275,9 +275,13 @@ class CoreModelLoader extends ConfigFileVocab {
 
 			for (Attribute attribute : hierarchy.getCoreAttributes()) {
 
-				if (attribute instanceof PropertyAttribute) {
+				if (attribute instanceof SimpleAttribute) {
 
-					props.add(((PropertyAttribute)attribute).getTargetPropertyId());
+					props.add(((SimpleAttribute)attribute).getLinkingPropertyId());
+				}
+				else if (attribute instanceof AnchoredAttribute) {
+
+					props.add(((AnchoredAttribute)attribute).getTargetPropertyId());
 				}
 			}
 

@@ -1,13 +1,13 @@
 package uk.ac.manchester.cs.goblin.io;
 
-import java.util.*;
-
 import uk.ac.manchester.cs.goblin.model.*;
 
 /**
  * @author Colin Puleston
  */
-class SimpleAttribute extends PropertyAttribute {
+class SimpleAttribute extends CorePropertyAttribute {
+
+	private EntityId linkingPropertyId;
 
 	SimpleAttribute(
 		String label,
@@ -15,11 +15,13 @@ class SimpleAttribute extends PropertyAttribute {
 		Concept rootSourceConcept,
 		Concept rootTargetConcept) {
 
-		super(label, linkingPropertyId, rootSourceConcept, rootTargetConcept);
+		super(label, rootSourceConcept, rootTargetConcept);
+
+		this.linkingPropertyId = linkingPropertyId;
 	}
 
-	Collection<EntityId> getInvolvedPropertyIds() {
+	EntityId getLinkingPropertyId() {
 
-		return Collections.singleton(getTargetPropertyId());
+		return linkingPropertyId;
 	}
 }

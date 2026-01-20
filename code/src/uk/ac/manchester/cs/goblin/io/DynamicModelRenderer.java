@@ -62,9 +62,19 @@ class DynamicModelRenderer {
 			}
 		}
 
-		private void renderSimpleAttribute(PropertyAttribute attribute) {
+		private void renderSimpleAttribute(SimpleAttribute attribute) {
 
-			renderDirectAttribute(attribute.getTargetPropertyId());
+			renderLinkingPropertyAttribute(attribute.getLinkingPropertyId());
+		}
+
+		private void renderDynamicAttribute(DynamicAttribute attribute) {
+
+			renderLinkingPropertyAttribute(attribute.getAttributeId());
+		}
+
+		private void renderLinkingPropertyAttribute(EntityId propertyId) {
+
+			addConsequenceAxiom(source, getObjectProperty(propertyId), targets);
 		}
 
 		private void renderAnchoredAttribute(AnchoredAttribute attribute) {
@@ -85,16 +95,6 @@ class DynamicModelRenderer {
 
 				ontology.addSuperClass(source, target);
 			}
-		}
-
-		private void renderDynamicAttribute(DynamicAttribute attribute) {
-
-			renderDirectAttribute(attribute.getAttributeId());
-		}
-
-		private void renderDirectAttribute(EntityId propertyId) {
-
-			addConsequenceAxiom(source, getObjectProperty(propertyId), targets);
 		}
 
 		private void addConsequenceAxiom(

@@ -1,16 +1,16 @@
 package uk.ac.manchester.cs.goblin.io;
 
-import java.util.*;
-
 import uk.ac.manchester.cs.goblin.model.*;
 
 /**
  * @author Colin Puleston
  */
-class AnchoredAttribute extends PropertyAttribute {
+class AnchoredAttribute extends CorePropertyAttribute {
 
 	private EntityId anchorConceptId;
+
 	private EntityId sourcePropertyId;
+	private EntityId targetPropertyId;
 
 	AnchoredAttribute(
 		String label,
@@ -20,10 +20,11 @@ class AnchoredAttribute extends PropertyAttribute {
 		Concept rootSourceConcept,
 		Concept rootTargetConcept) {
 
-		super(label, targetPropertyId, rootSourceConcept, rootTargetConcept);
+		super(label, rootSourceConcept, rootTargetConcept);
 
 		this.anchorConceptId = anchorConceptId;
 		this.sourcePropertyId = sourcePropertyId;
+		this.targetPropertyId = targetPropertyId;
 	}
 
 	EntityId getAnchorConceptId() {
@@ -36,8 +37,8 @@ class AnchoredAttribute extends PropertyAttribute {
 		return sourcePropertyId;
 	}
 
-	Collection<EntityId> getInvolvedPropertyIds() {
+	EntityId getTargetPropertyId() {
 
-		return Arrays.asList(getTargetPropertyId(), sourcePropertyId);
+		return targetPropertyId;
 	}
 }

@@ -418,11 +418,14 @@ class DynamicModelLoader {
 		}
 	}
 
-	private class SimpleConstraintLoader extends PropertyConstraintLoader {
+	private class LinkingPropertyConstraintLoader extends PropertyConstraintLoader {
 
-		SimpleConstraintLoader(SimpleAttribute attribute, OWLClass sourceCls) {
+		LinkingPropertyConstraintLoader(
+			Attribute attribute,
+			OWLClass sourceCls,
+			OWLObjectProperty linkingProperty) {
 
-			super(attribute, sourceCls, getCoreObjectProperty(attribute.getTargetPropertyId()));
+			super(attribute, sourceCls, linkingProperty);
 
 			checkLoad(getConcept(sourceCls));
 		}
@@ -517,9 +520,13 @@ class DynamicModelLoader {
 			}
 		}
 
-		AnchoredConstraintLoader(AnchoredAttribute attribute, OWLClass anchor, OWLClass anchorSub) {
+		AnchoredConstraintLoader(
+			AnchoredAttribute attribute,
+			OWLClass anchor,
+			OWLClass anchorSub,
+			OWLObjectProperty targetProperty) {
 
-			super(attribute, anchorSub, getCoreObjectProperty(attribute.getTargetPropertyId()));
+			super(attribute, anchorSub, targetProperty);
 
 			this.anchor = anchor;
 			this.anchorSub = anchorSub;
@@ -575,16 +582,6 @@ class DynamicModelLoader {
 		private boolean validTarget(Concept target) {
 
 			return target.descendantOf(attribute.getRootTargetConcept());
-		}
-	}
-
-	private class DynamicConstraintLoader extends PropertyConstraintLoader {
-
-		DynamicConstraintLoader(DynamicAttribute attribute, OWLClass sourceCls) {
-
-			super(attribute, sourceCls, getDynamicObjectProperty(attribute.getAttributeId()));
-
-			checkLoad(getConcept(sourceCls));
 		}
 	}
 
@@ -667,40 +664,59 @@ class DynamicModelLoader {
 
 			loadSimpleAttributeConstraints((SimpleAttribute)attribute);
 		}
+		else if (attribute instanceof DynamicAttribute) {
 
-		if (attribute instanceof AnchoredAttribute) {
+			loadDynamicAttributeConstraints((DynamicAttribute)attribute);
+		}
+		else if (attribute instanceof AnchoredAttribute) {
 
 			loadAnchoredAttributeConstraints((AnchoredAttribute)attribute);
 		}
-
-		if (attribute instanceof HierarchicalAttribute) {
+		else if (attribute instanceof HierarchicalAttribute) {
 
 			loadHierarchicalAttributeConstraints((HierarchicalAttribute)attribute);
 		}
+		else {
 
-		if (attribute instanceof DynamicAttribute) {
-
-			loadDynamicAttributeConstraints((DynamicAttribute)attribute);
+			throw new Error("Unrecognised Attribute type: " + attribute.getClass());
 		}
 	}
 
 	private void loadSimpleAttributeConstraints(SimpleAttribute attribute) {
 
 		OWLClass rootSource = getCoreClass(attribute.getRootSourceConcept());
+		OWLObjectProperty linkingProp = getCoreObjectProperty(attribute.getLinkingPropertyId());
+
+		loadLinkingPropertyAttributeConstraints(attribute, rootSource, linkingProp);
+	}
+
+	private void loadDynamicAttributeConstraints(DynamicAttribute attribute) {
+
+		OWLClass rootSource = getDynamicClass(attribute.getRootSourceConcept());
+		OWLObjectProperty linkingProp = getDynamicObjectProperty(attribute.getAttributeId());
+
+		loadLinkingPropertyAttributeConstraints(attribute, rootSource, linkingProp);
+	}
+
+	private void loadLinkingPropertyAttributeConstraints(
+						Attribute attribute,
+						OWLClass rootSource,
+						OWLObjectProperty linkingProperty) {
 
 		for (OWLClass source : getSubClasses(rootSource, false)) {
 
-			new SimpleConstraintLoader(attribute, source);
+			new LinkingPropertyConstraintLoader(attribute, source, linkingProperty);
 		}
 	}
 
 	private void loadAnchoredAttributeConstraints(AnchoredAttribute attribute) {
 
 		OWLClass anchor = getCoreClass(attribute.getAnchorConceptId());
+		OWLObjectProperty targetProp = getCoreObjectProperty(attribute.getTargetPropertyId());
 
 		for (OWLClass anchorSub : getSubClasses(anchor, false)) {
 
-			new AnchoredConstraintLoader(attribute, anchor, anchorSub);
+			new AnchoredConstraintLoader(attribute, anchor, anchorSub, targetProp);
 		}
 	}
 
@@ -711,16 +727,6 @@ class DynamicModelLoader {
 		for (OWLClass source : getSubClasses(rootSource, false)) {
 
 			new HierarchicalConstraintLoader(attribute, source);
-		}
-	}
-
-	private void loadDynamicAttributeConstraints(DynamicAttribute attribute) {
-
-		OWLClass rootSource = getDynamicClass(attribute.getRootSourceConcept());
-
-		for (OWLClass source : getSubClasses(rootSource, false)) {
-
-			new DynamicConstraintLoader(attribute, source);
 		}
 	}
 
