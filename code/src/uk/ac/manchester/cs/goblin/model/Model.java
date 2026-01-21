@@ -6,7 +6,7 @@ import java.util.*;
 /**
  * @author Colin Puleston
  */
-public class Model extends HierarchyContainer {
+public class Model extends CoreHierarchyContainer {
 
 	static private final String DEFAULT_SECTION_NAME_PREFIX = "Section-";
 

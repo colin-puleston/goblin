@@ -5,7 +5,7 @@ import java.util.*;
 /**
  * @author Colin Puleston
  */
-public class ModelSection extends HierarchyContainer {
+public class ModelSection extends CoreHierarchyContainer {
 
 	private Model model;
 	private String label;

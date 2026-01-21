@@ -15,5 +15,12 @@ class HierarchicalAttribute extends CoreAttribute {
 	HierarchicalAttribute(String label, Concept rootSourceConcept, Concept rootTargetConcept) {
 
 		super(label, rootSourceConcept, rootTargetConcept);
+
+		if (rootSourceConcept.equals(rootTargetConcept)) {
+
+			throw new RuntimeException(
+						"Cannot create hierarchical attribute \"" + label + "\""
+						+ " with identical source and target root-concepts");
+		}
 	}
 }

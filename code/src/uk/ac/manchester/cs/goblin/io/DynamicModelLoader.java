@@ -612,7 +612,7 @@ class DynamicModelLoader {
 
 	private void loadConcepts() {
 
-		for (Hierarchy hierarchy : model.getAllHierarchies()) {
+		for (Hierarchy hierarchy : model.getCoreHierarchies()) {
 
 			Concept root = hierarchy.getRootConcept();
 

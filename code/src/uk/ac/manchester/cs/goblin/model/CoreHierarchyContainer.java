@@ -5,33 +5,13 @@ import java.util.*;
 /**
  * @author Colin Puleston
  */
-public abstract class HierarchyContainer {
+public abstract class CoreHierarchyContainer {
 
 	private List<Hierarchy> hierarchies = new ArrayList<Hierarchy>();
-
-	public List<Hierarchy> getAllHierarchies() {
-
-		return new ArrayList<Hierarchy>(hierarchies);
-	}
 
 	public List<Hierarchy> getCoreHierarchies() {
 
 		return new ArrayList<Hierarchy>(hierarchies);
-	}
-
-	public Hierarchy getHierarchy(EntityId rootConceptId) {
-
-		for (Hierarchy hierarchy : hierarchies) {
-
-			if (hierarchy.hasRootConcept(rootConceptId)) {
-
-				return hierarchy;
-			}
-		}
-
-		throw new RuntimeException(
-					"Not root-concept of contained hierarchy: "
-					+ rootConceptId);
 	}
 
 	public boolean containsConcept(EntityId conceptId) {

@@ -55,7 +55,7 @@ class ModelSectionPanel extends ConceptTreesPanel<Hierarchy> {
 
 	List<Hierarchy> getSources() {
 
-		return section.getAllHierarchies();
+		return section.getCoreHierarchies();
 	}
 
 	String getTitle(Hierarchy hierarchy) {

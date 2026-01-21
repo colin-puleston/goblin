@@ -687,7 +687,7 @@ class ConstraintGroupPanel extends JPanel {
 
 		String getTitle() {
 
-			return super.getTitle() + (singleTargetSelection() ? "" : "(s)");
+			return super.getTitle() + getTitleSuffix();
 		}
 
 		ConstraintSemantics getSemantics() {
@@ -727,6 +727,11 @@ class ConstraintGroupPanel extends JPanel {
 		private boolean validTarget(Concept concept) {
 
 			return concept.subsumedByAny(validValues.getTargetValues());
+		}
+
+		private String getTitleSuffix() {
+
+			return singleTargetSelection() ? " (single)" : "(s)";
 		}
 	}
 

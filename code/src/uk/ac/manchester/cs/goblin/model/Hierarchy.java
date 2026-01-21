@@ -128,6 +128,8 @@ public abstract class Hierarchy {
 
 		label = rootConceptId.getLabel();
 		rootConcept = createRootConcept(rootConceptId);
+
+		registerConcept(rootConcept);
 	}
 
 	abstract RootConcept createRootConcept(EntityId rootConceptId);
