@@ -7,24 +7,21 @@
 	<ModelSection>
 
 		<Hierarchy
-			rootConcept="http://goblin/demo-core.owl#Activity">
+			rootConcept="http://goblin/demo-core.owl#Activity"
+			dynamicConstraintsOption="VALID_AND_SINGLE_IMPLIED_VALUES">
 			<AnchoredAttribute
 				label="role performed"
 				anchorConcept="http://goblin/demo-core.owl#Hobby"
 				sourceProperty="http://goblin/demo-core.owl#involvesActivity"
 				targetProperty="http://goblin/demo-core.owl#rolePerformed"
 				rootTargetConcept="http://goblin/demo-core.owl#Role"
-				singleImpliedValues="TRUE">
-				<SemanticsOption semantics="VALID_VALUES"/>
-				<SemanticsOption semantics="IMPLIED_VALUE"/>
+				constraintsOption="VALID_AND_MULTI_IMPLIED_VALUES">
 			</AnchoredAttribute>
 			<SimpleAttribute
 				label="activity venue"
 				linkingProperty="http://goblin/demo-core.owl#performedInLocation"
 				rootTargetConcept="http://goblin/demo-core.owl#VenueByType"
-				singleImpliedValues="FALSE">
-				<SemanticsOption semantics="VALID_VALUES"/>
-				<SemanticsOption semantics="IMPLIED_VALUE"/>
+				constraintsOption="VALID_AND_SINGLE_IMPLIED_VALUES">
 			</SimpleAttribute>
 		</Hierarchy>
 
@@ -33,11 +30,11 @@
 		</Hierarchy>
 
 		<Hierarchy
-			rootConcept="http://goblin/demo-core.owl#VenueByType">
+			rootConcept="http://goblin/demo-core.owl#VenueByType"
+			dynamicConstraintsOption="VALID_VALUES_ONLY">
 			<HierarchicalAttribute
 				label="venue location"
-				rootTargetConcept="http://goblin/demo-core.owl#VenueByLocation"
-				singleImpliedValues="TRUE">
+				rootTargetConcept="http://goblin/demo-core.owl#VenueByLocation">
 			</HierarchicalAttribute>
 		</Hierarchy>
 
