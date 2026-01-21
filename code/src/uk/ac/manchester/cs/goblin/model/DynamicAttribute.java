@@ -85,6 +85,11 @@ public class DynamicAttribute extends Attribute {
 		performAction(createRemoveAction());
 	}
 
+	public boolean dynamicAttribute() {
+
+		return true;
+	}
+
 	public String getLabel() {
 
 		return attributeId.id.getLabel();

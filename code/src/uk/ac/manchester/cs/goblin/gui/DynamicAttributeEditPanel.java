@@ -39,30 +39,12 @@ class DynamicAttributeEditPanel extends JPanel {
 	static private final long serialVersionUID = -1;
 
 	static private final String TITLE = "Edit dynamic attribute";
-	static private final String VALUES_DIALOG_TITLE = "Values hierarchy";
 
 	static private final String RESET_ID_LABEL = "Id...";
 	static private final String VALUES_LABEL = "Values...";
 	static private final String REMOVE_LABEL = "Del";
 
-	static private final Dimension VALUES_DIALOG_SIZE = new Dimension(500, 600);
-
 	private DynamicAttribute attribute;
-
-	private class ValuesEditDialog extends GDialog {
-
-		static private final long serialVersionUID = -1;
-
-		ValuesEditDialog() {
-
-			super(VALUES_DIALOG_TITLE, true);
-
-			setPreferredSize(VALUES_DIALOG_SIZE);
-			setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-
-			display(new HierarchyTreePanel(getValuesHierarchy()));
-		}
-	}
 
 	private class ResetIdButton extends GButton {
 
@@ -85,7 +67,7 @@ class DynamicAttributeEditPanel extends JPanel {
 
 		protected void doButtonThing() {
 
-			new ValuesEditDialog();
+			new DynamicAttributeValuesEditDialog(attribute);
 		}
 
 		ValuesButton() {
@@ -185,10 +167,5 @@ class DynamicAttributeEditPanel extends JPanel {
 		msg.append(" plus any associated constraints");
 
 		return msg.toString();
-	}
-
-	private Hierarchy getValuesHierarchy() {
-
-		return attribute.getRootTargetConcept().getHierarchy();
 	}
 }

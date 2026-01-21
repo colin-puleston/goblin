@@ -15,6 +15,11 @@ public abstract class Attribute extends EditTarget {
 		return getLabel() + "(" + rootSourceConcept + " --> " + rootTargetConcept + ")";
 	}
 
+	public boolean dynamicAttribute() {
+
+		return false;
+	}
+
 	public abstract String getLabel();
 
 	public Concept getRootSourceConcept() {
@@ -25,11 +30,6 @@ public abstract class Attribute extends EditTarget {
 	public Concept getRootTargetConcept() {
 
 		return rootTargetConcept;
-	}
-
-	public boolean dynamicAttribute() {
-
-		return false;
 	}
 
 	public abstract ConstraintsOption getConstraintsOption();

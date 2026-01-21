@@ -217,21 +217,26 @@ public abstract class Concept extends EditTarget {
 		return child;
 	}
 
-	public boolean addDynamicAttribute(EntityId attrId, EntityId rootTargetConceptId) {
+	public DynamicAttribute addDynamicAttribute(EntityId attrId, EntityId rootTargetConceptId) {
 
 		Hierarchy targets = getModel().createDynamicValueHierarchy(rootTargetConceptId);
 
 		return addDynamicAttribute(attrId, targets.getRootConcept());
 	}
 
-	public boolean addDynamicAttribute(EntityId attrId, Concept rootTargetConcept) {
+	public DynamicAttribute addDynamicAttribute(EntityId attrId, Concept rootTargetConcept) {
 
-		if (applicableDynamicAttribute(attrId)) {
+		if (!applicableDynamicAttribute(attrId)) {
 
-			return false;
+			DynamicAttribute attribute = new DynamicAttribute(attrId, this, rootTargetConcept);
+
+			if (attribute.add()) {
+
+				return attribute;
+			}
 		}
 
-		return new DynamicAttribute(attrId, this, rootTargetConcept).add();
+		return null;
 	}
 
 	public boolean addValidValuesConstraint(Attribute attribute, Collection<Concept> targetValues) {

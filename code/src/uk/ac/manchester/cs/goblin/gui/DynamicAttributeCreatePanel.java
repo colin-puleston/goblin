@@ -104,7 +104,7 @@ class DynamicAttributeCreatePanel extends JPanel {
 			new Enabler();
 		}
 
-		abstract boolean checkCreateAttribute(Concept source, EntityId attrId);
+		abstract void checkCreateAttribute(Concept source, EntityId attrId);
 
 		private EntityId checkObtainAttributeId() {
 
@@ -128,11 +128,15 @@ class DynamicAttributeCreatePanel extends JPanel {
 			super(NEW_VALUES_DESCRIPTOR);
 		}
 
-		boolean checkCreateAttribute(Concept source, EntityId attrId) {
+		void checkCreateAttribute(Concept source, EntityId attrId) {
 
 			EntityId rootTargetId = createRootTargetConceptId(attrId, source);
+			DynamicAttribute attribute = source.addDynamicAttribute(attrId, rootTargetId);
 
-			return source.addDynamicAttribute(attrId, rootTargetId);
+			if (attribute != null) {
+
+				new DynamicAttributeValuesEditDialog(attribute);
+			}
 		}
 
 		private EntityId createRootTargetConceptId(EntityId attrId, Concept source) {
@@ -168,9 +172,7 @@ class DynamicAttributeCreatePanel extends JPanel {
 			super(LINKED_VALUES_DESCRIPTOR);
 		}
 
-		boolean checkCreateAttribute(Concept source, EntityId attrId) {
-
-			return false;
+		void checkCreateAttribute(Concept source, EntityId attrId) {
 		}
 	}
 
