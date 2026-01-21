@@ -17,17 +17,22 @@ public abstract class Hierarchy {
 
 	public void addListener(HierarchyListener listener) {
 
-		throw createListenerOperationException();
+		throw createIllegalOperationException();
 	}
 
 	public void removeListener(HierarchyListener listener) {
 
-		throw createListenerOperationException();
+		throw createIllegalOperationException();
 	}
 
 	public void setLabel(String label) {
 
 		this.label = label;
+	}
+
+	public void enableDynamicAttributes(ConstraintsOption constraintsOption) {
+
+		throw createIllegalOperationException();
 	}
 
 	public void addCoreAttribute(Attribute attribute) {
@@ -142,24 +147,27 @@ public abstract class Hierarchy {
 		inwardCoreAttributes.add(attribute);
 	}
 
+	ConstraintsOption getDynamicAttributeConstraintsOption() {
+
+		throw createIllegalOperationException();
+	}
+
 	void onAddedDynamicAttribute(DynamicAttribute attribute) {
 
-		throw createListenerOperationException();
+		throw createIllegalOperationException();
 	}
 
 	void onRemovedDynamicAttribute(DynamicAttribute attribute) {
 
-		throw createListenerOperationException();
+		throw createIllegalOperationException();
 	}
 
-	private RuntimeException createListenerOperationException() {
+	private RuntimeException createIllegalOperationException() {
 
 		return new RuntimeException("Illegal operation on non-editable hierachy: " + label);
 	}
 
-	private RuntimeException createAttributeAddException(
-								Attribute attribute,
-								String direction) {
+	private RuntimeException createAttributeAddException(Attribute attribute, String direction) {
 
 		return new RuntimeException(
 						"Cannot add " + direction + " attribute to: "

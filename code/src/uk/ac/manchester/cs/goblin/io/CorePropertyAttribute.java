@@ -7,50 +7,23 @@ import uk.ac.manchester.cs.goblin.model.*;
 /**
  * @author Colin Puleston
  */
-abstract class CorePropertyAttribute extends Attribute {
+abstract class CorePropertyAttribute extends CoreAttribute {
 
-	private String label;
+	private ConstraintsOption constraintsOption;
 
-	private boolean definesValidValues = true;
-	private boolean definesImpliedValues = false;
+	public ConstraintsOption getConstraintsOption() {
 
-	private boolean singleImpliedValues = false;
-
-	public String getLabel() {
-
-		return label;
+		return constraintsOption;
 	}
 
-	public boolean definesValidValues() {
+	CorePropertyAttribute(
+		String label,
+		Concept rootSourceConcept,
+		Concept rootTargetConcept,
+		ConstraintsOption constraintsOption) {
 
-		return definesValidValues;
-	}
+		super(label, rootSourceConcept, rootTargetConcept);
 
-	public boolean definesImpliedValues() {
-
-		return definesImpliedValues;
-	}
-
-	public boolean singleImpliedValues() {
-
-		return singleImpliedValues;
-	}
-
-	CorePropertyAttribute(String label, Concept rootSourceConcept, Concept rootTargetConcept) {
-
-		super(rootSourceConcept, rootTargetConcept);
-
-		this.label = label;
-	}
-
-	void setSemanticsOptions(Set<ConstraintSemantics> options) {
-
-		definesValidValues = options.contains(ConstraintSemantics.VALID_VALUES);
-		definesImpliedValues = options.contains(ConstraintSemantics.IMPLIED_VALUE);
-	}
-
-	void setSingleImpliedValues(boolean value) {
-
-		singleImpliedValues = value;
+		this.constraintsOption = constraintsOption;
 	}
 }

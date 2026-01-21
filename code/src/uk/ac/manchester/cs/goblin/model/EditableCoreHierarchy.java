@@ -7,8 +7,7 @@ import java.util.*;
  */
 public class EditableCoreHierarchy extends CoreHierarchy {
 
-	private boolean dynamicAttributesEnabled = true;
-
+	private ConstraintsOption dynamicAttributesConstraintsOption = null;
 	private List<Attribute> coreAttributes = new ArrayList<Attribute>();
 
 	private List<HierarchyListener> listeners = new ArrayList<HierarchyListener>();
@@ -23,9 +22,9 @@ public class EditableCoreHierarchy extends CoreHierarchy {
 		listeners.remove(listener);
 	}
 
-	public void setDynamicConstraintsEnabled(boolean enabled) {
+	public void enableDynamicAttributes(ConstraintsOption constraintsOption) {
 
-		dynamicAttributesEnabled = enabled;
+		dynamicAttributesConstraintsOption = constraintsOption;
 	}
 
 	public void addCoreAttribute(Attribute attribute) {
@@ -44,7 +43,7 @@ public class EditableCoreHierarchy extends CoreHierarchy {
 
 	public boolean dynamicAttributesEnabled() {
 
-		return dynamicAttributesEnabled;
+		return dynamicAttributesConstraintsOption != null;
 	}
 
 	public List<Attribute> getAllAttributes() {
@@ -74,6 +73,16 @@ public class EditableCoreHierarchy extends CoreHierarchy {
 	EditableCoreHierarchy(Model model, EntityId rootConceptId) {
 
 		super(model, rootConceptId);
+	}
+
+	ConstraintsOption getDynamicAttributeConstraintsOption() {
+
+		if (dynamicAttributesEnabled()) {
+
+			return dynamicAttributesConstraintsOption;
+		}
+
+		throw new Error("Unexpected method invocation!");
 	}
 
 	void onAddedDynamicAttribute(DynamicAttribute attribute) {

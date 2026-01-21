@@ -18,9 +18,10 @@ class AnchoredAttribute extends CorePropertyAttribute {
 		EntityId sourcePropertyId,
 		EntityId targetPropertyId,
 		Concept rootSourceConcept,
-		Concept rootTargetConcept) {
+		Concept rootTargetConcept,
+		ConstraintsOption constraintsOption) {
 
-		super(label, rootSourceConcept, rootTargetConcept);
+		super(label, rootSourceConcept, rootTargetConcept, constraintsOption);
 
 		this.anchorConceptId = anchorConceptId;
 		this.sourcePropertyId = sourcePropertyId;

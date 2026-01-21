@@ -71,7 +71,7 @@ class ConflictResolver {
 
 				if (dec.getSemantics().impliedValue()) {
 
-					if (attribute.singleImpliedValues()) {
+					if (attribute.getConstraintsOption().singleImpliedValues()) {
 
 						return !dec.getTargetValue().descendantOf(anc.getTargetValue());
 					}

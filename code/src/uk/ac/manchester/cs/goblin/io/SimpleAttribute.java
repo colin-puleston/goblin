@@ -13,9 +13,10 @@ class SimpleAttribute extends CorePropertyAttribute {
 		String label,
 		EntityId linkingPropertyId,
 		Concept rootSourceConcept,
-		Concept rootTargetConcept) {
+		Concept rootTargetConcept,
+		ConstraintsOption constraintsOption) {
 
-		super(label, rootSourceConcept, rootTargetConcept);
+		super(label, rootSourceConcept, rootTargetConcept, constraintsOption);
 
 		this.linkingPropertyId = linkingPropertyId;
 	}

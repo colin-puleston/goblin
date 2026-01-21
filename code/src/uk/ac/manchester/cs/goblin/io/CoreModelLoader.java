@@ -64,37 +64,17 @@ class CoreModelLoader extends ConfigFileVocab {
 
 		Attribute loadAttribute(KConfigNode node, String label, Concept rootSrc, Concept rootTgt) {
 
-			CorePropertyAttribute attribute = loadPropertyAttribute(node, label, rootSrc, rootTgt);
+			ConstraintsOption constraintsOpt = getCoreConstraintsOption(node);
 
-			Set<ConstraintSemantics> semanticsOpts = getSemanticsOptions(node);
-
-			if (!semanticsOpts.isEmpty()) {
-
-				attribute.setSemanticsOptions(semanticsOpts);
-			}
-
-			attribute.setSingleImpliedValues(getSingleImpliedValues(node));
-
-			return attribute;
+			return loadPropertyAttribute(node, label, rootSrc, rootTgt, constraintsOpt);
 		}
 
 		abstract CorePropertyAttribute loadPropertyAttribute(
 											KConfigNode node,
 											String label,
 											Concept rootSrc,
-											Concept rootTgt);
-
-		private Set<ConstraintSemantics> getSemanticsOptions(KConfigNode allNode) {
-
-			Set<ConstraintSemantics> options = new HashSet<ConstraintSemantics>();
-
-			for (KConfigNode oneNode : allNode.getChildren(SEMANTICS_OPTION_TAG)) {
-
-				options.add(getSemanticsOption(oneNode));
-			}
-
-			return options;
-		}
+											Concept rootTgt,
+											ConstraintsOption constraintsOpt);
 	}
 
 	private class SimpleAttributesLoader extends PropertyAttributesLoader {
@@ -113,11 +93,12 @@ class CoreModelLoader extends ConfigFileVocab {
 									KConfigNode node,
 									String label,
 									Concept rootSrc,
-									Concept rootTgt) {
+									Concept rootTgt,
+									ConstraintsOption constraintsOpt) {
 
 			EntityId lnkProp = getPropertyId(node, LINKING_PROPERTY_ATTR);
 
-			return new SimpleAttribute(label, lnkProp, rootSrc, rootTgt);
+			return new SimpleAttribute(label, lnkProp, rootSrc, rootTgt, constraintsOpt);
 		}
 	}
 
@@ -137,14 +118,15 @@ class CoreModelLoader extends ConfigFileVocab {
 									KConfigNode node,
 									String label,
 									Concept rootSrc,
-									Concept rootTgt) {
+									Concept rootTgt,
+									ConstraintsOption constraintsOpt) {
 
 			EntityId anchor = getConceptId(node, ANCHOR_CONCEPT_ATTR);
 
 			EntityId srcProp = getPropertyId(node, SOURCE_PROPERTY_ATTR);
 			EntityId tgtProp = getPropertyId(node, TARGET_PROPERTY_ATTR);
 
-			return new AnchoredAttribute(label, anchor, srcProp, tgtProp, rootSrc, rootTgt);
+			return new AnchoredAttribute(label, anchor, srcProp, tgtProp, rootSrc, rootTgt, constraintsOpt);
 		}
 	}
 
@@ -204,8 +186,9 @@ class CoreModelLoader extends ConfigFileVocab {
 				if (all.indexOf(source) > all.indexOf(target)) {
 
 					throwException(
-						"Source-hierarchy must be defined before "
-						+ "target-hierarchy in config file");
+						"Source-hierarchy \"" + source.getLabel()
+						+ " should be defined before target-hierarchy \"" + source.getLabel()
+						+ " in config file");
 				}
 			}
 
@@ -332,12 +315,18 @@ class CoreModelLoader extends ConfigFileVocab {
 		EntityId rootConceptId = getRootConceptId(node);
 		boolean refOnly = referenceOnlyHierarchy(node);
 		String label = getEntityLabelOrNull(node);
+		ConstraintsOption dynamicConstsOpt = getDynamicConstraintsOptionOrNull(node);
 
 		Hierarchy hierarchy = section.addCoreHierarchy(rootConceptId, refOnly);
 
 		if (label != null) {
 
 			hierarchy.setLabel(label);
+		}
+
+		if (dynamicConstsOpt != null) {
+
+			hierarchy.enableDynamicAttributes(dynamicConstsOpt);
 		}
 	}
 
@@ -371,14 +360,14 @@ class CoreModelLoader extends ConfigFileVocab {
 		return getPropertyId(node, ROOT_TARGET_CONCEPT_ATTR);
 	}
 
-	private ConstraintSemantics getSemanticsOption(KConfigNode node) {
+	private ConstraintsOption getCoreConstraintsOption(KConfigNode node) {
 
-		return node.getEnum(SEMANTICS_OPTION_ATTR, ConstraintSemantics.class);
+		return node.getEnum(CORE_CONSTRAINTS_OPTION_ATTR, ConstraintsOption.class);
 	}
 
-	private boolean getSingleImpliedValues(KConfigNode node) {
+	private ConstraintsOption getDynamicConstraintsOptionOrNull(KConfigNode node) {
 
-		return node.getBoolean(SINGLE_IMPLIED_VALUES_ATTR, false);
+		return node.getEnum(DYNAMIC_CONSTRAINTS_OPTION_ATTR, ConstraintsOption.class, null);
 	}
 
 	private Hierarchy getHierarchy(Concept rootConcept) {

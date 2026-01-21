@@ -24,7 +24,7 @@ class ImpliedValueConstraint extends Constraint {
 
 		Attribute attribute = getAttribute();
 
-		if (attribute.singleImpliedValues()) {
+		if (attribute.getConstraintsOption().singleImpliedValues()) {
 
 			Constraint constraint = lookForImpliedValueConstraint(attribute);
 

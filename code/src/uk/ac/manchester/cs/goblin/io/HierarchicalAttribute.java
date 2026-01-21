@@ -5,40 +5,15 @@ import uk.ac.manchester.cs.goblin.model.*;
 /**
  * @author Colin Puleston
  */
-class HierarchicalAttribute extends Attribute {
+class HierarchicalAttribute extends CoreAttribute {
 
-	private String label;
-	private boolean singleSuperConcepts = false;
+	public ConstraintsOption getConstraintsOption() {
 
-	public String getLabel() {
-
-		return label;
-	}
-
-	public boolean definesValidValues() {
-
-		return false;
-	}
-
-	public boolean definesImpliedValues() {
-
-		return true;
-	}
-
-	public boolean singleImpliedValues() {
-
-		return singleSuperConcepts;
+		return ConstraintsOption.SINGLE_IMPLIED_VALUES_ONLY;
 	}
 
 	HierarchicalAttribute(String label, Concept rootSourceConcept, Concept rootTargetConcept) {
 
-		super(rootSourceConcept, rootTargetConcept);
-
-		this.label = label;
-	}
-
-	void setSingleSuperConcepts(boolean value) {
-
-		singleSuperConcepts = value;
+		super(label, rootSourceConcept, rootTargetConcept);
 	}
 }

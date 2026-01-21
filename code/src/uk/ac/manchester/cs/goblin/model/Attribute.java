@@ -32,11 +32,7 @@ public abstract class Attribute extends EditTarget {
 		return false;
 	}
 
-	public abstract boolean definesValidValues();
-
-	public abstract boolean definesImpliedValues();
-
-	public abstract boolean singleImpliedValues();
+	public abstract ConstraintsOption getConstraintsOption();
 
 	protected Attribute(Concept rootSourceConcept, Concept rootTargetConcept) {
 

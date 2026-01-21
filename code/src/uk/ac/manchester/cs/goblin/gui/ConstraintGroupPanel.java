@@ -232,7 +232,7 @@ class ConstraintGroupPanel extends JPanel {
 
 		JComponent createHeaderPanel() {
 
-			if (attribute.definesValidValues()) {
+			if (attribute.getConstraintsOption().validValues()) {
 
 				JPanel panel = new JPanel(new BorderLayout());
 
@@ -258,13 +258,14 @@ class ConstraintGroupPanel extends JPanel {
 		private JTabbedPane createActionTabs() {
 
 			JTabbedPane tabs = new JTabbedPane();
+			ConstraintsOption constraintsOpt = attribute.getConstraintsOption();
 
-			if (attribute.definesValidValues()) {
+			if (constraintsOpt.validValues()) {
 
 				addActionsTab(tabs, createValidValuesPanel());
 			}
 
-			if (attribute.definesImpliedValues()) {
+			if (constraintsOpt.impliedValues()) {
 
 				addActionsTab(tabs, createImpliedValuesPanel());
 			}
@@ -686,7 +687,7 @@ class ConstraintGroupPanel extends JPanel {
 
 		String getTitle() {
 
-			return super.getTitle() + (attribute.singleImpliedValues() ? "" : "(s)");
+			return super.getTitle() + (singleTargetSelection() ? "" : "(s)");
 		}
 
 		ConstraintSemantics getSemantics() {
@@ -696,7 +697,7 @@ class ConstraintGroupPanel extends JPanel {
 
 		boolean singleTargetSelection() {
 
-			return attribute.singleImpliedValues();
+			return attribute.getConstraintsOption().singleImpliedValues();
 		}
 
 		boolean validTargetSelection(Concept selection) {

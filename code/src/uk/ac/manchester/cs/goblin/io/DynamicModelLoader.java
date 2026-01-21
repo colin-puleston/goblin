@@ -388,12 +388,14 @@ class DynamicModelLoader {
 
 		void checkLoad(Concept source) {
 
-			if (attribute.definesValidValues()) {
+			ConstraintsOption constraintsOpt = attribute.getConstraintsOption();
+
+			if (constraintsOpt.validValues()) {
 
 				checkLoadValidValuesConstraint(source);
 			}
 
-			if (attribute.definesImpliedValues()) {
+			if (constraintsOpt.impliedValues()) {
 
 				checkLoadImpliedValueConstraints(source);
 			}

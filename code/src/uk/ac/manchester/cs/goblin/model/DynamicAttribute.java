@@ -95,24 +95,9 @@ public class DynamicAttribute extends Attribute {
 		return attributeId.id;
 	}
 
-	public boolean dynamicAttribute() {
+	public ConstraintsOption getConstraintsOption() {
 
-		return true;
-	}
-
-	public boolean definesValidValues() {
-
-		return true;
-	}
-
-	public boolean definesImpliedValues() {
-
-		return false;
-	}
-
-	public boolean singleImpliedValues() {
-
-		return false;
+		return getRootSourceConcept().getHierarchy().getDynamicAttributeConstraintsOption();
 	}
 
 	DynamicAttribute(EntityId attrId, Concept rootSourceConcept, Concept rootTargetConcept) {
