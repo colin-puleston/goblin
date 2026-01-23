@@ -173,6 +173,18 @@ class DynamicAttributeCreatePanel extends JPanel {
 		}
 
 		void checkCreateAttribute(Concept source, EntityId attrId) {
+
+			Hierarchy valuesHierarchy = getLinkedValuesHierarchy(source);
+
+			if (valuesHierarchy != null) {
+
+				source.addDynamicAttribute(attrId, valuesHierarchy.getRootConcept());
+			}
+		}
+
+		Hierarchy getLinkedValuesHierarchy(Concept source) {
+
+			return new DynamicAttributeLinkedValuesSelector(source).getSelectedValuesHierarchy();
 		}
 	}
 

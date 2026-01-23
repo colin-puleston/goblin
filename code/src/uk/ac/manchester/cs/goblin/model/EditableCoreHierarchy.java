@@ -60,7 +60,7 @@ public class EditableCoreHierarchy extends CoreHierarchy {
 		return new ArrayList<Attribute>(coreAttributes);
 	}
 
-	public List<Attribute> getDynamicAttributes() {
+	public List<DynamicAttribute> getDynamicAttributes() {
 
 		if (dynamicAttributesEnabled()) {
 

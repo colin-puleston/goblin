@@ -36,10 +36,10 @@ import uk.ac.manchester.cs.goblin.model.*;
  */
 class DynamicAttributeValuesEditDialog extends GDialog {
 
+	static private final long serialVersionUID = -1;
+
 	static private final String TITLE = "Values hierarchy";
 	static private final Dimension WINDOW_SIZE = new Dimension(500, 600);
-
-	static private final long serialVersionUID = -1;
 
 	DynamicAttributeValuesEditDialog(DynamicAttribute attribute) {
 

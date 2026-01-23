@@ -177,12 +177,14 @@ class AttributesEditPanel extends ConceptTreesPanel<Attribute> {
 
 		if (attribute.dynamicAttribute()) {
 
+			DynamicAttribute dynAttribute = (DynamicAttribute)attribute;
+
 			JPanel panel = new JPanel(new BorderLayout());
 
 			panel.add(constComp, BorderLayout.CENTER);
-			panel.add(new DynamicAttributeEditPanel(attribute), BorderLayout.SOUTH);
+			panel.add(new DynamicAttributeEditPanel(dynAttribute), BorderLayout.SOUTH);
 
-			new DynamicAttributeLabelUpdater((DynamicAttribute)attribute);
+			new DynamicAttributeLabelUpdater(dynAttribute);
 
 			return panel;
 		}

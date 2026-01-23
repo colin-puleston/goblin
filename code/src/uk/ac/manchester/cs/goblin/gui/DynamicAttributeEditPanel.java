@@ -91,11 +91,11 @@ class DynamicAttributeEditPanel extends JPanel {
 		}
 	}
 
-	DynamicAttributeEditPanel(Attribute attribute) {
+	DynamicAttributeEditPanel(DynamicAttribute attribute) {
 
 		super(new BorderLayout());
 
-		this.attribute = (DynamicAttribute)attribute;
+		this.attribute = attribute;
 
 		TitledPanels.setTitle(this, TITLE);
 

@@ -156,7 +156,7 @@ class DynamicModelRenderer {
 
 	private void renderDynamicValueHierarchies(Hierarchy coreHierarchy) {
 
-		for (Attribute attribute : coreHierarchy.getDynamicAttributes()) {
+		for (DynamicAttribute attribute : coreHierarchy.getDynamicAttributes()) {
 
 			Hierarchy valueHierarchy = attribute.getRootTargetConcept().getHierarchy();
 

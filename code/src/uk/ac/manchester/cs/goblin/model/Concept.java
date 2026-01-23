@@ -343,7 +343,7 @@ public abstract class Concept extends EditTarget {
 		List<Attribute> attributes = new ArrayList<Attribute>();
 
 		attributes.addAll(hierarchy.getCoreAttributes());
-		collectDynamicAttributesUpwards(attributes);
+		attributes.addAll(getDynamicAttributesUpwards());
 
 		return attributes;
 	}
@@ -353,16 +353,16 @@ public abstract class Concept extends EditTarget {
 		List<Attribute> attributes = new ArrayList<Attribute>();
 
 		attributes.addAll(hierarchy.getInwardCoreAttributes());
-		collectInwardDynamicAttributesUpwards(attributes);
+		attributes.addAll(getInwardDynamicAttributesUpwards());
 
 		return attributes;
 	}
 
 	public boolean applicableDynamicAttribute(EntityId attrId) {
 
-		for (Attribute attribute : dynamicAttributes.getEntities()) {
+		for (DynamicAttribute attribute : dynamicAttributes.getDynamicAttributes()) {
 
-			if (((DynamicAttribute)attribute).getAttributeId().equals(attrId)) {
+			if (attribute.getAttributeId().equals(attrId)) {
 
 				return true;
 			}
@@ -556,9 +556,9 @@ public abstract class Concept extends EditTarget {
 		return this;
 	}
 
-	List<Attribute> getDynamicAttributesDownwards() {
+	List<DynamicAttribute> getDynamicAttributesDownwards() {
 
-		List<Attribute> attributes = new ArrayList<Attribute>();
+		List<DynamicAttribute> attributes = new ArrayList<DynamicAttribute>();
 
 		collectDynamicAttributesDownwards(attributes);
 
@@ -671,29 +671,47 @@ public abstract class Concept extends EditTarget {
 		}
 	}
 
-	private void collectDynamicAttributesUpwards(List<Attribute> attributes) {
+	private List<DynamicAttribute> getDynamicAttributesUpwards() {
+
+		List<DynamicAttribute> attributes = new ArrayList<DynamicAttribute>();
+
+		collectDynamicAttributesUpwards(attributes);
+
+		return attributes;
+	}
+
+	private List<DynamicAttribute> getInwardDynamicAttributesUpwards() {
+
+		List<DynamicAttribute> attributes = new ArrayList<DynamicAttribute>();
+
+		collectInwardDynamicAttributesUpwards(attributes);
+
+		return attributes;
+	}
+
+	private void collectDynamicAttributesUpwards(List<DynamicAttribute> attributes) {
 
 		if (!isRoot()) {
 
 			getParent().collectDynamicAttributesUpwards(attributes);
 		}
 
-		attributes.addAll(dynamicAttributes.getEntities());
+		attributes.addAll(dynamicAttributes.getDynamicAttributes());
 	}
 
-	private void collectInwardDynamicAttributesUpwards(List<Attribute> attributes) {
+	private void collectInwardDynamicAttributesUpwards(List<DynamicAttribute> attributes) {
 
 		if (!isRoot()) {
 
 			getParent().collectInwardDynamicAttributesUpwards(attributes);
 		}
 
-		attributes.addAll(inwardDynamicAttributes.getEntities());
+		attributes.addAll(inwardDynamicAttributes.getDynamicAttributes());
 	}
 
-	private void collectDynamicAttributesDownwards(List<Attribute> attributes) {
+	private void collectDynamicAttributesDownwards(List<DynamicAttribute> attributes) {
 
-		attributes.addAll(dynamicAttributes.getEntities());
+		attributes.addAll(dynamicAttributes.getDynamicAttributes());
 
 		for (Concept child : getChildren()) {
 

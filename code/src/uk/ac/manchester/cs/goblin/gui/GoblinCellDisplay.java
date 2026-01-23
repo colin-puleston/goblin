@@ -107,7 +107,12 @@ enum GoblinCellDisplay {
 
 	GCellDisplay forConcept(Concept concept) {
 
-		GCellDisplay display = new GCellDisplay(concept.getConceptId().getLabel(), icon);
+		return forConcept(concept.getConceptId().getLabel());
+	}
+
+	GCellDisplay forConcept(String label) {
+
+		GCellDisplay display = new GCellDisplay(label, icon);
 
 		display.setFontStyle(Font.BOLD);
 
@@ -158,13 +163,6 @@ enum GoblinCellDisplay {
 		return display;
 	}
 
-	private String getConstraintsLabel(ConstraintGroup group) {
-
-		String attrLabel = group.getAttribute().getLabel();
-
-		return group.inwardGroup() ? ("<= " + attrLabel) : (attrLabel + " =>");
-	}
-
 	private String getConceptSetLabel(Set<Concept> concepts) {
 
 		SortedSet<String> labels = new TreeSet<String>();
@@ -175,5 +173,12 @@ enum GoblinCellDisplay {
 		}
 
 		return labels.toString();
+	}
+
+	private String getConstraintsLabel(ConstraintGroup group) {
+
+		String attrLabel = group.getAttribute().getLabel();
+
+		return group.inwardGroup() ? ("<= " + attrLabel) : (attrLabel + " =>");
 	}
 }

@@ -112,7 +112,7 @@ public abstract class Hierarchy {
 		return Collections.emptyList();
 	}
 
-	public List<Attribute> getDynamicAttributes() {
+	public List<DynamicAttribute> getDynamicAttributes() {
 
 		return Collections.emptyList();
 	}
