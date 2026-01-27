@@ -511,11 +511,11 @@ public abstract class Concept extends EditTarget {
 
 	void removeDynamicAttribute(DynamicAttribute attribute) {
 
+		removeAllConstraintsForDynamicAttribute(attribute);
+
 		dynamicAttributes.remove(attribute);
 
 		attribute.getRootTargetConcept().inwardDynamicAttributes.remove(attribute);
-
-		removeAllConstraintsForDynamicAttribute(attribute);
 
 		hierarchy.onRemovedDynamicAttribute(attribute);
 	}
@@ -554,6 +554,11 @@ public abstract class Concept extends EditTarget {
 	Concept getEditTargetConcept() {
 
 		return this;
+	}
+
+	boolean hasDynamicAttribute(DynamicAttribute attribute) {
+
+		return dynamicAttributes.containsEntity(attribute);
 	}
 
 	List<DynamicAttribute> getDynamicAttributesDownwards() {
@@ -613,16 +618,16 @@ public abstract class Concept extends EditTarget {
 
 	private EditAction incorporateInwardTargetRemovalEdits(EditAction action) {
 
-		CompoundEditAction cpmd = new CompoundEditAction();
+		CompoundEditAction compoundAction = new CompoundEditAction();
 
 		for (Constraint constraint : inwardConstraints.getEntities()) {
 
-			cpmd.addSubAction(constraint.createTargetValueRemovalEditAction(this));
+			compoundAction.addSubAction(constraint.createTargetValueRemovalEditAction(this));
 		}
 
-		cpmd.addSubAction(action);
+		compoundAction.addSubAction(action);
 
-		return cpmd;
+		return compoundAction;
 	}
 
 	private ConflictResolution checkMoveConflicts(Concept newParent) {
@@ -719,7 +724,9 @@ public abstract class Concept extends EditTarget {
 		}
 	}
 
-	private void collectConstraintsDownwards(Attribute attribute, List<Constraint> constraints) {
+	private void collectConstraintsDownwards(
+					Attribute attribute,
+					List<Constraint> constraints) {
 
 		constraints.addAll(getConstraints(attribute));
 

@@ -33,11 +33,55 @@ import uk.ac.manchester.cs.goblin.model.*;
 /**
  * @author Colin Puleston
  */
-class ModelSectionPanel extends ConceptTreesPanel<Hierarchy> {
+class ModelSectionPanel extends MultiTabPanel<Hierarchy> {
 
 	static private final long serialVersionUID = -1;
 
 	private ModelSection section;
+
+	private class LocationDisplay {
+
+		private Hierarchy coreHierarchy;
+		private Concept coreConcept;
+		private Attribute coreConceptAttribute;
+
+		LocationDisplay(EditLocation location) {
+
+			coreHierarchy = location.getEditedHierarchy();
+			coreConcept = location.getEditedConceptOrNull();
+			coreConceptAttribute = location.getEditedAttributeOrNull();
+		}
+
+		LocationDisplay(Hierarchy coreHierarchy, DynamicAttribute dynamicAttribute) {
+
+			this.coreHierarchy = coreHierarchy;
+
+			coreConcept = dynamicAttribute.getRootSourceConcept();
+			coreConceptAttribute = dynamicAttribute;
+		}
+
+		void displayLocation() {
+
+			makeSourceVisible(coreHierarchy);
+
+			CoreHierarchyPanel hierarchyPanel = getCoreHierarchyPanel();
+
+			if (coreConcept != null) {
+
+				hierarchyPanel.selectConcept(coreConcept);
+
+				if (coreConceptAttribute != null) {
+
+					hierarchyPanel.selectAttribute(coreConceptAttribute);
+				}
+			}
+		}
+
+		private CoreHierarchyPanel getCoreHierarchyPanel() {
+
+			return (CoreHierarchyPanel)getSourceComponent(coreHierarchy);
+		}
+	}
 
 	ModelSectionPanel(ModelSection section) {
 
@@ -83,31 +127,41 @@ class ModelSectionPanel extends ConceptTreesPanel<Hierarchy> {
 
 	boolean checkMakeEditVisible(EditLocation location) {
 
-		int hierarchyIdx = checkMakeHierarchyVisible(location);
+		LocationDisplay locationDisplay = toLocationDisplayOrNull(location);
 
-		if (hierarchyIdx == -1) {
+		if (locationDisplay != null) {
 
-			return false;
+			locationDisplay.displayLocation();
+
+			return true;
 		}
 
-		if (location.constraintEdit()) {
+		return false;
+	}
 
-			Constraint constraint = location.getEditedConstraint();
+	private LocationDisplay toLocationDisplayOrNull(EditLocation location) {
 
-			getCoreHierarchyPanel(hierarchyIdx).makeConstraintVisible(constraint);
+		Hierarchy edHierarchy = location.getEditedHierarchy();
+
+		for (Hierarchy coreHierarchy : section.getCoreHierarchies()) {
+
+			if (coreHierarchy.equals(edHierarchy)) {
+
+				return new LocationDisplay(location);
+			}
+
+			for (DynamicAttribute attribute : coreHierarchy.getDynamicAttributes()) {
+
+				Hierarchy valuesHierarchy = attribute.getRootTargetConcept().getHierarchy();
+
+				if (valuesHierarchy.equals(edHierarchy)) {
+
+					return new LocationDisplay(coreHierarchy, attribute);
+				}
+			}
 		}
 
-		return true;
-	}
-
-	private int checkMakeHierarchyVisible(EditLocation location) {
-
-		return checkMakeSourceVisible(location.getEditedConcept().getHierarchy().getRootConcept());
-	}
-
-	private CoreHierarchyPanel getCoreHierarchyPanel(int hierarchyIdx) {
-
-		return (CoreHierarchyPanel)getComponentAt(hierarchyIdx);
+		return null;
 	}
 
 	private String getTitleSuffix(Hierarchy hierarchy) {

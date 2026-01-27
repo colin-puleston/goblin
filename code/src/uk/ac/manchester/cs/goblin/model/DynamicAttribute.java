@@ -34,6 +34,11 @@ public class DynamicAttribute extends Attribute {
 
 			return getRootSourceConcept();
 		}
+
+		Attribute getEditTargetAttributeOrNull() {
+
+			return DynamicAttribute.this;
+		}
 	}
 
 	private class ReplaceAttributeIdAction extends ReplaceAction<AttributeId> {
@@ -105,6 +110,11 @@ public class DynamicAttribute extends Attribute {
 		return getRootSourceConcept().getHierarchy().getDynamicAttributeConstraintsOption();
 	}
 
+	public boolean currentlyActive() {
+
+		return getRootSourceConcept().hasDynamicAttribute(this);
+	}
+
 	DynamicAttribute(EntityId attrId, Concept rootSourceConcept, Concept rootTargetConcept) {
 
 		super(rootSourceConcept, rootTargetConcept);
@@ -138,7 +148,7 @@ public class DynamicAttribute extends Attribute {
 
 		EditAction action = new RemoveAction(this);
 
-		List<Constraint> constraints = getAllConstraintsForAttribute();
+		List<Constraint> constraints = getConstraintsDownwards();
 
 		if (!constraints.isEmpty()) {
 
@@ -152,19 +162,19 @@ public class DynamicAttribute extends Attribute {
 							EditAction action,
 							List<Constraint> constraints) {
 
-		CompoundEditAction cpmd = new CompoundEditAction();
+		CompoundEditAction compoundAction = new CompoundEditAction();
 
 		for (Constraint constraint : constraints) {
 
-			cpmd.addSubAction(new RemoveAction(constraint));
+			compoundAction.addSubAction(new RemoveAction(constraint));
 		}
 
-		cpmd.addSubAction(action);
+		compoundAction.addSubAction(action);
 
-		return cpmd;
+		return compoundAction;
 	}
 
-	private List<Constraint> getAllConstraintsForAttribute() {
+	private List<Constraint> getConstraintsDownwards() {
 
 		return getRootSourceConcept().getConstraintsDownwards(this);
 	}

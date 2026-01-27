@@ -140,7 +140,9 @@ class ConstraintGroupPanel extends JPanel {
 
 		void populate() {
 
-			targetsTree.initialise(getValidValuesConstraint());
+			Constraint validValues = getValidValuesConstraint();
+
+			targetsTree.initialise(validValues);
 
 			add(createHeaderPanel(), BorderLayout.NORTH);
 			add(new JScrollPane(targetsTree), BorderLayout.CENTER);
@@ -176,7 +178,16 @@ class ConstraintGroupPanel extends JPanel {
 
 		Constraint getValidValuesConstraint() {
 
-			return source.lookForValidValuesConstraint(attribute);
+			Constraint validValues = source.lookForValidValuesConstraint(attribute);
+
+			if (validValues != null) {
+
+				return validValues;
+			}
+
+			throw new RuntimeException(
+						"Cannot find valid-values onstraint for attribute: "
+						+ attribute);
 		}
 
 		GoblinCellDisplay getCellDisplay(Concept concept) {
@@ -282,7 +293,9 @@ class ConstraintGroupPanel extends JPanel {
 
 		private EditActionsPanel createImpliedValuesPanel() {
 
-			return new ImpliedValuesEditActionsPanel(source, getValidValuesConstraint(), targetsTree);
+			Constraint validValues = getValidValuesConstraint(false);
+
+			return new ImpliedValuesEditActionsPanel(source, validValues, targetsTree);
 		}
 
 		private void addActionsTab(JTabbedPane tabs, EditActionsPanel actionsPanel) {
@@ -292,7 +305,7 @@ class ConstraintGroupPanel extends JPanel {
 
 		private ConstraintTargetsDisplay createTargetsDisplay() {
 
-			Constraint validValues = getValidValuesConstraint();
+			Constraint validValues = getValidValuesConstraint(false);
 			List<Constraint> impliedValues = source.getImpliedValueConstraints(attribute);
 
 			return new ConstraintTargetsDisplay(validValues, impliedValues);
@@ -739,22 +752,23 @@ class ConstraintGroupPanel extends JPanel {
 
 		protected void onSelected(GNode node) {
 
-			Concept selected = sourcesTree.getSelectedConcept();
+			if (attribute.currentlyActive()) {
 
-			if (selected != null && attributeStillApplicable(selected)) {
+				Concept selected = sourcesTree.getSelectedConcept();
 
-				resetSourceConcept(selected);
+				if (selected != null) {
+
+					resetSourceConcept(selected);
+				}
 			}
 		}
 
 		protected void onDeselected(GNode node) {
 
-			clearSourceConcept();
-		}
+			if (attribute.currentlyActive()) {
 
-		private boolean attributeStillApplicable(Concept selected) {
-
-			return selected.subsumedBy(attribute.getRootSourceConcept());
+				clearSourceConcept();
+			}
 		}
 	}
 
@@ -772,12 +786,20 @@ class ConstraintGroupPanel extends JPanel {
 
 	private void resetSourceConcept(Concept source) {
 
-		createPanelPopulator(source).repopulate();
+		if (attributeStillApplicable(source)) {
+
+			createPanelPopulator(source).repopulate();
+		}
 	}
 
 	private void clearSourceConcept() {
 
 		new DefaultPanelPopulator().repopulate();
+	}
+
+	private boolean attributeStillApplicable(Concept source) {
+
+		return source.subsumedBy(attribute.getRootSourceConcept());
 	}
 
 	private PanelPopulator createPanelPopulator(Concept source) {

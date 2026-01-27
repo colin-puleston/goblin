@@ -120,6 +120,11 @@ public abstract class Constraint extends EditTarget {
 		return getSourceValue();
 	}
 
+	Attribute getEditTargetAttributeOrNull() {
+
+		return attribute;
+	}
+
 	boolean onAttribute(Attribute testAttr) {
 
 		return testAttr.equals(attribute);

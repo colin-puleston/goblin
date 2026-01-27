@@ -6,34 +6,36 @@ package uk.ac.manchester.cs.goblin.model;
 public class EditLocation {
 
 	private EditTarget target;
+	private boolean postRemovalOp;
 
-	public boolean conceptEdit() {
+	public Hierarchy getEditedHierarchy() {
 
-		return target instanceof Concept;
+		return target.getEditTargetConcept().getHierarchy();
 	}
 
-	public boolean constraintEdit() {
+	public Concept getEditedConceptOrNull() {
 
-		return target instanceof Constraint;
-	}
+		if (target instanceof Concept && postRemovalOp) {
 
-	public Concept getEditedConcept() {
+			return null;
+		}
 
 		return target.getEditTargetConcept();
 	}
 
-	public Constraint getEditedConstraint() {
+	public Attribute getEditedAttributeOrNull() {
 
-		if (constraintEdit()) {
+		if (target instanceof Attribute && postRemovalOp) {
 
-			return (Constraint)target;
+			return null;
 		}
 
-		throw new RuntimeException("Not a constraint edit");
+		return target.getEditTargetAttributeOrNull();
 	}
 
-	EditLocation(EditTarget target) {
+	EditLocation(EditTarget target, boolean postRemovalOp) {
 
 		this.target = target;
+		this.postRemovalOp = postRemovalOp;
 	}
 }

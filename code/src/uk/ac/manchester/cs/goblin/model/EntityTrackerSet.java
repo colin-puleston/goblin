@@ -58,6 +58,19 @@ abstract class EntityTrackerSet<E, T extends EntityTracker<E>> {
 		return trackers.isEmpty();
 	}
 
+	boolean containsEntity(E entity) {
+
+		for (T tracker : trackers) {
+
+			if (tracker.getEntity() == entity) {
+
+				return true;
+			}
+		}
+
+		return false;
+	}
+
 	List<E> getEntities() {
 
 		List<E> entities = new ArrayList<E>();

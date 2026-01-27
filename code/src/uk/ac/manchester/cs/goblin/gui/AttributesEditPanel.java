@@ -37,7 +37,7 @@ import uk.ac.manchester.cs.goblin.model.*;
 /**
  * @author Colin Puleston
  */
-class AttributesEditPanel extends ConceptTreesPanel<Attribute> {
+class AttributesEditPanel extends MultiTabPanel<Attribute> {
 
 	static private final long serialVersionUID = -1;
 
@@ -66,11 +66,14 @@ class AttributesEditPanel extends ConceptTreesPanel<Attribute> {
 
 		private void updateTree(int index) {
 
-			List<Attribute> attributes = getHierarchy().getAllAttributes();
+			if (index != -1) {
 
-			if (attributes.size() > index) {
+				List<Attribute> attributes = getHierarchy().getAllAttributes();
 
-				hierarchyTree.setAttributeSelection(attributes.get(index));
+				if (attributes.size() > index) {
+
+					hierarchyTree.setAttributeSelection(attributes.get(index));
+				}
 			}
 		}
 	}
@@ -164,11 +167,6 @@ class AttributesEditPanel extends ConceptTreesPanel<Attribute> {
 	String getTitle(Attribute attribute) {
 
 		return attribute.getLabel();
-	}
-
-	Concept getRootConcept(Attribute attribute) {
-
-		return attribute.getRootTargetConcept();
 	}
 
 	JComponent createComponent(Attribute attribute) {

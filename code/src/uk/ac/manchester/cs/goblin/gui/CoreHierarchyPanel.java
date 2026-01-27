@@ -56,12 +56,15 @@ class CoreHierarchyPanel extends GSplitPane {
 		setRightComponent(createAttributesComponent());
 	}
 
-	void makeConstraintVisible(Constraint constraint) {
+	void selectConcept(Concept concept) {
 
 		hierarchyTree.clearSelection();
-		hierarchyTree.selectConcept(constraint.getSourceValue());
+		hierarchyTree.selectConcept(concept);
+	}
 
-		attributesEditPanel.makeSourceVisible(constraint.getAttribute());
+	void selectAttribute(Attribute attribute) {
+
+		attributesEditPanel.makeSourceVisible(attribute);
 	}
 
 	private JComponent createTreeComponent(HierarchyTreePanel treePanel) {

@@ -67,7 +67,7 @@ class EditActions {
 
 		perfom(action, forward, tos);
 
-		return action.getFinalAtomicAction(forward).getEditLocation();
+		return action.getFinalAtomicAction(forward).getEditLocation(forward);
 	}
 
 	private void perfom(EditAction action, boolean forward, Deque<EditAction> tos) {

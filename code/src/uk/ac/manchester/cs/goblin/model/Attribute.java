@@ -20,6 +20,11 @@ public abstract class Attribute extends EditTarget {
 		return false;
 	}
 
+	public boolean currentlyActive() {
+
+		return true;
+	}
+
 	public abstract String getLabel();
 
 	public Concept getRootSourceConcept() {

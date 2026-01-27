@@ -10,4 +10,9 @@ abstract class EditTarget {
 	abstract void doRemove(boolean replacing);
 
 	abstract Concept getEditTargetConcept();
+
+	Attribute getEditTargetAttributeOrNull() {
+
+		return null;
+	}
 }

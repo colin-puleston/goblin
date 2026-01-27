@@ -32,12 +32,10 @@ import javax.swing.*;
 
 import uk.ac.manchester.cs.mekon_util.gui.*;
 
-import uk.ac.manchester.cs.goblin.model.*;
-
 /**
  * @author Colin Puleston
  */
-abstract class ConceptTreesPanel<S> extends JTabbedPane {
+abstract class MultiTabPanel<S> extends JTabbedPane {
 
 	static private final long serialVersionUID = -1;
 
@@ -109,7 +107,7 @@ abstract class ConceptTreesPanel<S> extends JTabbedPane {
 		}
 	}
 
-	ConceptTreesPanel(int tabPlacement) {
+	MultiTabPanel(int tabPlacement) {
 
 		super(tabPlacement);
 	}
@@ -141,30 +139,14 @@ abstract class ConceptTreesPanel<S> extends JTabbedPane {
 		setSelectedIndex(sources.indexOf(source));
 	}
 
-	int checkMakeSourceVisible(Concept rootConcept) {
+	JComponent getSourceComponent(S source) {
 
-		int i = 0;
-
-		for (S source : sources) {
-
-			if (getRootConcept(source).equals(rootConcept)) {
-
-				setSelectedIndex(i);
-
-				return i;
-			}
-
-			i++;
-		}
-
-		return -1;
+		return (JComponent)getComponentAt(sources.indexOf(source));
 	}
 
 	abstract List<S> getSources();
 
 	abstract String getTitle(S source);
-
-	abstract Concept getRootConcept(S source);
 
 	abstract JComponent createComponent(S source);
 

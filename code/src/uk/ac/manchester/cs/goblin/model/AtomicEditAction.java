@@ -34,9 +34,9 @@ abstract class AtomicEditAction<T extends EditTarget> extends EditAction {
 		return this;
 	}
 
-	EditLocation getEditLocation() {
+	EditLocation getEditLocation(boolean forward) {
 
-		return new EditLocation(target);
+		return new EditLocation(target, addAction() != forward);
 	}
 
 	abstract boolean addAction();
