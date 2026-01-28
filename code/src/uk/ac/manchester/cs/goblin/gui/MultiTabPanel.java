@@ -43,20 +43,16 @@ abstract class MultiTabPanel<S> extends JTabbedPane {
 
 	private class Repopulater {
 
-		private List<S> currentSources = getSources();
-		private int selectedIndex = getSelectedIndex();
+		private List<S> oldSources = sources;
 
 		Repopulater() {
 
-			if (selectedIndex != -1 && !selectionStillValid()) {
+			sources = getSources();
 
-				selectedIndex = -1;
-			}
+			int selectedIndex = getNewSelectedIndex();
 
 			removeOldTabs();
 			insertNewTabs();
-
-			sources = currentSources;
 
 			if (selectedIndex != -1) {
 
@@ -64,45 +60,54 @@ abstract class MultiTabPanel<S> extends JTabbedPane {
 			}
 		}
 
-		private boolean selectionStillValid() {
+		private int getNewSelectedIndex() {
 
-			return currentSources.contains(sources.get(selectedIndex));
+			int oldIdx = getSelectedIndex();
+
+			if (oldIdx == -1) {
+
+				return -1;
+			}
+
+			return sources.indexOf(oldSources.get(oldIdx));
 		}
 
 		private void removeOldTabs() {
 
 			int tab = 0;
 
-			for (S source : sources) {
+			for (S source : new ArrayList<S>(oldSources)) {
 
-				if (currentSources.contains(source)) {
+				if (sources.contains(source)) {
 
 					tab++;
 				}
 				else {
 
 					removeTabAt(tab);
+
+					oldSources.remove(source);
 				}
 			}
 		}
 
 		private void insertNewTabs() {
 
-			int tabIdx = 0;
-			int oldSourceIdx = 0;
+			int tab = 0;
+			int old = 0;
 
-			for (S source : currentSources) {
+			for (S source : sources) {
 
-				if (oldSourceIdx < sources.size() && sources.get(oldSourceIdx).equals(source)) {
+				if (old < oldSources.size() && oldSources.get(old).equals(source)) {
 
-					oldSourceIdx++;
+					old++;
 				}
 				else {
 
-					addSourceTab(source, tabIdx);
+					addSourceTab(source, tab);
 				}
 
-				tabIdx++;
+				tab++;
 			}
 		}
 	}

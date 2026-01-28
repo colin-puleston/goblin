@@ -5,6 +5,11 @@ package uk.ac.manchester.cs.goblin.model;
  */
 class DynamicValueHierarchy extends Hierarchy {
 
+	public boolean potentiallyHasInwardAttributes() {
+
+		return true;
+	}
+
 	DynamicValueHierarchy(Model model, EntityId rootConceptId) {
 
 		super(model, rootConceptId);

@@ -150,6 +150,8 @@ public class DynamicAttribute extends Attribute {
 
 		List<Constraint> constraints = getConstraintsDownwards();
 
+		constraints.remove(getRootConstraint());
+
 		if (!constraints.isEmpty()) {
 
 			action = incorporateConstraintRemovalEdits(action, constraints);

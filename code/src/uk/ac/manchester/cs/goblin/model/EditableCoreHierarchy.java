@@ -33,17 +33,7 @@ public class EditableCoreHierarchy extends CoreHierarchy {
 
 		attribute.getRootTargetConcept().getHierarchy().addInwardCoreAttribute(attribute);
 
-		attribute.getRootSourceConcept().addConstraint(attribute.createRootConstraint());
-	}
-
-	public boolean hasCoreAttributes() {
-
-		return !coreAttributes.isEmpty();
-	}
-
-	public boolean dynamicAttributesEnabled() {
-
-		return dynamicAttributesConstraintsOption != null;
+		attribute.getRootSourceConcept().addConstraint(attribute.getRootConstraint());
 	}
 
 	public List<Attribute> getAllAttributes() {
@@ -55,9 +45,24 @@ public class EditableCoreHierarchy extends CoreHierarchy {
 		return attributes;
 	}
 
+	public boolean hasCoreAttributes() {
+
+		return !coreAttributes.isEmpty();
+	}
+
 	public List<Attribute> getCoreAttributes() {
 
 		return new ArrayList<Attribute>(coreAttributes);
+	}
+
+	public boolean dynamicAttributesEnabled() {
+
+		return dynamicAttributesConstraintsOption != null;
+	}
+
+	public boolean hasDynamicAttributes() {
+
+		return !getDynamicAttributes().isEmpty();
 	}
 
 	public List<DynamicAttribute> getDynamicAttributes() {

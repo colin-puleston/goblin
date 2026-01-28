@@ -226,14 +226,16 @@ public abstract class Concept extends EditTarget {
 
 	public DynamicAttribute addDynamicAttribute(EntityId attrId, Concept rootTargetConcept) {
 
-		if (!applicableDynamicAttribute(attrId)) {
+		if (applicableDynamicAttribute(attrId)) {
 
-			DynamicAttribute attribute = new DynamicAttribute(attrId, this, rootTargetConcept);
+			throw new RuntimeException("Dynamic attribute already exists: " + attrId);
+		}
 
-			if (attribute.add()) {
+		DynamicAttribute attribute = new DynamicAttribute(attrId, this, rootTargetConcept);
 
-				return attribute;
-			}
+		if (attribute.add()) {
+
+			return attribute;
 		}
 
 		return null;
@@ -504,18 +506,18 @@ public abstract class Concept extends EditTarget {
 
 		attribute.getRootTargetConcept().inwardDynamicAttributes.add(attribute);
 
-		addConstraint(attribute.createRootConstraint());
+		addConstraint(attribute.getRootConstraint());
 
 		hierarchy.onAddedDynamicAttribute(attribute);
 	}
 
 	void removeDynamicAttribute(DynamicAttribute attribute) {
 
-		removeAllConstraintsForDynamicAttribute(attribute);
-
 		dynamicAttributes.remove(attribute);
 
 		attribute.getRootTargetConcept().inwardDynamicAttributes.remove(attribute);
+
+		removeConstraint(attribute.getRootConstraint());
 
 		hierarchy.onRemovedDynamicAttribute(attribute);
 	}
@@ -651,19 +653,6 @@ public abstract class Concept extends EditTarget {
 	private void performAction(EditAction action) {
 
 		getModel().getEditActions().perform(action);
-	}
-
-	private void removeAllConstraintsForDynamicAttribute(Attribute attribute) {
-
-		for (Constraint constraint : getConstraints(attribute)) {
-
-			removeConstraint(constraint);
-		}
-
-		for (Concept sub : getChildren()) {
-
-			sub.removeAllConstraintsForDynamicAttribute(attribute);
-		}
 	}
 
 	private void removeAllSubTreeListeners() {

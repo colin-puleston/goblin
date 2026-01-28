@@ -168,7 +168,7 @@ class ModelSectionPanel extends MultiTabPanel<Hierarchy> {
 
 		String suffix = "";
 
-		if (hierarchy.hasInwardCoreAttributes()) {
+		if (hierarchy.potentiallyHasInwardAttributes()) {
 
 			suffix += "<=";
 

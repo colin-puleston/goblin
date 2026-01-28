@@ -25,6 +25,7 @@
 package uk.ac.manchester.cs.goblin.gui;
 
 import java.awt.BorderLayout;
+import java.util.*;
 
 import javax.swing.*;
 
@@ -41,42 +42,46 @@ class DynamicAttributeCreatePanel extends JPanel {
 
 	static private final String TITLE = "Create dynamic attribute...";
 
-	static private final String ADD_BUTTON_LABEL_FORMAT = "...with %s values...";
+	static private final String BUTTON_LABEL_FORMAT = "...with %s values...";
 	static private final String NEW_VALUES_DESCRIPTOR = "new";
 	static private final String LINKED_VALUES_DESCRIPTOR = "linked";
 
 	static private final String NEW_ROOT_TARGET_CONCEPT_NAME_FORMAT = "%s-%s-value";
 
 	private HierarchyTree hierarchyTree;
+	private ButtonEnabler buttonEnabler;
 
-	private abstract class AddButton extends GButton {
+	private class ButtonEnabler extends GSelectionListener<GNode> {
 
-		static private final long serialVersionUID = -1;
+		final List<CreateButton> buttons = new ArrayList<CreateButton>();
 
-		private class Enabler extends GSelectionListener<GNode> {
+		protected void onSelected(GNode node) {
 
-			protected void onSelected(GNode node) {
+			updateEnabling();
+		}
 
-				updateEnabling();
-			}
+		protected void onDeselected(GNode node) {
 
-			protected void onDeselected(GNode node) {
+			updateEnabling();
+		}
 
-				updateEnabling();
-			}
+		ButtonEnabler() {
 
-			Enabler() {
+			hierarchyTree.addNodeSelectionListener(this);
+		}
 
-				hierarchyTree.addNodeSelectionListener(this);
+		void updateEnabling() {
 
-				updateEnabling();
-			}
+			for (CreateButton button : buttons) {
 
-			private void updateEnabling() {
-
-				setEnabled(getSelectedConcept() != null);
+				button.updateEnabling();
 			}
 		}
+	}
+
+	private abstract class CreateButton extends GButton {
+
+		static private final long serialVersionUID = -1;
 
 		protected void doButtonThing() {
 
@@ -93,15 +98,29 @@ class DynamicAttributeCreatePanel extends JPanel {
 				else {
 
 					checkCreateAttribute(source, attrId);
+
+					buttonEnabler.updateEnabling();
 				}
 			}
 		}
 
-		AddButton(String valuesSourceDescriptor) {
+		CreateButton(String valuesSourceDescriptor) {
 
-			super(String.format(ADD_BUTTON_LABEL_FORMAT, valuesSourceDescriptor));
+			super(String.format(BUTTON_LABEL_FORMAT, valuesSourceDescriptor));
 
-			new Enabler();
+			updateEnabling();
+
+			buttonEnabler.buttons.add(this);
+		}
+
+		void updateEnabling() {
+
+			setEnabled(enabled());
+		}
+
+		boolean enabled() {
+
+			return getSelectedConcept() != null;
 		}
 
 		abstract void checkCreateAttribute(Concept source, EntityId attrId);
@@ -119,11 +138,11 @@ class DynamicAttributeCreatePanel extends JPanel {
 		}
 	}
 
-	private class AddWithNewValuesButton extends AddButton {
+	private class CreateWithNewValuesButton extends CreateButton {
 
 		static private final long serialVersionUID = -1;
 
-		AddWithNewValuesButton() {
+		CreateWithNewValuesButton() {
 
 			super(NEW_VALUES_DESCRIPTOR);
 		}
@@ -163,13 +182,18 @@ class DynamicAttributeCreatePanel extends JPanel {
 		}
 	}
 
-	private class AddWithLinkedValuesButton extends AddButton {
+	private class CreateWithLinkedValuesButton extends CreateButton {
 
 		static private final long serialVersionUID = -1;
 
-		AddWithLinkedValuesButton() {
+		CreateWithLinkedValuesButton() {
 
 			super(LINKED_VALUES_DESCRIPTOR);
+		}
+
+		boolean enabled() {
+
+			return super.enabled() && existingDynamicAttributes();
 		}
 
 		void checkCreateAttribute(Concept source, EntityId attrId) {
@@ -182,9 +206,22 @@ class DynamicAttributeCreatePanel extends JPanel {
 			}
 		}
 
-		Hierarchy getLinkedValuesHierarchy(Concept source) {
+		private Hierarchy getLinkedValuesHierarchy(Concept source) {
 
 			return new DynamicAttributeLinkedValuesSelector(source).getSelectedValuesHierarchy();
+		}
+
+		private boolean existingDynamicAttributes() {
+
+			for (Hierarchy hierarchy : getHierarchy().getModel().getCoreHierarchies()) {
+
+				if (hierarchy.hasDynamicAttributes()) {
+
+					return true;
+				}
+			}
+
+			return false;
 		}
 	}
 
@@ -194,6 +231,8 @@ class DynamicAttributeCreatePanel extends JPanel {
 
 		this.hierarchyTree = hierarchyTree;
 
+		buttonEnabler = new ButtonEnabler();
+
 		TitledPanels.setTitle(this, TITLE);
 
 		add(createButtonsPanel(), BorderLayout.CENTER);
@@ -202,8 +241,8 @@ class DynamicAttributeCreatePanel extends JPanel {
 	private JPanel createButtonsPanel() {
 
 		return ControlsPanel.horizontal(
-					new AddWithNewValuesButton(),
-					new AddWithLinkedValuesButton());
+					new CreateWithNewValuesButton(),
+					new CreateWithLinkedValuesButton());
 	}
 
 	private Concept getSelectedConcept() {
@@ -213,6 +252,11 @@ class DynamicAttributeCreatePanel extends JPanel {
 
 	private boolean conceptExists(EntityId id) {
 
-		return hierarchyTree.getHierarchy().getModel().containsConcept(id);
+		return getHierarchy().getModel().containsConcept(id);
+	}
+
+	private Hierarchy getHierarchy() {
+
+		return hierarchyTree.getHierarchy();
 	}
 }

@@ -82,24 +82,9 @@ public abstract class Hierarchy {
 		return concept;
 	}
 
-	public boolean hasCoreAttributes() {
-
-		return false;
-	}
-
-	public boolean dynamicAttributesEnabled() {
-
-		return false;
-	}
-
 	public boolean potentiallyHasAttributes() {
 
 		return hasCoreAttributes() || dynamicAttributesEnabled();
-	}
-
-	public boolean hasInwardCoreAttributes() {
-
-		return !inwardCoreAttributes.isEmpty();
 	}
 
 	public List<Attribute> getAllAttributes() {
@@ -107,19 +92,44 @@ public abstract class Hierarchy {
 		return Collections.emptyList();
 	}
 
+	public boolean hasCoreAttributes() {
+
+		return false;
+	}
+
 	public List<Attribute> getCoreAttributes() {
 
 		return Collections.emptyList();
 	}
 
-	public List<DynamicAttribute> getDynamicAttributes() {
+	public boolean potentiallyHasInwardAttributes() {
 
-		return Collections.emptyList();
+		return hasInwardCoreAttributes();
+	}
+
+	public boolean hasInwardCoreAttributes() {
+
+		return !inwardCoreAttributes.isEmpty();
 	}
 
 	public List<Attribute> getInwardCoreAttributes() {
 
 		return new ArrayList<Attribute>(inwardCoreAttributes);
+	}
+
+	public boolean dynamicAttributesEnabled() {
+
+		return false;
+	}
+
+	public boolean hasDynamicAttributes() {
+
+		return false;
+	}
+
+	public List<DynamicAttribute> getDynamicAttributes() {
+
+		return Collections.emptyList();
 	}
 
 	Hierarchy(Model model, EntityId rootConceptId) {

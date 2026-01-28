@@ -55,6 +55,18 @@ public class Model extends CoreHierarchyContainer {
 		return new ArrayList<ModelSection>(sections);
 	}
 
+	public List<Hierarchy> getCoreHierarchies() {
+
+		List<Hierarchy> hierarchies = new ArrayList<Hierarchy>();
+
+		for (ModelSection section : sections) {
+
+			hierarchies.addAll(section.getCoreHierarchies());
+		}
+
+		return hierarchies;
+	}
+
 	public boolean canUndo() {
 
 		return editActions.canUndo();

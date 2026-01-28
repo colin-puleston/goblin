@@ -10,6 +10,8 @@ public abstract class Attribute extends EditTarget {
 	private Concept rootSourceConcept;
 	private Concept rootTargetConcept;
 
+	private Constraint rootConstraint;
+
 	public String toString() {
 
 		return getLabel() + "(" + rootSourceConcept + " --> " + rootTargetConcept + ")";
@@ -43,6 +45,8 @@ public abstract class Attribute extends EditTarget {
 
 		this.rootSourceConcept = rootSourceConcept;
 		this.rootTargetConcept = rootTargetConcept;
+
+		rootConstraint = createRootConstraint();
 	}
 
 	void doAdd(boolean replacement) {
@@ -65,9 +69,9 @@ public abstract class Attribute extends EditTarget {
 		return rootSourceConcept;
 	}
 
-	Constraint createRootConstraint() {
+	Constraint getRootConstraint() {
 
-		return new ValidValuesConstraint(this, rootSourceConcept, rootTargetConcept);
+		return rootConstraint;
 	}
 
 	Constraint createValidValues(Concept sourceValue, Collection<Concept> targetValues) {
@@ -88,6 +92,11 @@ public abstract class Attribute extends EditTarget {
 		validateTargetValue(targetValue);
 
 		return new ImpliedValueConstraint(this, sourceValue, targetValue);
+	}
+
+	private Constraint createRootConstraint() {
+
+		return new ValidValuesConstraint(this, rootSourceConcept, rootTargetConcept);
 	}
 
 	private void validateSourceValue(Concept value) {

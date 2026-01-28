@@ -77,18 +77,18 @@ class HierarchyTreePanel extends JPanel {
 
 		DisplayModeSelector() {
 
+			addOption(NO_CONSTRAINTS_LABEL, ConstraintsDisplayMode.NONE);
+
 			if (hierarchy.potentiallyHasAttributes()) {
 
 				addOption(ALL_OUT_CONSTRAINTS_LABEL, ConstraintsDisplayMode.ALL_OUTWARDS);
 				addOption(CURRENT_OUT_CONSTRAINTS_LABEL, ConstraintsDisplayMode.CURRENT_OUTWARDS);
 			}
 
-			if (hierarchy.hasInwardCoreAttributes()) {
+			if (hierarchy.potentiallyHasInwardAttributes()) {
 
 				addOption(ALL_IN_CONSTRAINTS_LABEL, ConstraintsDisplayMode.ALL_INWARDS);
 			}
-
-			addOption(NO_CONSTRAINTS_LABEL, ConstraintsDisplayMode.NONE);
 
 			activate();
 		}
@@ -428,7 +428,8 @@ class HierarchyTreePanel extends JPanel {
 
 	private JComponent createUpperComponent(Hierarchy hierarchy) {
 
-		if (hierarchy.potentiallyHasAttributes() || hierarchy.hasInwardCoreAttributes()) {
+		if (hierarchy.potentiallyHasAttributes()
+			|| hierarchy.potentiallyHasInwardAttributes()) {
 
 			JPanel panel = new JPanel(new BorderLayout());
 
