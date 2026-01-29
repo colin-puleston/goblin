@@ -41,6 +41,8 @@ class DynamicAttributeLinkedValuesSelector extends GDialog {
 	static private final long serialVersionUID = -1;
 
 	static private final String TITLE = "Current values hierarchies";
+	static private final String CANCEL_LABEL = "Cancel";
+
 	static private final Dimension WINDOW_SIZE = new Dimension(600, 400);
 
 	private ModelSection localSection;
@@ -178,6 +180,21 @@ class DynamicAttributeLinkedValuesSelector extends GDialog {
 		}
 	}
 
+	private class CancelButton extends GButton {
+
+		static private final long serialVersionUID = -1;
+
+		protected void doButtonThing() {
+
+			dispose();
+		}
+
+		CancelButton() {
+
+			super(CANCEL_LABEL);
+		}
+	}
+
 	DynamicAttributeLinkedValuesSelector(Concept newAttributeSource) {
 
 		super(TITLE, true);
@@ -188,12 +205,22 @@ class DynamicAttributeLinkedValuesSelector extends GDialog {
 		setPreferredSize(WINDOW_SIZE);
 		setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 
-		display(new JScrollPane(new OptionsList()));
+		display(createMainComponent());
 	}
 
 	Hierarchy getSelectedValuesHierarchy() {
 
 		return selectedValuesHierarchy;
+	}
+
+	private JComponent createMainComponent() {
+
+		JPanel panel = new JPanel(new BorderLayout());
+
+		panel.add(new JScrollPane(new OptionsList()), BorderLayout.CENTER);
+		panel.add(new CancelButton(), BorderLayout.SOUTH);
+
+		return panel;
 	}
 
 	private ModelSection findLocalSection() {

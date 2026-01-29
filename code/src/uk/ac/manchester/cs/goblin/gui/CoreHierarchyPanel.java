@@ -40,7 +40,7 @@ class CoreHierarchyPanel extends GSplitPane {
 	static private final long serialVersionUID = -1;
 
 	static private final String TREE_TITLE = "Core hierarchy";
-	static private final String ATTRIBUTES_TITLE = "Attributes (selected hierarchy)";
+	static private final String ATTRIBUTES_TITLE = "Attributes";
 
 	private HierarchyTree hierarchyTree;
 	private AttributesEditPanel attributesEditPanel;

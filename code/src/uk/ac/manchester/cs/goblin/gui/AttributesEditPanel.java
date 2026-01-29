@@ -41,7 +41,7 @@ class AttributesEditPanel extends MultiTabPanel<Attribute> {
 
 	static private final long serialVersionUID = -1;
 
-	static private final String CONSTRAINTS_TITLE = "Constraints (selected concept)";
+	static private final String CONSTRAINTS_TITLE = "Constraints";
 
 	private HierarchyTree hierarchyTree;
 

@@ -39,7 +39,24 @@ class DynamicAttributeValuesEditDialog extends GDialog {
 	static private final long serialVersionUID = -1;
 
 	static private final String TITLE = "Values hierarchy";
+	static private final String DONE_LABEL = "Done";
+
 	static private final Dimension WINDOW_SIZE = new Dimension(500, 600);
+
+	private class DoneButton extends GButton {
+
+		static private final long serialVersionUID = -1;
+
+		protected void doButtonThing() {
+
+			dispose();
+		}
+
+		DoneButton() {
+
+			super(DONE_LABEL);
+		}
+	}
 
 	DynamicAttributeValuesEditDialog(DynamicAttribute attribute) {
 
@@ -48,11 +65,21 @@ class DynamicAttributeValuesEditDialog extends GDialog {
 		setPreferredSize(WINDOW_SIZE);
 		setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 
-		display(new HierarchyTreePanel(getValuesHierarchy(attribute)));
+		display(createMainComponent(attribute));
 	}
 
-	private Hierarchy getValuesHierarchy(DynamicAttribute attribute) {
+	private JComponent createMainComponent(DynamicAttribute attribute) {
 
-		return attribute.getRootTargetConcept().getHierarchy();
+		JPanel panel = new JPanel(new BorderLayout());
+
+		panel.add(createHierarchyTreePanel(attribute), BorderLayout.CENTER);
+		panel.add(new DoneButton(), BorderLayout.SOUTH);
+
+		return panel;
+	}
+
+	private HierarchyTreePanel createHierarchyTreePanel(DynamicAttribute attribute) {
+
+		return new HierarchyTreePanel(attribute.getRootTargetConcept().getHierarchy());
 	}
 }

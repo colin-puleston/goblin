@@ -88,7 +88,10 @@ abstract class DynamicIdSelector extends GDialog {
 
 			protected void onTextEntered(String text) {
 
-				dispose();
+				if (otherInput.valuePresent()) {
+
+					dispose();
+				}
 			}
 
 			ValueField() {
