@@ -9,28 +9,30 @@ class ConflictResolver {
 
 	private Confirmations confirmations = new AutoConfirmations();
 
-	private abstract class ConflictFinder {
+	private abstract class ConstraintConflictFinder {
 
 		final Constraint subject;
 
 		private Attribute attribute;
 		private List<Constraint> conflicts = new ArrayList<Constraint>();
 
-		ConflictFinder(Constraint subject) {
+		ConstraintConflictFinder(Constraint subject) {
 
 			this.subject = subject;
 
 			attribute = subject.getAttribute();
 		}
 
-		boolean any() {
+		boolean anyFrom(Concept start) {
 
-			return !findAll().isEmpty();
+			findFrom(start);
+
+			return !conflicts.isEmpty();
 		}
 
-		List<Constraint> findAll() {
+		List<Constraint> findAllFromLinkedConcepts(Concept start) {
 
-			findFromLinkedConcepts(subject.getSourceValue());
+			findFromLinkedConcepts(start);
 
 			return conflicts;
 		}
@@ -86,9 +88,9 @@ class ConflictResolver {
 		}
 	}
 
-	private class UpwardsConflictFinder extends ConflictFinder {
+	private class UpwardsConstraintConflictFinder extends ConstraintConflictFinder {
 
-		UpwardsConflictFinder(Constraint constraint) {
+		UpwardsConstraintConflictFinder(Constraint constraint) {
 
 			super(constraint);
 		}
@@ -109,9 +111,9 @@ class ConflictResolver {
 		}
 	}
 
-	private class DownwardsConflictFinder extends ConflictFinder {
+	private class DownwardsConstraintConflictFinder extends ConstraintConflictFinder {
 
-		DownwardsConflictFinder(Constraint constraint) {
+		DownwardsConstraintConflictFinder(Constraint constraint) {
 
 			super(constraint);
 		}
@@ -132,65 +134,23 @@ class ConflictResolver {
 		}
 	}
 
-	private class ConceptMoveConflictsFinder {
-
-		final List<Constraint> conflicts = new ArrayList<Constraint>();
-
-		ConceptMoveConflictsFinder(Concept moved) {
-
-			findDownwardsFrom(moved);
-		}
-
-		private void findDownwardsFrom(Concept moved) {
-
-			findFor(moved.getConstraints(), true);
-			findFor(moved.getInwardConstraints(), false);
-
-			for (Concept child : moved.getChildren()) {
-
-				findDownwardsFrom(child);
-			}
-		}
-
-		private void findFor(List<Constraint> constraints, boolean upOnly) {
-
-			for (Constraint constraint : constraints) {
-
-				if (anyUpwards(constraint) || (!upOnly && anyDownwards(constraint))) {
-
-					conflicts.add(constraint);
-				}
-			}
-		}
-
-		private boolean anyUpwards(Constraint constraint) {
-
-			return new UpwardsConflictFinder(constraint).any();
-		}
-
-		private boolean anyDownwards(Constraint constraint) {
-
-			return new DownwardsConflictFinder(constraint).any();
-		}
-	}
-
 	private abstract class ConstraintConflictsResolver {
 
-		private List<Constraint> conflicts;
+		private List<Constraint> removals;
 
-		void initialise(List<Constraint> conflicts) {
+		void initialise(List<Constraint> removals) {
 
-			this.conflicts = conflicts;
+			this.removals = removals;
 		}
 
 		ConflictResolution check() {
 
-			if (conflicts.isEmpty()) {
+			if (removals.isEmpty()) {
 
 				return ConflictResolution.NO_CONFLICTS;
 			}
 
-			if (confirmConflictRemovals(conflicts)) {
+			if (confirmConstraintRemovals(removals)) {
 
 				return new ConflictResolution(createConflictRemovalActions());
 			}
@@ -198,18 +158,113 @@ class ConflictResolver {
 			return ConflictResolution.NO_RESOLUTION;
 		}
 
-		abstract boolean confirmConflictRemovals(List<Constraint> conflicts);
+		abstract boolean confirmConstraintRemovals(List<Constraint> removals);
 
 		private List<EditAction> createConflictRemovalActions() {
 
 			List<EditAction> actions = new ArrayList<EditAction>();
 
-			for (Constraint conflict : conflicts) {
+			for (Constraint conflict : removals) {
 
 				actions.add(new RemoveAction(conflict));
 			}
 
 			return actions;
+		}
+	}
+
+	private class ConceptMoveOrphanedConstraintsResolver extends ConstraintConflictsResolver {
+
+		private Concept concept;
+
+		ConceptMoveOrphanedConstraintsResolver(Concept concept, Concept newParent) {
+
+			this.concept = concept;
+
+			initialise(findOrphanedConstraints(newParent));
+		}
+
+		boolean confirmConstraintRemovals(List<Constraint> removals) {
+
+			return confirmations.confirmConceptMoveOrphanedConstraintRemovals(concept, removals);
+		}
+
+		private List<Constraint> findOrphanedConstraints(Concept newParent) {
+
+			List<Constraint> orphaneds = new ArrayList<Constraint>();
+
+			for (DynamicAttribute attr : getPotentialOrphanParentAttributes(newParent)) {
+
+				orphaneds.addAll(concept.getConstraintsDownwards(attr));
+			}
+
+			return orphaneds;
+		}
+
+		private List<DynamicAttribute> getPotentialOrphanParentAttributes(Concept newParent) {
+
+			List<DynamicAttribute> attrs = new ArrayList<DynamicAttribute>();
+
+			attrs.addAll(concept.getParent().getDynamicAttributesUpwards());
+			attrs.removeAll(newParent.getDynamicAttributesUpwards());
+
+			return attrs;
+		}
+	}
+
+	private class ConceptMoveConflictingConstraintsResolver extends ConstraintConflictsResolver {
+
+		private Concept concept;
+		private Concept newParent;
+
+		private class ConflictsFinder {
+
+			final List<Constraint> conflicts = new ArrayList<Constraint>();
+
+			ConflictsFinder() {
+
+				findDownwardsFrom(concept);
+			}
+
+			private void findDownwardsFrom(Concept current) {
+
+				findFor(current.getConstraints());
+				findFor(current.getInwardConstraints());
+
+				for (Concept child : current.getChildren()) {
+
+					findDownwardsFrom(child);
+				}
+			}
+
+			private void findFor(List<Constraint> constraints) {
+
+				for (Constraint constraint : constraints) {
+
+					if (anyUpwardConflicts(constraint)) {
+
+						conflicts.add(constraint);
+					}
+				}
+			}
+
+			private boolean anyUpwardConflicts(Constraint constraint) {
+
+				return new UpwardsConstraintConflictFinder(constraint).anyFrom(newParent);
+			}
+		}
+
+		ConceptMoveConflictingConstraintsResolver(Concept concept, Concept newParent) {
+
+			this.concept = concept;
+			this.newParent = newParent;
+
+			initialise(new ConflictsFinder().conflicts);
+		}
+
+		boolean confirmConstraintRemovals(List<Constraint> removals) {
+
+			return confirmations.confirmConceptMoveConflictingConstraintRemovals(concept, removals);
 		}
 	}
 
@@ -220,36 +275,24 @@ class ConflictResolver {
 			initialise(findConflicts(constraint));
 		}
 
-		boolean confirmConflictRemovals(List<Constraint> conflicts) {
+		boolean confirmConstraintRemovals(List<Constraint> removals) {
 
-			return confirmations.confirmConstraintAddition(conflicts);
+			return confirmations.confirmConstraintAdditionConflictRemovals(removals);
 		}
 
 		private List<Constraint> findConflicts(Constraint constraint) {
 
+			Concept source = constraint.getSourceValue();
+
+			ConstraintConflictFinder upFinder = new UpwardsConstraintConflictFinder(constraint);
+			ConstraintConflictFinder downFinder = new DownwardsConstraintConflictFinder(constraint);
+
 			List<Constraint> conflicts = new ArrayList<Constraint>();
 
-			conflicts.addAll(new UpwardsConflictFinder(constraint).findAll());
-			conflicts.addAll(new DownwardsConflictFinder(constraint).findAll());
+			conflicts.addAll(upFinder.findAllFromLinkedConcepts(source));
+			conflicts.addAll(downFinder.findAllFromLinkedConcepts(source));
 
 			return conflicts;
-		}
-	}
-
-	private class ConceptMoveConflictsResolver extends ConstraintConflictsResolver {
-
-		private Concept moved;
-
-		ConceptMoveConflictsResolver(Concept moved) {
-
-			this.moved = moved;
-
-			initialise(new ConceptMoveConflictsFinder(moved).conflicts);
-		}
-
-		boolean confirmConflictRemovals(List<Constraint> conflicts) {
-
-			return confirmations.confirmConceptMove(moved, conflicts);
 		}
 	}
 
@@ -258,13 +301,51 @@ class ConflictResolver {
 		this.confirmations = confirmations;
 	}
 
+	ConflictResolution checkConceptMove(Concept concept, Concept newParent) {
+
+		ConflictResolution orphans = checkConceptMoveOrphanedConstraints(concept, newParent);
+
+		if (orphans == ConflictResolution.NO_RESOLUTION) {
+
+			return ConflictResolution.NO_RESOLUTION;
+		}
+
+		ConflictResolution invalids = checkConceptMoveConflictingConstraints(concept, newParent);
+
+		if (invalids == ConflictResolution.NO_RESOLUTION) {
+
+			return ConflictResolution.NO_RESOLUTION;
+		}
+
+		if (orphans == ConflictResolution.NO_CONFLICTS) {
+
+			return invalids;
+		}
+
+		if (invalids == ConflictResolution.NO_CONFLICTS) {
+
+			return orphans;
+		}
+
+		return orphans.combineWith(invalids);
+	}
+
 	ConflictResolution checkConstraintAddition(Constraint constraint) {
 
 		return new ConstraintAdditionConflictsResolver(constraint).check();
 	}
 
-	ConflictResolution checkConceptMove(Concept moved) {
+	private ConflictResolution checkConceptMoveOrphanedConstraints(
+									Concept concept,
+									Concept newParent) {
 
-		return new ConceptMoveConflictsResolver(moved).check();
+		return new ConceptMoveOrphanedConstraintsResolver(concept, newParent).check();
+	}
+
+	private ConflictResolution checkConceptMoveConflictingConstraints(
+									Concept concept,
+									Concept newParent) {
+
+		return new ConceptMoveConflictingConstraintsResolver(concept, newParent).check();
 	}
 }

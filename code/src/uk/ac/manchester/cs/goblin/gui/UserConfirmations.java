@@ -34,7 +34,7 @@ import uk.ac.manchester.cs.goblin.model.*;
  */
 class UserConfirmations implements Confirmations {
 
-	private abstract class ConstraintsRemovalSourceHandler {
+	private abstract class ConstraintRemovalsHandler {
 
 		static private final int MAX_TARGETS_TO_DISPLAY = 3;
 
@@ -44,8 +44,8 @@ class UserConfirmations implements Confirmations {
 
 			addMessageHeader();
 
-			checkAddForSemanticsType(ConstraintSemantics.VALID_VALUES, removals);
-			checkAddForSemanticsType(ConstraintSemantics.IMPLIED_VALUE, removals);
+			checkAddSectionFor(ConstraintSemantics.VALID_VALUES, removals);
+			checkAddSectionFor(ConstraintSemantics.IMPLIED_VALUE, removals);
 
 			addMessageFooter();
 		}
@@ -59,11 +59,16 @@ class UserConfirmations implements Confirmations {
 
 		abstract String describeEditProcessForQuery();
 
-		private void checkAddForSemanticsType(
-						ConstraintSemantics semantics,
-						List<Constraint> allRemovals) {
+		String describeRemovalsReason() {
 
-			List<Constraint> typeRemovals = semantics.select(allRemovals);
+			return "conflicting";
+		}
+
+		private void checkAddSectionFor(
+						ConstraintSemantics semantics,
+						List<Constraint> removals) {
+
+			List<Constraint> typeRemovals = semantics.select(removals);
 
 			if (!typeRemovals.isEmpty()) {
 
@@ -81,15 +86,18 @@ class UserConfirmations implements Confirmations {
 		private void addMessageHeader() {
 
 			info.append(describeEditProcess());
-			info.append(" will cause the following");
-			info.append(" conflicting constraints to be removed...");
+			info.append(" will cause the following ");
+			info.append(describeRemovalsReason());
+			info.append(" constraints to be removed...");
 			info.append("\n\n");
 		}
 
 		private void addMessageFooter() {
 
 			info.append(describeEditProcessForQuery());
-			info.append(" and remove conflicting constraints?");
+			info.append(" and remove ");
+			info.append(describeRemovalsReason());
+			info.append(" constraints?");
 			info.append("\n\n");
 		}
 
@@ -145,33 +153,54 @@ class UserConfirmations implements Confirmations {
 		}
 	}
 
-	private class ConceptMoveHandler extends ConstraintsRemovalSourceHandler {
+	private abstract class ConceptMoveConstraintRemovalsHandler extends ConstraintRemovalsHandler {
 
-		private String conceptLabel;
+		private String conceptDescription;
 
-		ConceptMoveHandler(Concept moved, List<Constraint> invalidatedConstraints) {
+		ConceptMoveConstraintRemovalsHandler(Concept concept, List<Constraint> removals) {
 
-			conceptLabel = ("\"" + moved.getConceptId().getLabel() + "\"");
+			conceptDescription = ("\"" + concept.getConceptId().getLabel() + "\"");
 
-			initialise(invalidatedConstraints);
+			initialise(removals);
 		}
 
 		String describeEditProcess() {
 
-			return "Moving " + conceptLabel;
+			return "Moving " + conceptDescription;
 		}
 
 		String describeEditProcessForQuery() {
 
-			return "Move " + conceptLabel;
+			return "Move " + conceptDescription;
 		}
 	}
 
-	private class ConstraintAdditionHandler extends ConstraintsRemovalSourceHandler {
+	private class ConceptMoveOrphanedConstraintsHandler extends ConceptMoveConstraintRemovalsHandler {
 
-		ConstraintAdditionHandler(List<Constraint> conflicts) {
+		ConceptMoveOrphanedConstraintsHandler(Concept concept, List<Constraint> removals) {
 
-			initialise(conflicts);
+			super(concept, removals);
+		}
+
+		String describeRemovalsReason() {
+
+			return "orphaned";
+		}
+	}
+
+	private class ConceptMoveConflictingConstraintsHandler extends ConceptMoveConstraintRemovalsHandler {
+
+		ConceptMoveConflictingConstraintsHandler(Concept concept, List<Constraint> removals) {
+
+			super(concept, removals);
+		}
+	}
+
+	private class ConstraintAdditionConflictsHandler extends ConstraintRemovalsHandler {
+
+		ConstraintAdditionConflictsHandler(List<Constraint> removals) {
+
+			initialise(removals);
 		}
 
 		String describeEditProcess() {
@@ -185,13 +214,22 @@ class UserConfirmations implements Confirmations {
 		}
 	}
 
-	public boolean confirmConceptMove(Concept moved, List<Constraint> invalidatedConstraints) {
+	public boolean confirmConceptMoveOrphanedConstraintRemovals(
+						Concept concept,
+						List<Constraint> removals) {
 
-		return new ConceptMoveHandler(moved, invalidatedConstraints).checkContinue();
+		return new ConceptMoveOrphanedConstraintsHandler(concept, removals).checkContinue();
 	}
 
-	public boolean confirmConstraintAddition(List<Constraint> conflicts) {
+	public boolean confirmConceptMoveConflictingConstraintRemovals(
+						Concept concept,
+						List<Constraint> removals) {
 
-		return new ConstraintAdditionHandler(conflicts).checkContinue();
+		return new ConceptMoveConflictingConstraintsHandler(concept, removals).checkContinue();
+	}
+
+	public boolean confirmConstraintAdditionConflictRemovals(List<Constraint> removals) {
+
+		return new ConstraintAdditionConflictsHandler(removals).checkContinue();
 	}
 }

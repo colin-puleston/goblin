@@ -7,7 +7,13 @@ import java.util.*;
  */
 public interface Confirmations {
 
-	public boolean confirmConceptMove(Concept moved, List<Constraint> invalidatedConstraints);
+	public boolean confirmConceptMoveOrphanedConstraintRemovals(
+						Concept concept,
+						List<Constraint> removals);
 
-	public boolean confirmConstraintAddition(List<Constraint> conflicts);
+	public boolean confirmConceptMoveConflictingConstraintRemovals(
+						Concept concept,
+						List<Constraint> removals);
+
+	public boolean confirmConstraintAdditionConflictRemovals(List<Constraint> removals);
 }

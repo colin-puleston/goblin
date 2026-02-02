@@ -211,7 +211,7 @@ public abstract class Concept extends EditTarget {
 
 		Concept child = createChild(id);
 
-		child.setParent(this);
+		child.parent = toTracker();
 		child.add();
 
 		return child;
@@ -502,50 +502,42 @@ public abstract class Concept extends EditTarget {
 
 	void addDynamicAttribute(DynamicAttribute attribute) {
 
+		Concept rootTarget = attribute.getRootTargetConcept();
+		Constraint rootConstraint = attribute.getRootConstraint() ;
+
 		dynamicAttributes.add(attribute);
+		rootTarget.inwardDynamicAttributes.add(attribute);
 
-		attribute.getRootTargetConcept().inwardDynamicAttributes.add(attribute);
-
-		addConstraint(attribute.getRootConstraint());
+		addConstraintNoListenerPoll(rootConstraint);
 
 		hierarchy.onAddedDynamicAttribute(attribute);
+		pollListenersForAddedConstraint(rootConstraint);
 	}
 
 	void removeDynamicAttribute(DynamicAttribute attribute) {
 
+		Concept rootTarget = attribute.getRootTargetConcept();
+		Constraint rootConstraint = attribute.getRootConstraint() ;
+
 		dynamicAttributes.remove(attribute);
+		rootTarget.inwardDynamicAttributes.remove(attribute);
 
-		attribute.getRootTargetConcept().inwardDynamicAttributes.remove(attribute);
-
-		removeConstraint(attribute.getRootConstraint());
+		removeConstraintNoListenerPoll(rootConstraint);
 
 		hierarchy.onRemovedDynamicAttribute(attribute);
+		pollListenersForRemovedConstraint(rootConstraint);
 	}
 
 	void addConstraint(Constraint constraint) {
 
-		ConstraintTracker tracker = constraints.add(constraint);
-
-		onConstraintAdded(constraint, false);
-
-		for (Concept target : constraint.getTargetValues()) {
-
-			target.inwardConstraints.add(tracker);
-			target.onConstraintAdded(constraint, true);
-		}
+		addConstraintNoListenerPoll(constraint);
+		pollListenersForAddedConstraint(constraint);
 	}
 
 	void removeConstraint(Constraint constraint) {
 
-		ConstraintTracker tracker = constraints.remove(constraint);
-
-		onConstraintRemoved(constraint, false);
-
-		for (Concept target : constraint.getTargetValues()) {
-
-			target.inwardConstraints.remove(tracker);
-			target.onConstraintRemoved(constraint, true);
-		}
+		removeConstraintNoListenerPoll(constraint);
+		pollListenersForRemovedConstraint(constraint);
 	}
 
 	ConceptTracker toTracker() {
@@ -561,6 +553,15 @@ public abstract class Concept extends EditTarget {
 	boolean hasDynamicAttribute(DynamicAttribute attribute) {
 
 		return dynamicAttributes.containsEntity(attribute);
+	}
+
+	List<DynamicAttribute> getDynamicAttributesUpwards() {
+
+		List<DynamicAttribute> attributes = new ArrayList<DynamicAttribute>();
+
+		collectDynamicAttributesUpwards(attributes);
+
+		return attributes;
 	}
 
 	List<DynamicAttribute> getDynamicAttributesDownwards() {
@@ -608,9 +609,44 @@ public abstract class Concept extends EditTarget {
 		return new NonRootCoreConcept(hierarchy, id);
 	}
 
-	private void setParent(Concept parent) {
+	private void addConstraintNoListenerPoll(Constraint constraint) {
 
-		this.parent = parent.toTracker();
+		ConstraintTracker tracker = constraints.add(constraint);
+
+		for (Concept target : constraint.getTargetValues()) {
+
+			target.inwardConstraints.add(tracker);
+		}
+	}
+
+	private void pollListenersForAddedConstraint(Constraint constraint) {
+
+		onConstraintAdded(constraint, false);
+
+		for (Concept target : constraint.getTargetValues()) {
+
+			target.onConstraintAdded(constraint, true);
+		}
+	}
+
+	private void removeConstraintNoListenerPoll(Constraint constraint) {
+
+		ConstraintTracker tracker = constraints.remove(constraint);
+
+		for (Concept target : constraint.getTargetValues()) {
+
+			target.inwardConstraints.remove(tracker);
+		}
+	}
+
+	private void pollListenersForRemovedConstraint(Constraint constraint) {
+
+		onConstraintRemoved(constraint, false);
+
+		for (Concept target : constraint.getTargetValues()) {
+
+			target.onConstraintRemoved(constraint, true);
+		}
 	}
 
 	private ReplaceConceptIdAction createReplaceIdAction(EntityId newId) {
@@ -634,20 +670,7 @@ public abstract class Concept extends EditTarget {
 
 	private ConflictResolution checkMoveConflicts(Concept newParent) {
 
-		ConceptTracker savedParent = parent;
-
-		setParent(newParent);
-
-		ConflictResolution conflicts = checkMovedConflicts();
-
-		parent = savedParent;
-
-		return conflicts;
-	}
-
-	private ConflictResolution checkMovedConflicts() {
-
-		return getModel().getConflictResolver().checkConceptMove(this);
+		return getModel().getConflictResolver().checkConceptMove(this, newParent);
 	}
 
 	private void performAction(EditAction action) {
@@ -663,15 +686,6 @@ public abstract class Concept extends EditTarget {
 
 			sub.removeAllSubTreeListeners();
 		}
-	}
-
-	private List<DynamicAttribute> getDynamicAttributesUpwards() {
-
-		List<DynamicAttribute> attributes = new ArrayList<DynamicAttribute>();
-
-		collectDynamicAttributesUpwards(attributes);
-
-		return attributes;
 	}
 
 	private List<DynamicAttribute> getInwardDynamicAttributesUpwards() {

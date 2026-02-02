@@ -7,12 +7,21 @@ import java.util.*;
  */
 class AutoConfirmations implements Confirmations {
 
-	public boolean confirmConceptMove(Concept moved, List<Constraint> invalidatedConstraints) {
+	public boolean confirmConceptMoveOrphanedConstraintRemovals(
+						Concept concept,
+						List<Constraint> removals) {
 
 		return true;
 	}
 
-	public boolean confirmConstraintAddition(List<Constraint> conflicts) {
+	public boolean confirmConceptMoveConflictingConstraintRemovals(
+						Concept concept,
+						List<Constraint> removals) {
+
+		return true;
+	}
+
+	public boolean confirmConstraintAdditionConflictRemovals(List<Constraint> removals) {
 
 		return true;
 	}

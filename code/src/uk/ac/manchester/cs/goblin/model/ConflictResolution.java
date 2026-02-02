@@ -10,11 +10,21 @@ class ConflictResolution {
 	static final ConflictResolution NO_CONFLICTS = new ConflictResolution();
 	static final ConflictResolution NO_RESOLUTION = new ConflictResolution();
 
-	private List<EditAction> resolvingEditActions;
+	private List<EditAction> resolvingEditActions = new ArrayList<EditAction>();
 
 	ConflictResolution(List<EditAction> resolvingEditActions) {
 
-		this.resolvingEditActions = resolvingEditActions;
+		this.resolvingEditActions.addAll(resolvingEditActions);
+	}
+
+	ConflictResolution combineWith(ConflictResolution other) {
+
+		ConflictResolution combo = new ConflictResolution();
+
+		combo.resolvingEditActions.addAll(resolvingEditActions);
+		combo.resolvingEditActions.addAll(other.resolvingEditActions);
+
+		return combo;
 	}
 
 	boolean resolvable() {
@@ -38,7 +48,5 @@ class ConflictResolution {
 	}
 
 	private ConflictResolution() {
-
-		this(Collections.emptyList());
 	}
 }
