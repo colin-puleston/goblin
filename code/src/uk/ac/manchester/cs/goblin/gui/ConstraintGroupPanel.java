@@ -102,6 +102,9 @@ class ConstraintGroupPanel extends JPanel {
 
 			void initialise(Constraint constraint) {
 
+				System.out.println("ATTRIBUTE: " + attribute);
+				System.out.println("SOURCE: " + constraint.getSourceValue());
+				System.out.println("TARGETS: " + constraint.getTargetValues());
 				initialise(constraint.getTargetValues());
 			}
 
@@ -150,6 +153,7 @@ class ConstraintGroupPanel extends JPanel {
 
 		void repopulate() {
 
+			System.out.println("\nREPOPULATE-GROUPS: " + getClass().getSimpleName());
 			clearConceptListeners();
 
 			removeAll();
@@ -772,14 +776,14 @@ class ConstraintGroupPanel extends JPanel {
 		}
 	}
 
-	ConstraintGroupPanel(Attribute attribute, ConceptTree sourcesTree) {
+	ConstraintGroupPanel(Attribute attribute, ConceptTree sourcesTree, Concept source) {
 
 		super(new BorderLayout());
 
 		this.attribute = attribute;
 		this.sourcesTree = sourcesTree;
 
-		new DefaultPanelPopulator().populate();
+		createPanelPopulator(source).populate();
 
 		sourcesTree.addNodeSelectionListener(new SourceConceptTracker());
 	}
@@ -804,7 +808,7 @@ class ConstraintGroupPanel extends JPanel {
 
 	private PanelPopulator createPanelPopulator(Concept source) {
 
-		if (source.equals(attribute.getRootSourceConcept())) {
+		if (source == null || source.equals(attribute.getRootSourceConcept())) {
 
 			return new DefaultPanelPopulator();
 		}

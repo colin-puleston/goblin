@@ -157,7 +157,7 @@ class AttributesEditPanel extends MultiTabPanel<Attribute> {
 
 	List<Attribute> getSources() {
 
-		Concept concept = hierarchyTree.getSelectedConcept();
+		Concept concept = getSelectedConcept();
 
 		return concept != null
 				? concept.getApplicableAttributes()
@@ -202,11 +202,16 @@ class AttributesEditPanel extends MultiTabPanel<Attribute> {
 
 	private JComponent createConstraintsPanel(Attribute attribute) {
 
-		return new ConstraintGroupPanel(attribute, hierarchyTree);
+		return new ConstraintGroupPanel(attribute, hierarchyTree, getSelectedConcept());
 	}
 
 	private Hierarchy getHierarchy() {
 
 		return hierarchyTree.getHierarchy();
+	}
+
+	private Concept getSelectedConcept() {
+
+		return hierarchyTree.getSelectedConcept();
 	}
 }
