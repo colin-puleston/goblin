@@ -102,9 +102,6 @@ class ConstraintGroupPanel extends JPanel {
 
 			void initialise(Constraint constraint) {
 
-				System.out.println("ATTRIBUTE: " + attribute);
-				System.out.println("SOURCE: " + constraint.getSourceValue());
-				System.out.println("TARGETS: " + constraint.getTargetValues());
 				initialise(constraint.getTargetValues());
 			}
 
@@ -153,7 +150,6 @@ class ConstraintGroupPanel extends JPanel {
 
 		void repopulate() {
 
-			System.out.println("\nREPOPULATE-GROUPS: " + getClass().getSimpleName());
 			clearConceptListeners();
 
 			removeAll();
