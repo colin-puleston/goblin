@@ -47,12 +47,11 @@ class CoreHierarchyPanel extends GSplitPane {
 
 	CoreHierarchyPanel(Hierarchy hierarchy) {
 
-		HierarchyTreePanel treePanel = new HierarchyTreePanel(hierarchy);
+		hierarchyTree = new HierarchyTree(hierarchy);
 
-		hierarchyTree = treePanel.getTree();
 		attributesEditPanel = new AttributesEditPanel(hierarchyTree);
 
-		setLeftComponent(createTreeComponent(treePanel));
+		setLeftComponent(createTreeComponent());
 		setRightComponent(createAttributesComponent());
 	}
 
@@ -67,9 +66,9 @@ class CoreHierarchyPanel extends GSplitPane {
 		attributesEditPanel.makeSourceVisible(attribute);
 	}
 
-	private JComponent createTreeComponent(HierarchyTreePanel treePanel) {
+	private JComponent createTreeComponent() {
 
-		return TitledPanels.create(treePanel, TREE_TITLE);
+		return TitledPanels.create(new HierarchyTreePanel(hierarchyTree), TREE_TITLE);
 	}
 
 	private JComponent createAttributesComponent() {

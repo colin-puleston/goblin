@@ -36,6 +36,11 @@ class ConstraintTargetsDisplay {
 	private Constraint validValues;
 	private Set<Concept> impliedTargets = new HashSet<Concept>();
 
+	ConstraintTargetsDisplay(Constraint validValues) {
+
+		this.validValues = validValues;
+	}
+
 	ConstraintTargetsDisplay(Constraint validValues, Collection<Constraint> impliedValues) {
 
 		this.validValues = validValues;

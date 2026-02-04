@@ -39,6 +39,11 @@ public abstract class Attribute extends EditTarget {
 		return rootTargetConcept;
 	}
 
+	public Constraint getRootConstraint() {
+
+		return rootConstraint;
+	}
+
 	public abstract ConstraintsOption getConstraintsOption();
 
 	protected Attribute(Concept rootSourceConcept, Concept rootTargetConcept) {
@@ -67,11 +72,6 @@ public abstract class Attribute extends EditTarget {
 	Concept getEditTargetConcept() {
 
 		return rootSourceConcept;
-	}
-
-	Constraint getRootConstraint() {
-
-		return rootConstraint;
 	}
 
 	Constraint createValidValues(Concept sourceValue, Collection<Concept> targetValues) {

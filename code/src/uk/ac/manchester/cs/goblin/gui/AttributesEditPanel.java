@@ -131,7 +131,6 @@ class AttributesEditPanel extends MultiTabPanel<Attribute> {
 
 			this.attribute = attribute;
 
-			attribute.removeListenersOfType(getClass());
 			attribute.addListener(this);
 		}
 	}
@@ -188,6 +187,13 @@ class AttributesEditPanel extends MultiTabPanel<Attribute> {
 		}
 
 		return constComp;
+	}
+
+	void onRemoved(Attribute attribute) {
+
+		DynamicAttribute dynAttr = (DynamicAttribute)attribute;
+
+		dynAttr.removeListenersOfType(DynamicAttributeLabelUpdater.class);
 	}
 
 	boolean requiresItalicizedLabel(Attribute attribute) {

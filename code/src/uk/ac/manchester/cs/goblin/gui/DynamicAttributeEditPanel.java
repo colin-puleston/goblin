@@ -103,11 +103,6 @@ class DynamicAttributeEditPanel extends JPanel {
 		add(new RemoveButton(), BorderLayout.EAST);
 	}
 
-	private JPanel createValuesPanel() {
-
-		return new HierarchyTreePanel(attribute.getRootTargetConcept().getHierarchy());
-	}
-
 	private JPanel createEditButtonsPanel() {
 
 		return ControlsPanel.horizontal(new ResetIdButton(), new ValuesButton());

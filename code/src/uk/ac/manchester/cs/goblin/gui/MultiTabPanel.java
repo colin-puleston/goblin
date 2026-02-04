@@ -74,40 +74,41 @@ abstract class MultiTabPanel<S> extends JTabbedPane {
 
 		private void removeOldTabs() {
 
-			int tab = 0;
+			int tabIdx = 0;
 
 			for (S source : new ArrayList<S>(oldSources)) {
 
 				if (sources.contains(source)) {
 
-					tab++;
+					tabIdx++;
 				}
 				else {
 
-					removeTabAt(tab);
+					removeTabAt(tabIdx);
 
 					oldSources.remove(source);
+					onRemoved(source);
 				}
 			}
 		}
 
 		private void insertNewTabs() {
 
-			int tab = 0;
-			int old = 0;
+			int tabIdx = 0;
+			int oldIdx = 0;
 
 			for (S source : sources) {
 
-				if (old < oldSources.size() && oldSources.get(old).equals(source)) {
+				if (oldIdx < oldSources.size() && oldSources.get(oldIdx).equals(source)) {
 
-					old++;
+					oldIdx++;
 				}
 				else {
 
-					addSourceTab(source, tab);
+					addSourceTab(source, tabIdx);
 				}
 
-				tab++;
+				tabIdx++;
 			}
 		}
 	}
@@ -154,6 +155,9 @@ abstract class MultiTabPanel<S> extends JTabbedPane {
 	abstract String getTitle(S source);
 
 	abstract JComponent createComponent(S source);
+
+	void onRemoved(S source) {
+	}
 
 	boolean requiresItalicizedLabel(S source) {
 

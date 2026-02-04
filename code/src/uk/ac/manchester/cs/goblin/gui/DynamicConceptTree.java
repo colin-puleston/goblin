@@ -24,6 +24,8 @@
 
 package uk.ac.manchester.cs.goblin.gui;
 
+import java.util.*;
+
 import javax.swing.tree.*;
 
 import uk.ac.manchester.cs.goblin.model.*;
@@ -34,6 +36,8 @@ import uk.ac.manchester.cs.goblin.model.*;
 abstract class DynamicConceptTree extends ConceptTree {
 
 	static private final long serialVersionUID = -1;
+
+	private Map<Concept, ConceptListener> conceptListeners = new HashMap<Concept, ConceptListener>();
 
 	class DynamicConceptNode extends ConceptNode {
 
@@ -70,7 +74,7 @@ abstract class DynamicConceptTree extends ConceptTree {
 
 				concept.addListener(this);
 
-				onAddedConceptListener(concept, this);
+				conceptListeners.put(concept, this);
 			}
 		}
 
@@ -90,11 +94,16 @@ abstract class DynamicConceptTree extends ConceptTree {
 		super(multiSelect);
 	}
 
+	void clearConceptListeners() {
+
+		for (Concept concept : conceptListeners.keySet()) {
+
+			concept.removeListener(conceptListeners.get(concept));
+		}
+	}
+
 	ConceptNode createConceptNode(Concept concept) {
 
 		return new DynamicConceptNode(concept);
-	}
-
-	void onAddedConceptListener(Concept concept, ConceptListener listener) {
 	}
 }

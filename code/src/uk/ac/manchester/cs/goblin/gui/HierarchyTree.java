@@ -36,7 +36,8 @@ class HierarchyTree extends DynamicConceptTree {
 	static private final long serialVersionUID = -1;
 
 	private Hierarchy hierarchy;
-	private ConceptMover conceptMover;
+
+	private ConceptMover conceptMover = new ConceptMover();
 
 	private ConstraintsDisplayMode constraintsDisplayMode = ConstraintsDisplayMode.NONE;
 	private Attribute attributeSelection = null;
@@ -223,12 +224,11 @@ class HierarchyTree extends DynamicConceptTree {
 		}
 	}
 
-	HierarchyTree(Hierarchy hierarchy, ConceptMover conceptMover) {
+	HierarchyTree(Hierarchy hierarchy) {
 
 		super(true);
 
 		this.hierarchy = hierarchy;
-		this.conceptMover = conceptMover;
 
 		initialise(hierarchy.getRootConcept());
 
@@ -238,6 +238,11 @@ class HierarchyTree extends DynamicConceptTree {
 	Hierarchy getHierarchy() {
 
 		return hierarchy;
+	}
+
+	ConceptMover getConceptMover() {
+
+		return conceptMover;
 	}
 
 	GCellDisplay getConceptDisplay(Concept concept) {

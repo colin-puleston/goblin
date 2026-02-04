@@ -64,7 +64,7 @@ class HierarchyTreePanel extends JPanel {
 	private Hierarchy hierarchy;
 	private HierarchyTree tree;
 
-	private ConceptMover conceptMover = new ConceptMover();
+	private ConceptMover conceptMover;
 
 	private class DisplayModeSelector extends GSelectorBox<ConstraintsDisplayMode> {
 
@@ -408,22 +408,18 @@ class HierarchyTreePanel extends JPanel {
 		}
 	}
 
-	HierarchyTreePanel(Hierarchy hierarchy) {
+	HierarchyTreePanel(HierarchyTree tree) {
 
 		super(new BorderLayout());
 
-		this.hierarchy = hierarchy;
+		this.tree = tree;
 
-		tree = new HierarchyTree(hierarchy, conceptMover);
+		hierarchy = tree.getHierarchy();
+		conceptMover = tree.getConceptMover();
 
 		add(createUpperComponent(hierarchy), BorderLayout.NORTH);
 		add(new JScrollPane(tree), BorderLayout.CENTER);
 		add(createLowerComponent(hierarchy), BorderLayout.SOUTH);
-	}
-
-	HierarchyTree getTree() {
-
-		return tree;
 	}
 
 	private JComponent createUpperComponent(Hierarchy hierarchy) {

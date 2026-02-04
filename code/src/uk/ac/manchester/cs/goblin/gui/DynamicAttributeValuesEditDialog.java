@@ -25,6 +25,8 @@
 package uk.ac.manchester.cs.goblin.gui;
 
 import java.awt.*;
+import java.awt.event.*;
+
 import javax.swing.*;
 
 import uk.ac.manchester.cs.mekon_util.gui.*;
@@ -43,11 +45,15 @@ class DynamicAttributeValuesEditDialog extends GDialog {
 
 	static private final Dimension WINDOW_SIZE = new Dimension(500, 600);
 
+	private HierarchyTree hierarchyTree;
+
 	private class DoneButton extends GButton {
 
 		static private final long serialVersionUID = -1;
 
 		protected void doButtonThing() {
+
+			hierarchyTree.clearConceptListeners();
 
 			dispose();
 		}
@@ -58,28 +64,38 @@ class DynamicAttributeValuesEditDialog extends GDialog {
 		}
 	}
 
+	private class WindowCloseListener extends WindowAdapter {
+
+		public void windowClosing(WindowEvent e) {
+
+			hierarchyTree.clearConceptListeners();
+		}
+	}
+
 	DynamicAttributeValuesEditDialog(DynamicAttribute attribute) {
 
 		super(TITLE, true);
 
+		hierarchyTree = createHierarchyTree(attribute);
+
 		setPreferredSize(WINDOW_SIZE);
 		setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 
-		display(createMainComponent(attribute));
+		display(createMainComponent());
 	}
 
-	private JComponent createMainComponent(DynamicAttribute attribute) {
+	private JComponent createMainComponent() {
 
 		JPanel panel = new JPanel(new BorderLayout());
 
-		panel.add(createHierarchyTreePanel(attribute), BorderLayout.CENTER);
+		panel.add(new HierarchyTreePanel(hierarchyTree), BorderLayout.CENTER);
 		panel.add(new DoneButton(), BorderLayout.SOUTH);
 
 		return panel;
 	}
 
-	private HierarchyTreePanel createHierarchyTreePanel(DynamicAttribute attribute) {
+	private HierarchyTree createHierarchyTree(DynamicAttribute attribute) {
 
-		return new HierarchyTreePanel(attribute.getRootTargetConcept().getHierarchy());
+		return new HierarchyTree(attribute.getRootTargetConcept().getHierarchy());
 	}
 }
