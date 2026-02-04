@@ -45,9 +45,10 @@ enum GoblinCellDisplay {
 	CONCEPTS_MOVE_SUBJECT(
 		largeCircle(ConceptColor.MOVE_SUBJECT)),
 	CONCEPTS_CONSTRAINT_GROUP(
-		mediumCircle(ConstraintColor.VALID_TARGET)),
+		mediumRightwardTriangle(ConstraintColor.ATTRIBUTE),
+		mediumCircleMediumXShifted(ConstraintColor.VALID_TARGET)),
 	CONCEPTS_CONSTRAINT_IMPLIED_TARGET(
-		mediumCircle(ConstraintColor.IMPLIED_TARGET)),
+		mediumCircleCentred(ConstraintColor.IMPLIED_TARGET)),
 
 	CONSTRAINTS_POTENTIAL_TARGET(
 		largeCircle(ConstraintColor.POTENTIAL_TARGET)),
@@ -55,7 +56,7 @@ enum GoblinCellDisplay {
 		largeCircle(ConstraintColor.VALID_TARGET)),
 	CONSTRAINTS_IMPLIED_TARGET(
 		largeCircle(ConstraintColor.VALID_TARGET),
-		smallCircle(ConstraintColor.IMPLIED_TARGET));
+		smallCircleCentred(ConstraintColor.IMPLIED_TARGET));
 
 	static private final int LARGE_ICON_SIZE = 12;
 	static private final int MEDIUM_ICON_SIZE = 8;
@@ -72,6 +73,7 @@ enum GoblinCellDisplay {
 
 	static private class ConstraintColor {
 
+		static final Color ATTRIBUTE = Color.YELLOW;
 		static final Color POTENTIAL_TARGET = Color.YELLOW.darker();
 		static final Color VALID_TARGET = Color.GREEN.darker();
 		static final Color IMPLIED_TARGET = VALID_TARGET.darker();
@@ -82,23 +84,43 @@ enum GoblinCellDisplay {
 		return new GOvalRenderer(clr, LARGE_ICON_SIZE);
 	}
 
-	static private GIconRenderer mediumCircle(Color clr) {
+	static private GIconRenderer mediumCircleCentred(Color clr) {
 
-		return reducedCircle(clr, MEDIUM_ICON_SIZE);
+		return reducedCircleCentred(clr, MEDIUM_ICON_SIZE);
 	}
 
-	static private GIconRenderer smallCircle(Color clr) {
+	static private GIconRenderer smallCircleCentred(Color clr) {
 
-		return reducedCircle(clr, SMALL_ICON_SIZE);
+		return reducedCircleCentred(clr, SMALL_ICON_SIZE);
 	}
 
-	static private GIconRenderer reducedCircle(Color clr, int size) {
+	static private GIconRenderer mediumCircleMediumXShifted(Color clr) {
 
-		GIconRenderer r = new GOvalRenderer(clr, size);
+		return offsetCircle(clr, MEDIUM_ICON_SIZE, MEDIUM_ICON_SIZE, 0);
+	}
+
+	static private GIconRenderer mediumRightwardTriangle(Color clr) {
+
+		return new GTriangleRenderer(
+						GTriangleRenderer.Type.RIGHTWARD,
+						clr,
+						MEDIUM_ICON_SIZE,
+						MEDIUM_ICON_SIZE);
+	}
+
+	static private GIconRenderer reducedCircleCentred(Color clr, int size) {
+
 		int offset = (LARGE_ICON_SIZE - size) / 2;
 
-		r.setXOffset(offset);
-		r.setYOffset(offset);
+		return offsetCircle(clr, size, offset, offset);
+	}
+
+	static private GIconRenderer offsetCircle(Color clr, int size, int xOffset, int yOffset) {
+
+		GIconRenderer r = new GOvalRenderer(clr, size);
+
+		r.setXOffset(xOffset);
+		r.setYOffset(yOffset);
 
 		return r;
 	}
