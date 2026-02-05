@@ -4,7 +4,7 @@
 	dynamicNamespace="http://goblin/demo-dynamic.owl"
 	dynamicFilename="demo-dynamic.owl">
 
-	<ModelSection>
+	<ModelSection label="Editable Content">
 
 		<Hierarchy
 			rootConcept="http://goblin/demo-core.owl#Activity"
@@ -37,6 +37,10 @@
 				rootTargetConcept="http://goblin/demo-core.owl#VenueByLocation">
 			</HierarchicalAttribute>
 		</Hierarchy>
+
+	</ModelSection>
+
+	<ModelSection label="Reference Only">
 
 		<Hierarchy
 			rootConcept="http://goblin/demo-core.owl#VenueByLocation"
