@@ -25,4 +25,5 @@ class ConfigFileVocab {
 	static final String ROOT_TARGET_CONCEPT_ATTR = "rootTargetConcept";
 	static final String CORE_CONSTRAINTS_OPTION_ATTR = "constraintsOption";
 	static final String DYNAMIC_CONSTRAINTS_OPTION_ATTR = "dynamicConstraintsOption";
+	static final String HIERARCHICAL_LINKS_OPTION_ATTR = "linksOption";
 }

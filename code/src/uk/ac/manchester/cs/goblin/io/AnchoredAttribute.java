@@ -5,7 +5,7 @@ import uk.ac.manchester.cs.goblin.model.*;
 /**
  * @author Colin Puleston
  */
-class AnchoredAttribute extends CorePropertyAttribute {
+class AnchoredAttribute extends CoreAttribute {
 
 	private EntityId anchorConceptId;
 

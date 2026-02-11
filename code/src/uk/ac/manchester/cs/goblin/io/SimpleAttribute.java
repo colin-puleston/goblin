@@ -5,7 +5,7 @@ import uk.ac.manchester.cs.goblin.model.*;
 /**
  * @author Colin Puleston
  */
-class SimpleAttribute extends CorePropertyAttribute {
+class SimpleAttribute extends CoreAttribute {
 
 	private EntityId linkingPropertyId;
 

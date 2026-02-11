@@ -60,24 +60,7 @@ class CoreModelLoader extends ConfigFileVocab {
 		}
 	}
 
-	private abstract class PropertyAttributesLoader extends CoreAttributesLoader {
-
-		Attribute loadAttribute(KConfigNode node, String label, Concept rootSrc, Concept rootTgt) {
-
-			ConstraintsOption constraintsOpt = getCoreConstraintsOption(node);
-
-			return loadPropertyAttribute(node, label, rootSrc, rootTgt, constraintsOpt);
-		}
-
-		abstract CorePropertyAttribute loadPropertyAttribute(
-											KConfigNode node,
-											String label,
-											Concept rootSrc,
-											Concept rootTgt,
-											ConstraintsOption constraintsOpt);
-	}
-
-	private class SimpleAttributesLoader extends PropertyAttributesLoader {
+	private class SimpleAttributesLoader extends CoreAttributesLoader {
 
 		SimpleAttributesLoader(ModelSection section, KConfigNode node) {
 
@@ -89,20 +72,16 @@ class CoreModelLoader extends ConfigFileVocab {
 			return SIMPLE_CONSTRAINT_TYPE_TAG;
 		}
 
-		CorePropertyAttribute loadPropertyAttribute(
-									KConfigNode node,
-									String label,
-									Concept rootSrc,
-									Concept rootTgt,
-									ConstraintsOption constraintsOpt) {
+		Attribute loadAttribute(KConfigNode node, String label, Concept rootSrc, Concept rootTgt) {
 
 			EntityId lnkProp = getPropertyId(node, LINKING_PROPERTY_ATTR);
+			ConstraintsOption constraintsOpt = getCoreConstraintsOption(node);
 
 			return new SimpleAttribute(label, lnkProp, rootSrc, rootTgt, constraintsOpt);
 		}
 	}
 
-	private class AnchoredAttributesLoader extends PropertyAttributesLoader {
+	private class AnchoredAttributesLoader extends CoreAttributesLoader {
 
 		AnchoredAttributesLoader(ModelSection section, KConfigNode node) {
 
@@ -114,17 +93,14 @@ class CoreModelLoader extends ConfigFileVocab {
 			return ANCHORED_CONSTRAINT_TYPE_TAG;
 		}
 
-		CorePropertyAttribute loadPropertyAttribute(
-									KConfigNode node,
-									String label,
-									Concept rootSrc,
-									Concept rootTgt,
-									ConstraintsOption constraintsOpt) {
+		Attribute loadAttribute(KConfigNode node, String label, Concept rootSrc, Concept rootTgt) {
 
 			EntityId anchor = getConceptId(node, ANCHOR_CONCEPT_ATTR);
 
 			EntityId srcProp = getPropertyId(node, SOURCE_PROPERTY_ATTR);
 			EntityId tgtProp = getPropertyId(node, TARGET_PROPERTY_ATTR);
+
+			ConstraintsOption constraintsOpt = getCoreConstraintsOption(node);
 
 			return new AnchoredAttribute(label, anchor, srcProp, tgtProp, rootSrc, rootTgt, constraintsOpt);
 		}
@@ -238,7 +214,9 @@ class CoreModelLoader extends ConfigFileVocab {
 
 			addLink(rootSrc.getHierarchy(), rootTgt.getHierarchy());
 
-			return new HierarchicalAttribute(label, rootSrc, rootTgt);
+			HierarchicalLinksOption linksOpt = getHierarchicalLinksOption(node);
+
+			return new HierarchicalAttribute(label, rootSrc, rootTgt, linksOpt);
 		}
 
 		String getAttributeTag() {
@@ -379,6 +357,11 @@ class CoreModelLoader extends ConfigFileVocab {
 	private ConstraintsOption getDynamicConstraintsOptionOrNull(KConfigNode node) {
 
 		return node.getEnum(DYNAMIC_CONSTRAINTS_OPTION_ATTR, ConstraintsOption.class, null);
+	}
+
+	private HierarchicalLinksOption getHierarchicalLinksOption(KConfigNode node) {
+
+		return node.getEnum(HIERARCHICAL_LINKS_OPTION_ATTR, HierarchicalLinksOption.class);
 	}
 
 	private EntityId getConceptId(KConfigNode node, String tag) {
