@@ -34,7 +34,8 @@
 			dynamicConstraintsOption="VALID_VALUES_ONLY">
 			<HierarchicalAttribute
 				label="venue location"
-				rootTargetConcept="http://goblin/demo-core.owl#VenueByLocation">
+				rootTargetConcept="http://goblin/demo-core.owl#VenueByLocation"
+				linksOption="SINGLE_SUPER_CLASSES">
 			</HierarchicalAttribute>
 		</Hierarchy>
 
