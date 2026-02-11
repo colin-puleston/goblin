@@ -7,7 +7,7 @@ public enum ConstraintsOption {
 
 	VALID_VALUES_ONLY(true, false, false),
 	SINGLE_IMPLIED_VALUES_ONLY(false, true, false),
-	MULTI_IMPLIED_VALUES(false, false, true),
+	MULTI_IMPLIED_VALUES_ONLY(false, false, true),
 	VALID_AND_SINGLE_IMPLIED_VALUES(true, true, false),
 	VALID_AND_MULTI_IMPLIED_VALUES(true, false, true);
 
