@@ -54,6 +54,13 @@ public abstract class Attribute extends EditTarget {
 		rootConstraint = createRootConstraint();
 	}
 
+	void initialiseAsCoreAttribute() {
+
+		rootTargetConcept.getHierarchy().addInwardCoreAttribute(this);
+
+		rootSourceConcept.addConstraint(rootConstraint);
+	}
+
 	void doAdd(boolean replacement) {
 
 		throw createDynamicOperationException();

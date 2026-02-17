@@ -31,9 +31,7 @@ public class EditableCoreHierarchy extends CoreHierarchy {
 
 		coreAttributes.add(attribute);
 
-		attribute.getRootTargetConcept().getHierarchy().addInwardCoreAttribute(attribute);
-
-		attribute.getRootSourceConcept().addConstraint(attribute.getRootConstraint());
+		attribute.initialiseAsCoreAttribute();
 	}
 
 	public List<Attribute> getAllAttributes() {
