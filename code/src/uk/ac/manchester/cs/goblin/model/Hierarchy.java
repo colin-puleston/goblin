@@ -15,30 +15,18 @@ public abstract class Hierarchy {
 
 	private List<Attribute> inwardCoreAttributes = new ArrayList<Attribute>();
 
-	public void addListener(HierarchyListener listener) {
-
-		throw createIllegalOperationException();
-	}
-
-	public void removeListener(HierarchyListener listener) {
-
-		throw createIllegalOperationException();
-	}
-
 	public void setLabel(String label) {
 
 		this.label = label;
 	}
 
-	public void enableDynamicAttributes(ConstraintsOption constraintsOption) {
+	public abstract void enableDynamicAttributes(ConstraintsOption constraintsOption);
 
-		throw createIllegalOperationException();
-	}
+	public abstract void addCoreAttribute(Attribute attribute);
 
-	public void addCoreAttribute(Attribute attribute) {
+	public abstract void addListener(HierarchyListener listener);
 
-		throw createAttributeAddException(attribute, "outward");
-	}
+	public abstract void removeListener(HierarchyListener listener);
 
 	public Model getModel() {
 
@@ -159,30 +147,9 @@ public abstract class Hierarchy {
 		inwardCoreAttributes.add(attribute);
 	}
 
-	ConstraintsOption getDynamicAttributeConstraintsOption() {
+	abstract ConstraintsOption getDynamicAttributeConstraintsOption();
 
-		throw createIllegalOperationException();
-	}
+	abstract void onAddedDynamicAttribute(DynamicAttribute attribute);
 
-	void onAddedDynamicAttribute(DynamicAttribute attribute) {
-
-		throw createIllegalOperationException();
-	}
-
-	void onRemovedDynamicAttribute(DynamicAttribute attribute) {
-
-		throw createIllegalOperationException();
-	}
-
-	private RuntimeException createIllegalOperationException() {
-
-		return new RuntimeException("Illegal operation on non-editable hierachy: " + label);
-	}
-
-	private RuntimeException createAttributeAddException(Attribute attribute, String direction) {
-
-		return new RuntimeException(
-						"Cannot add " + direction + " attribute to: "
-						+ getClass().getSimpleName());
-	}
+	abstract void onRemovedDynamicAttribute(DynamicAttribute attribute);
 }

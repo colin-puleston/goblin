@@ -52,6 +52,18 @@ public class DynamicAttribute extends Attribute {
 		}
 	}
 
+	public void resetAttributeId(EntityId attrId) {
+
+		Concept source = getRootSourceConcept();
+
+		if (source.applicableDynamicAttribute(attrId)) {
+
+			throw new RuntimeException("Attribute already exists for concept: " + source);
+		}
+
+		performAction(createReplaceAttributeIdAction(attrId));
+	}
+
 	public void addListener(DynamicAttributeListener listener) {
 
 		listeners.add(listener);
@@ -71,18 +83,6 @@ public class DynamicAttribute extends Attribute {
 				listeners.remove(listener);
 			}
 		}
-	}
-
-	public void resetAttributeId(EntityId attrId) {
-
-		Concept source = getRootSourceConcept();
-
-		if (source.applicableDynamicAttribute(attrId)) {
-
-			throw new RuntimeException("Attribute already exists for concept: " + source);
-		}
-
-		performAction(createReplaceAttributeIdAction(attrId));
 	}
 
 	public void remove() {

@@ -25,12 +25,7 @@ class CoreModelLoader extends ConfigFileVocab {
 
 			for (KConfigNode hierarchyNode : node.getChildren(HIERARCHY_TAG)) {
 
-				Hierarchy hierarchy = hierarchies.next();
-
-				if (!hierarchy.referenceOnly()) {
-
-					loadHierarchyAttributes(hierarchyNode, hierarchy);
-				}
+				loadHierarchyAttributes(hierarchyNode, hierarchies.next());
 			}
 		}
 

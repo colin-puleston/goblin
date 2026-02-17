@@ -145,11 +145,11 @@ class DynamicModelRenderer {
 			if (!hierarchy.referenceOnly()) {
 
 				renderHierarchy(hierarchy);
+			}
 
-				if (hierarchy.dynamicAttributesEnabled()) {
+			if (hierarchy.dynamicAttributesEnabled()) {
 
-					renderDynamicValueHierarchies(hierarchy);
-				}
+				renderDynamicValueHierarchies(hierarchy);
 			}
 		}
 	}

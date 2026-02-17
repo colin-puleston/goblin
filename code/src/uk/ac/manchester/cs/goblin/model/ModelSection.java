@@ -1,7 +1,5 @@
 package uk.ac.manchester.cs.goblin.model;
 
-import java.util.*;
-
 /**
  * @author Colin Puleston
  */
@@ -12,7 +10,7 @@ public class ModelSection extends CoreHierarchyContainer {
 
 	public Hierarchy addCoreHierarchy(EntityId rootConceptId, boolean referenceOnly) {
 
-		Hierarchy hierarchy = createHierarchy(rootConceptId, referenceOnly);
+		Hierarchy hierarchy = new CoreHierarchy(model, rootConceptId, referenceOnly);
 
 		addHierarchy(hierarchy);
 		model.addHierarchy(hierarchy);
@@ -29,15 +27,5 @@ public class ModelSection extends CoreHierarchyContainer {
 
 		this.model = model;
 		this.label = label;
-	}
-
-	private Hierarchy createHierarchy(EntityId rootConceptId, boolean referenceOnly) {
-
-		if (referenceOnly) {
-
-			return new ReferenceOnlyCoreHierarchy(model, rootConceptId);
-		}
-
-		return new EditableCoreHierarchy(model, rootConceptId);
 	}
 }

@@ -157,16 +157,6 @@ public abstract class Concept extends EditTarget {
 		}
 	}
 
-	public void addListener(ConceptListener listener) {
-
-		listeners.add(listener);
-	}
-
-	public void removeListener(ConceptListener listener) {
-
-		listeners.remove(listener);
-	}
-
 	public boolean resetId(EntityId newConceptId) {
 
 		checkCanPerformOperation(canResetId());
@@ -182,6 +172,16 @@ public abstract class Concept extends EditTarget {
 		}
 
 		return true;
+	}
+
+	public void addListener(ConceptListener listener) {
+
+		listeners.add(listener);
+	}
+
+	public void removeListener(ConceptListener listener) {
+
+		listeners.remove(listener);
 	}
 
 	public boolean move(Concept newParent) {
