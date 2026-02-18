@@ -2,18 +2,16 @@ package uk.ac.manchester.cs.goblin.io;
 
 import java.io.*;
 
-import uk.ac.manchester.cs.mekon_util.config.*;
-
 import uk.ac.manchester.cs.goblin.model.*;
+import uk.ac.manchester.cs.goblin.io.ontology.*;
+import uk.ac.manchester.cs.goblin.io.config.*;
 
 /**
  * @author Colin Puleston
  */
-public class ModelSerialiser extends ConfigFileVocab {
+public class ModelSerialiser {
 
-	static private final String CONFIG_FILE_NAME = "goblin.xml";
-
-	private KConfigNode configRootNode;
+	private ConfigFileLoader configFileLoader;
 
 	private File dynamicFile;
 	private DynamicIRIs dynamicIRIs;
@@ -22,10 +20,10 @@ public class ModelSerialiser extends ConfigFileVocab {
 
 	public ModelSerialiser() {
 
-		configRootNode = new KConfigFile(CONFIG_FILE_NAME).getRootNode();
+		configFileLoader = new ConfigFileLoader();
 
-		dynamicFile = getDynamicFileFromConfig();
-		dynamicIRIs = new DynamicIRIs(getDynamicNamespaceFromConfig());
+		dynamicFile = configFileLoader.getDynamicFile();
+		dynamicIRIs = new DynamicIRIs(configFileLoader.getDynamicNamespace());
 
 		ontology = new Ontology(dynamicFile);
 	}
@@ -65,21 +63,8 @@ public class ModelSerialiser extends ConfigFileVocab {
 
 	private Model load(Ontology ont) throws BadDynamicOntologyException {
 
-		Model model = new Model();
+		ModelConfig modelConfig = configFileLoader.loadModelConfig(ont);
 
-		new CoreModelLoader(model, ont).load(configRootNode);
-		new DynamicModelLoader(model, ont, dynamicIRIs);
-
-		return model;
-	}
-
-	private File getDynamicFileFromConfig() {
-
-		return configRootNode.getResource(DYNAMIC_FILE_ATTR, KConfigResourceFinder.FILES);
-	}
-
-	private String getDynamicNamespaceFromConfig() {
-
-		return configRootNode.getString(DYNAMIC_NAMESPACE_ATTR);
+		return new ModelLoader(ont, modelConfig, dynamicIRIs).load();
 	}
 }

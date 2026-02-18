@@ -8,9 +8,13 @@ public class ModelSection extends CoreHierarchyContainer {
 	private Model model;
 	private String label;
 
-	public Hierarchy addCoreHierarchy(EntityId rootConceptId, boolean referenceOnly) {
+	public ModelSection(Model model, String label) {
 
-		Hierarchy hierarchy = new CoreHierarchy(model, rootConceptId, referenceOnly);
+		this.model = model;
+		this.label = label;
+	}
+
+	public Hierarchy addCoreHierarchy(CoreHierarchy hierarchy) {
 
 		addHierarchy(hierarchy);
 		model.addHierarchy(hierarchy);
@@ -21,11 +25,5 @@ public class ModelSection extends CoreHierarchyContainer {
 	public String getLabel() {
 
 		return label;
-	}
-
-	ModelSection(Model model, String label) {
-
-		this.model = model;
-		this.label = label;
 	}
 }

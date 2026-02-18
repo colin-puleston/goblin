@@ -14,6 +14,17 @@ public class CoreHierarchy extends Hierarchy {
 
 	private List<HierarchyListener> listeners = new ArrayList<HierarchyListener>();
 
+	public CoreHierarchy(
+				Model model,
+				EntityId rootConceptId,
+				String label,
+				boolean referenceOnly) {
+
+		super(model, rootConceptId, label);
+
+		this.referenceOnly = referenceOnly;
+	}
+
 	public void enableDynamicAttributes(ConstraintsOption constraintsOption) {
 
 		dynamicAttributesConstraintsOption = constraintsOption;
@@ -78,13 +89,6 @@ public class CoreHierarchy extends Hierarchy {
 		}
 
 		return Collections.emptyList();
-	}
-
-	CoreHierarchy(Model model, EntityId rootConceptId, boolean referenceOnly) {
-
-		super(model, rootConceptId);
-
-		this.referenceOnly = referenceOnly;
 	}
 
 	RootConcept createRootConcept(EntityId rootConceptId) {

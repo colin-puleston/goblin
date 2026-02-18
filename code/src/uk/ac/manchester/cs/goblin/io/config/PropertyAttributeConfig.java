@@ -1,34 +1,27 @@
-package uk.ac.manchester.cs.goblin.io;
+package uk.ac.manchester.cs.goblin.io.config;
 
 import uk.ac.manchester.cs.goblin.model.*;
 
 /**
  * @author Colin Puleston
  */
-abstract class CoreAttribute extends Attribute {
+public abstract class PropertyAttributeConfig extends AttributeConfig {
 
-	private String label;
 	private ConstraintsOption constraintsOption;
-
-	public String getLabel() {
-
-		return label;
-	}
 
 	public ConstraintsOption getConstraintsOption() {
 
 		return constraintsOption;
 	}
 
-	CoreAttribute(
+	PropertyAttributeConfig(
 		String label,
-		Concept rootSourceConcept,
-		Concept rootTargetConcept,
+		EntityId rootSourceConceptId,
+		EntityId rootTargetConceptId,
 		ConstraintsOption constraintsOption) {
 
-		super(rootSourceConcept, rootTargetConcept);
+		super(label, rootSourceConceptId, rootTargetConceptId);
 
-		this.label = label;
 		this.constraintsOption = constraintsOption;
 	}
 }

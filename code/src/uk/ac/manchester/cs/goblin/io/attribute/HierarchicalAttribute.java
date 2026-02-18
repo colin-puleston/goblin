@@ -1,17 +1,17 @@
-package uk.ac.manchester.cs.goblin.io;
+package uk.ac.manchester.cs.goblin.io.attribute;
 
 import uk.ac.manchester.cs.goblin.model.*;
 
 /**
  * @author Colin Puleston
  */
-class HierarchicalAttribute extends CoreAttribute {
+public class HierarchicalAttribute extends CoreAttribute {
 
-	HierarchicalAttribute(
-		String label,
-		Concept rootSourceConcept,
-		Concept rootTargetConcept,
-		HierarchicalLinksOption linksOption) {
+	public HierarchicalAttribute(
+				String label,
+				Concept rootSourceConcept,
+				Concept rootTargetConcept,
+				HierarchicalLinksOption linksOption) {
 
 		super(label, rootSourceConcept, rootTargetConcept, linksOption.toConstraintsOption());
 

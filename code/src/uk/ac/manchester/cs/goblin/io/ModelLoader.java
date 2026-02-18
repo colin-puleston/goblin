@@ -5,11 +5,14 @@ import java.util.*;
 import org.semanticweb.owlapi.model.*;
 
 import uk.ac.manchester.cs.goblin.model.*;
+import uk.ac.manchester.cs.goblin.io.ontology.*;
+import uk.ac.manchester.cs.goblin.io.attribute.*;
+import uk.ac.manchester.cs.goblin.io.config.*;
 
 /**
  * @author Colin Puleston
  */
-class DynamicModelLoader {
+class ModelLoader {
 
 	private Model model;
 	private Ontology ontology;
@@ -587,16 +590,15 @@ class DynamicModelLoader {
 		}
 	}
 
-	DynamicModelLoader(
-		Model model,
-		Ontology ontology,
-		DynamicIRIs dynamicIRIs)
-		throws BadDynamicOntologyException {
+	ModelLoader(Ontology ontology, ModelConfig modelConfig, DynamicIRIs dynamicIRIs) {
 
-		this.model = model;
 		this.ontology = ontology;
 
+		model = modelConfig.createModel();
 		entityIds = new EntityIds(dynamicIRIs);
+	}
+
+	Model load() throws BadDynamicOntologyException {
 
 		try {
 
@@ -608,6 +610,8 @@ class DynamicModelLoader {
 
 			throw new BadDynamicOntologyException(e);
 		}
+
+		return model;
 	}
 
 	private void loadConcepts() {

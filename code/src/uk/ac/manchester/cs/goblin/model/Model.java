@@ -8,36 +8,25 @@ import java.util.*;
  */
 public class Model extends CoreHierarchyContainer {
 
-	static private final String DEFAULT_SECTION_NAME_PREFIX = "Section-";
-
 	private List<ModelSection> sections = new ArrayList<ModelSection>();
 
 	private EditActions editActions = new EditActions();
 	private ConceptTracking conceptTracking = new ConceptTracking();
 	private ConflictResolver conflictResolver = new ConflictResolver();
 
-	public void setConfirmations(Confirmations confirmations) {
-
-		conflictResolver.setConfirmations(confirmations);
-	}
-
-	public ModelSection addSection() {
-
-		return addSection(DEFAULT_SECTION_NAME_PREFIX + sections.size());
-	}
-
-	public ModelSection addSection(String label) {
-
-		ModelSection section = new ModelSection(this, label);
+	public void addSection(ModelSection section) {
 
 		sections.add(section);
-
-		return section;
 	}
 
 	public void setModelLoaded() {
 
 		editActions.startTracking();
+	}
+
+	public void setConfirmations(Confirmations confirmations) {
+
+		conflictResolver.setConfirmations(confirmations);
 	}
 
 	public void addEditListener(ModelEditListener listener) {
@@ -53,18 +42,6 @@ public class Model extends CoreHierarchyContainer {
 	public List<ModelSection> getSections() {
 
 		return new ArrayList<ModelSection>(sections);
-	}
-
-	public List<Hierarchy> getCoreHierarchies() {
-
-		List<Hierarchy> hierarchies = new ArrayList<Hierarchy>();
-
-		for (ModelSection section : sections) {
-
-			hierarchies.addAll(section.getCoreHierarchies());
-		}
-
-		return hierarchies;
 	}
 
 	public boolean canUndo() {

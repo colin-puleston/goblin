@@ -120,11 +120,11 @@ public abstract class Hierarchy {
 		return Collections.emptyList();
 	}
 
-	Hierarchy(Model model, EntityId rootConceptId) {
+	Hierarchy(Model model, EntityId rootConceptId, String label) {
 
 		this.model = model;
+		this.label = label;
 
-		label = rootConceptId.getLabel();
 		rootConcept = createRootConcept(rootConceptId);
 
 		registerConcept(rootConcept);

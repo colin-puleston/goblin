@@ -1,4 +1,4 @@
-package uk.ac.manchester.cs.goblin.io;
+package uk.ac.manchester.cs.goblin.io.ontology;
 
 import java.io.*;
 

@@ -1,4 +1,4 @@
-package uk.ac.manchester.cs.goblin.io;
+package uk.ac.manchester.cs.goblin.io.ontology;
 
 import org.semanticweb.owlapi.model.*;
 
@@ -7,7 +7,7 @@ import uk.ac.manchester.cs.goblin.model.*;
 /**
  * @author Colin Puleston
  */
-class CoreId extends EntityId {
+public class CoreId extends EntityId {
 
 	static private final char[] IRI_FINAL_SEPARATOR_CHARS = new char[]{'#', '/', ':'};
 
@@ -30,6 +30,23 @@ class CoreId extends EntityId {
 
 	private IRI iri;
 
+	public CoreId(IRI iri) {
+
+		this(iri, null);
+	}
+
+	public CoreId(IRI iri, String labelOrNull) {
+
+		super(extractName(iri), labelOrNull);
+
+		this.iri = iri;
+	}
+
+	public IRI getIRI() {
+
+		return iri;
+	}
+
 	public boolean equals(Object other) {
 
 		return other instanceof CoreId && iri.equals(((CoreId)other).iri);
@@ -43,22 +60,5 @@ class CoreId extends EntityId {
 	public boolean dynamicId() {
 
 		return false;
-	}
-
-	CoreId(IRI iri) {
-
-		this(iri, null);
-	}
-
-	CoreId(IRI iri, String labelOrNull) {
-
-		super(extractName(iri), labelOrNull);
-
-		this.iri = iri;
-	}
-
-	IRI getIRI() {
-
-		return iri;
 	}
 }

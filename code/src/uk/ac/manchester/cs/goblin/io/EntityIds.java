@@ -3,6 +3,7 @@ package uk.ac.manchester.cs.goblin.io;
 import org.semanticweb.owlapi.model.*;
 
 import uk.ac.manchester.cs.goblin.model.*;
+import uk.ac.manchester.cs.goblin.io.ontology.*;
 
 /**
  * @author Colin Puleston

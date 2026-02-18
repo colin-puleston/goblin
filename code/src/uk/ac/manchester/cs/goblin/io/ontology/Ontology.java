@@ -1,4 +1,4 @@
-package uk.ac.manchester.cs.goblin.io;
+package uk.ac.manchester.cs.goblin.io.ontology;
 
 import java.io.*;
 import java.util.*;
@@ -15,7 +15,7 @@ import org.semanticweb.owlapi.rdf.rdfxml.renderer.*;
 /**
  * @author Colin Puleston
  */
-class Ontology {
+public class Ontology {
 
 	static private final IRI LABEL_ANNOTATION_IRI = OWLRDFVocabulary.RDFS_LABEL.getIRI();
 
@@ -27,7 +27,7 @@ class Ontology {
 
 	private OWLAnnotationProperty labelAnnotationProperty;
 
-	Ontology(File file) {
+	public Ontology(File file) {
 
 		manager = createManager(file);
 		mainOntology = loadOntology(file);
@@ -38,7 +38,7 @@ class Ontology {
 		labelAnnotationProperty = getLabelAnnotationProperty();
 	}
 
-	OWLClass addClass(OWLClass sup, IRI iri) {
+	public OWLClass addClass(OWLClass sup, IRI iri) {
 
 		OWLClass cls = getClass(iri);
 
@@ -48,39 +48,39 @@ class Ontology {
 		return cls;
 	}
 
-	void addSuperClass(OWLClass cls, OWLClass sup) {
+	public void addSuperClass(OWLClass cls, OWLClass sup) {
 
 		addAxiom(getSubClassAxiom(cls, sup));
 	}
 
-	void addLabel(OWLClass cls, String label) {
+	public void addLabel(OWLClass cls, String label) {
 
 		addAxiom(createLabelAxiom(cls, label));
 	}
 
-	void addPremiseAxiom(
-			OWLClass rootSubject,
-			OWLClass subject,
-			OWLObjectProperty property,
-			OWLClass value) {
+	public void addPremiseAxiom(
+					OWLClass rootSubject,
+					OWLClass subject,
+					OWLObjectProperty property,
+					OWLClass value) {
 
 		addAxiom(getEquivalenceAxiom(subject, getPremiseDefnExpr(rootSubject, property, value)));
 	}
 
-	void addAllConsequenceAxiom(
-			OWLClass subject,
-			OWLObjectProperty property,
-			Set<OWLClass> values) {
+	public void addAllConsequenceAxiom(
+					OWLClass subject,
+					OWLObjectProperty property,
+					Set<OWLClass> values) {
 
 		OWLClassExpression valuesExpr = getAllConsequenceValuesExpr(values);
 
 		addAxiom(getSubClassAxiom(subject, getAllValuesFrom(property, valuesExpr)));
 	}
 
-	void addSomeConsequenceAxioms(
-			OWLClass subject,
-			OWLObjectProperty property,
-			Set<OWLClass> values) {
+	public void addSomeConsequenceAxioms(
+					OWLClass subject,
+					OWLObjectProperty property,
+					Set<OWLClass> values) {
 
 		for (OWLClass value : values) {
 
@@ -88,7 +88,7 @@ class Ontology {
 		}
 	}
 
-	void removeAllClasses() {
+	public void removeAllClasses() {
 
 		for (OWLClass cls : mainOntology.getClassesInSignature()) {
 
@@ -96,7 +96,7 @@ class Ontology {
 		}
 	}
 
-	void removeClass(OWLClass cls) {
+	public void removeClass(OWLClass cls) {
 
 		removeAxioms(getAxioms(cls));
 		removeAxiom(factory.getOWLDeclarationAxiom(cls));
@@ -109,7 +109,7 @@ class Ontology {
 		}
 	}
 
-	void write(File file) {
+	public void write(File file) {
 
 		try {
 
@@ -130,12 +130,12 @@ class Ontology {
 		}
 	}
 
-	Set<OWLClassAxiom> getAxioms(OWLClass cls) {
+	public Set<OWLClassAxiom> getAxioms(OWLClass cls) {
 
 		return mainOntology.getAxioms(cls, Imports.INCLUDED);
 	}
 
-	Set<OWLClass> getSubClasses(OWLClass cls, boolean direct) {
+	public Set<OWLClass> getSubClasses(OWLClass cls, boolean direct) {
 
 		Set<OWLClass> subs = reasoner.getSubClasses(cls, direct).getFlattened();
 
@@ -144,12 +144,12 @@ class Ontology {
 		return subs;
 	}
 
-	Set<OWLClass> getSuperClasses(OWLClass cls, boolean direct) {
+	public Set<OWLClass> getSuperClasses(OWLClass cls, boolean direct) {
 
 		return reasoner.getSuperClasses(cls, direct).getFlattened();
 	}
 
-	boolean classExists(IRI iri) {
+	public boolean classExists(IRI iri) {
 
 		for (OWLOntology ont : allOntologies) {
 
@@ -162,17 +162,17 @@ class Ontology {
 		return false;
 	}
 
-	OWLClass getClass(IRI iri) {
+	public OWLClass getClass(IRI iri) {
 
 		return factory.getOWLClass(iri);
 	}
 
-	OWLObjectProperty getObjectProperty(IRI iri) {
+	public OWLObjectProperty getObjectProperty(IRI iri) {
 
 		return factory.getOWLObjectProperty(iri);
 	}
 
-	String lookForLabel(OWLEntity entity) {
+	public String lookForLabel(OWLEntity entity) {
 
 		for (OWLAnnotation anno : getLabelAnnotations(entity)) {
 

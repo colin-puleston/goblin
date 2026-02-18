@@ -32,7 +32,7 @@ class DynamicValueHierarchy extends Hierarchy {
 
 	DynamicValueHierarchy(Model model, EntityId rootConceptId) {
 
-		super(model, rootConceptId);
+		super(model, rootConceptId, rootConceptId.getLabel());
 	}
 
 	RootConcept createRootConcept(EntityId rootConceptId) {
