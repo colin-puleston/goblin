@@ -4,7 +4,7 @@
 	dynamicNamespace="http://goblin/demo-dynamic.owl"
 	dynamicFilename="demo-dynamic.owl">
 
-	<ModelSection label="Editable Content">
+	<ModelSection label="Hobby">
 
 		<Hierarchy
 			rootConcept="http://goblin/demo-core.owl#Activity"
@@ -29,6 +29,10 @@
 			rootConcept="http://goblin/demo-core.owl#Role">
 		</Hierarchy>
 
+	</ModelSection>
+
+	<ModelSection label="Activity Venue">
+
 		<Hierarchy
 			rootConcept="http://goblin/demo-core.owl#VenueByType"
 			dynamicConstraintsOption="VALID_VALUES_ONLY">
@@ -39,13 +43,9 @@
 			</HierarchicalAttribute>
 		</Hierarchy>
 
-	</ModelSection>
-
-	<ModelSection label="Reference Only">
-
 		<Hierarchy
 			rootConcept="http://goblin/demo-core.owl#VenueByLocation"
-			referenceOnly="TRUE">
+			fixedStructure="TRUE">
 		</Hierarchy>
 
 	</ModelSection>
