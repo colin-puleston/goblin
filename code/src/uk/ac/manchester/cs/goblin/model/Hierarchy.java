@@ -38,7 +38,7 @@ public abstract class Hierarchy {
 		return label;
 	}
 
-	public boolean referenceOnly() {
+	public boolean fixedStructure() {
 
 		return false;
 	}

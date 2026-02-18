@@ -12,16 +12,16 @@ public class HierarchyConfig {
 	private String label;
 	private EntityId rootConceptId;
 
-	private boolean referenceOnly;
+	private boolean fixedStructure;
 
 	private ConstraintsOption dynamicAttributesConstraintsOption = null;
 
 	private List<AttributeConfig> coreAttributes = new ArrayList<AttributeConfig>();
 
-	public HierarchyConfig(EntityId rootConceptId, boolean referenceOnly) {
+	public HierarchyConfig(EntityId rootConceptId, boolean fixedStructure) {
 
 		this.rootConceptId = rootConceptId;
-		this.referenceOnly = referenceOnly;
+		this.fixedStructure = fixedStructure;
 
 		label = rootConceptId.getLabel();
 	}
@@ -41,9 +41,9 @@ public class HierarchyConfig {
 		return label;
 	}
 
-	public boolean referenceOnly() {
+	public boolean fixedStructure() {
 
-		return referenceOnly;
+		return fixedStructure;
 	}
 
 	public void addCoreAttribute(AttributeConfig attribute) {
@@ -68,7 +68,7 @@ public class HierarchyConfig {
 
 	CoreHierarchy createHierarchy(Model model) {
 
-		CoreHierarchy hierarchy = new CoreHierarchy(model, rootConceptId, label, referenceOnly);
+		CoreHierarchy hierarchy = new CoreHierarchy(model, rootConceptId, label, fixedStructure);
 
 		if (dynamicAttributesConstraintsOption != null) {
 

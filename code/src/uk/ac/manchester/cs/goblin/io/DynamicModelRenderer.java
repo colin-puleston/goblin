@@ -144,7 +144,7 @@ class DynamicModelRenderer {
 
 		for (Hierarchy hierarchy : model.getCoreHierarchies()) {
 
-			if (!hierarchy.referenceOnly()) {
+			if (!hierarchy.fixedStructure()) {
 
 				renderHierarchy(hierarchy);
 			}

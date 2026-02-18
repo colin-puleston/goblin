@@ -598,7 +598,7 @@ public abstract class Concept extends EditTarget {
 
 		if (id.dynamicId()) {
 
-			if (hierarchy.referenceOnly()) {
+			if (hierarchy.fixedStructure()) {
 
 				throw createInvalidOperationException();
 			}

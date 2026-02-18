@@ -309,11 +309,11 @@ class ModelConfigLoader extends ConfigFileVocab {
 	private void loadHierarchy(ModelSectionConfig section, KConfigNode node) {
 
 		EntityId rootConceptId = getRootConceptId(node);
-		boolean refOnly = referenceOnlyHierarchy(node);
+		boolean fixedStructure = fixedHierarchyStructure(node);
 		String label = getEntityLabelOrNull(node);
 		ConstraintsOption dynamicConstsOpt = getDynamicConstraintsOptionOrNull(node);
 
-		HierarchyConfig hierarchy = section.addHierarchy(rootConceptId, refOnly);
+		HierarchyConfig hierarchy = section.addHierarchy(rootConceptId, fixedStructure);
 
 		if (label != null) {
 
@@ -362,9 +362,9 @@ class ModelConfigLoader extends ConfigFileVocab {
 		return getPropertyId(node, ROOT_CONCEPT_ATTR);
 	}
 
-	private boolean referenceOnlyHierarchy(KConfigNode node) {
+	private boolean fixedHierarchyStructure(KConfigNode node) {
 
-		return node.getBoolean(REFERENCE_ONLY_HIERARCHY_ATTR, false);
+		return node.getBoolean(FIXED_HIERARCHY_STRUCTURE_ATTR, false);
 	}
 
 	private EntityId getRootTargetConceptId(KConfigNode node) {

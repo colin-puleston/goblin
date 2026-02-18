@@ -440,7 +440,7 @@ class HierarchyTreePanel extends JPanel {
 
 	private JComponent createLowerComponent(Hierarchy hierarchy) {
 
-		return hierarchy.referenceOnly()
+		return hierarchy.fixedStructure()
 					? createNoEditMessageLabel()
 					: createEditButtonsPanel();
 	}

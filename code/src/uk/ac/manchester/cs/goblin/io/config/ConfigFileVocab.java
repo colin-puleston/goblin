@@ -14,7 +14,7 @@ class ConfigFileVocab {
 	static final String DYNAMIC_NAMESPACE_ATTR = "dynamicNamespace";
 	static final String DYNAMIC_FILE_ATTR = "dynamicFilename";
 
-	static final String REFERENCE_ONLY_HIERARCHY_ATTR = "referenceOnly";
+	static final String FIXED_HIERARCHY_STRUCTURE_ATTR = "fixedStructure";
 
 	static final String ENTITY_LABEL_ATTR = "label";
 	static final String ROOT_CONCEPT_ATTR = "rootConcept";

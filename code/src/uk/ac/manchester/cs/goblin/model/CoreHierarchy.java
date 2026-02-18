@@ -7,7 +7,7 @@ import java.util.*;
  */
 public class CoreHierarchy extends Hierarchy {
 
-	private boolean referenceOnly;
+	private boolean fixedStructure;
 
 	private ConstraintsOption dynamicAttributesConstraintsOption = null;
 	private List<Attribute> coreAttributes = new ArrayList<Attribute>();
@@ -18,11 +18,11 @@ public class CoreHierarchy extends Hierarchy {
 				Model model,
 				EntityId rootConceptId,
 				String label,
-				boolean referenceOnly) {
+				boolean fixedStructure) {
 
 		super(model, rootConceptId, label);
 
-		this.referenceOnly = referenceOnly;
+		this.fixedStructure = fixedStructure;
 	}
 
 	public void enableDynamicAttributes(ConstraintsOption constraintsOption) {
@@ -47,9 +47,9 @@ public class CoreHierarchy extends Hierarchy {
 		listeners.remove(listener);
 	}
 
-	public boolean referenceOnly() {
+	public boolean fixedStructure() {
 
-		return referenceOnly;
+		return fixedStructure;
 	}
 
 	public List<Attribute> getAllAttributes() {
