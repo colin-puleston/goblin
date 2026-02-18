@@ -158,7 +158,7 @@ class CoreModelLoader extends ConfigFileVocab {
 
 					throwException(
 						"Source-hierarchy \"" + source.getLabel()
-						+ " should be defined before target-hierarchy \"" + source.getLabel()
+						+ " should be defined before target-hierarchy \"" + target.getLabel()
 						+ " in config file");
 				}
 			}
