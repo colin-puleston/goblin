@@ -78,7 +78,7 @@ class ModelConfigLoader extends ConfigFileVocab {
 							EntityId rootTgtId) {
 
 			EntityId lnkProp = getPropertyId(node, LINKING_PROPERTY_ATTR);
-			ConstraintsOption constraintsOpt = getCoreConstraintsOption(node);
+			ConstraintsOption constraintsOpt = getCoreAttributeConstraintsOption(node);
 
 			return new SimpleAttributeConfig(label, lnkProp, rootSrcId, rootTgtId, constraintsOpt);
 		}
@@ -107,7 +107,7 @@ class ModelConfigLoader extends ConfigFileVocab {
 			EntityId srcProp = getPropertyId(node, SOURCE_PROPERTY_ATTR);
 			EntityId tgtProp = getPropertyId(node, TARGET_PROPERTY_ATTR);
 
-			ConstraintsOption constraintsOpt = getCoreConstraintsOption(node);
+			ConstraintsOption constraintsOpt = getCoreAttributeConstraintsOption(node);
 
 			return new AnchoredAttributeConfig(label, anchor, srcProp, tgtProp, rootSrcId, rootTgtId, constraintsOpt);
 		}
@@ -309,21 +309,17 @@ class ModelConfigLoader extends ConfigFileVocab {
 	private void loadHierarchy(ModelSectionConfig section, KConfigNode node) {
 
 		EntityId rootConceptId = getRootConceptId(node);
-		boolean fixedStructure = fixedHierarchyStructure(node);
 		String label = getEntityLabelOrNull(node);
-		ConstraintsOption dynamicConstsOpt = getDynamicConstraintsOptionOrNull(node);
 
-		HierarchyConfig hierarchy = section.addHierarchy(rootConceptId, fixedStructure);
+		HierarchyConfig hierarchy = section.addHierarchy(rootConceptId);
 
 		if (label != null) {
 
 			hierarchy.setLabel(label);
 		}
 
-		if (dynamicConstsOpt != null) {
-
-			hierarchy.enableDynamicAttributes(dynamicConstsOpt);
-		}
+		hierarchy.setFixedStructure(fixedHierarchyStructure(node));
+		hierarchy.setDynamicAttributeConstraints(getDynamicAttributeConstraintsOption(node));
 	}
 
 	private void loadAttributes(KConfigNode rootNode) {
@@ -372,14 +368,19 @@ class ModelConfigLoader extends ConfigFileVocab {
 		return getConceptId(node, ROOT_TARGET_CONCEPT_ATTR);
 	}
 
-	private ConstraintsOption getCoreConstraintsOption(KConfigNode node) {
+	private ConstraintsOption getCoreAttributeConstraintsOption(KConfigNode node) {
 
-		return node.getEnum(CORE_CONSTRAINTS_OPTION_ATTR, ConstraintsOption.class);
+		return node.getEnum(
+					CORE_ATTRIBUTE_CONSTRAINTS_OPTION_ATTR,
+					ConstraintsOption.class);
 	}
 
-	private ConstraintsOption getDynamicConstraintsOptionOrNull(KConfigNode node) {
+	private ConstraintsOption getDynamicAttributeConstraintsOption(KConfigNode node) {
 
-		return node.getEnum(DYNAMIC_CONSTRAINTS_OPTION_ATTR, ConstraintsOption.class, null);
+		return node.getEnum(
+					DYNAMIC_ATTRIBUTE_CONSTRAINTS_OPTION_ATTR,
+					ConstraintsOption.class,
+					ConstraintsOption.NONE);
 	}
 
 	private HierarchicalLinksOption getHierarchicalLinksOption(KConfigNode node) {

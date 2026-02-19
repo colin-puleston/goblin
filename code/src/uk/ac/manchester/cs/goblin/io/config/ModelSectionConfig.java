@@ -17,9 +17,9 @@ public class ModelSectionConfig {
 		this.label = label;
 	}
 
-	public HierarchyConfig addHierarchy(EntityId rootConceptId, boolean fixedStructure) {
+	public HierarchyConfig addHierarchy(EntityId rootConceptId) {
 
-		HierarchyConfig hierarchy = new HierarchyConfig(rootConceptId, fixedStructure);
+		HierarchyConfig hierarchy = new HierarchyConfig(rootConceptId);
 
 		hierarchies.add(hierarchy);
 

@@ -23,5 +23,12 @@ public abstract class PropertyAttributeConfig extends AttributeConfig {
 		super(label, rootSourceConceptId, rootTargetConceptId);
 
 		this.constraintsOption = constraintsOption;
+
+		if (constraintsOption == ConstraintsOption.NONE) {
+
+			throw new RuntimeException(
+						"Cannot create attribute \"" + label + "\""
+						+ " with constraints option: " + constraintsOption);
+		}
 	}
 }

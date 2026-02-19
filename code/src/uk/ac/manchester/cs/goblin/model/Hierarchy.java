@@ -20,7 +20,7 @@ public abstract class Hierarchy {
 		this.label = label;
 	}
 
-	public abstract void enableDynamicAttributes(ConstraintsOption constraintsOption);
+	public abstract void setDynamicAttributeConstraints(ConstraintsOption constraintsOption);
 
 	public abstract void addCoreAttribute(Attribute attribute);
 

@@ -9,19 +9,17 @@ import uk.ac.manchester.cs.goblin.model.*;
  */
 public class HierarchyConfig {
 
-	private String label;
 	private EntityId rootConceptId;
+	private String label;
 
-	private boolean fixedStructure;
-
-	private ConstraintsOption dynamicAttributesConstraintsOption = null;
+	private boolean fixedStructure = false;
+	private ConstraintsOption dynamicAttributeConstraintsOption = ConstraintsOption.NONE;
 
 	private List<AttributeConfig> coreAttributes = new ArrayList<AttributeConfig>();
 
-	public HierarchyConfig(EntityId rootConceptId, boolean fixedStructure) {
+	public HierarchyConfig(EntityId rootConceptId) {
 
 		this.rootConceptId = rootConceptId;
-		this.fixedStructure = fixedStructure;
 
 		label = rootConceptId.getLabel();
 	}
@@ -31,9 +29,14 @@ public class HierarchyConfig {
 		this.label = label;
 	}
 
-	public void enableDynamicAttributes(ConstraintsOption constraintsOption) {
+	public void setFixedStructure(boolean fixedStructure) {
 
-		dynamicAttributesConstraintsOption = constraintsOption;
+		this.fixedStructure = fixedStructure;
+	}
+
+	public void setDynamicAttributeConstraints(ConstraintsOption option) {
+
+		dynamicAttributeConstraintsOption = option;
 	}
 
 	public String getLabel() {
@@ -68,12 +71,10 @@ public class HierarchyConfig {
 
 	CoreHierarchy createHierarchy(Model model) {
 
-		CoreHierarchy hierarchy = new CoreHierarchy(model, rootConceptId, label, fixedStructure);
+		CoreHierarchy hierarchy = new CoreHierarchy(model, rootConceptId, label);
 
-		if (dynamicAttributesConstraintsOption != null) {
-
-			hierarchy.enableDynamicAttributes(dynamicAttributesConstraintsOption);
-		}
+		hierarchy.setFixedStructure(fixedStructure);
+		hierarchy.setDynamicAttributeConstraints(dynamicAttributeConstraintsOption);
 
 		return hierarchy;
 	}

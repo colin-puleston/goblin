@@ -10,7 +10,7 @@ class DynamicValueHierarchy extends Hierarchy {
 		throw createNotDynamicValuesOpException();
 	}
 
-	public void enableDynamicAttributes(ConstraintsOption constraintsOption) {
+	public void setDynamicAttributeConstraints(ConstraintsOption constraintsOption) {
 
 		throw createNotDynamicValuesOpException();
 	}

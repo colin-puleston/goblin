@@ -7,27 +7,26 @@ import java.util.*;
  */
 public class CoreHierarchy extends Hierarchy {
 
-	private boolean fixedStructure;
+	private boolean fixedStructure = false;
+	private ConstraintsOption dynamicAttributeConstraintsOption = ConstraintsOption.NONE;
 
-	private ConstraintsOption dynamicAttributesConstraintsOption = null;
 	private List<Attribute> coreAttributes = new ArrayList<Attribute>();
 
 	private List<HierarchyListener> listeners = new ArrayList<HierarchyListener>();
 
-	public CoreHierarchy(
-				Model model,
-				EntityId rootConceptId,
-				String label,
-				boolean fixedStructure) {
+	public CoreHierarchy(Model model, EntityId rootConceptId, String label) {
 
 		super(model, rootConceptId, label);
+	}
+
+	public void setFixedStructure(boolean fixedStructure) {
 
 		this.fixedStructure = fixedStructure;
 	}
 
-	public void enableDynamicAttributes(ConstraintsOption constraintsOption) {
+	public void setDynamicAttributeConstraints(ConstraintsOption option) {
 
-		dynamicAttributesConstraintsOption = constraintsOption;
+		dynamicAttributeConstraintsOption = option;
 	}
 
 	public void addCoreAttribute(Attribute attribute) {
@@ -73,7 +72,7 @@ public class CoreHierarchy extends Hierarchy {
 
 	public boolean dynamicAttributesEnabled() {
 
-		return dynamicAttributesConstraintsOption != null;
+		return dynamicAttributeConstraintsOption != ConstraintsOption.NONE;
 	}
 
 	public boolean hasDynamicAttributes() {
@@ -98,12 +97,7 @@ public class CoreHierarchy extends Hierarchy {
 
 	ConstraintsOption getDynamicAttributeConstraintsOption() {
 
-		if (dynamicAttributesEnabled()) {
-
-			return dynamicAttributesConstraintsOption;
-		}
-
-		throw new Error("Unexpected method invocation!");
+		return dynamicAttributeConstraintsOption;
 	}
 
 	void onAddedDynamicAttribute(DynamicAttribute attribute) {
