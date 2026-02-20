@@ -5,7 +5,7 @@ import java.util.*;
 import org.semanticweb.owlapi.model.*;
 
 import uk.ac.manchester.cs.goblin.model.*;
-import uk.ac.manchester.cs.goblin.io.ontology.*;
+import uk.ac.manchester.cs.goblin.ontology.*;
 import uk.ac.manchester.cs.goblin.io.config.*;
 
 /**

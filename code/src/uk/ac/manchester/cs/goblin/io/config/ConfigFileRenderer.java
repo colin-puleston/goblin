@@ -4,7 +4,7 @@ import java.io.*;
 
 import uk.ac.manchester.cs.mekon_util.xdoc.*;
 
-import uk.ac.manchester.cs.goblin.io.ontology.*;
+import uk.ac.manchester.cs.goblin.ontology.*;
 
 /**
  * @author Colin Puleston
