@@ -5,7 +5,7 @@ import uk.ac.manchester.cs.goblin.model.*;
 /**
  * @author Colin Puleston
  */
-public abstract class PropertyAttributeConfig extends AttributeConfig {
+public abstract class PropertyAttributeConfig extends CoreAttributeConfig {
 
 	private ConstraintsOption constraintsOption;
 

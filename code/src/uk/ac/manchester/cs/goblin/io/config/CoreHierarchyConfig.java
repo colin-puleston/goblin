@@ -7,17 +7,17 @@ import uk.ac.manchester.cs.goblin.model.*;
 /**
  * @author Colin Puleston
  */
-public class HierarchyConfig {
+public class CoreHierarchyConfig {
 
-	private EntityId rootConceptId;
 	private String label;
+	private EntityId rootConceptId;
 
 	private boolean fixedStructure = false;
 	private ConstraintsOption dynamicAttributeConstraintsOption = ConstraintsOption.NONE;
 
-	private List<AttributeConfig> coreAttributes = new ArrayList<AttributeConfig>();
+	private List<CoreAttributeConfig> coreAttributes = new ArrayList<CoreAttributeConfig>();
 
-	public HierarchyConfig(EntityId rootConceptId) {
+	public CoreHierarchyConfig(EntityId rootConceptId) {
 
 		this.rootConceptId = rootConceptId;
 
@@ -39,24 +39,14 @@ public class HierarchyConfig {
 		dynamicAttributeConstraintsOption = option;
 	}
 
-	public String getLabel() {
-
-		return label;
-	}
-
-	public boolean fixedStructure() {
-
-		return fixedStructure;
-	}
-
-	public void addCoreAttribute(AttributeConfig attribute) {
+	public void addCoreAttribute(CoreAttributeConfig attribute) {
 
 		coreAttributes.add(attribute);
 	}
 
-	public boolean hasCoreAttributes() {
+	public String getLabel() {
 
-		return !coreAttributes.isEmpty();
+		return label;
 	}
 
 	public EntityId getRootConceptId() {
@@ -64,9 +54,24 @@ public class HierarchyConfig {
 		return rootConceptId;
 	}
 
-	public List<AttributeConfig> getCoreAttributes() {
+	public boolean fixedStructure() {
 
-		return new ArrayList<AttributeConfig>(coreAttributes);
+		return fixedStructure;
+	}
+
+	public ConstraintsOption getDynamicAttributeConstraintsOption() {
+
+		return dynamicAttributeConstraintsOption;
+	}
+
+	public boolean hasCoreAttributes() {
+
+		return !coreAttributes.isEmpty();
+	}
+
+	public List<CoreAttributeConfig> getCoreAttributes() {
+
+		return new ArrayList<CoreAttributeConfig>(coreAttributes);
 	}
 
 	CoreHierarchy createHierarchy(Model model) {
@@ -83,9 +88,9 @@ public class HierarchyConfig {
 
 		Model model = createdHierarchy.getModel();
 
-		for (AttributeConfig attribute : coreAttributes) {
+		for (CoreAttributeConfig attribute : coreAttributes) {
 
-			createdHierarchy.addCoreAttribute(attribute.createAttribute(model));
+			createdHierarchy.addCoreAttribute(new CoreAttribute(model, attribute));
 		}
 	}
 }

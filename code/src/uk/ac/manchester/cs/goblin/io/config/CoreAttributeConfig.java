@@ -5,7 +5,7 @@ import uk.ac.manchester.cs.goblin.model.*;
 /**
  * @author Colin Puleston
  */
-public abstract class AttributeConfig {
+public abstract class CoreAttributeConfig {
 
 	private String label;
 
@@ -32,26 +32,14 @@ public abstract class AttributeConfig {
 		return rootTargetConceptId;
 	}
 
-	AttributeConfig(
-		String label,
-		EntityId rootSourceConceptId,
-		EntityId rootTargetConceptId) {
+	CoreAttributeConfig(String label, EntityId rootSourceConceptId, EntityId rootTargetConceptId) {
 
 		this.label = label;
 		this.rootSourceConceptId = rootSourceConceptId;
 		this.rootTargetConceptId = rootTargetConceptId;
 	}
 
-	Attribute createAttribute(Model model) {
+	abstract ConstraintsOption getConstraintsOption();
 
-		Concept rootSourceConcept = model.getConcept(rootSourceConceptId);
-		Concept rootTargetConcept = model.getConcept(rootTargetConceptId);
-
-		return createAttribute(label, rootSourceConcept, rootTargetConcept);
-	}
-
-	abstract Attribute createAttribute(
-							String label,
-							Concept rootSourceConcept,
-							Concept rootTargetConcept);
+	abstract void accept(CoreAttributeConfigVisitor visitor);
 }

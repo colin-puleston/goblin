@@ -2,8 +2,6 @@ package uk.ac.manchester.cs.goblin.io.config;
 
 import uk.ac.manchester.cs.goblin.model.*;
 
-import uk.ac.manchester.cs.goblin.io.attribute.*;
-
 /**
  * @author Colin Puleston
  */
@@ -45,18 +43,8 @@ public class AnchoredAttributeConfig extends PropertyAttributeConfig {
 		return targetPropertyId;
 	}
 
-	Attribute createAttribute(
-				String label,
-				Concept rootSourceConcept,
-				Concept rootTargetConcept) {
+	void accept(CoreAttributeConfigVisitor visitor) {
 
-		return new AnchoredAttribute(
-						label,
-						anchorConceptId,
-						sourcePropertyId,
-						targetPropertyId,
-						rootSourceConcept,
-						rootTargetConcept,
-						getConstraintsOption());
+		visitor.visit(this);
 	}
 }

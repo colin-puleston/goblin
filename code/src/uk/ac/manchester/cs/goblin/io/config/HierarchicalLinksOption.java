@@ -1,4 +1,4 @@
-package uk.ac.manchester.cs.goblin.io.attribute;
+package uk.ac.manchester.cs.goblin.io.config;
 
 import uk.ac.manchester.cs.goblin.model.*;
 

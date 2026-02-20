@@ -1,23 +1,22 @@
-package uk.ac.manchester.cs.goblin.io;
+package uk.ac.manchester.cs.goblin.io.ontology;
 
 import org.semanticweb.owlapi.model.*;
 
 import uk.ac.manchester.cs.goblin.model.*;
-import uk.ac.manchester.cs.goblin.io.ontology.*;
 
 /**
  * @author Colin Puleston
  */
-class EntityIds {
+public class EntityIds {
 
 	private DynamicIRIs dynamicIRIs;
 
-	EntityIds(DynamicIRIs dynamicIRIs) {
+	public EntityIds(DynamicIRIs dynamicIRIs) {
 
 		this.dynamicIRIs = dynamicIRIs;
 	}
 
-	EntityId getId(OWLEntity entity, String label) {
+	public EntityId getId(OWLEntity entity, String label) {
 
 		IRI iri = entity.getIRI();
 		String dynName = toDynamicNameOrNull(iri);
@@ -25,7 +24,7 @@ class EntityIds {
 		return dynName != null ? new DynamicId(dynName, label) : new CoreId(iri, label);
 	}
 
-	IRI toIRI(EntityId id) {
+	public IRI toIRI(EntityId id) {
 
 		IRI iri = toCoreIRIOrNull(id);
 
@@ -42,7 +41,7 @@ class EntityIds {
 		throw new Error("Unrecognised EntityId type: " + id.getClass());
 	}
 
-	IRI toCoreIRI(EntityId id) {
+	public IRI toCoreIRI(EntityId id) {
 
 		IRI iri = toCoreIRIOrNull(id);
 
@@ -54,7 +53,7 @@ class EntityIds {
 		throw new RuntimeException("Unexpected dynamic entity: " + id);
 	}
 
-	IRI toDynamicIRI(EntityId id) {
+	public IRI toDynamicIRI(EntityId id) {
 
 		IRI iri = toDynamicIRIOrNull(id);
 

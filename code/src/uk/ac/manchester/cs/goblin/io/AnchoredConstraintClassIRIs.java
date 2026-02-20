@@ -5,7 +5,8 @@ import java.util.*;
 import org.semanticweb.owlapi.model.*;
 
 import uk.ac.manchester.cs.goblin.model.*;
-import uk.ac.manchester.cs.goblin.io.attribute.*;
+import uk.ac.manchester.cs.goblin.io.ontology.*;
+import uk.ac.manchester.cs.goblin.io.config.*;
 
 /**
  * @author Colin Puleston
@@ -23,16 +24,16 @@ class AnchoredConstraintClassIRIs {
 		this.dynamicIRIs = dynamicIRIs;
 	}
 
-	IRI create(AnchoredAttribute attribute, Constraint constraint) {
+	IRI create(AnchoredAttributeConfig attributeConfig, Constraint constraint) {
 
-		return dynamicIRIs.toDynamicIRI(createName(attribute, constraint));
+		return dynamicIRIs.toDynamicIRI(createName(attributeConfig, constraint));
 	}
 
-	private String createName(AnchoredAttribute attribute, Constraint constraint) {
+	private String createName(AnchoredAttributeConfig attributeConfig, Constraint constraint) {
 
-		String anchor = attribute.getAnchorConceptId().getLabel();
-		String source = getConceptLabel(constraint.getSourceValue());
-		String target = getConceptLabel(attribute.getRootTargetConcept());
+		String anchor = attributeConfig.getAnchorConceptId().getLabel();
+		String source = constraint.getSourceValue().getConceptId().getLabel();
+		String target = attributeConfig.getRootTargetConceptId().getLabel();
 
 		int index = nextIndex(anchor);
 

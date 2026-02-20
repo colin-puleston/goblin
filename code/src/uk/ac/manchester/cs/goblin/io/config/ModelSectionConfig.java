@@ -10,32 +10,37 @@ import uk.ac.manchester.cs.goblin.model.*;
 public class ModelSectionConfig {
 
 	private String label;
-	private List<HierarchyConfig> hierarchies = new ArrayList<HierarchyConfig>();
+	private List<CoreHierarchyConfig> hierarchies = new ArrayList<CoreHierarchyConfig>();
 
 	public ModelSectionConfig(String label) {
 
 		this.label = label;
 	}
 
-	public HierarchyConfig addHierarchy(EntityId rootConceptId) {
+	public CoreHierarchyConfig addHierarchy(EntityId rootConceptId) {
 
-		HierarchyConfig hierarchy = new HierarchyConfig(rootConceptId);
+		CoreHierarchyConfig hierarchy = new CoreHierarchyConfig(rootConceptId);
 
 		hierarchies.add(hierarchy);
 
 		return hierarchy;
 	}
 
-	public List<HierarchyConfig> getHierarchies() {
+	public String getLabel() {
 
-		return new ArrayList<HierarchyConfig>(hierarchies);
+		return label;
+	}
+
+	public List<CoreHierarchyConfig> getHierarchies() {
+
+		return new ArrayList<CoreHierarchyConfig>(hierarchies);
 	}
 
 	ModelSection createSection(Model model) {
 
 		ModelSection section = new ModelSection(model, label);
 
-		for (HierarchyConfig hierarchy : hierarchies) {
+		for (CoreHierarchyConfig hierarchy : hierarchies) {
 
 			section.addCoreHierarchy(hierarchy.createHierarchy(model));
 		}
@@ -47,7 +52,7 @@ public class ModelSectionConfig {
 
 		Iterator<Hierarchy> createdHierarchies = section.getCoreHierarchies().iterator();
 
-		for (HierarchyConfig hierarchy : hierarchies) {
+		for (CoreHierarchyConfig hierarchy : hierarchies) {
 
 			hierarchy.addCoreAttributes(createdHierarchies.next());
 		}

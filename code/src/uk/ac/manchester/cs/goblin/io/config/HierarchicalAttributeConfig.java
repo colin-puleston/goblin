@@ -2,12 +2,10 @@ package uk.ac.manchester.cs.goblin.io.config;
 
 import uk.ac.manchester.cs.goblin.model.*;
 
-import uk.ac.manchester.cs.goblin.io.attribute.*;
-
 /**
  * @author Colin Puleston
  */
-public class HierarchicalAttributeConfig extends AttributeConfig {
+public class HierarchicalAttributeConfig extends CoreAttributeConfig {
 
 	private HierarchicalLinksOption linksOption;
 
@@ -29,11 +27,18 @@ public class HierarchicalAttributeConfig extends AttributeConfig {
 		}
 	}
 
-	Attribute createAttribute(
-				String label,
-				Concept rootSourceConcept,
-				Concept rootTargetConcept) {
+	public HierarchicalLinksOption getLinksOption() {
 
-		return new HierarchicalAttribute(label, rootSourceConcept, rootTargetConcept, linksOption);
+		return linksOption;
+	}
+
+	ConstraintsOption getConstraintsOption() {
+
+		return linksOption.toConstraintsOption();
+	}
+
+	void accept(CoreAttributeConfigVisitor visitor) {
+
+		visitor.visit(this);
 	}
 }

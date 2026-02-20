@@ -7,7 +7,7 @@ import org.semanticweb.owlapi.model.*;
 
 import uk.ac.manchester.cs.goblin.model.*;
 import uk.ac.manchester.cs.goblin.io.ontology.*;
-import uk.ac.manchester.cs.goblin.io.attribute.*;
+import uk.ac.manchester.cs.goblin.io.config.*;
 
 /**
  * @author Colin Puleston
@@ -21,12 +21,42 @@ class DynamicModelRenderer {
 
 	private Set<Hierarchy> renderedDynamicValueHierarchies = new HashSet<Hierarchy>();
 
-	private class ConstraintRenderer {
+	private class ConstraintRenderer extends AttributeVisitor {
 
 		private Constraint constraint;
 
 		private OWLClass source;
 		private Set<OWLClass> targets;
+
+		public void visit(CoreAttribute attribute, SimpleAttributeConfig config) {
+
+			renderLinkingPropertyConstraint(config.getLinkingPropertyId());
+		}
+
+		public void visit(CoreAttribute attribute, AnchoredAttributeConfig config) {
+
+			OWLClass anchor = getCls(config.getAnchorConceptId());
+			OWLClass anchorSub = addClass(anchor, createAnchorSubIRI(config));
+
+			OWLObjectProperty srcProp = getObjectProperty(config.getSourcePropertyId());
+			OWLObjectProperty tgtProp = getObjectProperty(config.getTargetPropertyId());
+
+			ontology.addPremiseAxiom(anchor, anchorSub, srcProp, source);
+			addConsequenceAxiom(anchorSub, tgtProp, targets);
+		}
+
+		public void visit(CoreAttribute attribute, HierarchicalAttributeConfig config) {
+
+			for (OWLClass target : targets) {
+
+				ontology.addSuperClass(source, target);
+			}
+		}
+
+		public void visit(DynamicAttribute attribute) {
+
+			renderLinkingPropertyConstraint(attribute.getAttributeId());
+		}
 
 		ConstraintRenderer(Constraint constraint) {
 
@@ -35,68 +65,12 @@ class DynamicModelRenderer {
 			source = getCls(constraint.getSourceValue());
 			targets = getClasses(constraint.getTargetValues());
 
-			render();
+			visit(constraint.getAttribute());
 		}
 
-		private void render() {
-
-			Attribute attribute = constraint.getAttribute();
-
-			if (attribute instanceof SimpleAttribute) {
-
-				renderSimpleAttribute((SimpleAttribute)attribute);
-			}
-			else if (attribute instanceof AnchoredAttribute) {
-
-				renderAnchoredAttribute((AnchoredAttribute)attribute);
-			}
-			else if (attribute instanceof HierarchicalAttribute) {
-
-				renderHierarchicalAttribute((HierarchicalAttribute)attribute);
-			}
-			else if (attribute instanceof DynamicAttribute) {
-
-				renderDynamicAttribute((DynamicAttribute)attribute);
-			}
-			else {
-
-				throw new Error("Unrecognised Attribute type: " + attribute);
-			}
-		}
-
-		private void renderSimpleAttribute(SimpleAttribute attribute) {
-
-			renderLinkingPropertyAttribute(attribute.getLinkingPropertyId());
-		}
-
-		private void renderDynamicAttribute(DynamicAttribute attribute) {
-
-			renderLinkingPropertyAttribute(attribute.getAttributeId());
-		}
-
-		private void renderLinkingPropertyAttribute(EntityId propertyId) {
+		private void renderLinkingPropertyConstraint(EntityId propertyId) {
 
 			addConsequenceAxiom(source, getObjectProperty(propertyId), targets);
-		}
-
-		private void renderAnchoredAttribute(AnchoredAttribute attribute) {
-
-			OWLClass anchor = getCls(attribute.getAnchorConceptId());
-			OWLClass anchorSub = addClass(anchor, createAnchorSubIRI(attribute));
-
-			OWLObjectProperty srcProp = getObjectProperty(attribute.getSourcePropertyId());
-			OWLObjectProperty tgtProp = getObjectProperty(attribute.getTargetPropertyId());
-
-			ontology.addPremiseAxiom(anchor, anchorSub, srcProp, source);
-			addConsequenceAxiom(anchorSub, tgtProp, targets);
-		}
-
-		private void renderHierarchicalAttribute(HierarchicalAttribute attribute) {
-
-			for (OWLClass target : targets) {
-
-				ontology.addSuperClass(source, target);
-			}
 		}
 
 		private void addConsequenceAxiom(
@@ -116,9 +90,9 @@ class DynamicModelRenderer {
 			}
 		}
 
-		private IRI createAnchorSubIRI(AnchoredAttribute attribute) {
+		private IRI createAnchorSubIRI(AnchoredAttributeConfig attributeConfig) {
 
-			return anchoredConstraintClassIRIs.create(attribute, constraint);
+			return anchoredConstraintClassIRIs.create(attributeConfig, constraint);
 		}
 	}
 

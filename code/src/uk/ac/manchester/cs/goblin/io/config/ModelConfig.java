@@ -32,9 +32,9 @@ public class ModelConfig {
 		return new ArrayList<ModelSectionConfig>(sections);
 	}
 
-	public List<HierarchyConfig> getHierarchies() {
+	public List<CoreHierarchyConfig> getHierarchies() {
 
-		List<HierarchyConfig> hierarchies = new ArrayList<HierarchyConfig>();
+		List<CoreHierarchyConfig> hierarchies = new ArrayList<CoreHierarchyConfig>();
 
 		for (ModelSectionConfig section : sections) {
 

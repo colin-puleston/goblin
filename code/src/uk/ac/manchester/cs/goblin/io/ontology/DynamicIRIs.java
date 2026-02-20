@@ -1,25 +1,25 @@
-package uk.ac.manchester.cs.goblin.io;
+package uk.ac.manchester.cs.goblin.io.ontology;
 
 import org.semanticweb.owlapi.model.*;
 
 /**
  * @author Colin Puleston
  */
-class DynamicIRIs {
+public class DynamicIRIs {
 
 	private String dynamicIRIPrefix;
 
-	DynamicIRIs(String dynamicNamespace) {
+	public DynamicIRIs(String dynamicNamespace) {
 
 		dynamicIRIPrefix = dynamicNamespace + '#';
 	}
 
-	boolean isDynamicIRI(IRI iri) {
+	public boolean isDynamicIRI(IRI iri) {
 
 		return iri.toString().startsWith(dynamicIRIPrefix);
 	}
 
-	IRI toDynamicIRI(String name) {
+	public IRI toDynamicIRI(String name) {
 
 		return IRI.create(dynamicIRIPrefix + name);
 	}

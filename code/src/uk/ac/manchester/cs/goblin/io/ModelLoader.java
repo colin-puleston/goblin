@@ -6,7 +6,6 @@ import org.semanticweb.owlapi.model.*;
 
 import uk.ac.manchester.cs.goblin.model.*;
 import uk.ac.manchester.cs.goblin.io.ontology.*;
-import uk.ac.manchester.cs.goblin.io.attribute.*;
 import uk.ac.manchester.cs.goblin.io.config.*;
 
 /**
@@ -20,6 +19,8 @@ class ModelLoader {
 	private EntityIds entityIds;
 
 	private Map<OWLClass, Concept> dynamicClassesToConcepts = new HashMap<OWLClass, Concept>();
+
+	private AttributeConstraintLoader attributeConstraintLoader = new AttributeConstraintLoader();
 
 	private abstract class RestrictionAxiomReader {
 
@@ -318,6 +319,58 @@ class ModelLoader {
 		}
 	}
 
+	private class AttributeConstraintLoader extends AttributeVisitor {
+
+		public void visit(CoreAttribute attribute, SimpleAttributeConfig config) {
+
+			OWLClass rootSource = getCoreClass(attribute.getRootSourceConcept());
+			OWLObjectProperty linkingProp = getCoreObjectProperty(config.getLinkingPropertyId());
+
+			loadLinkingPropertyConstraints(attribute, rootSource, linkingProp);
+		}
+
+		public void visit(CoreAttribute attribute, AnchoredAttributeConfig config) {
+
+			OWLClass anchor = getCoreClass(config.getAnchorConceptId());
+			OWLObjectProperty sourceProp = getCoreObjectProperty(config.getSourcePropertyId());
+			OWLObjectProperty targetProp = getCoreObjectProperty(config.getTargetPropertyId());
+
+			for (OWLClass anchorSub : getSubClasses(anchor, false)) {
+
+				new AnchoredConstraintLoader(attribute, anchor, anchorSub, sourceProp, targetProp);
+			}
+		}
+
+		public void visit(CoreAttribute attribute, HierarchicalAttributeConfig config) {
+
+			OWLClass rootSource = getCoreClass(attribute.getRootSourceConcept());
+
+			for (OWLClass source : getSubClasses(rootSource, false)) {
+
+				new HierarchicalConstraintLoader(attribute, source);
+			}
+		}
+
+		public void visit(DynamicAttribute attribute) {
+
+			OWLClass rootSource = getDynamicClass(attribute.getRootSourceConcept());
+			OWLObjectProperty linkingProp = getDynamicObjectProperty(attribute.getAttributeId());
+
+			loadLinkingPropertyConstraints(attribute, rootSource, linkingProp);
+		}
+
+		private void loadLinkingPropertyConstraints(
+							Attribute attribute,
+							OWLClass rootSource,
+							OWLObjectProperty linkingProperty) {
+
+			for (OWLClass source : getSubClasses(rootSource, false)) {
+
+				new LinkingPropertyConstraintLoader(attribute, source, linkingProperty);
+			}
+		}
+	}
+
 	private abstract class PropertyConstraintLoader {
 
 		private Attribute attribute;
@@ -445,11 +498,11 @@ class ModelLoader {
 
 			private OWLObjectProperty sourceProperty;
 
-			SourceExtractor(AnchoredAttribute attribute) {
+			SourceExtractor(OWLObjectProperty sourceProperty) {
 
 				super(anchorSub, OWLObjectSomeValuesFrom.class);
 
-				sourceProperty = getCoreObjectProperty(attribute.getSourcePropertyId());
+				this.sourceProperty = sourceProperty;
 			}
 
 			Concept lookForSourceConcept() {
@@ -526,9 +579,10 @@ class ModelLoader {
 		}
 
 		AnchoredConstraintLoader(
-			AnchoredAttribute attribute,
+			Attribute attribute,
 			OWLClass anchor,
 			OWLClass anchorSub,
+			OWLObjectProperty sourceProperty,
 			OWLObjectProperty targetProperty) {
 
 			super(attribute, anchorSub, targetProperty);
@@ -536,7 +590,7 @@ class ModelLoader {
 			this.anchor = anchor;
 			this.anchorSub = anchorSub;
 
-			Concept source = new SourceExtractor(attribute).lookForSourceConcept();
+			Concept source = new SourceExtractor(sourceProperty).lookForSourceConcept();
 
 			if (source != null) {
 
@@ -547,9 +601,9 @@ class ModelLoader {
 
 	private class HierarchicalConstraintLoader {
 
-		private HierarchicalAttribute attribute;
+		private Attribute attribute;
 
-		HierarchicalConstraintLoader(HierarchicalAttribute attribute, OWLClass sourceCls) {
+		HierarchicalConstraintLoader(Attribute attribute, OWLClass sourceCls) {
 
 			this.attribute = attribute;
 
@@ -658,81 +712,9 @@ class ModelLoader {
 
 				for (Attribute attribute : hierarchy.getAllAttributes()) {
 
-					loadConstraints(attribute);
+					attributeConstraintLoader.visit(attribute);
 				}
 			}
-		}
-	}
-
-	private void loadConstraints(Attribute attribute) {
-
-		if (attribute instanceof SimpleAttribute) {
-
-			loadSimpleAttributeConstraints((SimpleAttribute)attribute);
-		}
-		else if (attribute instanceof DynamicAttribute) {
-
-			loadDynamicAttributeConstraints((DynamicAttribute)attribute);
-		}
-		else if (attribute instanceof AnchoredAttribute) {
-
-			loadAnchoredAttributeConstraints((AnchoredAttribute)attribute);
-		}
-		else if (attribute instanceof HierarchicalAttribute) {
-
-			loadHierarchicalAttributeConstraints((HierarchicalAttribute)attribute);
-		}
-		else {
-
-			throw new Error("Unrecognised Attribute type: " + attribute.getClass());
-		}
-	}
-
-	private void loadSimpleAttributeConstraints(SimpleAttribute attribute) {
-
-		OWLClass rootSource = getCoreClass(attribute.getRootSourceConcept());
-		OWLObjectProperty linkingProp = getCoreObjectProperty(attribute.getLinkingPropertyId());
-
-		loadLinkingPropertyAttributeConstraints(attribute, rootSource, linkingProp);
-	}
-
-	private void loadDynamicAttributeConstraints(DynamicAttribute attribute) {
-
-		OWLClass rootSource = getDynamicClass(attribute.getRootSourceConcept());
-		OWLObjectProperty linkingProp = getDynamicObjectProperty(attribute.getAttributeId());
-
-		loadLinkingPropertyAttributeConstraints(attribute, rootSource, linkingProp);
-	}
-
-	private void loadLinkingPropertyAttributeConstraints(
-						Attribute attribute,
-						OWLClass rootSource,
-						OWLObjectProperty linkingProperty) {
-
-		for (OWLClass source : getSubClasses(rootSource, false)) {
-
-			new LinkingPropertyConstraintLoader(attribute, source, linkingProperty);
-		}
-	}
-
-	private void loadAnchoredAttributeConstraints(AnchoredAttribute attribute) {
-
-		OWLClass anchor = getCoreClass(attribute.getAnchorConceptId());
-		OWLObjectProperty targetProp = getCoreObjectProperty(attribute.getTargetPropertyId());
-
-		for (OWLClass anchorSub : getSubClasses(anchor, false)) {
-
-			new AnchoredConstraintLoader(attribute, anchor, anchorSub, targetProp);
-		}
-	}
-
-	private void loadHierarchicalAttributeConstraints(HierarchicalAttribute attribute) {
-
-		OWLClass rootSource = getCoreClass(attribute.getRootSourceConcept());
-
-		for (OWLClass source : getSubClasses(rootSource, false)) {
-
-			new HierarchicalConstraintLoader(attribute, source);
 		}
 	}
 

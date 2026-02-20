@@ -2,8 +2,6 @@ package uk.ac.manchester.cs.goblin.io.config;
 
 import uk.ac.manchester.cs.goblin.model.*;
 
-import uk.ac.manchester.cs.goblin.io.attribute.*;
-
 /**
  * @author Colin Puleston
  */
@@ -23,21 +21,13 @@ public class SimpleAttributeConfig extends PropertyAttributeConfig {
 		this.linkingPropertyId = linkingPropertyId;
 	}
 
-	EntityId getLinkingPropertyId() {
+	public EntityId getLinkingPropertyId() {
 
 		return linkingPropertyId;
 	}
 
-	Attribute createAttribute(
-				String label,
-				Concept rootSourceConcept,
-				Concept rootTargetConcept) {
+	void accept(CoreAttributeConfigVisitor visitor) {
 
-		return new SimpleAttribute(
-						label,
-						linkingPropertyId,
-						rootSourceConcept,
-						rootTargetConcept,
-						getConstraintsOption());
+		visitor.visit(this);
 	}
 }
