@@ -7,11 +7,11 @@ import uk.ac.manchester.cs.goblin.model.*;
 /**
  * @author Colin Puleston
  */
-public class EntityIds {
+public class OntologyIds {
 
 	private DynamicIRIs dynamicIRIs;
 
-	public EntityIds(String dynamicNamespace) {
+	public OntologyIds(String dynamicNamespace) {
 
 		dynamicIRIs = new DynamicIRIs(dynamicNamespace);
 	}

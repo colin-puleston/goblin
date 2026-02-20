@@ -14,9 +14,9 @@ import uk.ac.manchester.cs.goblin.io.config.*;
 class ModelLoader {
 
 	private Model model;
-	private Ontology ontology;
 
-	private EntityIds entityIds;
+	private Ontology ontology;
+	private OntologyIds ontologyIds;
 
 	private Map<OWLClass, Concept> dynamicClassesToConcepts = new HashMap<OWLClass, Concept>();
 
@@ -644,10 +644,10 @@ class ModelLoader {
 		}
 	}
 
-	ModelLoader(Ontology ontology, ModelConfig modelConfig, EntityIds entityIds) {
+	ModelLoader(ModelConfig modelConfig, Ontology ontology, OntologyIds ontologyIds) {
 
 		this.ontology = ontology;
-		this.entityIds = entityIds;
+		this.ontologyIds = ontologyIds;
 
 		model = modelConfig.createModel();
 	}
@@ -789,12 +789,12 @@ class ModelLoader {
 
 	private IRI getCoreIRI(EntityId id) {
 
-		return entityIds.toCoreIRI(id);
+		return ontologyIds.toCoreIRI(id);
 	}
 
 	private IRI getDynamicIRI(EntityId id) {
 
-		return entityIds.toDynamicIRI(id);
+		return ontologyIds.toDynamicIRI(id);
 	}
 
 	private Concept getConcept(OWLClass cls) {
@@ -811,7 +811,7 @@ class ModelLoader {
 
 	private EntityId getEntityId(OWLEntity entity) {
 
-		return entityIds.getId(entity, ontology.lookForLabel(entity));
+		return ontologyIds.getId(entity, ontology.lookForLabel(entity));
 	}
 
 	private <T>T asTypeOrNull(Object obj, Class<T> type) {

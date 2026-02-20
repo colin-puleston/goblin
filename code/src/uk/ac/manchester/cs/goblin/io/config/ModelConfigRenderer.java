@@ -11,7 +11,7 @@ import uk.ac.manchester.cs.goblin.ontology.*;
 class ModelConfigRenderer extends ConfigFileSerialiser {
 
 	private XNode rootNode;
-	private EntityIds entityIds;
+	private OntologyIds ontologyIds;
 
 	private class AttributeRenderer extends CoreAttributeConfigVisitor {
 
@@ -66,10 +66,10 @@ class ModelConfigRenderer extends ConfigFileSerialiser {
 		}
 	}
 
-	ModelConfigRenderer(XNode rootNode, EntityIds entityIds) {
+	ModelConfigRenderer(XNode rootNode, OntologyIds ontologyIds) {
 
 		this.rootNode = rootNode;
-		this.entityIds = entityIds;
+		this.ontologyIds = ontologyIds;
 	}
 
 	void render(ModelConfig model) {
@@ -113,6 +113,6 @@ class ModelConfigRenderer extends ConfigFileSerialiser {
 
 	private void renderEntityIRI(XNode node, String tag, EntityId id) {
 
-		node.setValue(tag, entityIds.toIRI(id));
+		node.setValue(tag, ontologyIds.toIRI(id));
 	}
 }

@@ -11,14 +11,14 @@ import uk.ac.manchester.cs.goblin.ontology.*;
  */
 public class ConfigFileRenderer extends ConfigFileSerialiser {
 
-	private EntityIds entityIds;
+	private OntologyIds ontologyIds;
 
 	private XDocument document = new XDocument(ROOT_NODE_TAG);
 	private XNode rootNode = document.getRootNode();
 
-	public ConfigFileRenderer(EntityIds entityIds) {
+	public ConfigFileRenderer(OntologyIds ontologyIds) {
 
-		this.entityIds = entityIds;
+		this.ontologyIds = ontologyIds;
 	}
 
 	public void renderDynamicFilename(File file) {
@@ -33,7 +33,7 @@ public class ConfigFileRenderer extends ConfigFileSerialiser {
 
 	public void renderModelConfig(ModelConfig model) {
 
-		new ModelConfigRenderer(rootNode, entityIds).render(model);
+		new ModelConfigRenderer(rootNode, ontologyIds).render(model);
 	}
 
 	public void writeToFile() {

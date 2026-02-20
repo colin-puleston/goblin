@@ -14,18 +14,17 @@ public class ModelSerialiser {
 	private ConfigFileLoader configFileLoader;
 
 	private File dynamicFile;
-	private EntityIds entityIds;
 
 	private Ontology ontology;
+	private OntologyIds ontologyIds;
 
 	public ModelSerialiser() {
 
 		configFileLoader = new ConfigFileLoader();
 
 		dynamicFile = configFileLoader.getDynamicFile();
-		entityIds = new EntityIds(configFileLoader.getDynamicNamespace());
-
 		ontology = new Ontology(dynamicFile);
+		ontologyIds = new OntologyIds(configFileLoader.getDynamicNamespace());
 	}
 
 	public Model load() throws BadDynamicOntologyException {
@@ -46,7 +45,7 @@ public class ModelSerialiser {
 
 	public void save(Model model) {
 
-		new DynamicModelRenderer(ontology, entityIds).write(model, dynamicFile);
+		new DynamicModelRenderer(ontology, ontologyIds).write(model, dynamicFile);
 	}
 
 	public void saveAs(Model model, File file) {
@@ -65,6 +64,6 @@ public class ModelSerialiser {
 
 		ModelConfig modelConfig = configFileLoader.loadModelConfig(ont);
 
-		return new ModelLoader(ont, modelConfig, entityIds).load();
+		return new ModelLoader(modelConfig, ont, ontologyIds).load();
 	}
 }
