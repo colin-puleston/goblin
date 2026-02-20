@@ -66,11 +66,10 @@ class ModelConfigRenderer extends ConfigFileSerialiser {
 		}
 	}
 
-	ModelConfigRenderer(XNode rootNode, DynamicIRIs dynamicIRIs) {
+	ModelConfigRenderer(XNode rootNode, EntityIds entityIds) {
 
 		this.rootNode = rootNode;
-
-		entityIds = new EntityIds(dynamicIRIs);
+		this.entityIds = entityIds;
 	}
 
 	void render(ModelConfig model) {

@@ -14,7 +14,7 @@ public class ModelSerialiser {
 	private ConfigFileLoader configFileLoader;
 
 	private File dynamicFile;
-	private DynamicIRIs dynamicIRIs;
+	private EntityIds entityIds;
 
 	private Ontology ontology;
 
@@ -23,7 +23,7 @@ public class ModelSerialiser {
 		configFileLoader = new ConfigFileLoader();
 
 		dynamicFile = configFileLoader.getDynamicFile();
-		dynamicIRIs = new DynamicIRIs(configFileLoader.getDynamicNamespace());
+		entityIds = new EntityIds(configFileLoader.getDynamicNamespace());
 
 		ontology = new Ontology(dynamicFile);
 	}
@@ -46,7 +46,7 @@ public class ModelSerialiser {
 
 	public void save(Model model) {
 
-		new DynamicModelRenderer(ontology, dynamicIRIs).write(model, dynamicFile);
+		new DynamicModelRenderer(ontology, entityIds).write(model, dynamicFile);
 	}
 
 	public void saveAs(Model model, File file) {
@@ -65,6 +65,6 @@ public class ModelSerialiser {
 
 		ModelConfig modelConfig = configFileLoader.loadModelConfig(ont);
 
-		return new ModelLoader(ont, modelConfig, dynamicIRIs).load();
+		return new ModelLoader(ont, modelConfig, entityIds).load();
 	}
 }

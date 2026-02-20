@@ -5,21 +5,16 @@ import org.semanticweb.owlapi.model.*;
 /**
  * @author Colin Puleston
  */
-public class DynamicIRIs {
+class DynamicIRIs {
 
 	private String dynamicIRIPrefix;
 
-	public DynamicIRIs(String dynamicNamespace) {
+	DynamicIRIs(String dynamicNamespace) {
 
 		dynamicIRIPrefix = dynamicNamespace + '#';
 	}
 
-	public boolean isDynamicIRI(IRI iri) {
-
-		return iri.toString().startsWith(dynamicIRIPrefix);
-	}
-
-	public IRI toDynamicIRI(String name) {
+	IRI toDynamicIRI(String name) {
 
 		return IRI.create(dynamicIRIPrefix + name);
 	}
@@ -27,6 +22,11 @@ public class DynamicIRIs {
 	String toDynamicNameOrNull(IRI iri) {
 
 		return isDynamicIRI(iri) ? extractDynamicName(iri) : null;
+	}
+
+	private boolean isDynamicIRI(IRI iri) {
+
+		return iri.toString().startsWith(dynamicIRIPrefix);
 	}
 
 	private String extractDynamicName(IRI iri) {

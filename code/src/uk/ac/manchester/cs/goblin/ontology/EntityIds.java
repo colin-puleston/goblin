@@ -11,9 +11,9 @@ public class EntityIds {
 
 	private DynamicIRIs dynamicIRIs;
 
-	public EntityIds(DynamicIRIs dynamicIRIs) {
+	public EntityIds(String dynamicNamespace) {
 
-		this.dynamicIRIs = dynamicIRIs;
+		dynamicIRIs = new DynamicIRIs(dynamicNamespace);
 	}
 
 	public EntityId getId(OWLEntity entity, String label) {
@@ -63,6 +63,11 @@ public class EntityIds {
 		}
 
 		throw new RuntimeException("Unexpected non-dynamic entity: " + id);
+	}
+
+	public IRI toDynamicIRI(String name) {
+
+		return dynamicIRIs.toDynamicIRI(name);
 	}
 
 	private String toDynamicNameOrNull(IRI iri) {

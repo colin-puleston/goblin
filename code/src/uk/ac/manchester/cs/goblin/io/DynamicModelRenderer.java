@@ -96,12 +96,12 @@ class DynamicModelRenderer {
 		}
 	}
 
-	DynamicModelRenderer(Ontology ontology, DynamicIRIs dynamicIRIs) {
+	DynamicModelRenderer(Ontology ontology, EntityIds entityIds) {
 
 		this.ontology = ontology;
+		this.entityIds = entityIds;
 
-		entityIds = new EntityIds(dynamicIRIs);
-		anchoredConstraintClassIRIs = new AnchoredConstraintClassIRIs(dynamicIRIs);
+		anchoredConstraintClassIRIs = new AnchoredConstraintClassIRIs(entityIds);
 	}
 
 	void write(Model model, File dynamicFile) {

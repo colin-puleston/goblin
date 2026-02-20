@@ -644,12 +644,12 @@ class ModelLoader {
 		}
 	}
 
-	ModelLoader(Ontology ontology, ModelConfig modelConfig, DynamicIRIs dynamicIRIs) {
+	ModelLoader(Ontology ontology, ModelConfig modelConfig, EntityIds entityIds) {
 
 		this.ontology = ontology;
+		this.entityIds = entityIds;
 
 		model = modelConfig.createModel();
-		entityIds = new EntityIds(dynamicIRIs);
 	}
 
 	Model load() throws BadDynamicOntologyException {

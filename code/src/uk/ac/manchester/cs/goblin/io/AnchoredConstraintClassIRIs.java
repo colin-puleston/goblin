@@ -15,18 +15,18 @@ class AnchoredConstraintClassIRIs {
 
 	static private final String NAME_FORMAT = "%s-Constraint-%d--%s-to-%s";
 
-	private DynamicIRIs dynamicIRIs;
+	private EntityIds entityIds;
 
 	private Map<String, Integer> indexesByAnchorName = new HashMap<String, Integer>();
 
-	AnchoredConstraintClassIRIs(DynamicIRIs dynamicIRIs) {
+	AnchoredConstraintClassIRIs(EntityIds entityIds) {
 
-		this.dynamicIRIs = dynamicIRIs;
+		this.entityIds = entityIds;
 	}
 
 	IRI create(AnchoredAttributeConfig attributeConfig, Constraint constraint) {
 
-		return dynamicIRIs.toDynamicIRI(createName(attributeConfig, constraint));
+		return entityIds.toDynamicIRI(createName(attributeConfig, constraint));
 	}
 
 	private String createName(AnchoredAttributeConfig attributeConfig, Constraint constraint) {
