@@ -1,9 +1,10 @@
-package uk.ac.manchester.cs.goblin.io;
+package uk.ac.manchester.cs.goblin.io.model;
 
 import java.io.*;
 
 import uk.ac.manchester.cs.goblin.model.*;
-import uk.ac.manchester.cs.goblin.ontology.*;
+import uk.ac.manchester.cs.goblin.config.*;
+import uk.ac.manchester.cs.goblin.io.ontology.*;
 import uk.ac.manchester.cs.goblin.io.config.*;
 
 /**
@@ -11,20 +12,17 @@ import uk.ac.manchester.cs.goblin.io.config.*;
  */
 public class ModelSerialiser {
 
-	private ConfigFileLoader configFileLoader;
-
 	private File dynamicFile;
-
 	private Ontology ontology;
 	private OntologyIds ontologyIds;
 
+	private ConfigSerialiser configSerialiser = new ConfigSerialiser();
+
 	public ModelSerialiser() {
 
-		configFileLoader = new ConfigFileLoader();
-
-		dynamicFile = configFileLoader.getDynamicFile();
+		dynamicFile = configSerialiser.getDynamicFile();
 		ontology = new Ontology(dynamicFile);
-		ontologyIds = new OntologyIds(configFileLoader.getDynamicNamespace());
+		ontologyIds = new OntologyIds(configSerialiser.getDynamicNamespace());
 	}
 
 	public Model load() throws BadDynamicOntologyException {
@@ -62,7 +60,7 @@ public class ModelSerialiser {
 
 	private Model load(Ontology ont) throws BadDynamicOntologyException {
 
-		ModelConfig modelConfig = configFileLoader.loadModelConfig(ont);
+		ModelConfig modelConfig = configSerialiser.loadModelConfig(ont);
 
 		return new ModelLoader(modelConfig, ont, ontologyIds).load();
 	}

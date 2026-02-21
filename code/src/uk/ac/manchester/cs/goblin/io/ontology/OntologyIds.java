@@ -1,4 +1,4 @@
-package uk.ac.manchester.cs.goblin.ontology;
+package uk.ac.manchester.cs.goblin.io.ontology;
 
 import org.semanticweb.owlapi.model.*;
 

@@ -4,31 +4,32 @@ import java.io.*;
 
 import uk.ac.manchester.cs.mekon_util.xdoc.*;
 
-import uk.ac.manchester.cs.goblin.ontology.*;
+import uk.ac.manchester.cs.goblin.config.*;
+import uk.ac.manchester.cs.goblin.io.ontology.*;
 
 /**
  * @author Colin Puleston
  */
-public class ConfigFileLoader extends ConfigFileSerialiser {
+class ConfigFileLoader extends ConfigFileSerialiser {
 
 	private XNode rootNode;
 
-	public ConfigFileLoader() {
+	ConfigFileLoader() {
 
 		rootNode = new XDocument(getConfigFile()).getRootNode();
 	}
 
-	public File getDynamicFile() {
+	File getDynamicFile() {
 
 		return getFileFromClasspath(rootNode.getString(DYNAMIC_FILENAME_ATTR));
 	}
 
-	public String getDynamicNamespace() {
+	String getDynamicNamespace() {
 
 		return rootNode.getString(DYNAMIC_NAMESPACE_ATTR);
 	}
 
-	public ModelConfig loadModelConfig(Ontology ontology) {
+	ModelConfig loadModelConfig(Ontology ontology) {
 
 		return new ModelConfigLoader(ontology).load(rootNode);
 	}

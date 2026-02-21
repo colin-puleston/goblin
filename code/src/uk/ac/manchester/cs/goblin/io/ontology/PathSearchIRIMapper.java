@@ -1,4 +1,4 @@
-package uk.ac.manchester.cs.goblin.ontology;
+package uk.ac.manchester.cs.goblin.io.ontology;
 
 import java.io.*;
 
@@ -7,7 +7,7 @@ import org.semanticweb.owlapi.model.*;
 /**
  * @author Colin Puleston
  */
-class PathSearchOntologyIRIMapper implements OWLOntologyIRIMapper {
+class PathSearchIRIMapper implements OWLOntologyIRIMapper {
 
 	static private final long serialVersionUID = -1;
 
@@ -24,7 +24,7 @@ class PathSearchOntologyIRIMapper implements OWLOntologyIRIMapper {
 		return file != null ? IRI.create(file) : iri;
 	}
 
-	PathSearchOntologyIRIMapper(File leafDirectory) {
+	PathSearchIRIMapper(File leafDirectory) {
 
 		this.leafDirectory = leafDirectory;
 	}

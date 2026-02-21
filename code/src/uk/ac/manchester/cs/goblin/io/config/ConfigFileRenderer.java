@@ -4,39 +4,40 @@ import java.io.*;
 
 import uk.ac.manchester.cs.mekon_util.xdoc.*;
 
-import uk.ac.manchester.cs.goblin.ontology.*;
+import uk.ac.manchester.cs.goblin.config.*;
+import uk.ac.manchester.cs.goblin.io.ontology.*;
 
 /**
  * @author Colin Puleston
  */
-public class ConfigFileRenderer extends ConfigFileSerialiser {
+class ConfigFileRenderer extends ConfigFileSerialiser {
 
 	private OntologyIds ontologyIds;
 
 	private XDocument document = new XDocument(ROOT_NODE_TAG);
 	private XNode rootNode = document.getRootNode();
 
-	public ConfigFileRenderer(OntologyIds ontologyIds) {
+	ConfigFileRenderer(OntologyIds ontologyIds) {
 
 		this.ontologyIds = ontologyIds;
 	}
 
-	public void renderDynamicFilename(File file) {
+	void renderDynamicFilename(File file) {
 
 		rootNode.setValue(DYNAMIC_FILENAME_ATTR, file.getName());
 	}
 
-	public void renderDynamicNamespace(String namespace) {
+	void renderDynamicNamespace(String namespace) {
 
 		rootNode.setValue(DYNAMIC_NAMESPACE_ATTR, namespace);
 	}
 
-	public void renderModelConfig(ModelConfig model) {
+	void renderModelConfig(ModelConfig model) {
 
 		new ModelConfigRenderer(rootNode, ontologyIds).render(model);
 	}
 
-	public void writeToFile() {
+	void writeToFile() {
 
 		document.writeToFile(getConfigFile());
 	}

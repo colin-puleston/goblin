@@ -8,8 +8,8 @@ import uk.ac.manchester.cs.mekon_util.*;
 import uk.ac.manchester.cs.mekon_util.xdoc.*;
 
 import uk.ac.manchester.cs.goblin.model.*;
-import uk.ac.manchester.cs.goblin.ontology.*;
-import uk.ac.manchester.cs.goblin.io.config.*;
+import uk.ac.manchester.cs.goblin.config.*;
+import uk.ac.manchester.cs.goblin.io.ontology.*;
 
 /**
  * @author Colin Puleston

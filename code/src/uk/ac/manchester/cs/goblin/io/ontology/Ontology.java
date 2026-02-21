@@ -1,4 +1,4 @@
-package uk.ac.manchester.cs.goblin.ontology;
+package uk.ac.manchester.cs.goblin.io.ontology;
 
 import java.io.*;
 import java.util.*;
@@ -198,7 +198,7 @@ public class Ontology {
 
 	private OWLOntologyIRIMapper createIRIMapper(File file) {
 
-		return new PathSearchOntologyIRIMapper(file.getParentFile());
+		return new PathSearchIRIMapper(file.getParentFile());
 	}
 
 	private OWLOntology loadOntology(File file) {

@@ -30,7 +30,7 @@ import javax.swing.*;
 import javax.swing.filechooser.*;
 
 import uk.ac.manchester.cs.goblin.model.*;
-import uk.ac.manchester.cs.goblin.io.*;
+import uk.ac.manchester.cs.goblin.io.model.*;
 
 /**
  * @author Colin Puleston

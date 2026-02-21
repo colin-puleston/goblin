@@ -1,12 +1,12 @@
-package uk.ac.manchester.cs.goblin.io;
+package uk.ac.manchester.cs.goblin.io.model;
 
 import java.util.*;
 
 import org.semanticweb.owlapi.model.*;
 
 import uk.ac.manchester.cs.goblin.model.*;
-import uk.ac.manchester.cs.goblin.ontology.*;
-import uk.ac.manchester.cs.goblin.io.config.*;
+import uk.ac.manchester.cs.goblin.config.*;
+import uk.ac.manchester.cs.goblin.io.ontology.*;
 
 /**
  * @author Colin Puleston

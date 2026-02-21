@@ -1,4 +1,4 @@
-package uk.ac.manchester.cs.goblin.io.config;
+package uk.ac.manchester.cs.goblin.config;
 
 import uk.ac.manchester.cs.goblin.model.*;
 
