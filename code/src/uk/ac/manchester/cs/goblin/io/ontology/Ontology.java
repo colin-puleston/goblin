@@ -3,6 +3,8 @@ package uk.ac.manchester.cs.goblin.io.ontology;
 import java.io.*;
 import java.util.*;
 
+import com.google.common.base.Optional;
+
 import org.semanticweb.owlapi.model.*;
 import org.semanticweb.owlapi.model.parameters.*;
 import org.semanticweb.owlapi.reasoner.*;
@@ -19,6 +21,8 @@ public class Ontology {
 
 	static private final IRI LABEL_ANNOTATION_IRI = OWLRDFVocabulary.RDFS_LABEL.getIRI();
 
+	private File file;
+
 	private OWLOntologyManager manager;
 	private OWLOntology mainOntology;
 	private Set<OWLOntology> allOntologies;
@@ -29,8 +33,10 @@ public class Ontology {
 
 	public Ontology(File file) {
 
-		manager = createManager(file);
-		mainOntology = loadOntology(file);
+		this.file = file;
+
+		manager = createManager();
+		mainOntology = loadOntology();
 		allOntologies = manager.getOntologies();
 		factory = manager.getOWLDataFactory();
 		reasoner = createReasoner();
@@ -130,6 +136,18 @@ public class Ontology {
 		}
 	}
 
+	public IRI getOntologyIRI() {
+
+		Optional<IRI> iri = mainOntology.getOntologyID().getOntologyIRI();
+
+		if (iri.isPresent()) {
+
+			return iri.get();
+		}
+
+		throw new RuntimeException("Ontology IRI is not defined in file: " + file);
+	}
+
 	public Set<OWLClassAxiom> getAxioms(OWLClass cls) {
 
 		return mainOntology.getAxioms(cls, Imports.INCLUDED);
@@ -206,21 +224,21 @@ public class Ontology {
 		return null;
 	}
 
-	private OWLOntologyManager createManager(File file) {
+	private OWLOntologyManager createManager() {
 
 		OWLOntologyManager manager = OWLManager.createOWLOntologyManager();
 
-		manager.getIRIMappers().add(createIRIMapper(file));
+		manager.getIRIMappers().add(createIRIMapper());
 
 		return manager;
 	}
 
-	private OWLOntologyIRIMapper createIRIMapper(File file) {
+	private OWLOntologyIRIMapper createIRIMapper() {
 
 		return new PathSearchIRIMapper(file.getParentFile());
 	}
 
-	private OWLOntology loadOntology(File file) {
+	private OWLOntology loadOntology() {
 
 		try {
 

@@ -18,7 +18,6 @@ class ConfigFileRenderer extends ConfigFileSerialiser {
 
 		renderCoreFilename(ontologyConfig.getCoreFile());
 		renderDynamicFilename(ontologyConfig.getDynamicFile());
-		renderDynamicNamespace(ontologyConfig.getDynamicNamespace());
 	}
 
 	void renderModelConfig(ModelConfig model) {
@@ -39,10 +38,5 @@ class ConfigFileRenderer extends ConfigFileSerialiser {
 	private void renderDynamicFilename(File file) {
 
 		rootNode.setValue(DYNAMIC_FILENAME_ATTR, file.getName());
-	}
-
-	private void renderDynamicNamespace(String namespace) {
-
-		rootNode.setValue(DYNAMIC_NAMESPACE_ATTR, namespace);
 	}
 }

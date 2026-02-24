@@ -9,9 +9,9 @@ class DynamicIRIs {
 
 	private String dynamicIRIPrefix;
 
-	DynamicIRIs(String dynamicNamespace) {
+	DynamicIRIs(IRI dynamicOntologyIRI) {
 
-		dynamicIRIPrefix = dynamicNamespace + '#';
+		dynamicIRIPrefix = dynamicOntologyIRI.toString() + '#';
 	}
 
 	IRI toDynamicIRI(String name) {

@@ -11,9 +11,9 @@ public class OntologyIds {
 
 	private DynamicIRIs dynamicIRIs;
 
-	public OntologyIds(String dynamicNamespace) {
+	public OntologyIds(IRI dynamicOntologyIRI) {
 
-		dynamicIRIs = new DynamicIRIs(dynamicNamespace);
+		dynamicIRIs = new DynamicIRIs(dynamicOntologyIRI);
 	}
 
 	public EntityId getId(OWLEntity entity, String label) {

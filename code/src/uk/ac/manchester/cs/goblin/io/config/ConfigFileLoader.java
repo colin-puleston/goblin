@@ -21,7 +21,7 @@ public class ConfigFileLoader extends ConfigFileSerialiser {
 
 	public OntologyConfig loadOntologyConfig() {
 
-		return new OntologyConfig(getCoreFile(), getDynamicFile(), getDynamicNamespace());
+		return new OntologyConfig(getCoreFile(), getDynamicFile());
 	}
 
 	public ModelConfig loadModelConfig(Ontology ontology) {
@@ -37,10 +37,5 @@ public class ConfigFileLoader extends ConfigFileSerialiser {
 	private File getDynamicFile() {
 
 		return getFileFromClasspath(rootNode.getString(DYNAMIC_FILENAME_ATTR));
-	}
-
-	private String getDynamicNamespace() {
-
-		return rootNode.getString(DYNAMIC_NAMESPACE_ATTR);
 	}
 }

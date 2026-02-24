@@ -24,7 +24,7 @@ public class ModelSerialiser {
 
 		dynamicFile = ontologyConfig.getDynamicFile();
 		ontology = new Ontology(dynamicFile);
-		ontologyIds = new OntologyIds(ontologyConfig.getDynamicNamespace());
+		ontologyIds = new OntologyIds(ontology.getOntologyIRI());
 	}
 
 	public Model load() throws BadDynamicOntologyException {
