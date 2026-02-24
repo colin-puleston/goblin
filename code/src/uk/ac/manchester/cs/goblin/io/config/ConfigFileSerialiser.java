@@ -17,8 +17,9 @@ class ConfigFileSerialiser {
 	static final String ANCHORED_ATTRIBUTE_TAG = "AnchoredAttribute";
 	static final String HIERARCHICAL_ATTRIBUTE_TAG = "HierarchicalAttribute";
 
-	static final String DYNAMIC_NAMESPACE_ATTR = "dynamicNamespace";
+	static final String CORE_FILENAME_ATTR = "coreFilename";
 	static final String DYNAMIC_FILENAME_ATTR = "dynamicFilename";
+	static final String DYNAMIC_NAMESPACE_ATTR = "dynamicNamespace";
 
 	static final String ENTITY_LABEL_ATTR = "label";
 

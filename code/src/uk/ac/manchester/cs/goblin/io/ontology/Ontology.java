@@ -135,6 +135,16 @@ public class Ontology {
 		return mainOntology.getAxioms(cls, Imports.INCLUDED);
 	}
 
+	public OWLClass getRootClass() {
+
+		return factory.getOWLThing();
+	}
+
+	public OWLClass getClass(IRI iri) {
+
+		return factory.getOWLClass(iri);
+	}
+
 	public Set<OWLClass> getSubClasses(OWLClass cls, boolean direct) {
 
 		Set<OWLClass> subs = reasoner.getSubClasses(cls, direct).getFlattened();
@@ -162,14 +172,23 @@ public class Ontology {
 		return false;
 	}
 
-	public OWLClass getClass(IRI iri) {
+	public OWLObjectProperty getRootObjectProperty() {
 
-		return factory.getOWLClass(iri);
+		return factory.getOWLTopObjectProperty();
 	}
 
 	public OWLObjectProperty getObjectProperty(IRI iri) {
 
 		return factory.getOWLObjectProperty(iri);
+	}
+
+	public Set<OWLObjectProperty> getSubProperties(OWLObjectProperty prop, boolean direct) {
+
+		Set<OWLObjectProperty> subs = extractProperties(getSubPropertyExprs(prop, direct));
+
+		subs.remove(factory.getOWLBottomObjectProperty());
+
+		return subs;
 	}
 
 	public String lookForLabel(OWLEntity entity) {
@@ -216,6 +235,28 @@ public class Ontology {
 	private OWLReasoner createReasoner() {
 
 		return new StructuralReasonerFactory().createReasoner(mainOntology);
+	}
+
+	private Set<OWLObjectPropertyExpression> getSubPropertyExprs(
+												OWLObjectProperty prop,
+												boolean direct) {
+
+		return reasoner.getSubObjectProperties(prop, direct).getFlattened();
+	}
+
+	private Set<OWLObjectProperty> extractProperties(Set<OWLObjectPropertyExpression> exprs) {
+
+		Set<OWLObjectProperty> props = new HashSet<OWLObjectProperty>();
+
+		for (OWLObjectPropertyExpression expr : exprs) {
+
+			if (expr instanceof OWLObjectProperty) {
+
+				props.add((OWLObjectProperty)expr);
+			}
+		}
+
+		return props;
 	}
 
 	private OWLObjectIntersectionOf getPremiseDefnExpr(

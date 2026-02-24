@@ -16,13 +16,15 @@ public class ModelSerialiser {
 	private Ontology ontology;
 	private OntologyIds ontologyIds;
 
-	private ConfigSerialiser configSerialiser = new ConfigSerialiser();
+	private ConfigFileLoader configFileLoader = new ConfigFileLoader();
 
 	public ModelSerialiser() {
 
-		dynamicFile = configSerialiser.getDynamicFile();
+		OntologyConfig ontologyConfig = configFileLoader.loadOntologyConfig();
+
+		dynamicFile = ontologyConfig.getDynamicFile();
 		ontology = new Ontology(dynamicFile);
-		ontologyIds = new OntologyIds(configSerialiser.getDynamicNamespace());
+		ontologyIds = new OntologyIds(ontologyConfig.getDynamicNamespace());
 	}
 
 	public Model load() throws BadDynamicOntologyException {
@@ -60,7 +62,7 @@ public class ModelSerialiser {
 
 	private Model load(Ontology ont) throws BadDynamicOntologyException {
 
-		ModelConfig modelConfig = configSerialiser.loadModelConfig(ont);
+		ModelConfig modelConfig = configFileLoader.loadModelConfig(ont);
 
 		return new ModelLoader(modelConfig, ont, ontologyIds).load();
 	}

@@ -10,52 +10,45 @@ import uk.ac.manchester.cs.goblin.io.ontology.*;
  */
 public class ConfigSerialiser {
 
-	private File dynamicFile;
-	private String dynamicNamespace;
+	private ConfigFileLoader fileLoader = new ConfigFileLoader();
 
-	private ConfigFileLoader fileLoader;
+	private OntologyConfig ontologyConfig;
+	private ModelConfig modelConfig;
+
+	private ConfigOntology configOntology;
 
 	public ConfigSerialiser() {
 
-		fileLoader = new ConfigFileLoader();
+		ontologyConfig = fileLoader.loadOntologyConfig();
 
-		dynamicFile = fileLoader.getDynamicFile();
-		dynamicNamespace = fileLoader.getDynamicNamespace();
+		Ontology coreOntology = new Ontology(ontologyConfig.getCoreFile());
+
+		modelConfig = fileLoader.loadModelConfig(coreOntology);
+		configOntology = new ConfigOntology(coreOntology);
 	}
 
-	public File getDynamicFile() {
+	public OntologyConfig getOntologyConfig() {
 
-		return dynamicFile;
+		return ontologyConfig;
 	}
 
-	public String getDynamicNamespace() {
+	public ModelConfig getModelConfig() {
 
-		return dynamicNamespace;
+		return modelConfig;
 	}
 
-	public ModelConfig loadModelConfig() {
+	public ConfigOntology getConfigOntology() {
 
-		return loadModelConfig(new Ontology(dynamicFile));
+		return configOntology;
 	}
 
-	public ModelConfig loadModelConfig(Ontology ontology) {
+	public void save() {
 
-		return fileLoader.loadModelConfig(ontology);
-	}
+		ConfigFileRenderer fileRenderer = new ConfigFileRenderer();
 
-	public void save(ModelConfig modelConfig) {
-
-		ConfigFileRenderer fileRenderer = createFileRenderer();
-
-		fileRenderer.renderDynamicFilename(dynamicFile);
-		fileRenderer.renderDynamicNamespace(dynamicNamespace);
+		fileRenderer.renderOntologyConfig(ontologyConfig);
 		fileRenderer.renderModelConfig(modelConfig);
 
 		fileRenderer.writeToFile();
-	}
-
-	private ConfigFileRenderer createFileRenderer() {
-
-		return new ConfigFileRenderer(new OntologyIds(dynamicNamespace));
 	}
 }

@@ -10,27 +10,37 @@ import uk.ac.manchester.cs.goblin.io.ontology.*;
 /**
  * @author Colin Puleston
  */
-class ConfigFileLoader extends ConfigFileSerialiser {
+public class ConfigFileLoader extends ConfigFileSerialiser {
 
 	private XNode rootNode;
 
-	ConfigFileLoader() {
+	public ConfigFileLoader() {
 
 		rootNode = new XDocument(getConfigFile()).getRootNode();
 	}
 
-	File getDynamicFile() {
+	public OntologyConfig loadOntologyConfig() {
+
+		return new OntologyConfig(getCoreFile(), getDynamicFile(), getDynamicNamespace());
+	}
+
+	public ModelConfig loadModelConfig(Ontology ontology) {
+
+		return new ModelConfigLoader(ontology).load(rootNode);
+	}
+
+	private File getCoreFile() {
+
+		return getFileFromClasspath(rootNode.getString(CORE_FILENAME_ATTR));
+	}
+
+	private File getDynamicFile() {
 
 		return getFileFromClasspath(rootNode.getString(DYNAMIC_FILENAME_ATTR));
 	}
 
-	String getDynamicNamespace() {
+	private String getDynamicNamespace() {
 
 		return rootNode.getString(DYNAMIC_NAMESPACE_ATTR);
-	}
-
-	ModelConfig loadModelConfig(Ontology ontology) {
-
-		return new ModelConfigLoader(ontology).load(rootNode);
 	}
 }

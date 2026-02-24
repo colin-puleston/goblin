@@ -4,7 +4,6 @@ import uk.ac.manchester.cs.mekon_util.xdoc.*;
 
 import uk.ac.manchester.cs.goblin.model.*;
 import uk.ac.manchester.cs.goblin.config.*;
-import uk.ac.manchester.cs.goblin.io.ontology.*;
 
 /**
  * @author Colin Puleston
@@ -12,7 +11,6 @@ import uk.ac.manchester.cs.goblin.io.ontology.*;
 class ModelConfigRenderer extends ConfigFileSerialiser {
 
 	private XNode rootNode;
-	private OntologyIds ontologyIds;
 
 	private class AttributeRenderer extends CoreAttributeConfigVisitor {
 
@@ -67,10 +65,9 @@ class ModelConfigRenderer extends ConfigFileSerialiser {
 		}
 	}
 
-	ModelConfigRenderer(XNode rootNode, OntologyIds ontologyIds) {
+	ModelConfigRenderer(XNode rootNode) {
 
 		this.rootNode = rootNode;
-		this.ontologyIds = ontologyIds;
 	}
 
 	void render(ModelConfig model) {
@@ -96,6 +93,7 @@ class ModelConfigRenderer extends ConfigFileSerialiser {
 		renderLabel(node, hierarchy.getLabel());
 
 		renderEntityIRI(node, ROOT_CONCEPT_ATTR, hierarchy.getRootConceptId());
+
 		node.setValue(FIXED_HIERARCHY_STRUCTURE_ATTR, hierarchy.fixedStructure());
 		node.setValue(
 				DYNAMIC_ATTR_CONSTRAINTS_OPT_ATTR,
@@ -114,6 +112,6 @@ class ModelConfigRenderer extends ConfigFileSerialiser {
 
 	private void renderEntityIRI(XNode node, String tag, EntityId id) {
 
-		node.setValue(tag, ontologyIds.toIRI(id));
+		node.setValue(tag, id.getName());
 	}
 }
