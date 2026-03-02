@@ -16,43 +16,22 @@ public class ModelSerialiser {
 	private Ontology ontology;
 	private OntologyIds ontologyIds;
 
-	private ConfigFileLoader configFileLoader = new ConfigFileLoader();
+	private Model model;
 
-	public ModelSerialiser() {
+	public ModelSerialiser() throws BadConfigFileException, BadDynamicOntologyException {
 
-		OntologyConfig ontologyConfig = configFileLoader.loadOntologyConfig();
+		ConfigFileLoader configFileLoader = new ConfigFileLoader();
 
-		dynamicFile = ontologyConfig.getDynamicFile();
+		dynamicFile = configFileLoader.loadOntologyConfig().getDynamicFile();
 		ontology = new Ontology(dynamicFile);
 		ontologyIds = new OntologyIds(ontology.getOntologyIRI());
+
+		model = load(configFileLoader);
 	}
 
-	public Model load() throws BadDynamicOntologyException {
-
-		return load(ontology);
-	}
-
-	public Model loadFrom(File file) throws BadDynamicOntologyException {
-
-		Ontology ont = new Ontology(file);
-		Model model = load(ont);
-
-		dynamicFile = file;
-		ontology = ont;
-
-		return model;
-	}
-
-	public void save(Model model) {
+	public void save() {
 
 		new DynamicModelRenderer(ontology, ontologyIds).write(model, dynamicFile);
-	}
-
-	public void saveAs(Model model, File file) {
-
-		dynamicFile = file;
-
-		save(model);
 	}
 
 	public File getDynamicFile() {
@@ -60,10 +39,15 @@ public class ModelSerialiser {
 		return dynamicFile;
 	}
 
-	private Model load(Ontology ont) throws BadDynamicOntologyException {
+	public Model getModel() {
 
-		ModelConfig modelConfig = configFileLoader.loadModelConfig(ont);
+		return model;
+	}
 
-		return new ModelLoader(modelConfig, ont, ontologyIds).load();
+	private Model load(ConfigFileLoader configFileLoader) throws BadDynamicOntologyException {
+
+		ModelConfig modelConfig = configFileLoader.loadModelConfig(ontology);
+
+		return new ModelLoader(modelConfig, ontology, ontologyIds).load();
 	}
 }

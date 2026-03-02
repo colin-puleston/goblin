@@ -26,9 +26,9 @@ public class ConfigOntology {
 
 		void loadDescendants(ConfigEntity configEntity, E owlEntity) {
 
-			for (E cls : getChildEntities(owlEntity)) {
+			for (E owlChild : getChildEntities(owlEntity)) {
 
-				loadDescendants(configEntity.addChild(getId(owlEntity)), owlEntity);
+				loadDescendants(configEntity.addChild(getId(owlChild)), owlChild);
 			}
 		}
 

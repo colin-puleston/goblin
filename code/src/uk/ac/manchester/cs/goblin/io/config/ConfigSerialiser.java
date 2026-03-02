@@ -10,14 +10,14 @@ import uk.ac.manchester.cs.goblin.io.ontology.*;
  */
 public class ConfigSerialiser {
 
-	private ConfigFileLoader fileLoader = new ConfigFileLoader();
-
 	private OntologyConfig ontologyConfig;
 	private ModelConfig modelConfig;
 
 	private ConfigOntology configOntology;
 
-	public ConfigSerialiser() {
+	public ConfigSerialiser() throws BadConfigFileException {
+
+		ConfigFileLoader fileLoader = new ConfigFileLoader();
 
 		ontologyConfig = fileLoader.loadOntologyConfig();
 

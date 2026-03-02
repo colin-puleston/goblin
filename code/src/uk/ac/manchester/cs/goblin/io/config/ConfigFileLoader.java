@@ -14,9 +14,16 @@ public class ConfigFileLoader extends ConfigFileSerialiser {
 
 	private XNode rootNode;
 
-	public ConfigFileLoader() {
+	public ConfigFileLoader() throws BadConfigFileException {
 
-		rootNode = new XDocument(getConfigFile()).getRootNode();
+		try {
+
+			rootNode = new XDocument(getConfigFile()).getRootNode();
+		}
+		catch (XDocumentException e) {
+
+			throw new BadConfigFileException(e);
+		}
 	}
 
 	public OntologyConfig loadOntologyConfig() {

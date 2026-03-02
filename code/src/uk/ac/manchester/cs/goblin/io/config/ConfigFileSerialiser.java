@@ -7,7 +7,7 @@ import uk.ac.manchester.cs.mekon_util.config.*;
 /**
  * @author Colin Puleston
  */
-class ConfigFileSerialiser {
+public class ConfigFileSerialiser {
 
 	static final String ROOT_NODE_TAG = "GoblinConfiguration";
 	static final String SECTION_TAG = "ModelSection";
@@ -36,7 +36,7 @@ class ConfigFileSerialiser {
 
 	static private final String CONFIG_FILENAME = "goblin.xml";
 
-	static File getConfigFile() {
+	static public File getConfigFile() {
 
 		return getFileFromClasspath(CONFIG_FILENAME);
 	}
