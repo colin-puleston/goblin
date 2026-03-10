@@ -34,7 +34,7 @@
 
 	</ModelSection>
 
-	<ModelSection label="Activity Venue">
+	<ModelSection label="Venue">
 
 		<Hierarchy
 			rootConcept="http://goblin/demo-core.owl#VenueByType"
