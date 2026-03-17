@@ -40,6 +40,8 @@ class ModelSectionPanel extends MultiTabPanel<Hierarchy> {
 
 	private ModelSection section;
 
+	private List<CoreHierarchyPanel> coreHierarchyPanels = new ArrayList<CoreHierarchyPanel>();
+
 	private class LocationDisplay {
 
 		private Hierarchy coreHierarchy;
@@ -80,7 +82,7 @@ class ModelSectionPanel extends MultiTabPanel<Hierarchy> {
 
 		private CoreHierarchyPanel getCoreHierarchyPanel() {
 
-			return (CoreHierarchyPanel)getSourceComponent(coreHierarchy);
+			return coreHierarchyPanels.get(getSources().indexOf(coreHierarchy));
 		}
 	}
 
@@ -104,7 +106,11 @@ class ModelSectionPanel extends MultiTabPanel<Hierarchy> {
 
 	protected JComponent createComponent(Hierarchy hierarchy) {
 
-		return new CoreHierarchyPanel(hierarchy);
+		CoreHierarchyPanel panel = new CoreHierarchyPanel(hierarchy);
+
+		coreHierarchyPanels.add(panel);
+
+		return panel;
 	}
 
 	ModelSectionPanel(ModelSection section) {

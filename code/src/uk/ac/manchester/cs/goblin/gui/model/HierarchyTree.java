@@ -196,7 +196,7 @@ class HierarchyTree extends DynamicConceptTree {
 
 		protected GCellDisplay getDisplay() {
 
-			return GoblinCellDisplay.CONCEPTS_CONSTRAINT_GROUP.forConstraints(group);
+			return ModelCellDisplay.CONCEPTS_CONSTRAINT_GROUP.forConstraints(group);
 		}
 
 		ConstraintGroupNode(ConceptNode linkedConceptNode, ConstraintGroup group) {
@@ -220,7 +220,7 @@ class HierarchyTree extends DynamicConceptTree {
 
 			super(linkedConceptNode);
 
-			display = GoblinCellDisplay.CONCEPTS_CONSTRAINT_IMPLIED_TARGET.forConcept(linked);
+			display = ModelCellDisplay.CONCEPTS_CONSTRAINT_IMPLIED_TARGET.forConcept(linked);
 		}
 	}
 
@@ -247,7 +247,7 @@ class HierarchyTree extends DynamicConceptTree {
 
 	GCellDisplay getConceptDisplay(Concept concept) {
 
-		return getGoblinCellDisplay(concept).forConcept(concept);
+		return getModelCellDisplay(concept).forConcept(concept);
 	}
 
 	void setConstraintsDisplayMode(ConstraintsDisplayMode mode) {
@@ -281,19 +281,19 @@ class HierarchyTree extends DynamicConceptTree {
 		return new HierarchyConceptNode(concept);
 	}
 
-	GoblinCellDisplay getGoblinCellDisplay(Concept concept) {
+	ModelCellDisplay getModelCellDisplay(Concept concept) {
 
 		if (concept.coreConcept()) {
 
-			return GoblinCellDisplay.CONCEPTS_CORE;
+			return ModelCellDisplay.CONCEPTS_CORE;
 		}
 
 		if (conceptMover.movingConcept(concept)) {
 
-			return GoblinCellDisplay.CONCEPTS_MOVE_SUBJECT;
+			return ModelCellDisplay.CONCEPTS_MOVE_SUBJECT;
 		}
 
-		return GoblinCellDisplay.CONCEPTS_DYNAMIC;
+		return ModelCellDisplay.CONCEPTS_DYNAMIC;
 	}
 
 	private void redisplayAllConstraints() {

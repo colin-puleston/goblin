@@ -41,8 +41,8 @@ public class GoblinConfig extends GoblinApp {
 
 	static private final String TITLE = "Goblin Configuration Tool";
 
-	static private final int FRAME_WIDTH = 800;
-	static private final int FRAME_HEIGHT = 500;
+	static private final int FRAME_WIDTH = 1200;
+	static private final int FRAME_HEIGHT = 800;
 
 	static public void main(String[] args) {
 
@@ -68,7 +68,9 @@ public class GoblinConfig extends GoblinApp {
 
 	protected JComponent getMainApplicationComponent() {
 
-		return new ModelConfigPanel(serialiser.getModelConfig());
+		return new ModelConfigPanel(
+						serialiser.getModelConfig(),
+						serialiser.getConfigOntology());
 	}
 
 	protected boolean unsavedEdits() {

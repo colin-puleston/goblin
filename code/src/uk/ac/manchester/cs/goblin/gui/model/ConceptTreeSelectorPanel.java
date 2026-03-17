@@ -26,13 +26,13 @@ package uk.ac.manchester.cs.goblin.gui.model;
 
 import java.awt.*;
 import java.util.*;
-
 import javax.swing.*;
 import javax.swing.border.*;
 
 import uk.ac.manchester.cs.mekon_util.gui.*;
 
 import uk.ac.manchester.cs.goblin.model.*;
+import uk.ac.manchester.cs.goblin.gui.util.*;
 
 /**
  * @author Colin Puleston
@@ -42,11 +42,7 @@ abstract class ConceptTreeSelectorPanel extends JPanel {
 	static private final long serialVersionUID = -1;
 
 	static private final String SEARCH_BUTTON_LABEL = "Search...";
-	static private final String SEARCH_DIALOG_TITLE = "Select Concept";
-	static private final String SEARCH_LIST_TITLE = "List";
-	static private final String SEARCH_TREE_TITLE = "Tree";
-
-	static private final Dimension SEARCH_DIALOG_SIZE = new Dimension(400, 400);
+	static private final String SEARCH_DIALOG_TITLE = "Select concept";
 
 	private ConceptTree targetTree;
 
@@ -65,104 +61,71 @@ abstract class ConceptTreeSelectorPanel extends JPanel {
 		}
 	}
 
-	private class SearchDialog extends GDialog {
+	private class SearchDialog extends TreeNodeSelectorDialog<Concept> {
 
 		static private final long serialVersionUID = -1;
 
-		public Dimension getPreferredSize() {
+		private SearchTree tree;
 
-			return SEARCH_DIALOG_SIZE;
-		}
+		private class SearchTree extends ConceptTree {
 
-		SearchDialog() {
+			static private final long serialVersionUID = -1;
 
-			super(ConceptTreeSelectorPanel.this, SEARCH_DIALOG_TITLE, true);
+			SearchTree() {
 
-			display(createTabs());
-		}
+				super(false);
 
-		void onSelected(Concept concept) {
-
-			targetTree.selectConcept(concept);
-
-			dispose();
-		}
-
-		private JTabbedPane createTabs() {
-
-			JTabbedPane tabs = new JTabbedPane();
-
-			tabs.addTab(SEARCH_LIST_TITLE, new GListPanel<Concept>(new SearchList(this)));
-			tabs.addTab(SEARCH_TREE_TITLE, new TreeSearchPanel(this));
-
-			return tabs;
-		}
-	}
-
-	private class SearchList extends GList<Concept> {
-
-		static private final long serialVersionUID = -1;
-
-		private SearchDialog dialog;
-
-		private class TargetTreeConceptSelector extends GSelectionListener<Concept> {
-
-			protected void onSelected(Concept concept) {
-
-				dialog.onSelected(concept);
+				initialise(targetTree.getRootConcepts());
 			}
 
-			protected void onDeselected(Concept concept) {
+			boolean requiredConcept(Concept concept) {
+
+				return requiredInTree(concept);
 			}
 
-			TargetTreeConceptSelector() {
+			GCellDisplay getConceptDisplay(Concept concept) {
 
-				addSelectionListener(this);
+				return getTreeCellDisplay(concept);
 			}
 		}
 
-		SearchList(SearchDialog dialog) {
+		protected Collection<Concept> getRootNodes() {
 
-			super(false, true);
-
-			this.dialog = dialog;
-
-			populate(targetTree.getRootConcepts());
-
-			new TargetTreeConceptSelector();
+			return targetTree.getRootConcepts();
 		}
 
-		private void populate(Collection<Concept> concepts) {
+		protected Collection<Concept> getChildNodes(Concept parent) {
 
-			for (Concept concept : concepts) {
-
-				addEntity(concept, getSelectorsCellDisplay(concept, false));
-				populate(concept.getChildren());
-			}
-		}
-	}
-
-	private class TreeSearchPanel extends ConceptSelectorTreePanel {
-
-		static private final long serialVersionUID = -1;
-
-		private SearchDialog dialog;
-
-		TreeSearchPanel(SearchDialog dialog) {
-
-			super(targetTree.getRootConcepts());
-
-			this.dialog = dialog;
+			return parent.getChildren();
 		}
 
-		GCellDisplay getSelectorCellDisplay(Concept concept, boolean highlight) {
+		protected String getNodeLabel(Concept concept) {
+
+			return concept.getConceptId().getLabel();
+		}
+
+		protected Concept toSubjectNode(GNode guiNode) {
+
+			return tree.getSelectedConcept();
+		}
+
+		protected GCellDisplay getCellDisplay(Concept concept, boolean highlight) {
 
 			return getSelectorsCellDisplay(concept, highlight);
 		}
 
-		void onSelection(Concept selected) {
+		protected void onSelected(Concept concept) {
 
-			dialog.onSelected(selected);
+			targetTree.selectConcept(concept);
+		}
+
+		SearchDialog() {
+
+			super(ConceptTreeSelectorPanel.this, SEARCH_DIALOG_TITLE);
+
+			tree = new SearchTree();
+
+			initialise(tree);
 		}
 	}
 

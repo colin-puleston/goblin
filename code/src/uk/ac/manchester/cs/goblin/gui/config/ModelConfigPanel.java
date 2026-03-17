@@ -32,6 +32,8 @@ import javax.swing.*;
 import uk.ac.manchester.cs.mekon_util.gui.*;
 
 import uk.ac.manchester.cs.goblin.config.*;
+import uk.ac.manchester.cs.goblin.io.config.*;
+import uk.ac.manchester.cs.goblin.gui.util.*;
 
 /**
  * @author Colin Puleston
@@ -40,44 +42,84 @@ class ModelConfigPanel extends JPanel {
 
 	static private final long serialVersionUID = -1;
 
-	private ModelConfig modelConfig;
-	private List<ModelSectionConfigPanel> sectionPanels = new ArrayList<ModelSectionConfigPanel>();
+	static private final String SECTIONS_TITLE = "Model sections";
+	static private final String HIERARCHIES_TITLE = "Core hierarchies";
 
-	ModelConfigPanel(ModelConfig modelConfig) {
+	private ModelConfig modelConfig;
+	private ConfigOntology ontology;
+
+	private class MultiSectionPanel extends MultiTabPanelWithEditControls<ModelSectionConfig> {
+
+		static private final long serialVersionUID = -1;
+
+		protected List<ModelSectionConfig> getSources() {
+
+			return modelConfig.getSections();
+		}
+
+		protected String getTitle(ModelSectionConfig section) {
+
+			return section.getLabel();
+		}
+
+		protected JComponent createComponent(ModelSectionConfig section) {
+
+			return createSectionComponent(section);
+		}
+
+		protected boolean checkNewSource() {
+
+			return false;
+		}
+
+		protected boolean checkEditSource(ModelSectionConfig source) {
+
+			return false;
+		}
+
+		protected boolean checkDeleteSource(ModelSectionConfig source) {
+
+			return false;
+		}
+
+		MultiSectionPanel() {
+
+			super(JTabbedPane.LEFT);
+
+			setFont(GFonts.toLarge(getFont()));
+
+			populate();
+		}
+	}
+
+	ModelConfigPanel(ModelConfig modelConfig, ConfigOntology ontology) {
 
 		super(new BorderLayout());
 
 		this.modelConfig = modelConfig;
-
-		populate();
-	}
-
-	private void populate() {
-
-		for (ModelSectionConfig section : modelConfig.getSections()) {
-
-			sectionPanels.add(new ModelSectionConfigPanel(section));
-		}
+		this.ontology = ontology;
 
 		add(createMainPanel(), BorderLayout.CENTER);
 	}
 
 	private JComponent createMainPanel() {
 
-		return sectionPanels.size() == 1 ? sectionPanels.get(0) : createMultiSectionPanel();
+		List<ModelSectionConfig> sections = modelConfig.getSections();
+
+		return sections.size() == 1
+				? createSectionComponent(sections.get(0))
+				: createMultiSectionComponent();
 	}
 
-	private JComponent createMultiSectionPanel() {
+	private JComponent createMultiSectionComponent() {
 
-		JTabbedPane tabs = new JTabbedPane(JTabbedPane.TOP);
+		return TitledPanels.create(new MultiSectionPanel(), SECTIONS_TITLE);
+	}
 
-		tabs.setFont(GFonts.toLarge(tabs.getFont()));
+	private JComponent createSectionComponent(ModelSectionConfig section) {
 
-		for (ModelSectionConfigPanel sectionPanel : sectionPanels) {
-
-			tabs.addTab(sectionPanel.getTitle(), sectionPanel);
-		}
-
-		return tabs;
+		return TitledPanels.create(
+					new ModelSectionConfigPanel(section, ontology),
+					HIERARCHIES_TITLE);
 	}
 }

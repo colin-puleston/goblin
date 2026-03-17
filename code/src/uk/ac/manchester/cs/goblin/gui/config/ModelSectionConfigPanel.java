@@ -27,38 +27,85 @@ package uk.ac.manchester.cs.goblin.gui.config;
 import java.util.*;
 import javax.swing.*;
 
+import uk.ac.manchester.cs.mekon_util.gui.*;
+
 import uk.ac.manchester.cs.goblin.config.*;
+import uk.ac.manchester.cs.goblin.io.config.*;
 import uk.ac.manchester.cs.goblin.gui.util.*;
 
 /**
  * @author Colin Puleston
  */
-class ModelSectionConfigPanel extends MultiTabPanel<CoreHierarchyConfig> {
+class ModelSectionConfigPanel extends MultiTabPanelWithEditControls<CoreHierarchyConfig> {
 
 	static private final long serialVersionUID = -1;
 
+	static private final String ATTRIBUTES_TITLE = "Hierarchy attributes";
+
 	private ModelSectionConfig section;
+	private ConfigOntology ontology;
 
 	protected List<CoreHierarchyConfig> getSources() {
 
 		return section.getHierarchies();
 	}
 
-	protected String getTitle(CoreHierarchyConfig hierarchyConfig) {
+	protected String getTitle(CoreHierarchyConfig hierarchy) {
 
-		return hierarchyConfig.getLabel();
+		return hierarchy.getLabel();
 	}
 
 	protected JComponent createComponent(CoreHierarchyConfig hierarchy) {
 
-		return new CoreHierarchyConfigPanel(hierarchy);
+		GSplitPane panel = new GSplitPane();
+
+		panel.setLeftComponent(createCoreHierarchyComponent(hierarchy));
+		panel.setRightComponent(createAttributesComponent(hierarchy));
+
+		return panel;
 	}
 
-	ModelSectionConfigPanel(ModelSectionConfig section) {
+	protected boolean checkNewSource() {
+
+		CoreHierarchyConfigValuesPanel values
+			= new CoreHierarchyConfigValuesPanel(ontology);
+
+		if (checkValueEdits(values) && values.allSet()) {
+
+			section.addHierarchy(values.createConfig());
+
+			return true;
+		}
+
+		return false;
+	}
+
+	protected boolean checkEditSource(CoreHierarchyConfig hierarchy) {
+
+		CoreHierarchyConfigValuesPanel values
+			= new CoreHierarchyConfigValuesPanel(hierarchy, ontology, true);
+
+		if (checkValueEdits(values)) {
+
+			section.replaceHierarchy(hierarchy, values.createConfig());
+
+			return true;
+		}
+
+		return false;
+	}
+
+	protected boolean checkDeleteSource(CoreHierarchyConfig hierarchy) {
+
+		return false;
+	}
+
+	ModelSectionConfigPanel(ModelSectionConfig section, ConfigOntology ontology) {
 
 		super(JTabbedPane.LEFT);
 
 		this.section = section;
+		this.ontology = ontology;
 
 		populate();
 	}
@@ -66,5 +113,32 @@ class ModelSectionConfigPanel extends MultiTabPanel<CoreHierarchyConfig> {
 	String getTitle() {
 
 		return section.getLabel();
+	}
+
+	private JComponent createCoreHierarchyComponent(CoreHierarchyConfig hierarchy) {
+
+		return new CoreHierarchyConfigValuesPanel(hierarchy, ontology, false);
+	}
+
+	private JComponent createAttributesComponent(CoreHierarchyConfig hierarchy) {
+
+		return TitledPanels.create(
+					new AttributesGonfigPanel(hierarchy, ontology),
+					ATTRIBUTES_TITLE);
+	}
+
+	private CoreHierarchyConfig checkNewHierarchy(CoreHierarchyConfigValuesPanel values) {
+
+		if (checkValueEdits(values) && values.allSet()) {
+
+			return values.createConfig();
+		}
+
+		return null;
+	}
+
+	private boolean checkValueEdits(CoreHierarchyConfigValuesPanel values) {
+
+		return new ValuesEditDialog(values, "hierarchy").editedValues();
 	}
 }

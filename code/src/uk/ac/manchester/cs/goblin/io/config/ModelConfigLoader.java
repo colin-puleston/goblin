@@ -319,10 +319,8 @@ class ModelConfigLoader extends ConfigFileSerialiser {
 
 	private void loadHierarchy(ModelSectionConfig section, XNode node) {
 
-		EntityId rootConceptId = getRootConceptId(node);
+		CoreHierarchyConfig hierarchy = new CoreHierarchyConfig(getRootConceptId(node));
 		String label = getEntityLabelOrNull(node);
-
-		CoreHierarchyConfig hierarchy = section.addHierarchy(rootConceptId);
 
 		if (label != null) {
 
@@ -331,6 +329,8 @@ class ModelConfigLoader extends ConfigFileSerialiser {
 
 		hierarchy.setFixedStructure(fixedHierarchyStructure(node));
 		hierarchy.setDynamicAttributeConstraints(getDynamicAttributeConstraintsOption(node));
+
+		section.addHierarchy(hierarchy);
 	}
 
 	private void loadAttributes(XNode rootNode) {

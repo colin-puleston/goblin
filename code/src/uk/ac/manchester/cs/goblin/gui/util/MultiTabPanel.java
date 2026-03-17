@@ -24,7 +24,6 @@
 
 package uk.ac.manchester.cs.goblin.gui.util;
 
-import java.awt.Component;
 import java.awt.Font;
 import java.util.*;
 
@@ -140,11 +139,6 @@ public abstract class MultiTabPanel<S> extends JTabbedPane {
 		setSelectedIndex(sources.indexOf(source));
 	}
 
-	public JComponent getSourceComponent(S source) {
-
-		return (JComponent)getComponentAt(sources.indexOf(source));
-	}
-
 	protected MultiTabPanel(int tabPlacement) {
 
 		super(tabPlacement);
@@ -164,19 +158,26 @@ public abstract class MultiTabPanel<S> extends JTabbedPane {
 		return false;
 	}
 
+	JComponent checkWrapComponent(S source, JComponent comp) {
+
+		return comp;
+	}
+
 	private void addSourceTab(S source, int index) {
 
-		insertTab("", null, createComponent(source), null, index);
+		JComponent comp = checkWrapComponent(source, createComponent(source));
+
+		insertTab("", null, comp, null, index);
 
 		setTabLabel(source, index);
 	}
 
 	private void setTabLabel(S source, int index) {
 
-		setTabComponentAt(index, createTabLabel(source, index));
+		setTabComponentAt(index, createTabLabel(source));
 	}
 
-	private JLabel createTabLabel(S source, int index) {
+	private JLabel createTabLabel(S source) {
 
 		JLabel label = new JLabel(getTitle(source));
 		Font font = label.getFont();

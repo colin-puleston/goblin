@@ -51,19 +51,19 @@ class ConstraintTargetsDisplay {
 		}
 	}
 
-	GoblinCellDisplay getCellDisplay(Concept concept) {
+	ModelCellDisplay getCellDisplay(Concept concept) {
 
 		if (!validTarget(concept)) {
 
-			return GoblinCellDisplay.CONSTRAINTS_POTENTIAL_TARGET;
+			return ModelCellDisplay.CONSTRAINTS_POTENTIAL_TARGET;
 		}
 
 		if (impliedTargets.contains(concept)) {
 
-			return GoblinCellDisplay.CONSTRAINTS_IMPLIED_TARGET;
+			return ModelCellDisplay.CONSTRAINTS_IMPLIED_TARGET;
 		}
 
-		return GoblinCellDisplay.CONSTRAINTS_VALID_TARGET;
+		return ModelCellDisplay.CONSTRAINTS_VALID_TARGET;
 	}
 
 	private boolean validTarget(Concept concept) {

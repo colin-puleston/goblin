@@ -106,7 +106,7 @@ class HierarchyTreePanel extends JPanel {
 
 		GCellDisplay getSelectorsCellDisplay(Concept concept, boolean highlight) {
 
-			return tree.getGoblinCellDisplay(concept).forConcept(concept, highlight);
+			return tree.getModelCellDisplay(concept).forConcept(concept, highlight);
 		}
 	}
 

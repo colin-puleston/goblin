@@ -44,6 +44,21 @@ public class CoreHierarchyConfig {
 		coreAttributes.add(attribute);
 	}
 
+	public void replaceCoreAttribute(
+					CoreAttributeConfig oldAttribute,
+					CoreAttributeConfig newAttribute) {
+
+		int index = coreAttributes.indexOf(oldAttribute);
+
+		if (index == -1) {
+
+			throw new RuntimeException("Attribute not currently present");
+		}
+
+		coreAttributes.remove(oldAttribute);
+		coreAttributes.add(index, newAttribute);
+	}
+
 	public String getLabel() {
 
 		return label;

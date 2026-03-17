@@ -17,13 +17,24 @@ public class ModelSectionConfig {
 		this.label = label;
 	}
 
-	public CoreHierarchyConfig addHierarchy(EntityId rootConceptId) {
-
-		CoreHierarchyConfig hierarchy = new CoreHierarchyConfig(rootConceptId);
+	public void addHierarchy(CoreHierarchyConfig hierarchy) {
 
 		hierarchies.add(hierarchy);
+	}
 
-		return hierarchy;
+	public void replaceHierarchy(
+					CoreHierarchyConfig oldHierarchy,
+					CoreHierarchyConfig newHierarchy) {
+
+		int index = hierarchies.indexOf(oldHierarchy);
+
+		if (index == -1) {
+
+			throw new RuntimeException("Hierarchy not currently present");
+		}
+
+		hierarchies.remove(oldHierarchy);
+		hierarchies.add(index, newHierarchy);
 	}
 
 	public String getLabel() {

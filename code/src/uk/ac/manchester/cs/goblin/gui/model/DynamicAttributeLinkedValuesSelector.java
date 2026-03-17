@@ -79,7 +79,7 @@ class DynamicAttributeLinkedValuesSelector extends GDialog {
 
 		GCellDisplay createCellDisplay() {
 
-			return GoblinCellDisplay.CONCEPTS_DYNAMIC.forConcept(label);
+			return ModelCellDisplay.CONCEPTS_DYNAMIC.forConcept(label);
 		}
 
 		Hierarchy getValuesHierarchy() {
