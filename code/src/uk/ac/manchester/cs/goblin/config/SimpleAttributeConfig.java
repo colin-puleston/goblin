@@ -10,13 +10,16 @@ public class SimpleAttributeConfig extends PropertyAttributeConfig {
 	private EntityId linkingPropertyId;
 
 	public SimpleAttributeConfig(
-				String label,
 				EntityId linkingPropertyId,
 				EntityId rootSourceConceptId,
 				EntityId rootTargetConceptId,
 				ConstraintsOption constraintsOption) {
 
-		super(label, rootSourceConceptId, rootTargetConceptId, constraintsOption);
+		super(
+			linkingPropertyId.getLabel(),
+			rootSourceConceptId,
+			rootTargetConceptId,
+			constraintsOption);
 
 		this.linkingPropertyId = linkingPropertyId;
 	}

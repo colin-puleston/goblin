@@ -29,99 +29,80 @@ import javax.swing.*;
 
 import uk.ac.manchester.cs.mekon_util.gui.*;
 
-import uk.ac.manchester.cs.goblin.model.*;
 import uk.ac.manchester.cs.goblin.gui.util.*;
 
 /**
  * @author Colin Puleston
  */
-class ValuesEditDialog extends GDialog {
+class EnumValueSelector<E extends Enum<?>> extends GDialog {
 
 	static private final long serialVersionUID = -1;
 
-	static private final String TITLE_FORMAT = "Edit %s configuration";
+	static private final String TITLE_FORMAT = "Select %s";
 
-	static private final String OK_LABEL = "Ok";
-	static private final String CANCEL_LABEL = "Cancel";
+	static private final int WINDOW_WIDTH = 400;
+	static private final int HEADER_HEIGHT = 40;
+	static private final int OPTION_HEIGHT = 60;
 
-	static private final Dimension WINDOW_SIZE = new Dimension(500, 600);
+	static private Dimension getWindowSize(int optionCount) {
 
-	private ValuesPanel values;
-	private boolean editedValues = false;
+		return new Dimension(WINDOW_WIDTH, getWindowHeight(optionCount));
+	}
 
-	private class OkButton extends GButton {
+	static private int getWindowHeight(int optionCount) {
+
+		return HEADER_HEIGHT + (OPTION_HEIGHT * optionCount);
+	}
+
+	private E selection = null;
+
+	private class OptionButton extends GButton {
 
 		static private final long serialVersionUID = -1;
 
-		private class Enabler extends ValuesPanelListener {
-
-			void onValueEdit() {
-
-				setEnabled(values.allSet());
-			}
-		}
+		private E option;
 
 		protected void doButtonThing() {
 
-			editedValues |= true;
+			selection = option;
 
 			dispose();
 		}
 
-		OkButton() {
+		OptionButton(E option) {
 
-			super(OK_LABEL);
+			super(option.toString());
 
-			setEnabled(false);
+			this.option = option;
 
-			values.addListener(new Enabler());
+			setForeground(ValueTextColour.GENRAL_VALUE);
 		}
 	}
 
-	private class CancelButton extends GButton {
+	EnumValueSelector(E[] options, String typeName) {
 
-		static private final long serialVersionUID = -1;
+		super(String.format(TITLE_FORMAT, typeName), true);
 
-		protected void doButtonThing() {
-
-			dispose();
-		}
-
-		CancelButton() {
-
-			super(CANCEL_LABEL);
-		}
-	}
-
-	ValuesEditDialog(ValuesPanel values, String editedEntity) {
-
-		super(String.format(TITLE_FORMAT, editedEntity), true);
-
-		this.values = values;
-
-		setPreferredSize(WINDOW_SIZE);
+		setPreferredSize(getWindowSize(options.length));
 		setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 
-		display(createMainComponent());
+		display(createOptionsComponent(options));
 	}
 
-	boolean editedValues() {
+	E getSelectionOrNull() {
 
-		return editedValues;
+		return selection;
 	}
 
-	private JComponent createMainComponent() {
+	private JComponent createOptionsComponent(E[] options) {
 
-		JPanel panel = new JPanel(new BorderLayout());
+		ControlsPanel panel = new ControlsPanel(false);
 
-		panel.add(new JScrollPane(values), BorderLayout.CENTER);
-		panel.add(createButtonsPanel(), BorderLayout.SOUTH);
+		for (E option : options) {
+
+			panel.addControl(new OptionButton(option));
+		}
 
 		return panel;
-	}
-
-	private JComponent createButtonsPanel() {
-
-		return ControlsPanel.horizontal(new OkButton(), new CancelButton());
 	}
 }

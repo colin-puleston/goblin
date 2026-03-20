@@ -30,6 +30,8 @@ import java.awt.Font;
 import uk.ac.manchester.cs.mekon_util.gui.*;
 import uk.ac.manchester.cs.mekon_util.gui.icon.*;
 
+import uk.ac.manchester.cs.goblin.model.*;
+import uk.ac.manchester.cs.goblin.config.*;
 import uk.ac.manchester.cs.goblin.io.config.*;
 import uk.ac.manchester.cs.goblin.gui.util.*;
 
@@ -45,19 +47,29 @@ class ConfigCellDisplay {
 	static private final GIcon CONCEPT_ICON = createConceptIcon();
 	static private final GIcon PROPERTY_ICON = createPropertyIcon();
 
-	static GCellDisplay forConcept(ConfigEntity entity, boolean highlight) {
+	static GCellDisplay forHierarchy(CoreHierarchyConfig hierarchy) {
 
-		return forEntity(entity, highlight, CONCEPT_ICON);
+		return forEntity(hierarchy.getLabel(), false, CONCEPT_ICON);
 	}
 
-	static GCellDisplay forProperty(ConfigEntity entity, boolean highlight) {
+	static GCellDisplay forConcept(ConfigEntity concept, boolean highlight) {
 
-		return forEntity(entity, highlight, PROPERTY_ICON);
+		return forEntity(concept, highlight, CONCEPT_ICON);
+	}
+
+	static GCellDisplay forProperty(ConfigEntity property, boolean highlight) {
+
+		return forEntity(property, highlight, PROPERTY_ICON);
 	}
 
 	static private GCellDisplay forEntity(ConfigEntity entity, boolean highlight, GIcon icon) {
 
-		GCellDisplay display = new GCellDisplay(entity.getId().getLabel(), icon);
+		return forEntity(entity.getId().getLabel(), highlight, icon);
+	}
+
+	static private GCellDisplay forEntity(String label, boolean highlight, GIcon icon) {
+
+		GCellDisplay display = new GCellDisplay(label, icon);
 
 		if (highlight) {
 

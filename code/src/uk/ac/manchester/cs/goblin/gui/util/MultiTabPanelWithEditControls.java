@@ -38,10 +38,10 @@ public abstract class MultiTabPanelWithEditControls<S> extends MultiTabPanel<S> 
 	static private final long serialVersionUID = -1;
 
 	static private final String ADD_TAB_LABEL = "Add...";
-	static private final String EDIT_BUTTON_LABEL = "Edit...";
+	static private final String RELABEL_BUTTON_LABEL = "Relabel...";
 	static private final String DELETE_BUTTON_LABEL = "Delete";
 
-	static private final Color CONTRL_LABEL_COLOUR = Color.RED.darker();
+	static private final Color CONTROL_LABEL_COLOUR = Color.RED.darker();
 
 	private boolean additionHandlingEnabled = true;
 
@@ -78,36 +78,36 @@ public abstract class MultiTabPanelWithEditControls<S> extends MultiTabPanel<S> 
 
 		protected void doButtonThing() {
 
-			if (checkPerformSourceOp(source)) {
+			if (performSourceAction(source)) {
 
 				repopulate();
 			}
 		}
 
-		SourceActionButton(S source, String label) {
+		SourceActionButton(String label, S source) {
 
 			super(label);
 
 			this.source = source;
 
-			setForeground(CONTRL_LABEL_COLOUR);
+			setForeground(CONTROL_LABEL_COLOUR);
 		}
 
-		abstract boolean checkPerformSourceOp(S source);
+		abstract boolean performSourceAction(S source);
 	}
 
-	private class SourceEditButton extends SourceActionButton {
+	private class SourceRelabelButton extends SourceActionButton {
 
 		static private final long serialVersionUID = -1;
 
-		SourceEditButton(S source) {
+		SourceRelabelButton(S source) {
 
-			super(source, EDIT_BUTTON_LABEL);
+			super(RELABEL_BUTTON_LABEL, source);
 		}
 
-		boolean checkPerformSourceOp(S source) {
+		boolean performSourceAction(S source) {
 
-			return checkEditSource(source);
+			return checkRelabelSource(source);
 		}
 	}
 
@@ -117,10 +117,10 @@ public abstract class MultiTabPanelWithEditControls<S> extends MultiTabPanel<S> 
 
 		SourceDeleteButton(S source) {
 
-			super(source, DELETE_BUTTON_LABEL);
+			super(DELETE_BUTTON_LABEL, source);
 		}
 
-		boolean checkPerformSourceOp(S source) {
+		boolean performSourceAction(S source) {
 
 			return checkDeleteSource(source);
 		}
@@ -153,7 +153,7 @@ public abstract class MultiTabPanelWithEditControls<S> extends MultiTabPanel<S> 
 
 	protected abstract boolean checkNewSource();
 
-	protected abstract boolean checkEditSource(S source);
+	protected abstract boolean checkRelabelSource(S source);
 
 	protected abstract boolean checkDeleteSource(S source);
 
@@ -179,7 +179,7 @@ public abstract class MultiTabPanelWithEditControls<S> extends MultiTabPanel<S> 
 	private JComponent createButtonsComponent(S source) {
 
 		return ControlsPanel.horizontal(
-					new SourceEditButton(source),
+					new SourceRelabelButton(source),
 					new SourceDeleteButton(source));
 	}
 
@@ -195,7 +195,7 @@ public abstract class MultiTabPanelWithEditControls<S> extends MultiTabPanel<S> 
 		JLabel label = new JLabel(ADD_TAB_LABEL);
 
 		label.setFont(GFonts.toMedium(label.getFont()));
-		label.setForeground(CONTRL_LABEL_COLOUR);
+		label.setForeground(CONTROL_LABEL_COLOUR);
 
 		return label;
 	}

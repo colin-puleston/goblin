@@ -24,83 +24,46 @@
 
 package uk.ac.manchester.cs.goblin.gui.config;
 
-import java.io.*;
-import javax.swing.*;
+import java.util.*;
 
+import uk.ac.manchester.cs.goblin.model.*;
 import uk.ac.manchester.cs.goblin.config.*;
 import uk.ac.manchester.cs.goblin.io.config.*;
-import uk.ac.manchester.cs.goblin.gui.*;
-import uk.ac.manchester.cs.goblin.gui.util.*;
 
 /**
  * @author Colin Puleston
  */
-public class GoblinConfig extends GoblinApp {
+class ValueOptions {
 
-	static private final long serialVersionUID = -1;
+	private ConfigOntology ontology;
+	private ModelConfig modelConfig;
 
-	static private final String TITLE = "Goblin Configuration Tool";
+	ValueOptions(ConfigOntology ontology, ModelConfig modelConfig) {
 
-	static private final int FRAME_WIDTH = 1200;
-	static private final int FRAME_HEIGHT = 800;
-
-	static public void main(String[] args) {
-
-		new GoblinConfig();
+		this.ontology = ontology;
+		this.modelConfig = modelConfig;
 	}
 
-	static private AppInfoDisplay createInfoDisplay() {
+	ConfigOntology getOntology() {
 
-		return new AppInfoDisplay(TITLE, "configuration");
+		return ontology;
 	}
 
-	private ConfigSerialiser serialiser;
-	private boolean unsavedEdits = false;
+	List<CoreHierarchyConfig> getHierarchies() {
 
-	public GoblinConfig() {
-
-		super(TITLE, FRAME_WIDTH, FRAME_HEIGHT, createInfoDisplay());
-
-		serialiser = loadConfigFileOrExit();
-
-		display();
+		return modelConfig.getHierarchies();
 	}
 
-	protected JComponent getMainApplicationComponent() {
+	CoreHierarchyConfig findHierarchy(EntityId rootConceptId) {
 
-		return new ModelConfigPanel(
-						serialiser.getConfigOntology(),
-						serialiser.getModelConfig());
-	}
+		for (CoreHierarchyConfig hierarchy : getHierarchies()) {
 
-	protected boolean unsavedEdits() {
+			if (hierarchy.getRootConceptId().equals(rootConceptId)) {
 
-		return unsavedEdits;
-	}
-
-	protected void save() {
-
-		serialiser.save();
-	}
-
-	protected File getEditFile() {
-
-		return ConfigFileSerialiser.getConfigFile();
-	}
-
-	private ConfigSerialiser loadConfigFileOrExit() {
-
-		try {
-
-			return new ConfigSerialiser();
+				return hierarchy;
+			}
 		}
-		catch (BadConfigFileException e) {
 
-			getInfoDisplay().informStartupError(e);
-
-			System.exit(0);
-
-			return null;
-		}
+		throw new Error("Cannt find hierarchy for: " + rootConceptId);
 	}
 }

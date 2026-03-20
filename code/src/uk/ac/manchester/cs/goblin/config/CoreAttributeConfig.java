@@ -5,9 +5,7 @@ import uk.ac.manchester.cs.goblin.model.*;
 /**
  * @author Colin Puleston
  */
-public abstract class CoreAttributeConfig {
-
-	private String label;
+public abstract class CoreAttributeConfig extends LabelledConfigEntity {
 
 	private EntityId rootSourceConceptId;
 	private EntityId rootTargetConceptId;
@@ -15,11 +13,6 @@ public abstract class CoreAttributeConfig {
 	public String toString() {
 
 		return getLabel() + "(" + rootSourceConceptId + " --> " + rootTargetConceptId + ")";
-	}
-
-	public String getLabel() {
-
-		return label;
 	}
 
 	public EntityId getRootSourceConceptId() {
@@ -34,7 +27,8 @@ public abstract class CoreAttributeConfig {
 
 	CoreAttributeConfig(String label, EntityId rootSourceConceptId, EntityId rootTargetConceptId) {
 
-		this.label = label;
+		super(label);
+
 		this.rootSourceConceptId = rootSourceConceptId;
 		this.rootTargetConceptId = rootTargetConceptId;
 	}

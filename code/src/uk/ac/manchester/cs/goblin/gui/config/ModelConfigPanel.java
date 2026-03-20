@@ -46,7 +46,7 @@ class ModelConfigPanel extends JPanel {
 	static private final String HIERARCHIES_TITLE = "Core hierarchies";
 
 	private ModelConfig modelConfig;
-	private ConfigOntology ontology;
+	private ValueOptions valueOptions;
 
 	private class MultiSectionPanel extends MultiTabPanelWithEditControls<ModelSectionConfig> {
 
@@ -72,7 +72,7 @@ class ModelConfigPanel extends JPanel {
 			return false;
 		}
 
-		protected boolean checkEditSource(ModelSectionConfig source) {
+		protected boolean checkRelabelSource(ModelSectionConfig hierarchy) {
 
 			return false;
 		}
@@ -92,12 +92,13 @@ class ModelConfigPanel extends JPanel {
 		}
 	}
 
-	ModelConfigPanel(ModelConfig modelConfig, ConfigOntology ontology) {
+	ModelConfigPanel(ConfigOntology ontology, ModelConfig modelConfig) {
 
 		super(new BorderLayout());
 
 		this.modelConfig = modelConfig;
-		this.ontology = ontology;
+
+		valueOptions = new ValueOptions(ontology, modelConfig);
 
 		add(createMainPanel(), BorderLayout.CENTER);
 	}
@@ -119,7 +120,7 @@ class ModelConfigPanel extends JPanel {
 	private JComponent createSectionComponent(ModelSectionConfig section) {
 
 		return TitledPanels.create(
-					new ModelSectionConfigPanel(section, ontology),
+					new ModelSectionConfigPanel(valueOptions, section),
 					HIERARCHIES_TITLE);
 	}
 }

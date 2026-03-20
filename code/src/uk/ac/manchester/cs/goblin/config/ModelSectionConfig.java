@@ -7,14 +7,13 @@ import uk.ac.manchester.cs.goblin.model.*;
 /**
  * @author Colin Puleston
  */
-public class ModelSectionConfig {
+public class ModelSectionConfig extends LabelledConfigEntity {
 
-	private String label;
 	private List<CoreHierarchyConfig> hierarchies = new ArrayList<CoreHierarchyConfig>();
 
 	public ModelSectionConfig(String label) {
 
-		this.label = label;
+		super(label);
 	}
 
 	public void addHierarchy(CoreHierarchyConfig hierarchy) {
@@ -27,6 +26,12 @@ public class ModelSectionConfig {
 					CoreHierarchyConfig newHierarchy) {
 
 		int index = hierarchies.indexOf(oldHierarchy);
+		System.out.println("\nOLD: " + oldHierarchy.getLabel() + ":" + oldHierarchy.hashCode());
+		System.out.println("NEW: " + newHierarchy.getLabel() + ":" + newHierarchy.hashCode());
+		for (CoreHierarchyConfig hierarchy : hierarchies) {
+
+			System.out.println("PRESENT: " + hierarchy.getLabel() + ":" + hierarchy.hashCode());
+		}
 
 		if (index == -1) {
 
@@ -37,11 +42,6 @@ public class ModelSectionConfig {
 		hierarchies.add(index, newHierarchy);
 	}
 
-	public String getLabel() {
-
-		return label;
-	}
-
 	public List<CoreHierarchyConfig> getHierarchies() {
 
 		return new ArrayList<CoreHierarchyConfig>(hierarchies);
@@ -49,7 +49,7 @@ public class ModelSectionConfig {
 
 	ModelSection createSection(Model model) {
 
-		ModelSection section = new ModelSection(model, label);
+		ModelSection section = new ModelSection(model, getLabel());
 
 		for (CoreHierarchyConfig hierarchy : hierarchies) {
 

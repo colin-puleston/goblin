@@ -40,8 +40,7 @@ class AttributeConfigValuesPanel extends ValuesPanel {
 
 	private abstract class Values {
 
-		private AttributeLabel label;
-		private RootTargetConceptId rootTargetConceptId;
+		private TargetHierarchy targetHierarchy;
 
 		private class AttributeTypeInfo extends InfoValue {
 
@@ -56,19 +55,11 @@ class AttributeConfigValuesPanel extends ValuesPanel {
 			}
 		}
 
-		private class AttributeLabel extends LabelValue {
-
-			void set(CoreAttributeConfig attribute) {
-
-				set(attribute.getLabel());
-			}
-		}
-
-		private class RootTargetConceptId extends ConceptIdValue {
+		private class TargetHierarchy extends HierarchyValue {
 
 			String getTitle() {
 
-				return "Root target-concept";
+				return "Target hierarchy";
 			}
 
 			void set(CoreAttributeConfig attribute) {
@@ -83,26 +74,20 @@ class AttributeConfigValuesPanel extends ValuesPanel {
 
 			new AttributeTypeInfo();
 
-			label = new AttributeLabel();
-			rootTargetConceptId = new RootTargetConceptId();
+			targetHierarchy = new TargetHierarchy();
 		}
 
 		void setAll(CoreAttributeConfig attribute) {
 
-			label.set(attribute);
-			rootTargetConceptId.set(attribute);
+			targetHierarchy.set(attribute);
 		}
 
 		CoreAttributeConfig createConfig(EntityId rootSourceConceptId) {
 
-			return createConfig(
-						label.get(),
-						rootSourceConceptId,
-						rootTargetConceptId.get());
+			return createConfig(rootSourceConceptId, targetHierarchy.get().getRootConceptId());
 		}
 
 		abstract CoreAttributeConfig createConfig(
-										String label,
 										EntityId rootSourceConceptId,
 										EntityId rootTargetConceptId);
 
@@ -121,6 +106,11 @@ class AttributeConfigValuesPanel extends ValuesPanel {
 			void set(PropertyAttributeConfig attribute) {
 
 				set(attribute.getConstraintsOption());
+			}
+
+			ConstraintsOption[] getValueOptions() {
+
+				return ConstraintsOption.values();
 			}
 		}
 	}
@@ -158,12 +148,10 @@ class AttributeConfigValuesPanel extends ValuesPanel {
 		}
 
 		CoreAttributeConfig createConfig(
-								String label,
 								EntityId rootSourceConceptId,
 								EntityId rootTargetConceptId) {
 
 			return new SimpleAttributeConfig(
-							label,
 							linkingPropertyId.get(),
 							rootSourceConceptId,
 							rootTargetConceptId,
@@ -241,12 +229,10 @@ class AttributeConfigValuesPanel extends ValuesPanel {
 		}
 
 		CoreAttributeConfig createConfig(
-								String label,
 								EntityId rootSourceConceptId,
 								EntityId rootTargetConceptId) {
 
 			return new AnchoredAttributeConfig(
-							label,
 							anchorConceptId.get(),
 							sourcePropertyId.get(),
 							targetPropertyId.get(),
@@ -276,6 +262,11 @@ class AttributeConfigValuesPanel extends ValuesPanel {
 
 				set(attribute.getLinksOption());
 			}
+
+			HierarchicalLinksOption[] getValueOptions() {
+
+				return HierarchicalLinksOption.values();
+			}
 		}
 
 		HierarchicalAttributeValues() {
@@ -291,12 +282,10 @@ class AttributeConfigValuesPanel extends ValuesPanel {
 		}
 
 		CoreAttributeConfig createConfig(
-								String label,
 								EntityId rootSourceConceptId,
 								EntityId rootTargetConceptId) {
 
 			return new HierarchicalAttributeConfig(
-							label,
 							rootSourceConceptId,
 							rootTargetConceptId,
 							linksOption.get());
@@ -331,9 +320,9 @@ class AttributeConfigValuesPanel extends ValuesPanel {
 		}
 	}
 
-	AttributeConfigValuesPanel(ConfigOntology ontology, AttributeType attributeType) {
+	AttributeConfigValuesPanel(ValueOptions valueOptions, AttributeType attributeType) {
 
-		super(ontology);
+		super(valueOptions);
 
 		switch (attributeType) {
 
@@ -350,19 +339,16 @@ class AttributeConfigValuesPanel extends ValuesPanel {
 				break;
 		}
 
-		initialse(true);
+		initialise();
 	}
 
-	AttributeConfigValuesPanel(
-		CoreAttributeConfig attribute,
-		ConfigOntology ontology,
-		boolean forEdit) {
+	AttributeConfigValuesPanel(ValueOptions valueOptions, CoreAttributeConfig attribute) {
 
-		super(ontology);
+		super(valueOptions);
 
 		new ValuesCreator(attribute);
 
-		initialse(forEdit);
+		initialise();
 	}
 
 	CoreAttributeConfig createConfig(EntityId rootSourceConceptId) {

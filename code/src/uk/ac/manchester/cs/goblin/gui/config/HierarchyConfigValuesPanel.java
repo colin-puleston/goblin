@@ -32,11 +32,10 @@ import uk.ac.manchester.cs.goblin.gui.util.*;
 /**
  * @author Colin Puleston
  */
-class CoreHierarchyConfigValuesPanel extends ValuesPanel {
+class HierarchyConfigValuesPanel extends ValuesPanel {
 
 	static private final long serialVersionUID = -1;
 
-	private HierarchyLabel label = new HierarchyLabel();
 	private RootConceptId rootConceptId = new RootConceptId();
 	private ExtensibilityOption extensibilityOption = new ExtensibilityOption();
 	private DynamicAttributesOption dynamicAttributesOption = new DynamicAttributesOption();
@@ -54,14 +53,6 @@ class CoreHierarchyConfigValuesPanel extends ValuesPanel {
 		boolean fixedStructure() {
 
 			return this == FIXED;
-		}
-	}
-
-	private class HierarchyLabel extends LabelValue {
-
-		void set(CoreHierarchyConfig hierarchy) {
-
-			set(hierarchy.getLabel());
 		}
 	}
 
@@ -89,6 +80,11 @@ class CoreHierarchyConfigValuesPanel extends ValuesPanel {
 
 			set(Extensibility.get(hierarchy.fixedStructure()));
 		}
+
+		Extensibility[] getValueOptions() {
+
+			return Extensibility.values();
+		}
 	}
 
 	private class DynamicAttributesOption extends EnumValue<ConstraintsOption> {
@@ -102,35 +98,35 @@ class CoreHierarchyConfigValuesPanel extends ValuesPanel {
 
 			set(hierarchy.getDynamicAttributeConstraintsOption());
 		}
+
+		ConstraintsOption[] getValueOptions() {
+
+			return ConstraintsOption.values();
+		}
 	}
 
-	CoreHierarchyConfigValuesPanel(ConfigOntology ontology) {
+	HierarchyConfigValuesPanel(ValueOptions valueOptions) {
 
-		super(ontology);
+		super(valueOptions);
 
-		initialse(true);
+		initialise();
 	}
 
-	CoreHierarchyConfigValuesPanel(
-		CoreHierarchyConfig hierarchy,
-		ConfigOntology ontology,
-		boolean forEdit) {
+	HierarchyConfigValuesPanel(ValueOptions valueOptions, CoreHierarchyConfig hierarchy) {
 
-		this(ontology);
+		this(valueOptions);
 
-		label.set(hierarchy);
 		rootConceptId.set(hierarchy);
 		extensibilityOption.set(hierarchy);
 		dynamicAttributesOption.set(hierarchy);
 
-		initialse(forEdit);
+		initialise();
 	}
 
 	CoreHierarchyConfig createConfig() {
 
 		CoreHierarchyConfig config = new CoreHierarchyConfig(rootConceptId.get());
 
-		config.setLabel(label.get());
 		config.setFixedStructure(extensibilityOption.get().fixedStructure());
 		config.setDynamicAttributeConstraints(dynamicAttributesOption.get());
 

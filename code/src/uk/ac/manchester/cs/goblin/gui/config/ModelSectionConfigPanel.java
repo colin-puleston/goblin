@@ -42,8 +42,47 @@ class ModelSectionConfigPanel extends MultiTabPanelWithEditControls<CoreHierarch
 
 	static private final String ATTRIBUTES_TITLE = "Hierarchy attributes";
 
+	private ValueOptions valueOptions;
 	private ModelSectionConfig section;
-	private ConfigOntology ontology;
+
+	private HierarchyEditor hierarchyEditor = new HierarchyEditor();
+
+	private class HierarchyEditor
+					extends
+						ValuesEditor
+							<CoreHierarchyConfig,
+							HierarchyConfigValuesPanel> {
+
+		HierarchyConfigValuesPanel checkCreateEmptyValues() {
+
+			return new HierarchyConfigValuesPanel(valueOptions);
+		}
+
+		HierarchyConfigValuesPanel createValues(CoreHierarchyConfig currentSource) {
+
+			return new HierarchyConfigValuesPanel(valueOptions, currentSource);
+		}
+
+		CoreHierarchyConfig createSource(HierarchyConfigValuesPanel values) {
+
+			return values.createConfig();
+		}
+
+		void addNewSource(CoreHierarchyConfig newSource) {
+
+			section.addHierarchy(newSource);
+		}
+
+		void replaceSource(CoreHierarchyConfig oldSource, CoreHierarchyConfig newSource) {
+
+			section.replaceHierarchy(oldSource, newSource);
+		}
+
+		String getSourceTypeName() {
+
+			return "hierarchy";
+		}
+	}
 
 	protected List<CoreHierarchyConfig> getSources() {
 
@@ -59,7 +98,7 @@ class ModelSectionConfigPanel extends MultiTabPanelWithEditControls<CoreHierarch
 
 		GSplitPane panel = new GSplitPane();
 
-		panel.setLeftComponent(createCoreHierarchyComponent(hierarchy));
+		panel.setLeftComponent(createHierarchyComponent(hierarchy));
 		panel.setRightComponent(createAttributesComponent(hierarchy));
 
 		return panel;
@@ -67,30 +106,10 @@ class ModelSectionConfigPanel extends MultiTabPanelWithEditControls<CoreHierarch
 
 	protected boolean checkNewSource() {
 
-		CoreHierarchyConfigValuesPanel values
-			= new CoreHierarchyConfigValuesPanel(ontology);
-
-		if (checkValueEdits(values) && values.allSet()) {
-
-			section.addHierarchy(values.createConfig());
-
-			return true;
-		}
-
-		return false;
+		return hierarchyEditor.checkNewSource();
 	}
 
-	protected boolean checkEditSource(CoreHierarchyConfig hierarchy) {
-
-		CoreHierarchyConfigValuesPanel values
-			= new CoreHierarchyConfigValuesPanel(hierarchy, ontology, true);
-
-		if (checkValueEdits(values)) {
-
-			section.replaceHierarchy(hierarchy, values.createConfig());
-
-			return true;
-		}
+	protected boolean checkRelabelSource(CoreHierarchyConfig hierarchy) {
 
 		return false;
 	}
@@ -100,12 +119,12 @@ class ModelSectionConfigPanel extends MultiTabPanelWithEditControls<CoreHierarch
 		return false;
 	}
 
-	ModelSectionConfigPanel(ModelSectionConfig section, ConfigOntology ontology) {
+	ModelSectionConfigPanel(ValueOptions valueOptions, ModelSectionConfig section) {
 
 		super(JTabbedPane.LEFT);
 
+		this.valueOptions = valueOptions;
 		this.section = section;
-		this.ontology = ontology;
 
 		populate();
 	}
@@ -115,30 +134,15 @@ class ModelSectionConfigPanel extends MultiTabPanelWithEditControls<CoreHierarch
 		return section.getLabel();
 	}
 
-	private JComponent createCoreHierarchyComponent(CoreHierarchyConfig hierarchy) {
+	private JComponent createHierarchyComponent(CoreHierarchyConfig hierarchy) {
 
-		return new CoreHierarchyConfigValuesPanel(hierarchy, ontology, false);
+		return hierarchyEditor.checkSourceEdits(hierarchy);
 	}
 
 	private JComponent createAttributesComponent(CoreHierarchyConfig hierarchy) {
 
 		return TitledPanels.create(
-					new AttributesGonfigPanel(hierarchy, ontology),
+					new AttributesGonfigPanel(valueOptions, hierarchy),
 					ATTRIBUTES_TITLE);
-	}
-
-	private CoreHierarchyConfig checkNewHierarchy(CoreHierarchyConfigValuesPanel values) {
-
-		if (checkValueEdits(values) && values.allSet()) {
-
-			return values.createConfig();
-		}
-
-		return null;
-	}
-
-	private boolean checkValueEdits(CoreHierarchyConfigValuesPanel values) {
-
-		return new ValuesEditDialog(values, "hierarchy").editedValues();
 	}
 }

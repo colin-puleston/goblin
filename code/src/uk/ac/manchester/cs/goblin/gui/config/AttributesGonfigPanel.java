@@ -38,8 +38,61 @@ class AttributesGonfigPanel extends MultiTabPanelWithEditControls<CoreAttributeC
 
 	static private final long serialVersionUID = -1;
 
+	private ValueOptions valueOptions;
 	private CoreHierarchyConfig hierarchy;
-	private ConfigOntology ontology;
+
+	private AttributeEditor attributeEditor = new AttributeEditor();
+
+	private class AttributeEditor
+					extends
+						ValuesEditor
+							<CoreAttributeConfig,
+							AttributeConfigValuesPanel> {
+
+		AttributeConfigValuesPanel checkCreateEmptyValues() {
+
+			AttributeType type = getAttributeTypeSelection();
+
+			return type != null ? new AttributeConfigValuesPanel(valueOptions, type): null;
+		}
+
+		AttributeConfigValuesPanel createValues(CoreAttributeConfig currentSource) {
+
+			return new AttributeConfigValuesPanel(valueOptions, currentSource);
+		}
+
+		CoreAttributeConfig createSource(AttributeConfigValuesPanel values) {
+
+			return values.createConfig(hierarchy.getRootConceptId());
+		}
+
+		void addNewSource(CoreAttributeConfig newSource) {
+
+			hierarchy.addCoreAttribute(newSource);
+		}
+
+		void replaceSource(CoreAttributeConfig oldSource, CoreAttributeConfig newSource) {
+
+			hierarchy.replaceCoreAttribute(oldSource, newSource);
+		}
+
+		String getSourceTypeName() {
+
+			return "attribute";
+		}
+
+		private AttributeType getAttributeTypeSelection() {
+
+			return createAttributeTypeSelector().getSelectionOrNull();
+		}
+
+		private EnumValueSelector<AttributeType> createAttributeTypeSelector() {
+
+			AttributeType[] options = AttributeType.values();
+
+			return new EnumValueSelector<AttributeType>(options, "attribute type");
+		}
+	}
 
 	protected List<CoreAttributeConfig> getSources() {
 
@@ -53,35 +106,15 @@ class AttributesGonfigPanel extends MultiTabPanelWithEditControls<CoreAttributeC
 
 	protected JComponent createComponent(CoreAttributeConfig attribute) {
 
-		return new AttributeConfigValuesPanel(attribute, ontology, false);
+		return attributeEditor.checkSourceEdits(attribute);
 	}
 
 	protected boolean checkNewSource() {
 
-		AttributeConfigValuesPanel values
-			= new AttributeConfigValuesPanel(ontology, AttributeType.SIMPLE);
-
-		if (checkValueEdits(values) && values.allSet()) {
-
-			hierarchy.addCoreAttribute(createAttribute(values));
-
-			return true;
-		}
-
-		return false;
+		return attributeEditor.checkNewSource();
 	}
 
-	protected boolean checkEditSource(CoreAttributeConfig attribute) {
-
-		AttributeConfigValuesPanel values
-			= new AttributeConfigValuesPanel(attribute, ontology, true);
-
-		if (checkValueEdits(values)) {
-
-			hierarchy.replaceCoreAttribute(attribute, createAttribute(values));
-
-			return true;
-		}
+	protected boolean checkRelabelSource(CoreAttributeConfig hierarchy) {
 
 		return false;
 	}
@@ -91,23 +124,13 @@ class AttributesGonfigPanel extends MultiTabPanelWithEditControls<CoreAttributeC
 		return false;
 	}
 
-	AttributesGonfigPanel(CoreHierarchyConfig hierarchy, ConfigOntology ontology) {
+	AttributesGonfigPanel(ValueOptions valueOptions, CoreHierarchyConfig hierarchy) {
 
 		super(JTabbedPane.LEFT);
 
+		this.valueOptions = valueOptions;
 		this.hierarchy = hierarchy;
-		this.ontology = ontology;
 
 		populate();
-	}
-
-	private boolean checkValueEdits(AttributeConfigValuesPanel values) {
-
-		return new ValuesEditDialog(values, "attribute").editedValues();
-	}
-
-	private CoreAttributeConfig createAttribute(AttributeConfigValuesPanel values) {
-
-		return values.createConfig(hierarchy.getRootConceptId());
 	}
 }

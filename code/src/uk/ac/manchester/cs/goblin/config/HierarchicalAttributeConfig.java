@@ -7,22 +7,31 @@ import uk.ac.manchester.cs.goblin.model.*;
  */
 public class HierarchicalAttributeConfig extends CoreAttributeConfig {
 
+	private static final String DEFAULT_LABEL_PREFIX = "type-of ";
+
+	static private String createDefaultLabel(EntityId rootTargetConceptId) {
+
+		return DEFAULT_LABEL_PREFIX + rootTargetConceptId.getLabel();
+	}
+
 	private HierarchicalLinksOption linksOption;
 
 	public HierarchicalAttributeConfig(
-				String label,
 				EntityId rootSourceConceptId,
 				EntityId rootTargetConceptId,
 				HierarchicalLinksOption linksOption) {
 
-		super(label, rootSourceConceptId, rootTargetConceptId);
+		super(
+			createDefaultLabel(rootTargetConceptId),
+			rootSourceConceptId,
+			rootTargetConceptId);
 
 		this.linksOption = linksOption;
 
 		if (rootSourceConceptId.equals(rootTargetConceptId)) {
 
 			throw new RuntimeException(
-						"Cannot create hierarchical attribute \"" + label + "\""
+						"Cannot create hierarchical attribute \"" + getLabel() + "\""
 						+ " with identical source and target hierarchies");
 		}
 	}

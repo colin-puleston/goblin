@@ -13,7 +13,6 @@ public class AnchoredAttributeConfig extends PropertyAttributeConfig {
 	private EntityId targetPropertyId;
 
 	public AnchoredAttributeConfig(
-				String label,
 				EntityId anchorConceptId,
 				EntityId sourcePropertyId,
 				EntityId targetPropertyId,
@@ -21,7 +20,11 @@ public class AnchoredAttributeConfig extends PropertyAttributeConfig {
 				EntityId rootTargetConceptId,
 				ConstraintsOption constraintsOption) {
 
-		super(label, rootSourceConceptId, rootTargetConceptId, constraintsOption);
+		super(
+			targetPropertyId.getLabel(),
+			rootSourceConceptId,
+			rootTargetConceptId,
+			constraintsOption);
 
 		this.anchorConceptId = anchorConceptId;
 		this.sourcePropertyId = sourcePropertyId;

@@ -7,9 +7,8 @@ import uk.ac.manchester.cs.goblin.model.*;
 /**
  * @author Colin Puleston
  */
-public class CoreHierarchyConfig {
+public class CoreHierarchyConfig extends LabelledConfigEntity {
 
-	private String label;
 	private EntityId rootConceptId;
 
 	private boolean fixedStructure = false;
@@ -19,14 +18,9 @@ public class CoreHierarchyConfig {
 
 	public CoreHierarchyConfig(EntityId rootConceptId) {
 
+		super(rootConceptId.getLabel());
+
 		this.rootConceptId = rootConceptId;
-
-		label = rootConceptId.getLabel();
-	}
-
-	public void setLabel(String label) {
-
-		this.label = label;
 	}
 
 	public void setFixedStructure(boolean fixedStructure) {
@@ -59,11 +53,6 @@ public class CoreHierarchyConfig {
 		coreAttributes.add(index, newAttribute);
 	}
 
-	public String getLabel() {
-
-		return label;
-	}
-
 	public EntityId getRootConceptId() {
 
 		return rootConceptId;
@@ -91,7 +80,7 @@ public class CoreHierarchyConfig {
 
 	CoreHierarchy createHierarchy(Model model) {
 
-		CoreHierarchy hierarchy = new CoreHierarchy(model, rootConceptId, label);
+		CoreHierarchy hierarchy = new CoreHierarchy(model, rootConceptId, getLabel());
 
 		hierarchy.setFixedStructure(fixedStructure);
 		hierarchy.setDynamicAttributeConstraints(dynamicAttributeConstraintsOption);
