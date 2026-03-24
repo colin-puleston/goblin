@@ -108,7 +108,7 @@ class AttributeConfigValuesPanel extends ValuesPanel {
 				set(attribute.getConstraintsOption());
 			}
 
-			ConstraintsOption[] getValueOptions() {
+			ConstraintsOption[] getEditManager() {
 
 				return ConstraintsOption.values();
 			}
@@ -263,7 +263,7 @@ class AttributeConfigValuesPanel extends ValuesPanel {
 				set(attribute.getLinksOption());
 			}
 
-			HierarchicalLinksOption[] getValueOptions() {
+			HierarchicalLinksOption[] getEditManager() {
 
 				return HierarchicalLinksOption.values();
 			}
@@ -320,9 +320,9 @@ class AttributeConfigValuesPanel extends ValuesPanel {
 		}
 	}
 
-	AttributeConfigValuesPanel(ValueOptions valueOptions, AttributeType attributeType) {
+	AttributeConfigValuesPanel(EditManager editManager, AttributeType attributeType) {
 
-		super(valueOptions);
+		super(editManager);
 
 		switch (attributeType) {
 
@@ -342,9 +342,9 @@ class AttributeConfigValuesPanel extends ValuesPanel {
 		initialise();
 	}
 
-	AttributeConfigValuesPanel(ValueOptions valueOptions, CoreAttributeConfig attribute) {
+	AttributeConfigValuesPanel(EditManager editManager, CoreAttributeConfig attribute) {
 
-		super(valueOptions);
+		super(editManager);
 
 		new ValuesCreator(attribute);
 

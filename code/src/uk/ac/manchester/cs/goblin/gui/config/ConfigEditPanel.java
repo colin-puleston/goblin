@@ -22,7 +22,7 @@
  * THE SOFTWARE.
  */
 
-package uk.ac.manchester.cs.goblin.gui.util;
+package uk.ac.manchester.cs.goblin.gui.config;
 
 import java.awt.*;
 import javax.swing.*;
@@ -30,10 +30,12 @@ import javax.swing.event.*;
 
 import uk.ac.manchester.cs.mekon_util.gui.*;
 
+import uk.ac.manchester.cs.goblin.gui.util.*;
+
 /**
  * @author Colin Puleston
  */
-public abstract class MultiTabPanelWithEditControls<S> extends MultiTabPanel<S> {
+abstract class ConfigEditPanel<S> extends MultiTabPanel<S> {
 
 	static private final long serialVersionUID = -1;
 
@@ -43,6 +45,7 @@ public abstract class MultiTabPanelWithEditControls<S> extends MultiTabPanel<S> 
 
 	static private final Color CONTROL_LABEL_COLOUR = Color.RED.darker();
 
+	private EditManager editManager;
 	private boolean additionHandlingEnabled = true;
 
 	private class AdditionHandler implements ChangeListener {
@@ -51,7 +54,7 @@ public abstract class MultiTabPanelWithEditControls<S> extends MultiTabPanel<S> 
 
 			if (additionHandlingEnabled && getSelectedIndex() == additionTabIndex()) {
 
-				if (checkNewSource()) {
+				if (checkRegisterEdit(checkNewSource())) {
 
 					repopulate();
 
@@ -107,7 +110,7 @@ public abstract class MultiTabPanelWithEditControls<S> extends MultiTabPanel<S> 
 
 		boolean performSourceAction(S source) {
 
-			return checkRelabelSource(source);
+			return checkRegisterEdit(checkRelabelSource(source));
 		}
 	}
 
@@ -122,7 +125,7 @@ public abstract class MultiTabPanelWithEditControls<S> extends MultiTabPanel<S> 
 
 		boolean performSourceAction(S source) {
 
-			return checkDeleteSource(source);
+			return checkRegisterEdit(checkDeleteSource(source));
 		}
 	}
 
@@ -146,18 +149,7 @@ public abstract class MultiTabPanelWithEditControls<S> extends MultiTabPanel<S> 
 		additionHandlingEnabled = true;
 	}
 
-	protected MultiTabPanelWithEditControls(int tabPlacement) {
-
-		super(tabPlacement);
-	}
-
-	protected abstract boolean checkNewSource();
-
-	protected abstract boolean checkRelabelSource(S source);
-
-	protected abstract boolean checkDeleteSource(S source);
-
-	JComponent checkWrapComponent(S source, JComponent comp) {
+	protected JComponent checkWrapComponent(S source, JComponent comp) {
 
 		JPanel panel = new JPanel(new BorderLayout());
 
@@ -166,6 +158,19 @@ public abstract class MultiTabPanelWithEditControls<S> extends MultiTabPanel<S> 
 
 		return super.checkWrapComponent(source, panel);
 	}
+
+	ConfigEditPanel(EditManager editManager, int tabPlacement) {
+
+		super(tabPlacement);
+
+		this.editManager = editManager;
+	}
+
+	abstract boolean checkNewSource();
+
+	abstract boolean checkRelabelSource(S source);
+
+	abstract boolean checkDeleteSource(S source);
 
 	private JComponent createControlsComponent(S source) {
 
@@ -208,5 +213,15 @@ public abstract class MultiTabPanelWithEditControls<S> extends MultiTabPanel<S> 
 	private int additionTabIndex() {
 
 		return getTabCount() - 1;
+	}
+
+	private boolean checkRegisterEdit(boolean wasEdit) {
+
+		if (wasEdit) {
+
+			editManager.registerEdit();
+		}
+
+		return wasEdit;
 	}
 }

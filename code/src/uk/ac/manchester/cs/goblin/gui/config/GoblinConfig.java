@@ -55,32 +55,48 @@ public class GoblinConfig extends GoblinApp {
 	}
 
 	private ConfigSerialiser serialiser;
-	private boolean unsavedEdits = false;
+
+	private EditManager editManager;
+	private ModelConfigPanel modelConfigPanel;
+
+	private class EditRelayManager extends EditManager {
+
+		EditRelayManager() {
+
+			super(serialiser.getModelConfig(), serialiser.getConfigOntology());
+		}
+
+		void onEdit() {
+
+			GoblinConfig.this.onEdit();
+		}
+	}
 
 	public GoblinConfig() {
 
 		super(TITLE, FRAME_WIDTH, FRAME_HEIGHT, createInfoDisplay());
 
 		serialiser = loadConfigFileOrExit();
+		editManager = new EditRelayManager();
 
 		display();
 	}
 
 	protected JComponent getMainApplicationComponent() {
 
-		return new ModelConfigPanel(
-						serialiser.getConfigOntology(),
-						serialiser.getModelConfig());
+		return new ModelConfigPanel(editManager);
 	}
 
 	protected boolean unsavedEdits() {
 
-		return unsavedEdits;
+		return editManager.unsavedEdits();
 	}
 
 	protected void save() {
 
 		serialiser.save();
+
+		editManager.resetEdits();
 	}
 
 	protected File getEditFile() {

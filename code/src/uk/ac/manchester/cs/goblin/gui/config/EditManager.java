@@ -33,15 +33,22 @@ import uk.ac.manchester.cs.goblin.io.config.*;
 /**
  * @author Colin Puleston
  */
-class ValueOptions {
+abstract class EditManager {
 
-	private ConfigOntology ontology;
 	private ModelConfig modelConfig;
+	private ConfigOntology ontology;
 
-	ValueOptions(ConfigOntology ontology, ModelConfig modelConfig) {
+	private boolean unsavedEdits = false;
 
-		this.ontology = ontology;
+	EditManager(ModelConfig modelConfig, ConfigOntology ontology) {
+
 		this.modelConfig = modelConfig;
+		this.ontology = ontology;
+	}
+
+	ModelConfig getModelConfig() {
+
+		return modelConfig;
 	}
 
 	ConfigOntology getOntology() {
@@ -64,6 +71,25 @@ class ValueOptions {
 			}
 		}
 
-		throw new Error("Cannt find hierarchy for: " + rootConceptId);
+		throw new Error("Cannot find hierarchy for: " + rootConceptId);
 	}
+
+	void registerEdit() {
+
+		unsavedEdits = true;
+
+		onEdit();
+	}
+
+	void resetEdits() {
+
+		unsavedEdits = false;
+	}
+
+	boolean unsavedEdits() {
+
+		return unsavedEdits;
+	}
+
+	abstract void onEdit();
 }

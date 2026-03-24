@@ -36,16 +36,16 @@ import uk.ac.manchester.cs.goblin.gui.util.*;
 /**
  * @author Colin Puleston
  */
-class ModelSectionConfigPanel extends MultiTabPanelWithEditControls<CoreHierarchyConfig> {
+class ModelSectionConfigPanel extends ConfigEditPanel<CoreHierarchyConfig> {
 
 	static private final long serialVersionUID = -1;
 
 	static private final String ATTRIBUTES_TITLE = "Hierarchy attributes";
 
-	private ValueOptions valueOptions;
+	private EditManager editManager;
 	private ModelSectionConfig section;
 
-	private HierarchyEditor hierarchyEditor = new HierarchyEditor();
+	private HierarchyEditor hierarchyEditor;
 
 	private class HierarchyEditor
 					extends
@@ -53,14 +53,19 @@ class ModelSectionConfigPanel extends MultiTabPanelWithEditControls<CoreHierarch
 							<CoreHierarchyConfig,
 							HierarchyConfigValuesPanel> {
 
+		HierarchyEditor() {
+
+			super(editManager);
+		}
+
 		HierarchyConfigValuesPanel checkCreateEmptyValues() {
 
-			return new HierarchyConfigValuesPanel(valueOptions);
+			return new HierarchyConfigValuesPanel(editManager);
 		}
 
 		HierarchyConfigValuesPanel createValues(CoreHierarchyConfig currentSource) {
 
-			return new HierarchyConfigValuesPanel(valueOptions, currentSource);
+			return new HierarchyConfigValuesPanel(editManager, currentSource);
 		}
 
 		CoreHierarchyConfig createSource(HierarchyConfigValuesPanel values) {
@@ -119,12 +124,14 @@ class ModelSectionConfigPanel extends MultiTabPanelWithEditControls<CoreHierarch
 		return false;
 	}
 
-	ModelSectionConfigPanel(ValueOptions valueOptions, ModelSectionConfig section) {
+	ModelSectionConfigPanel(EditManager editManager, ModelSectionConfig section) {
 
-		super(JTabbedPane.LEFT);
+		super(editManager, JTabbedPane.LEFT);
 
-		this.valueOptions = valueOptions;
+		this.editManager = editManager;
 		this.section = section;
+
+		hierarchyEditor = new HierarchyEditor();
 
 		populate();
 	}
@@ -142,7 +149,7 @@ class ModelSectionConfigPanel extends MultiTabPanelWithEditControls<CoreHierarch
 	private JComponent createAttributesComponent(CoreHierarchyConfig hierarchy) {
 
 		return TitledPanels.create(
-					new AttributesGonfigPanel(valueOptions, hierarchy),
+					new AttributesConfigPanel(editManager, hierarchy),
 					ATTRIBUTES_TITLE);
 	}
 }

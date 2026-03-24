@@ -45,16 +45,15 @@ class ModelConfigPanel extends JPanel {
 	static private final String SECTIONS_TITLE = "Model sections";
 	static private final String HIERARCHIES_TITLE = "Core hierarchies";
 
-	private ModelConfig modelConfig;
-	private ValueOptions valueOptions;
+	private EditManager editManager;
 
-	private class MultiSectionPanel extends MultiTabPanelWithEditControls<ModelSectionConfig> {
+	private class MultiSectionPanel extends ConfigEditPanel<ModelSectionConfig> {
 
 		static private final long serialVersionUID = -1;
 
 		protected List<ModelSectionConfig> getSources() {
 
-			return modelConfig.getSections();
+			return getSections();
 		}
 
 		protected String getTitle(ModelSectionConfig section) {
@@ -84,7 +83,7 @@ class ModelConfigPanel extends JPanel {
 
 		MultiSectionPanel() {
 
-			super(JTabbedPane.LEFT);
+			super(editManager, JTabbedPane.LEFT);
 
 			setFont(GFonts.toLarge(getFont()));
 
@@ -92,20 +91,18 @@ class ModelConfigPanel extends JPanel {
 		}
 	}
 
-	ModelConfigPanel(ConfigOntology ontology, ModelConfig modelConfig) {
+	ModelConfigPanel(EditManager editManager) {
 
 		super(new BorderLayout());
 
-		this.modelConfig = modelConfig;
-
-		valueOptions = new ValueOptions(ontology, modelConfig);
+		this.editManager = editManager;
 
 		add(createMainPanel(), BorderLayout.CENTER);
 	}
 
 	private JComponent createMainPanel() {
 
-		List<ModelSectionConfig> sections = modelConfig.getSections();
+		List<ModelSectionConfig> sections = getSections();
 
 		return sections.size() == 1
 				? createSectionComponent(sections.get(0))
@@ -120,7 +117,12 @@ class ModelConfigPanel extends JPanel {
 	private JComponent createSectionComponent(ModelSectionConfig section) {
 
 		return TitledPanels.create(
-					new ModelSectionConfigPanel(valueOptions, section),
+					new ModelSectionConfigPanel(editManager, section),
 					HIERARCHIES_TITLE);
+	}
+
+	private List<ModelSectionConfig> getSections() {
+
+		return editManager.getModelConfig().getSections();
 	}
 }

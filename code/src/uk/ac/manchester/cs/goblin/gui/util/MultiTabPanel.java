@@ -150,17 +150,17 @@ public abstract class MultiTabPanel<S> extends JTabbedPane {
 
 	protected abstract JComponent createComponent(S source);
 
+	protected JComponent checkWrapComponent(S source, JComponent comp) {
+
+		return comp;
+	}
+
 	protected void onRemoved(S source) {
 	}
 
 	protected boolean requiresItalicizedLabel(S source) {
 
 		return false;
-	}
-
-	JComponent checkWrapComponent(S source, JComponent comp) {
-
-		return comp;
 	}
 
 	private void addSourceTab(S source, int index) {

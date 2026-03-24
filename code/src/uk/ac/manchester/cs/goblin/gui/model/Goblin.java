@@ -111,8 +111,6 @@ public class Goblin extends GoblinApp {
 
 	protected boolean unsavedEdits() {
 
-		System.out.println("UNSAVED:EDITS: " + editCount);
-		System.out.println("UNSAVED:UNDOS: " + undoCount);
 		return editCount != undoCount;
 	}
 

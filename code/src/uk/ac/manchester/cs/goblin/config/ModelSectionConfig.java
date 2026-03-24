@@ -26,12 +26,6 @@ public class ModelSectionConfig extends LabelledConfigEntity {
 					CoreHierarchyConfig newHierarchy) {
 
 		int index = hierarchies.indexOf(oldHierarchy);
-		System.out.println("\nOLD: " + oldHierarchy.getLabel() + ":" + oldHierarchy.hashCode());
-		System.out.println("NEW: " + newHierarchy.getLabel() + ":" + newHierarchy.hashCode());
-		for (CoreHierarchyConfig hierarchy : hierarchies) {
-
-			System.out.println("PRESENT: " + hierarchy.getLabel() + ":" + hierarchy.hashCode());
-		}
 
 		if (index == -1) {
 

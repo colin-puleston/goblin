@@ -81,7 +81,7 @@ class HierarchyConfigValuesPanel extends ValuesPanel {
 			set(Extensibility.get(hierarchy.fixedStructure()));
 		}
 
-		Extensibility[] getValueOptions() {
+		Extensibility[] getEditManager() {
 
 			return Extensibility.values();
 		}
@@ -99,22 +99,22 @@ class HierarchyConfigValuesPanel extends ValuesPanel {
 			set(hierarchy.getDynamicAttributeConstraintsOption());
 		}
 
-		ConstraintsOption[] getValueOptions() {
+		ConstraintsOption[] getEditManager() {
 
 			return ConstraintsOption.values();
 		}
 	}
 
-	HierarchyConfigValuesPanel(ValueOptions valueOptions) {
+	HierarchyConfigValuesPanel(EditManager editManager) {
 
-		super(valueOptions);
+		super(editManager);
 
 		initialise();
 	}
 
-	HierarchyConfigValuesPanel(ValueOptions valueOptions, CoreHierarchyConfig hierarchy) {
+	HierarchyConfigValuesPanel(EditManager editManager, CoreHierarchyConfig hierarchy) {
 
-		this(valueOptions);
+		this(editManager);
 
 		rootConceptId.set(hierarchy);
 		extensibilityOption.set(hierarchy);

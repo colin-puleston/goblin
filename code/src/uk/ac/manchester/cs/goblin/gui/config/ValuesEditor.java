@@ -31,6 +31,8 @@ import uk.ac.manchester.cs.goblin.config.*;
  */
 abstract class ValuesEditor<S extends LabelledConfigEntity, V extends ValuesPanel> {
 
+	private EditManager editManager;
+
 	private class EditListener extends ValuesPanelListener {
 
 		private V values;
@@ -44,18 +46,6 @@ abstract class ValuesEditor<S extends LabelledConfigEntity, V extends ValuesPane
 			values.addListener(this);
 		}
 
-		boolean updateSource(S oldSource, S newSource) {
-
-			if (currentSource.equals(oldSource)) {
-
-				currentSource = newSource;
-
-				return true;
-			}
-
-			return false;
-		}
-
 		void onValueEdit() {
 
 			S newSource = createSource(values);
@@ -64,7 +54,14 @@ abstract class ValuesEditor<S extends LabelledConfigEntity, V extends ValuesPane
 			replaceSource(currentSource, newSource);
 
 			currentSource = newSource;
+
+			editManager.registerEdit();
 		}
+	}
+
+	ValuesEditor(EditManager editManager) {
+
+		this.editManager = editManager;
 	}
 
 	boolean checkNewSource() {
@@ -74,6 +71,8 @@ abstract class ValuesEditor<S extends LabelledConfigEntity, V extends ValuesPane
 		if (values != null && checkNewValueSelection(values) && values.allValuesSet()) {
 
 			addNewSource(createSource(values));
+
+			editManager.registerEdit();
 
 			return true;
 		}

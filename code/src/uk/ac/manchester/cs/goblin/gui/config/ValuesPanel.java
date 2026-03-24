@@ -52,7 +52,7 @@ class ValuesPanel extends JPanel {
 	static private final Color EDIT_BACKGROUND_CLR = Color.WHITE;
 	static private final Color INFO_BACKGROUND_CLR = Color.LIGHT_GRAY;
 
-	private ValueOptions valueOptions;
+	private EditManager editManager;
 
 	private List<Value<?>> values = new ArrayList<Value<?>>();
 	private List<ValuesPanelListener> listeners = new ArrayList<ValuesPanelListener>();
@@ -176,11 +176,11 @@ class ValuesPanel extends JPanel {
 			return createSelector().getSelectionOrNull();
 		}
 
-		abstract E[] getValueOptions();
+		abstract E[] getEditManager();
 
 		private EnumValueSelector<E> createSelector() {
 
-			return new EnumValueSelector<E>(getValueOptions(), getTitle().toLowerCase());
+			return new EnumValueSelector<E>(getEditManager(), getTitle().toLowerCase());
 		}
 	}
 
@@ -188,7 +188,7 @@ class ValuesPanel extends JPanel {
 
 		void set(EntityId rootConceptId) {
 
-			set(valueOptions.findHierarchy(rootConceptId));
+			set(editManager.findHierarchy(rootConceptId));
 		}
 
 		Color getTextColour() {
@@ -208,7 +208,7 @@ class ValuesPanel extends JPanel {
 
 		private HierarchySelector createSelector() {
 
-			return new HierarchySelector(valueOptions.getHierarchies());
+			return new HierarchySelector(editManager.getHierarchies());
 		}
 	}
 
@@ -216,7 +216,7 @@ class ValuesPanel extends JPanel {
 
 		EntityId checkInput() {
 
-			ConfigOntology ontology = valueOptions.getOntology();
+			ConfigOntology ontology = editManager.getOntology();
 
 			return createSelectorDialog(ontology).getSelectionIdOrNull();
 		}
@@ -273,11 +273,11 @@ class ValuesPanel extends JPanel {
 		}
 	}
 
-	ValuesPanel(ValueOptions valueOptions) {
+	ValuesPanel(EditManager editManager) {
 
 		super(new BorderLayout());
 
-		this.valueOptions = valueOptions;
+		this.editManager = editManager;
 
 		setBorderGap(GAP_SIZE);
 	}

@@ -34,14 +34,14 @@ import uk.ac.manchester.cs.goblin.gui.util.*;
 /**
  * @author Colin Puleston
  */
-class AttributesGonfigPanel extends MultiTabPanelWithEditControls<CoreAttributeConfig> {
+class AttributesConfigPanel extends ConfigEditPanel<CoreAttributeConfig> {
 
 	static private final long serialVersionUID = -1;
 
-	private ValueOptions valueOptions;
+	private EditManager editManager;
 	private CoreHierarchyConfig hierarchy;
 
-	private AttributeEditor attributeEditor = new AttributeEditor();
+	private AttributeEditor attributeEditor;
 
 	private class AttributeEditor
 					extends
@@ -49,16 +49,21 @@ class AttributesGonfigPanel extends MultiTabPanelWithEditControls<CoreAttributeC
 							<CoreAttributeConfig,
 							AttributeConfigValuesPanel> {
 
+		AttributeEditor() {
+
+			super(editManager);
+		}
+
 		AttributeConfigValuesPanel checkCreateEmptyValues() {
 
 			AttributeType type = getAttributeTypeSelection();
 
-			return type != null ? new AttributeConfigValuesPanel(valueOptions, type): null;
+			return type != null ? new AttributeConfigValuesPanel(editManager, type): null;
 		}
 
 		AttributeConfigValuesPanel createValues(CoreAttributeConfig currentSource) {
 
-			return new AttributeConfigValuesPanel(valueOptions, currentSource);
+			return new AttributeConfigValuesPanel(editManager, currentSource);
 		}
 
 		CoreAttributeConfig createSource(AttributeConfigValuesPanel values) {
@@ -124,12 +129,14 @@ class AttributesGonfigPanel extends MultiTabPanelWithEditControls<CoreAttributeC
 		return false;
 	}
 
-	AttributesGonfigPanel(ValueOptions valueOptions, CoreHierarchyConfig hierarchy) {
+	AttributesConfigPanel(EditManager editManager, CoreHierarchyConfig hierarchy) {
 
-		super(JTabbedPane.LEFT);
+		super(editManager, JTabbedPane.LEFT);
 
-		this.valueOptions = valueOptions;
+		this.editManager = editManager;
 		this.hierarchy = hierarchy;
+
+		attributeEditor = new AttributeEditor();
 
 		populate();
 	}
