@@ -20,7 +20,7 @@
 			</AnchoredAttribute>
 			<SimpleAttribute
 				label="activity venue"
-				linkingProperty="http://goblin/demo-core.owl#performedInLocation"
+				linkingProperty="http://goblin/demo-core.owl#performedInVenue"
 				rootTargetConcept="http://goblin/demo-core.owl#VenueByType"
 				constraints="VALID_AND_SINGLE_IMPLIED_VALUES">
 			</SimpleAttribute>
