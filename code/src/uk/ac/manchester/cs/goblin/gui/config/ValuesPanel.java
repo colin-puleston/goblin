@@ -206,9 +206,14 @@ class ValuesPanel extends JPanel {
 			return value.getLabel();
 		}
 
+		List<CoreHierarchyConfig> getOptions() {
+
+			return editManager.getHierarchies();
+		}
+
 		private HierarchySelector createSelector() {
 
-			return new HierarchySelector(editManager.getHierarchies());
+			return new HierarchySelector(getOptions());
 		}
 	}
 

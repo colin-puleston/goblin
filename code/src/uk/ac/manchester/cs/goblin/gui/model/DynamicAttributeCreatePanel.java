@@ -128,7 +128,7 @@ class DynamicAttributeCreatePanel extends JPanel {
 
 		private EntityId checkObtainAttributeId() {
 
-			return new AttributeIdSelector(this, null).getSelection();
+			return new AttributeIdSelector(this, null).getSelectionOrNull();
 		}
 
 		private void showAttributeAlreadyExistsMessage(Concept source) {

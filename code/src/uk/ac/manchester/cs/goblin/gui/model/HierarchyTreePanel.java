@@ -511,7 +511,7 @@ class HierarchyTreePanel extends JPanel {
 
 	private EntityId checkObtainConceptId(EntityId currentId) {
 
-		return new ConceptIdSelector(this, currentId).getSelection();
+		return new ConceptIdSelector(this, currentId).getSelectionOrNull();
 	}
 
 	private void showConceptAlreadyExistsMessage(EntityId id) {

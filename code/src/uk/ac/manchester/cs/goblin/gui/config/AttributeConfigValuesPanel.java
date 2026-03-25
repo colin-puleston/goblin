@@ -24,6 +24,8 @@
 
 package uk.ac.manchester.cs.goblin.gui.config;
 
+import java.util.*;
+
 import uk.ac.manchester.cs.goblin.model.*;
 import uk.ac.manchester.cs.goblin.config.*;
 import uk.ac.manchester.cs.goblin.io.config.*;
@@ -36,6 +38,7 @@ class AttributeConfigValuesPanel extends ValuesPanel {
 
 	static private final long serialVersionUID = -1;
 
+	private EditManager editManager;
 	private Values values;
 
 	private abstract class Values {
@@ -66,6 +69,15 @@ class AttributeConfigValuesPanel extends ValuesPanel {
 
 				set(attribute.getRootTargetConceptId());
 			}
+
+			List<CoreHierarchyConfig> getOptions() {
+
+				List<CoreHierarchyConfig> options = super.getOptions();
+
+				checkDoctorTargetHierarchyOptions(options);
+
+				return options;
+			}
 		}
 
 		Values() {
@@ -80,6 +92,9 @@ class AttributeConfigValuesPanel extends ValuesPanel {
 		void setAll(CoreAttributeConfig attribute) {
 
 			targetHierarchy.set(attribute);
+		}
+
+		void checkDoctorTargetHierarchyOptions(List<CoreHierarchyConfig> options) {
 		}
 
 		CoreAttributeConfig createConfig(EntityId rootSourceConceptId) {
@@ -249,6 +264,7 @@ class AttributeConfigValuesPanel extends ValuesPanel {
 
 	private class HierarchicalAttributeValues extends Values {
 
+		private CoreHierarchyConfig sourceHierarchy;
 		private LinksOption linksOption;
 
 		private class LinksOption extends EnumValue<HierarchicalLinksOption> {
@@ -269,7 +285,9 @@ class AttributeConfigValuesPanel extends ValuesPanel {
 			}
 		}
 
-		HierarchicalAttributeValues() {
+		HierarchicalAttributeValues(EntityId rootSourceConceptId) {
+
+			sourceHierarchy = editManager.findHierarchy(rootSourceConceptId);
 
 			linksOption = new LinksOption();
 		}
@@ -279,6 +297,11 @@ class AttributeConfigValuesPanel extends ValuesPanel {
 			super.setAll(attribute);
 
 			linksOption.set(attribute);
+		}
+
+		void checkDoctorTargetHierarchyOptions(List<CoreHierarchyConfig> options) {
+
+			options.remove(sourceHierarchy);
 		}
 
 		CoreAttributeConfig createConfig(
@@ -311,7 +334,9 @@ class AttributeConfigValuesPanel extends ValuesPanel {
 
 		public void visit(HierarchicalAttributeConfig attribute) {
 
-			new HierarchicalAttributeValues().setAll(attribute);
+			EntityId rootSourceConceptId = attribute.getRootSourceConceptId();
+
+			new HierarchicalAttributeValues(rootSourceConceptId).setAll(attribute);
 		}
 
 		ValuesCreator(CoreAttributeConfig attribute) {
@@ -320,9 +345,12 @@ class AttributeConfigValuesPanel extends ValuesPanel {
 		}
 	}
 
-	AttributeConfigValuesPanel(EditManager editManager, AttributeType attributeType) {
+	AttributeConfigValuesPanel(
+		EditManager editManager,
+		EntityId rootSourceConceptId,
+		AttributeType attributeType) {
 
-		super(editManager);
+		this(editManager);
 
 		switch (attributeType) {
 
@@ -335,7 +363,7 @@ class AttributeConfigValuesPanel extends ValuesPanel {
 				break;
 
 			case HIERARCHICAL:
-				new HierarchicalAttributeValues();
+				new HierarchicalAttributeValues(rootSourceConceptId);
 				break;
 		}
 
@@ -344,7 +372,7 @@ class AttributeConfigValuesPanel extends ValuesPanel {
 
 	AttributeConfigValuesPanel(EditManager editManager, CoreAttributeConfig attribute) {
 
-		super(editManager);
+		this(editManager);
 
 		new ValuesCreator(attribute);
 
@@ -354,5 +382,12 @@ class AttributeConfigValuesPanel extends ValuesPanel {
 	CoreAttributeConfig createConfig(EntityId rootSourceConceptId) {
 
 		return values.createConfig(rootSourceConceptId);
+	}
+
+	private AttributeConfigValuesPanel(EditManager editManager) {
+
+		super(editManager);
+
+		this.editManager = editManager;
 	}
 }

@@ -109,19 +109,19 @@ class ModelSectionConfigPanel extends ConfigEditPanel<CoreHierarchyConfig> {
 		return panel;
 	}
 
-	protected boolean checkNewSource() {
+	boolean checkNewSource() {
 
 		return hierarchyEditor.checkNewSource();
 	}
 
-	protected boolean checkRelabelSource(CoreHierarchyConfig hierarchy) {
+	void deleteSource(CoreHierarchyConfig hierarchy) {
 
-		return false;
+		section.removeHierarchy(hierarchy);
 	}
 
-	protected boolean checkDeleteSource(CoreHierarchyConfig hierarchy) {
+	String getSourceTypeName() {
 
-		return false;
+		return "hierarchy";
 	}
 
 	ModelSectionConfigPanel(EditManager editManager, ModelSectionConfig section) {

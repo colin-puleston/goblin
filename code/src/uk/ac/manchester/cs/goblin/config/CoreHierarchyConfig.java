@@ -38,6 +38,11 @@ public class CoreHierarchyConfig extends LabelledConfigEntity {
 		coreAttributes.add(attribute);
 	}
 
+	public void removeCoreAttribute(CoreAttributeConfig attribute) {
+
+		coreAttributes.remove(attribute);
+	}
+
 	public void replaceCoreAttribute(
 					CoreAttributeConfig oldAttribute,
 					CoreAttributeConfig newAttribute) {

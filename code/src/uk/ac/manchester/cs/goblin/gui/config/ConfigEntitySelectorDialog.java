@@ -92,9 +92,9 @@ abstract class ConfigEntitySelectorDialog extends TreeNodeSelectorDialog<ConfigE
 		selection = entity;
 	}
 
-	ConfigEntitySelectorDialog(JPanel parent, ConfigEntity rootNode, String entityTypeName) {
+	ConfigEntitySelectorDialog(JPanel parent, ConfigEntity rootNode, String entityType) {
 
-		super(parent, String.format(TITLE_FORMAT, entityTypeName));
+		super(parent, String.format(TITLE_FORMAT, entityType));
 
 		this.rootNode = rootNode;
 

@@ -40,7 +40,7 @@ abstract class DynamicIdSelector extends GDialog {
 
 	static private final long serialVersionUID = -1;
 
-	static private final String TITLE_FORMAT = "Enter %s Identity";
+	static private final String TITLE_FORMAT = "Enter %s identity";
 
 	static private final String NAME_FIELD_TITLE = "Name";
 	static private final String LABEL_FIELD_TITLE = "Label";
@@ -49,7 +49,7 @@ abstract class DynamicIdSelector extends GDialog {
 	static private final String CANCEL_BUTTON_LABEL = "Cancel";
 	static private final String AUTOSET_BUTTON_LABEL = "auto";
 
-	static private final Dimension WINDOW_SIZE = new Dimension(300, 150);
+	static private final Dimension WINDOW_SIZE = new Dimension(300, 220);
 
 	private EntityId currentId;
 	private EntityId selectedId = null;
@@ -339,13 +339,15 @@ abstract class DynamicIdSelector extends GDialog {
 
 		this.currentId = currentId;
 
+		setPreferredSize(WINDOW_SIZE);
+
 		okButton.setEnabled(false);
 		addWindowListener(new WindowCloseListener());
 
 		display(createDisplay());
 	}
 
-	EntityId getSelection() {
+	EntityId getSelectionOrNull() {
 
 		return selectedId;
 	}
@@ -366,7 +368,6 @@ abstract class DynamicIdSelector extends GDialog {
 		labelPanel.initialise();
 
 		panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-		panel.setPreferredSize(WINDOW_SIZE);
 		panel.add(namePanel);
 		panel.add(labelPanel);
 		panel.add(createButtonsPanel());

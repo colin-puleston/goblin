@@ -46,6 +46,7 @@ class ModelConfigPanel extends JPanel {
 	static private final String HIERARCHIES_TITLE = "Core hierarchies";
 
 	private EditManager editManager;
+	private ModelConfig modelConfig;
 
 	private class MultiSectionPanel extends ConfigEditPanel<ModelSectionConfig> {
 
@@ -53,7 +54,7 @@ class ModelConfigPanel extends JPanel {
 
 		protected List<ModelSectionConfig> getSources() {
 
-			return getSections();
+			return modelConfig.getSections();
 		}
 
 		protected String getTitle(ModelSectionConfig section) {
@@ -66,21 +67,6 @@ class ModelConfigPanel extends JPanel {
 			return createSectionComponent(section);
 		}
 
-		protected boolean checkNewSource() {
-
-			return false;
-		}
-
-		protected boolean checkRelabelSource(ModelSectionConfig hierarchy) {
-
-			return false;
-		}
-
-		protected boolean checkDeleteSource(ModelSectionConfig source) {
-
-			return false;
-		}
-
 		MultiSectionPanel() {
 
 			super(editManager, JTabbedPane.LEFT);
@@ -88,6 +74,30 @@ class ModelConfigPanel extends JPanel {
 			setFont(GFonts.toLarge(getFont()));
 
 			populate();
+		}
+
+		boolean checkNewSource() {
+
+			String label = checkInputSourceLabel();
+
+			if (label != null) {
+
+				modelConfig.addSection(label);
+
+				return true;
+			}
+
+			return false;
+		}
+
+		void deleteSource(ModelSectionConfig section) {
+
+			modelConfig.removeSection(section);
+		}
+
+		String getSourceTypeName() {
+
+			return "section";
 		}
 	}
 
@@ -97,12 +107,14 @@ class ModelConfigPanel extends JPanel {
 
 		this.editManager = editManager;
 
+		modelConfig = editManager.getModelConfig();
+
 		add(createMainPanel(), BorderLayout.CENTER);
 	}
 
 	private JComponent createMainPanel() {
 
-		List<ModelSectionConfig> sections = getSections();
+		List<ModelSectionConfig> sections = modelConfig.getSections();
 
 		return sections.size() == 1
 				? createSectionComponent(sections.get(0))
@@ -119,10 +131,5 @@ class ModelConfigPanel extends JPanel {
 		return TitledPanels.create(
 					new ModelSectionConfigPanel(editManager, section),
 					HIERARCHIES_TITLE);
-	}
-
-	private List<ModelSectionConfig> getSections() {
-
-		return editManager.getModelConfig().getSections();
 	}
 }

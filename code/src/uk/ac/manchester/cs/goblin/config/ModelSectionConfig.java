@@ -21,6 +21,11 @@ public class ModelSectionConfig extends LabelledConfigEntity {
 		hierarchies.add(hierarchy);
 	}
 
+	public void removeHierarchy(CoreHierarchyConfig hierarchy) {
+
+		hierarchies.remove(hierarchy);
+	}
+
 	public void replaceHierarchy(
 					CoreHierarchyConfig oldHierarchy,
 					CoreHierarchyConfig newHierarchy) {

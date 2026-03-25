@@ -27,6 +27,11 @@ public class ModelConfig {
 		return section;
 	}
 
+	public void removeSection(ModelSectionConfig section) {
+
+		sections.remove(section);
+	}
+
 	public List<ModelSectionConfig> getSections() {
 
 		return new ArrayList<ModelSectionConfig>(sections);

@@ -30,12 +30,13 @@ import javax.swing.event.*;
 
 import uk.ac.manchester.cs.mekon_util.gui.*;
 
+import uk.ac.manchester.cs.goblin.config.*;
 import uk.ac.manchester.cs.goblin.gui.util.*;
 
 /**
  * @author Colin Puleston
  */
-abstract class ConfigEditPanel<S> extends MultiTabPanel<S> {
+abstract class ConfigEditPanel<S extends LabelledConfigEntity> extends MultiTabPanel<S> {
 
 	static private final long serialVersionUID = -1;
 
@@ -52,7 +53,9 @@ abstract class ConfigEditPanel<S> extends MultiTabPanel<S> {
 
 		public void stateChanged(ChangeEvent e) {
 
-			if (additionHandlingEnabled && getSelectedIndex() == additionTabIndex()) {
+			int currentIndex = getSelectedIndex();
+
+			if (additionHandlingEnabled && currentIndex == additionTabIndex()) {
 
 				if (checkRegisterEdit(checkNewSource())) {
 
@@ -62,7 +65,7 @@ abstract class ConfigEditPanel<S> extends MultiTabPanel<S> {
 				}
 				else {
 
-					setSelectedIndex(0);
+					setCurrentSelection(currentIndex);
 				}
 			}
 		}
@@ -112,6 +115,21 @@ abstract class ConfigEditPanel<S> extends MultiTabPanel<S> {
 
 			return checkRegisterEdit(checkRelabelSource(source));
 		}
+
+		private boolean checkRelabelSource(S source) {
+
+			String label = checkInputSourceLabel();
+
+			if (label != null) {
+
+				source.resetLabel(label);
+				setTabComponentAt(getSelectedIndex(), createTabLabel(label));
+
+				return true;
+			}
+
+			return false;
+		}
 	}
 
 	private class SourceDeleteButton extends SourceActionButton {
@@ -125,7 +143,24 @@ abstract class ConfigEditPanel<S> extends MultiTabPanel<S> {
 
 		boolean performSourceAction(S source) {
 
-			return checkRegisterEdit(checkDeleteSource(source));
+			if (checkRegisterEdit(checkConfirmDeletion(source))) {
+
+				deleteSource(source);
+
+				return true;
+			}
+
+			return false;
+		}
+
+		private boolean checkConfirmDeletion(S source) {
+
+			return InfoDisplay.checkContinue("Deleting " + describeSource(source));
+		}
+
+		private String describeSource(S source) {
+
+			return getSourceTypeName() + " \"" + source.getLabel() + "\"";
 		}
 	}
 
@@ -134,6 +169,7 @@ abstract class ConfigEditPanel<S> extends MultiTabPanel<S> {
 		super.populate();
 
 		addAdditionTab();
+		setCurrentSelection(0);
 
 		new AdditionHandler();
 	}
@@ -168,9 +204,14 @@ abstract class ConfigEditPanel<S> extends MultiTabPanel<S> {
 
 	abstract boolean checkNewSource();
 
-	abstract boolean checkRelabelSource(S source);
+	abstract void deleteSource(S source);
 
-	abstract boolean checkDeleteSource(S source);
+	abstract String getSourceTypeName();
+
+	String checkInputSourceLabel() {
+
+		return new LabelSelector(this, getSourceTypeName()).getSelectionOrNull();
+	}
 
 	private JComponent createControlsComponent(S source) {
 
@@ -197,10 +238,18 @@ abstract class ConfigEditPanel<S> extends MultiTabPanel<S> {
 
 	private JLabel createAdditionTabLabel() {
 
-		JLabel label = new JLabel(ADD_TAB_LABEL);
+		JLabel label = createTabLabel(ADD_TAB_LABEL);
+
+		label.setForeground(CONTROL_LABEL_COLOUR);
+
+		return label;
+	}
+
+	private JLabel createTabLabel(String text) {
+
+		JLabel label = new JLabel(text);
 
 		label.setFont(GFonts.toMedium(label.getFont()));
-		label.setForeground(CONTROL_LABEL_COLOUR);
 
 		return label;
 	}
@@ -208,6 +257,11 @@ abstract class ConfigEditPanel<S> extends MultiTabPanel<S> {
 	private void removeAdditionTab() {
 
 		removeTabAt(additionTabIndex());
+	}
+
+	private void setCurrentSelection(int currentSourceIndex) {
+
+		setSelectedIndex(additionTabIndex() != 0 ? currentSourceIndex : -1);
 	}
 
 	private int additionTabIndex() {

@@ -27,6 +27,7 @@ package uk.ac.manchester.cs.goblin.gui.config;
 import java.util.*;
 import javax.swing.*;
 
+import uk.ac.manchester.cs.goblin.model.*;
 import uk.ac.manchester.cs.goblin.config.*;
 import uk.ac.manchester.cs.goblin.io.config.*;
 import uk.ac.manchester.cs.goblin.gui.util.*;
@@ -58,7 +59,14 @@ class AttributesConfigPanel extends ConfigEditPanel<CoreAttributeConfig> {
 
 			AttributeType type = getAttributeTypeSelection();
 
-			return type != null ? new AttributeConfigValuesPanel(editManager, type): null;
+			if (type == null) {
+
+				return null;
+			}
+
+			EntityId rootSourceConceptId = hierarchy.getRootConceptId();
+
+			return new AttributeConfigValuesPanel(editManager, rootSourceConceptId, type);
 		}
 
 		AttributeConfigValuesPanel createValues(CoreAttributeConfig currentSource) {
@@ -114,19 +122,19 @@ class AttributesConfigPanel extends ConfigEditPanel<CoreAttributeConfig> {
 		return attributeEditor.checkSourceEdits(attribute);
 	}
 
-	protected boolean checkNewSource() {
+	boolean checkNewSource() {
 
 		return attributeEditor.checkNewSource();
 	}
 
-	protected boolean checkRelabelSource(CoreAttributeConfig hierarchy) {
+	void deleteSource(CoreAttributeConfig attribute) {
 
-		return false;
+		hierarchy.removeCoreAttribute(attribute);
 	}
 
-	protected boolean checkDeleteSource(CoreAttributeConfig attribute) {
+	String getSourceTypeName() {
 
-		return false;
+		return "attribute";
 	}
 
 	AttributesConfigPanel(EditManager editManager, CoreHierarchyConfig hierarchy) {
