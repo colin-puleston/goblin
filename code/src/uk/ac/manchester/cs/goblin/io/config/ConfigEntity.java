@@ -10,6 +10,8 @@ import uk.ac.manchester.cs.goblin.model.*;
 public class ConfigEntity {
 
 	private EntityId id;
+
+	private List<ConfigEntity> parents = new ArrayList<ConfigEntity>();
 	private List<ConfigEntity> children = new ArrayList<ConfigEntity>();
 
 	public EntityId getId() {
@@ -20,6 +22,16 @@ public class ConfigEntity {
 		}
 
 		return id;
+	}
+
+	public boolean rootEntity() {
+
+		return parents.isEmpty();
+	}
+
+	public List<ConfigEntity> getParents() {
+
+		return new ArrayList<ConfigEntity>(parents);
 	}
 
 	public List<ConfigEntity> getChildren() {
@@ -42,6 +54,7 @@ public class ConfigEntity {
 		ConfigEntity child = new ConfigEntity(childId);
 
 		children.add(child);
+		child.parents.add(this);
 
 		return child;
 	}

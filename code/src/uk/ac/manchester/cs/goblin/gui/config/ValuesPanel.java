@@ -222,8 +222,11 @@ class ValuesPanel extends JPanel {
 		EntityId checkInput() {
 
 			ConfigOntology ontology = editManager.getOntology();
+			ConfigEntitySelectorDialog dialog = createSelectorDialog(ontology);
 
-			return createSelectorDialog(ontology).getSelectionIdOrNull();
+			dialog.display();
+
+			return dialog.getSelectionIdOrNull();
 		}
 
 		abstract ConfigEntitySelectorDialog createSelectorDialog(ConfigOntology ontology);

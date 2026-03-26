@@ -64,14 +64,12 @@ class AttributesConfigPanel extends ConfigEditPanel<CoreAttributeConfig> {
 				return null;
 			}
 
-			EntityId rootSourceConceptId = hierarchy.getRootConceptId();
-
-			return new AttributeConfigValuesPanel(editManager, rootSourceConceptId, type);
+			return new AttributeConfigValuesPanel(editManager, hierarchy, type);
 		}
 
 		AttributeConfigValuesPanel createValues(CoreAttributeConfig currentSource) {
 
-			return new AttributeConfigValuesPanel(editManager, currentSource);
+			return new AttributeConfigValuesPanel(editManager, hierarchy, currentSource);
 		}
 
 		CoreAttributeConfig createSource(AttributeConfigValuesPanel values) {

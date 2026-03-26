@@ -24,6 +24,8 @@
 
 package uk.ac.manchester.cs.goblin.gui.config;
 
+import java.util.*;
+
 import uk.ac.manchester.cs.goblin.model.*;
 import uk.ac.manchester.cs.goblin.config.*;
 import uk.ac.manchester.cs.goblin.io.config.*;
@@ -35,6 +37,8 @@ import uk.ac.manchester.cs.goblin.gui.util.*;
 class HierarchyConfigValuesPanel extends ValuesPanel {
 
 	static private final long serialVersionUID = -1;
+
+	private EditManager editManager;
 
 	private RootConceptId rootConceptId = new RootConceptId();
 	private ExtensibilityOption extensibilityOption = new ExtensibilityOption();
@@ -66,6 +70,27 @@ class HierarchyConfigValuesPanel extends ValuesPanel {
 		void set(CoreHierarchyConfig hierarchy) {
 
 			set(hierarchy.getRootConceptId());
+		}
+
+		ConfigEntitySelectorDialog createSelectorDialog(ConfigOntology ontology) {
+
+			ConfigEntitySelectorDialog dialog = super.createSelectorDialog(ontology);
+
+			dialog.setExclusionSeedEntityIds(getCurrentHierarchyRootConceptIds());
+
+			return dialog;
+		}
+
+		private List<EntityId> getCurrentHierarchyRootConceptIds() {
+
+			List<EntityId> roots = new ArrayList<EntityId>();
+
+			for (CoreHierarchyConfig hierarchy : editManager.getHierarchies()) {
+
+				roots.add(hierarchy.getRootConceptId());
+			}
+
+			return roots;
 		}
 	}
 
@@ -108,6 +133,8 @@ class HierarchyConfigValuesPanel extends ValuesPanel {
 	HierarchyConfigValuesPanel(EditManager editManager) {
 
 		super(editManager);
+
+		this.editManager = editManager;
 
 		initialise();
 	}

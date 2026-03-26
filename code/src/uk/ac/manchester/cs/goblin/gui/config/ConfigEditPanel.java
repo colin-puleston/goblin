@@ -53,9 +53,7 @@ abstract class ConfigEditPanel<S extends LabelledConfigEntity> extends MultiTabP
 
 		public void stateChanged(ChangeEvent e) {
 
-			int currentIndex = getSelectedIndex();
-
-			if (additionHandlingEnabled && currentIndex == additionTabIndex()) {
+			if (additionHandlingEnabled && getSelectedIndex() == additionTabIndex()) {
 
 				if (checkRegisterEdit(checkNewSource())) {
 
@@ -65,7 +63,7 @@ abstract class ConfigEditPanel<S extends LabelledConfigEntity> extends MultiTabP
 				}
 				else {
 
-					setCurrentSelection(currentIndex);
+					setCurrentSelection(-1);
 				}
 			}
 		}

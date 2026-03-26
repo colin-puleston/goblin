@@ -39,12 +39,17 @@ abstract class ConfigEntityTree extends GSelectorTree {
 
 	static private final long serialVersionUID = -1;
 
-	static ConfigEntity extractConfigEntity(GNode node) {
+	static ConfigEntity extractEntity(GNode node) {
 
-		return ((ConfigEntityNode)node).entity;
+		return ((EntityNode)node).entity;
 	}
 
-	private abstract class ConfigEntityTreeNode extends GNode {
+	static boolean selectableEntity(GNode node) {
+
+		return ((EntityNode)node).selectable;
+	}
+
+	private abstract class EntityTreeNode extends GNode {
 
 		final ConfigEntity entity;
 
@@ -54,7 +59,7 @@ abstract class ConfigEntityTree extends GSelectorTree {
 
 				if (requiredEntity(childEntity)) {
 
-					ConfigEntityNode child = new ConfigEntityNode(childEntity);
+					EntityNode child = new EntityNode(childEntity);
 
 					addChild(child);
 					child.ensureChildren();
@@ -67,7 +72,7 @@ abstract class ConfigEntityTree extends GSelectorTree {
 			return true;
 		}
 
-		ConfigEntityTreeNode(ConfigEntity entity) {
+		EntityTreeNode(ConfigEntity entity) {
 
 			super(ConfigEntityTree.this);
 
@@ -75,7 +80,7 @@ abstract class ConfigEntityTree extends GSelectorTree {
 		}
 	}
 
-	private class RootNode extends ConfigEntityTreeNode {
+	private class RootNode extends EntityTreeNode {
 
 		protected boolean autoExpand() {
 
@@ -93,7 +98,9 @@ abstract class ConfigEntityTree extends GSelectorTree {
 		}
 	}
 
-	private class ConfigEntityNode extends ConfigEntityTreeNode {
+	private class EntityNode extends EntityTreeNode {
+
+		final boolean selectable;
 
 		protected boolean autoExpand() {
 
@@ -102,12 +109,14 @@ abstract class ConfigEntityTree extends GSelectorTree {
 
 		protected GCellDisplay getDisplay() {
 
-			return getEntityDisplay(entity);
+			return getEntityDisplay(entity, selectable);
 		}
 
-		ConfigEntityNode(ConfigEntity entity) {
+		EntityNode(ConfigEntity entity) {
 
 			super(entity);
+
+			selectable = selectableEntity(entity);
 		}
 	}
 
@@ -126,5 +135,7 @@ abstract class ConfigEntityTree extends GSelectorTree {
 
 	abstract boolean requiredEntity(ConfigEntity entity);
 
-	abstract GCellDisplay getEntityDisplay(ConfigEntity entity);
+	abstract boolean selectableEntity(ConfigEntity entity);
+
+	abstract GCellDisplay getEntityDisplay(ConfigEntity entity, boolean selectable);
 }

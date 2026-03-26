@@ -150,7 +150,7 @@ public abstract class TreeNodeSelectorDialog<N> extends GDialog {
 		display(createTabs(list, tree));
 	}
 
-	protected boolean requiredInTree(N node) {
+	protected boolean passesTreeFiltering(N node) {
 
 		return treeFilterPanel == null || treeFilterPanel.requiredInTree(node);
 	}
@@ -162,6 +162,11 @@ public abstract class TreeNodeSelectorDialog<N> extends GDialog {
 	protected abstract String getNodeLabel(N node);
 
 	protected abstract N toSubjectNode(GNode guiNode);
+
+	protected boolean requiredInList(N node) {
+
+		return true;
+	}
 
 	protected GCellDisplay getTreeCellDisplay(N node) {
 
@@ -185,7 +190,10 @@ public abstract class TreeNodeSelectorDialog<N> extends GDialog {
 
 		for (N node : nodes) {
 
-			list.addEntity(node, getCellDisplay(node, false));
+			if (requiredInList(node)) {
+
+				list.addEntity(node, getCellDisplay(node, false));
+			}
 
 			populateList(list, getChildNodes(node));
 		}

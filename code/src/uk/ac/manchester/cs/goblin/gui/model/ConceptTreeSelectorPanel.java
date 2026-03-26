@@ -80,7 +80,7 @@ abstract class ConceptTreeSelectorPanel extends JPanel {
 
 			boolean requiredConcept(Concept concept) {
 
-				return requiredInTree(concept);
+				return passesTreeFiltering(concept);
 			}
 
 			GCellDisplay getConceptDisplay(Concept concept) {

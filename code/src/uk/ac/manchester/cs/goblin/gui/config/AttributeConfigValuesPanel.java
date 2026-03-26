@@ -39,6 +39,8 @@ class AttributeConfigValuesPanel extends ValuesPanel {
 	static private final long serialVersionUID = -1;
 
 	private EditManager editManager;
+	private CoreHierarchyConfig sourceHierarchy;
+
 	private Values values;
 
 	private abstract class Values {
@@ -111,6 +113,37 @@ class AttributeConfigValuesPanel extends ValuesPanel {
 
 	private abstract class PropertyAttributeValues extends Values {
 
+		abstract class TargetLinkPropertyId extends PropertyIdValue {
+
+			ConfigEntitySelectorDialog createSelectorDialog(ConfigOntology ontology) {
+
+				ConfigEntitySelectorDialog dialog = super.createSelectorDialog(ontology);
+
+				dialog.setExclusionSeedEntityIds(getCurrentSiblingAttributeLinkProperties());
+
+				return dialog;
+			}
+
+			private List<EntityId> getCurrentSiblingAttributeLinkProperties() {
+
+				List<EntityId> props = new ArrayList<EntityId>();
+
+				for (CoreAttributeConfig attr : sourceHierarchy.getCoreAttributes()) {
+
+					if (attr instanceof SimpleAttributeConfig) {
+
+						props.add(((SimpleAttributeConfig)attr).getLinkingPropertyId());
+					}
+					else if (attr instanceof AnchoredAttributeConfig) {
+
+						props.add(((AnchoredAttributeConfig)attr).getTargetPropertyId());
+					}
+				}
+
+				return props;
+			}
+		}
+
 		class ConstraintsOptionValue extends EnumValue<ConstraintsOption> {
 
 			String getTitle() {
@@ -135,7 +168,7 @@ class AttributeConfigValuesPanel extends ValuesPanel {
 		private LinkingPropertyId linkingPropertyId;
 		private ConstraintsOptionValue constraintsOption;
 
-		private class LinkingPropertyId extends PropertyIdValue {
+		private class LinkingPropertyId extends TargetLinkPropertyId {
 
 			String getTitle() {
 
@@ -212,7 +245,7 @@ class AttributeConfigValuesPanel extends ValuesPanel {
 			}
 		}
 
-		private class TargetPropertyId extends PropertyIdValue {
+		private class TargetPropertyId extends TargetLinkPropertyId {
 
 			String getTitle() {
 
@@ -264,7 +297,6 @@ class AttributeConfigValuesPanel extends ValuesPanel {
 
 	private class HierarchicalAttributeValues extends Values {
 
-		private CoreHierarchyConfig sourceHierarchy;
 		private LinksOption linksOption;
 
 		private class LinksOption extends EnumValue<HierarchicalLinksOption> {
@@ -285,9 +317,7 @@ class AttributeConfigValuesPanel extends ValuesPanel {
 			}
 		}
 
-		HierarchicalAttributeValues(EntityId rootSourceConceptId) {
-
-			sourceHierarchy = editManager.findHierarchy(rootSourceConceptId);
+		HierarchicalAttributeValues() {
 
 			linksOption = new LinksOption();
 		}
@@ -334,9 +364,7 @@ class AttributeConfigValuesPanel extends ValuesPanel {
 
 		public void visit(HierarchicalAttributeConfig attribute) {
 
-			EntityId rootSourceConceptId = attribute.getRootSourceConceptId();
-
-			new HierarchicalAttributeValues(rootSourceConceptId).setAll(attribute);
+			new HierarchicalAttributeValues().setAll(attribute);
 		}
 
 		ValuesCreator(CoreAttributeConfig attribute) {
@@ -347,10 +375,10 @@ class AttributeConfigValuesPanel extends ValuesPanel {
 
 	AttributeConfigValuesPanel(
 		EditManager editManager,
-		EntityId rootSourceConceptId,
+		CoreHierarchyConfig sourceHierarchy,
 		AttributeType attributeType) {
 
-		this(editManager);
+		this(editManager, sourceHierarchy);
 
 		switch (attributeType) {
 
@@ -363,16 +391,19 @@ class AttributeConfigValuesPanel extends ValuesPanel {
 				break;
 
 			case HIERARCHICAL:
-				new HierarchicalAttributeValues(rootSourceConceptId);
+				new HierarchicalAttributeValues();
 				break;
 		}
 
 		initialise();
 	}
 
-	AttributeConfigValuesPanel(EditManager editManager, CoreAttributeConfig attribute) {
+	AttributeConfigValuesPanel(
+		EditManager editManager,
+		CoreHierarchyConfig sourceHierarchy,
+		CoreAttributeConfig attribute) {
 
-		this(editManager);
+		this(editManager, sourceHierarchy);
 
 		new ValuesCreator(attribute);
 
@@ -384,10 +415,13 @@ class AttributeConfigValuesPanel extends ValuesPanel {
 		return values.createConfig(rootSourceConceptId);
 	}
 
-	private AttributeConfigValuesPanel(EditManager editManager) {
+	private AttributeConfigValuesPanel(
+				EditManager editManager,
+				CoreHierarchyConfig sourceHierarchy) {
 
 		super(editManager);
 
 		this.editManager = editManager;
+		this.sourceHierarchy = sourceHierarchy;
 	}
 }

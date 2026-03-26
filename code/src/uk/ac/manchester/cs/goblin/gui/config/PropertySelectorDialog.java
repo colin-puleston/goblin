@@ -46,4 +46,9 @@ class PropertySelectorDialog extends ConfigEntitySelectorDialog {
 
 		super(parent, ontology.getRootProperty(), "property");
 	}
+
+	GCellDisplay getInertCellDisplay(ConfigEntity entity) {
+
+		return ConfigCellDisplay.forInertProperty(entity);
+	}
 }

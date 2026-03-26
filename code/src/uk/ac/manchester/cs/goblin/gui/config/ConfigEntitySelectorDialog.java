@@ -42,34 +42,76 @@ abstract class ConfigEntitySelectorDialog extends TreeNodeSelectorDialog<ConfigE
 
 	static private final String TITLE_FORMAT = "Select %s";
 
-	private SelectorTree tree;
-	private ConfigEntity rootNode;
+	private ConfigEntity rootEntity;
+	private Collection<EntityId> exclusionSeedEntityIds = Collections.emptySet();
 
 	private ConfigEntity selection = null;
+
+	private UpwardExclusionLinks upwardExclusionLinks = new UpwardExclusionLinks();
+	private DownwardExclusionLinks downwardExclusionLinks = new DownwardExclusionLinks();
+
+	private abstract class ExclusionLinks {
+
+		boolean anyLinksFrom(ConfigEntity entity) {
+
+			for (ConfigEntity linked : getNextLinkedEntities(entity)) {
+
+				if (isExclusion(linked) || anyLinksFrom(linked)) {
+
+					return true;
+				}
+			}
+
+			return false;
+		}
+
+		abstract Collection<ConfigEntity> getNextLinkedEntities(ConfigEntity entity);
+	}
+
+	private class UpwardExclusionLinks extends ExclusionLinks {
+
+		Collection<ConfigEntity> getNextLinkedEntities(ConfigEntity entity) {
+
+			return entity.getParents();
+		}
+	}
+
+	private class DownwardExclusionLinks extends ExclusionLinks {
+
+		Collection<ConfigEntity> getNextLinkedEntities(ConfigEntity entity) {
+
+			return entity.getChildren();
+		}
+	}
 
 	private class SelectorTree extends ConfigEntityTree {
 
 		static private final long serialVersionUID = -1;
 
-		SelectorTree(ConfigEntity rootNode) {
+		SelectorTree(ConfigEntity rootEntity) {
 
-			initialise(rootNode);
+			initialise(rootEntity);
 		}
 
 		boolean requiredEntity(ConfigEntity entity) {
 
-			return requiredInTree(entity);
+			return treeDisplayable(entity) && passesTreeFiltering(entity);
 		}
 
-		GCellDisplay getEntityDisplay(ConfigEntity entity) {
+		boolean selectableEntity(ConfigEntity entity) {
 
-			return getTreeCellDisplay(entity);
+			return treeSelectable(entity);
+		}
+
+		GCellDisplay getEntityDisplay(ConfigEntity entity, boolean selectable) {
+
+			return selectable ? getTreeCellDisplay(entity) : getInertCellDisplay(entity);
 		}
 	}
 
 	protected Collection<ConfigEntity> getRootNodes() {
 
-		return rootNode.getChildren();
+		return rootEntity.getChildren();
 	}
 
 	protected Collection<ConfigEntity> getChildNodes(ConfigEntity parent) {
@@ -84,7 +126,12 @@ abstract class ConfigEntitySelectorDialog extends TreeNodeSelectorDialog<ConfigE
 
 	protected ConfigEntity toSubjectNode(GNode guiNode) {
 
-		return ConfigEntityTree.extractConfigEntity(guiNode);
+		return ConfigEntityTree.extractEntity(guiNode);
+	}
+
+	protected boolean requiredInList(ConfigEntity entity) {
+
+		return listDisplayable(entity);
 	}
 
 	protected void onSelected(ConfigEntity entity) {
@@ -92,19 +139,50 @@ abstract class ConfigEntitySelectorDialog extends TreeNodeSelectorDialog<ConfigE
 		selection = entity;
 	}
 
-	ConfigEntitySelectorDialog(JPanel parent, ConfigEntity rootNode, String entityType) {
+	ConfigEntitySelectorDialog(JPanel parent, ConfigEntity rootEntity, String entityType) {
 
 		super(parent, String.format(TITLE_FORMAT, entityType));
 
-		this.rootNode = rootNode;
+		this.rootEntity = rootEntity;
+	}
 
-		tree = new SelectorTree(rootNode);
+	void display() {
 
-		initialise(tree);
+		initialise(new SelectorTree(rootEntity));
+	}
+
+	void setExclusionSeedEntityIds(Collection<EntityId> exclusionSeedEntityIds) {
+
+		System.out.println("\nEXCLUDES: " + exclusionSeedEntityIds);
+		this.exclusionSeedEntityIds = exclusionSeedEntityIds;
 	}
 
 	EntityId getSelectionIdOrNull() {
 
 		return selection != null ? selection.getId() : null;
+	}
+
+	abstract GCellDisplay getInertCellDisplay(ConfigEntity entity);
+
+	private boolean treeDisplayable(ConfigEntity entity) {
+
+		return !upwardExclusionLinks.anyLinksFrom(entity);
+	}
+
+	private boolean treeSelectable(ConfigEntity entity) {
+
+		return !isExclusion(entity) && !downwardExclusionLinks.anyLinksFrom(entity);
+	}
+
+	private boolean listDisplayable(ConfigEntity entity) {
+
+		return !isExclusion(entity)
+				&& !upwardExclusionLinks.anyLinksFrom(entity)
+				&& !downwardExclusionLinks.anyLinksFrom(entity);
+	}
+
+	private boolean isExclusion(ConfigEntity entity) {
+
+		return !entity.rootEntity() && exclusionSeedEntityIds.contains(entity.getId());
 	}
 }

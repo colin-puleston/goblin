@@ -46,4 +46,9 @@ class ConceptSelectorDialog extends ConfigEntitySelectorDialog {
 
 		super(parent, ontology.getRootConcept(), "concept");
 	}
+
+	GCellDisplay getInertCellDisplay(ConfigEntity entity) {
+
+		return ConfigCellDisplay.forInertConcept(entity);
+	}
 }

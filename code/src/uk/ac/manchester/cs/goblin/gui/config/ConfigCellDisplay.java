@@ -42,10 +42,14 @@ class ConfigCellDisplay {
 
 	static private final Color CONCEPT_CLR = Color.BLUE;
 	static private final Color PROPERTY_CLR = Color.ORANGE;
+	static private final Color INERT_ENTITY_CLR = Color.GRAY;
 	static private final Color HIGHLIGHT_CLR = new Color(255, 237, 160);
 
-	static private final GIcon CONCEPT_ICON = createConceptIcon();
-	static private final GIcon PROPERTY_ICON = createPropertyIcon();
+	static private final GIcon CONCEPT_ICON = createConceptIcon(CONCEPT_CLR);
+	static private final GIcon PROPERTY_ICON = createPropertyIcon(PROPERTY_CLR);
+
+	static private final GIcon INERT_CONCEPT_ICON = createConceptIcon(INERT_ENTITY_CLR);
+	static private final GIcon INERT_PROPERTY_ICON = createPropertyIcon(INERT_ENTITY_CLR);
 
 	static GCellDisplay forHierarchy(CoreHierarchyConfig hierarchy) {
 
@@ -57,9 +61,19 @@ class ConfigCellDisplay {
 		return forEntity(concept, highlight, CONCEPT_ICON);
 	}
 
+	static GCellDisplay forInertConcept(ConfigEntity property) {
+
+		return forEntity(property, false, INERT_CONCEPT_ICON);
+	}
+
 	static GCellDisplay forProperty(ConfigEntity property, boolean highlight) {
 
 		return forEntity(property, highlight, PROPERTY_ICON);
+	}
+
+	static GCellDisplay forInertProperty(ConfigEntity property) {
+
+		return forEntity(property, false, INERT_PROPERTY_ICON);
 	}
 
 	static private GCellDisplay forEntity(ConfigEntity entity, boolean highlight, GIcon icon) {
@@ -81,13 +95,13 @@ class ConfigCellDisplay {
 		return display;
 	}
 
-	static private GIcon createConceptIcon() {
+	static private GIcon createConceptIcon(Color clr) {
 
-		return new GIcon(CellDisplayUtils.largeCircle(CONCEPT_CLR));
+		return new GIcon(CellDisplayUtils.largeCircle(clr));
 	}
 
-	static private GIcon createPropertyIcon() {
+	static private GIcon createPropertyIcon(Color clr) {
 
-		return new GIcon(CellDisplayUtils.largeRightwardTriangle(PROPERTY_CLR));
+		return new GIcon(CellDisplayUtils.largeRightwardTriangle(clr));
 	}
 }
