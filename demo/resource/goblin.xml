@@ -1,58 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
-<Goblin
-	coreFilename="demo-core.owl"
-	dynamicFilename="demo-dynamic.owl">
-
-	<ModelSection label="Hobby">
-
-		<Hierarchy
-			rootConcept="http://goblin/demo-core.owl#Activity"
-			fixedStructure="FALSE"
-			dynamicAttributeConstraints="VALID_AND_SINGLE_IMPLIED_VALUES">
-			<AnchoredAttribute
-				label="role performed"
-				anchorConcept="http://goblin/demo-core.owl#Hobby"
-				sourceProperty="http://goblin/demo-core.owl#involvesActivity"
-				targetProperty="http://goblin/demo-core.owl#rolePerformed"
-				rootTargetConcept="http://goblin/demo-core.owl#Role"
-				constraints="VALID_AND_MULTI_IMPLIED_VALUES">
-			</AnchoredAttribute>
-			<SimpleAttribute
-				label="activity venue"
-				linkingProperty="http://goblin/demo-core.owl#performedInVenue"
-				rootTargetConcept="http://goblin/demo-core.owl#VenueByType"
-				constraints="VALID_AND_SINGLE_IMPLIED_VALUES">
-			</SimpleAttribute>
-		</Hierarchy>
-
-		<Hierarchy
-			rootConcept="http://goblin/demo-core.owl#Role"
-			fixedStructure="FALSE"
-			dynamicAttributeConstraints="NONE">
-		</Hierarchy>
-
-	</ModelSection>
-
-	<ModelSection label="Venue">
-
-		<Hierarchy
-			rootConcept="http://goblin/demo-core.owl#VenueByType"
-			fixedStructure="FALSE"
-			dynamicAttributeConstraints="VALID_VALUES_ONLY">
-			<HierarchicalAttribute
-				label="venue location"
-				rootTargetConcept="http://goblin/demo-core.owl#VenueByLocation"
-				linksOption="SINGLE_SUPER_CLASSES">
-			</HierarchicalAttribute>
-		</Hierarchy>
-
-		<Hierarchy
-			rootConcept="http://goblin/demo-core.owl#VenueByLocation"
-			fixedStructure="TRUE"
-			dynamicAttributeConstraints="NONE">
-		</Hierarchy>
-
-	</ModelSection>
-
-</Goblin>
+<GoblinConfiguration coreFilename="demo-core.owl" dynamicFilename="demo-dynamic.owl">
+    <ModelSection label="Hobbies">
+        <Hierarchy
+            dynamicAttributeConstraints="VALID_AND_MULTI_IMPLIED_VALUES"
+            fixedStructure="false" label="Activity" rootConcept="Activity">
+            <AnchoredAttribute anchorConcept="Hobby"
+                constraints="VALID_AND_SINGLE_IMPLIED_VALUES"
+                label="role performed" rootTargetConcept="Role"
+                sourceProperty="involvesActivity" targetProperty="rolePerformed"/>
+            <SimpleAttribute
+                constraints="VALID_AND_SINGLE_IMPLIED_VALUES"
+                label="performed in venue"
+                linkingProperty="performedInVenue" rootTargetConcept="VenueByType"/>
+        </Hierarchy>
+        <Hierarchy dynamicAttributeConstraints="NONE"
+            fixedStructure="false" label="Role" rootConcept="Role"/>
+    </ModelSection>
+    <ModelSection label="Venues">
+        <Hierarchy dynamicAttributeConstraints="VALID_VALUES_ONLY"
+            fixedStructure="false" label="Venue by type" rootConcept="VenueByType">
+            <HierarchicalAttribute label="venue location"
+                linksOption="SINGLE_SUPER_CLASSES" rootTargetConcept="VenueByLocation"/>
+        </Hierarchy>
+        <Hierarchy dynamicAttributeConstraints="NONE"
+            fixedStructure="true" label="Venue by location" rootConcept="VenueByLocation"/>
+    </ModelSection>
+</GoblinConfiguration>
