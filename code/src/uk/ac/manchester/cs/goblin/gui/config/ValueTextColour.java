@@ -31,7 +31,7 @@ import java.awt.Color;
  */
 class ValueTextColour {
 
-	static final Color GENRAL_VALUE = Color.GREEN.darker().darker();
+	static final Color GENRAL_VALUE = Color.RED.darker();
 	static final Color CONCEPT_VALUE = Color.BLUE;
 	static final Color PROPERTY_VALUE = Color.ORANGE.darker();
 }

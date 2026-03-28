@@ -44,7 +44,7 @@ abstract class ConfigEditPanel<S extends LabelledConfigEntity> extends MultiTabP
 	static private final String RELABEL_BUTTON_LABEL = "Relabel...";
 	static private final String DELETE_BUTTON_LABEL = "Delete";
 
-	static private final Color CONTROL_LABEL_COLOUR = Color.RED.darker();
+	static private final Color CONTROL_LABEL_COLOUR = Color.GREEN.darker().darker();
 
 	private EditManager editManager;
 	private boolean additionHandlingEnabled = true;

@@ -176,11 +176,11 @@ class ValuesPanel extends JPanel {
 			return createSelector().getSelectionOrNull();
 		}
 
-		abstract E[] getEditManager();
+		abstract E[] getOptions();
 
 		private EnumValueSelector<E> createSelector() {
 
-			return new EnumValueSelector<E>(getEditManager(), getTitle().toLowerCase());
+			return new EnumValueSelector<E>(getOptions(), getTitle().toLowerCase());
 		}
 	}
 

@@ -39,14 +39,31 @@ abstract class ConfigEntityTree extends GSelectorTree {
 
 	static private final long serialVersionUID = -1;
 
-	static ConfigEntity extractEntity(GNode node) {
-
-		return ((EntityNode)node).entity;
-	}
-
 	static boolean selectableEntity(GNode node) {
 
-		return ((EntityNode)node).selectable;
+		return toSelectableEntityNodeOrNull(node) != null;
+	}
+
+	static ConfigEntity checkExtractSelectableEntity(GNode node) {
+
+		EntityNode selNode = toSelectableEntityNodeOrNull(node);
+
+		return selNode != null ? selNode.entity : null;
+	}
+
+	static private EntityNode toSelectableEntityNodeOrNull(GNode node) {
+
+		if (node instanceof EntityNode) {
+
+			EntityNode eNode = (EntityNode)node;
+
+			if (eNode.selectable) {
+
+				return eNode;
+			}
+		}
+
+		return null;
 	}
 
 	private abstract class EntityTreeNode extends GNode {

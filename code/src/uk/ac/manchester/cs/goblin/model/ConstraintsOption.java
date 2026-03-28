@@ -1,5 +1,7 @@
 package uk.ac.manchester.cs.goblin.model;
 
+import java.util.*;
+
 /**
  * @author Colin Puleston
  */
@@ -11,6 +13,13 @@ public enum ConstraintsOption {
 	VALID_AND_SINGLE_IMPLIED_VALUES(true, true, false),
 	VALID_AND_MULTI_IMPLIED_VALUES(true, false, true),
 	NONE(false, false, false);
+
+	static public ConstraintsOption[] coreAttributeOptions() {
+
+		ConstraintsOption[] all = values();
+
+		return Arrays.copyOfRange(all, 0, all.length - 1);
+	}
 
 	private boolean validValues;
 	private boolean singleImpliedValues;

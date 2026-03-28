@@ -106,7 +106,7 @@ class HierarchyConfigValuesPanel extends ValuesPanel {
 			set(Extensibility.get(hierarchy.fixedStructure()));
 		}
 
-		Extensibility[] getEditManager() {
+		Extensibility[] getOptions() {
 
 			return Extensibility.values();
 		}
@@ -124,7 +124,7 @@ class HierarchyConfigValuesPanel extends ValuesPanel {
 			set(hierarchy.getDynamicAttributeConstraintsOption());
 		}
 
-		ConstraintsOption[] getEditManager() {
+		ConstraintsOption[] getOptions() {
 
 			return ConstraintsOption.values();
 		}

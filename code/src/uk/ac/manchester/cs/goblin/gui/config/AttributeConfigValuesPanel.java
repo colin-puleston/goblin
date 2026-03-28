@@ -156,9 +156,9 @@ class AttributeConfigValuesPanel extends ValuesPanel {
 				set(attribute.getConstraintsOption());
 			}
 
-			ConstraintsOption[] getEditManager() {
+			ConstraintsOption[] getOptions() {
 
-				return ConstraintsOption.values();
+				return ConstraintsOption.coreAttributeOptions();
 			}
 		}
 	}
@@ -311,7 +311,7 @@ class AttributeConfigValuesPanel extends ValuesPanel {
 				set(attribute.getLinksOption());
 			}
 
-			HierarchicalLinksOption[] getEditManager() {
+			HierarchicalLinksOption[] getOptions() {
 
 				return HierarchicalLinksOption.values();
 			}

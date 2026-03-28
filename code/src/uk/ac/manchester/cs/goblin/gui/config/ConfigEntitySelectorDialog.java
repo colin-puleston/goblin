@@ -126,7 +126,7 @@ abstract class ConfigEntitySelectorDialog extends TreeNodeSelectorDialog<ConfigE
 
 	protected ConfigEntity toSubjectNode(GNode guiNode) {
 
-		return ConfigEntityTree.extractEntity(guiNode);
+		return ConfigEntityTree.checkExtractSelectableEntity(guiNode);
 	}
 
 	protected boolean requiredInList(ConfigEntity entity) {
@@ -153,7 +153,6 @@ abstract class ConfigEntitySelectorDialog extends TreeNodeSelectorDialog<ConfigE
 
 	void setExclusionSeedEntityIds(Collection<EntityId> exclusionSeedEntityIds) {
 
-		System.out.println("\nEXCLUDES: " + exclusionSeedEntityIds);
 		this.exclusionSeedEntityIds = exclusionSeedEntityIds;
 	}
 
