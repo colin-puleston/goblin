@@ -15,6 +15,11 @@ public abstract class CoreAttributeConfig extends LabelledConfigEntity {
 		return getLabel() + "(" + rootSourceConceptId + " --> " + rootTargetConceptId + ")";
 	}
 
+	public void resetRootTargetConceptId(EntityId rootTargetConceptId) {
+
+		this.rootTargetConceptId = rootTargetConceptId;
+	}
+
 	public EntityId getRootSourceConceptId() {
 
 		return rootSourceConceptId;

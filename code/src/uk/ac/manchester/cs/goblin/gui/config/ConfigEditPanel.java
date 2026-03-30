@@ -123,6 +123,8 @@ abstract class ConfigEditPanel<S extends LabelledConfigEntity> extends MultiTabP
 				source.resetLabel(label);
 				setTabComponentAt(getSelectedIndex(), createTabLabel(label));
 
+				onSourceRelabelled(source);
+
 				return true;
 			}
 
@@ -209,6 +211,9 @@ abstract class ConfigEditPanel<S extends LabelledConfigEntity> extends MultiTabP
 	String checkInputSourceLabel() {
 
 		return new LabelSelector(this, getSourceTypeName()).getSelectionOrNull();
+	}
+
+	void onSourceRelabelled(S source) {
 	}
 
 	private JComponent createControlsComponent(S source) {

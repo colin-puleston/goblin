@@ -24,81 +24,14 @@
 
 package uk.ac.manchester.cs.goblin.gui.config;
 
-import java.util.*;
-
-import uk.ac.manchester.cs.goblin.model.*;
 import uk.ac.manchester.cs.goblin.config.*;
-import uk.ac.manchester.cs.goblin.io.config.*;
 
 /**
  * @author Colin Puleston
  */
-abstract class EditManager {
+abstract class TargetHierarchyListener {
 
-	private ModelConfig modelConfig;
-	private ConfigOntology ontology;
+	abstract void onHierarchyRelabelled(CoreAttributeConfig refingAttribute);
 
-	private TargetHierarchyMonitor targetHierarchyMonitor;
-
-	private boolean unsavedEdits = false;
-
-	EditManager(ModelConfig modelConfig, ConfigOntology ontology) {
-
-		this.modelConfig = modelConfig;
-		this.ontology = ontology;
-
-		targetHierarchyMonitor = new TargetHierarchyMonitor(modelConfig);
-	}
-
-	ModelConfig getModelConfig() {
-
-		return modelConfig;
-	}
-
-	ConfigOntology getOntology() {
-
-		return ontology;
-	}
-
-	List<CoreHierarchyConfig> getHierarchies() {
-
-		return modelConfig.getHierarchies();
-	}
-
-	CoreHierarchyConfig findHierarchy(EntityId rootConceptId) {
-
-		for (CoreHierarchyConfig hierarchy : getHierarchies()) {
-
-			if (hierarchy.getRootConceptId().equals(rootConceptId)) {
-
-				return hierarchy;
-			}
-		}
-
-		throw new Error("Cannot find hierarchy for: " + rootConceptId);
-	}
-
-	TargetHierarchyMonitor getTargetHierarchyMonitor() {
-
-		return targetHierarchyMonitor;
-	}
-
-	void registerEdit() {
-
-		unsavedEdits = true;
-
-		onEdit();
-	}
-
-	void resetEdits() {
-
-		unsavedEdits = false;
-	}
-
-	boolean unsavedEdits() {
-
-		return unsavedEdits;
-	}
-
-	abstract void onEdit();
+	abstract void onHierarchyRemoved(CoreAttributeConfig refingAttribute);
 }

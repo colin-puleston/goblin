@@ -26,21 +26,6 @@ public class ModelSectionConfig extends LabelledConfigEntity {
 		hierarchies.remove(hierarchy);
 	}
 
-	public void replaceHierarchy(
-					CoreHierarchyConfig oldHierarchy,
-					CoreHierarchyConfig newHierarchy) {
-
-		int index = hierarchies.indexOf(oldHierarchy);
-
-		if (index == -1) {
-
-			throw new RuntimeException("Hierarchy not currently present");
-		}
-
-		hierarchies.remove(oldHierarchy);
-		hierarchies.add(index, newHierarchy);
-	}
-
 	public List<CoreHierarchyConfig> getHierarchies() {
 
 		return new ArrayList<CoreHierarchyConfig>(hierarchies);

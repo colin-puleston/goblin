@@ -108,6 +108,11 @@ class AttributeConfigValuesPanel extends ValuesPanel {
 										EntityId rootSourceConceptId,
 										EntityId rootTargetConceptId);
 
+		void updateConfig(CoreAttributeConfig config) {
+
+			config.resetRootTargetConceptId(targetHierarchy.get().getRootConceptId());
+		}
+
 		abstract AttributeType getAttributeType();
 	}
 
@@ -206,6 +211,16 @@ class AttributeConfigValuesPanel extends ValuesPanel {
 							constraintsOption.get());
 		}
 
+		void updateConfig(CoreAttributeConfig config) {
+
+			SimpleAttributeConfig saConfig = (SimpleAttributeConfig)config;
+
+			super.updateConfig(saConfig);
+
+			saConfig.resetLinkingPropertyId(linkingPropertyId.get());
+			saConfig.resetConstraintsOption(constraintsOption.get());
+		}
+
 		AttributeType getAttributeType() {
 
 			return AttributeType.SIMPLE;
@@ -289,6 +304,18 @@ class AttributeConfigValuesPanel extends ValuesPanel {
 							constraintsOption.get());
 		}
 
+		void updateConfig(CoreAttributeConfig config) {
+
+			AnchoredAttributeConfig aaConfig = (AnchoredAttributeConfig)config;
+
+			super.updateConfig(aaConfig);
+
+			aaConfig.resetAnchorConceptId(anchorConceptId.get());
+			aaConfig.resetSourcePropertyId(sourcePropertyId.get());
+			aaConfig.resetTargetPropertyId(targetPropertyId.get());
+			aaConfig.resetConstraintsOption(constraintsOption.get());
+		}
+
 		AttributeType getAttributeType() {
 
 			return AttributeType.ANCHORED;
@@ -342,6 +369,15 @@ class AttributeConfigValuesPanel extends ValuesPanel {
 							rootSourceConceptId,
 							rootTargetConceptId,
 							linksOption.get());
+		}
+
+		void updateConfig(CoreAttributeConfig config) {
+
+			HierarchicalAttributeConfig haConfig = (HierarchicalAttributeConfig)config;
+
+			super.updateConfig(haConfig);
+
+			haConfig.resetLinksOption(linksOption.get());
 		}
 
 		AttributeType getAttributeType() {
@@ -413,6 +449,11 @@ class AttributeConfigValuesPanel extends ValuesPanel {
 	CoreAttributeConfig createConfig(EntityId rootSourceConceptId) {
 
 		return values.createConfig(rootSourceConceptId);
+	}
+
+	void updateConfig(CoreAttributeConfig config) {
+
+		values.updateConfig(config);
 	}
 
 	private AttributeConfigValuesPanel(

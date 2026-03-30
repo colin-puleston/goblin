@@ -31,6 +31,21 @@ public class AnchoredAttributeConfig extends PropertyAttributeConfig {
 		this.targetPropertyId = targetPropertyId;
 	}
 
+	public void resetAnchorConceptId(EntityId anchorConceptId) {
+
+		this.anchorConceptId = anchorConceptId;
+	}
+
+	public void resetSourcePropertyId(EntityId sourcePropertyId) {
+
+		this.sourcePropertyId = sourcePropertyId;
+	}
+
+	public void resetTargetPropertyId(EntityId targetPropertyId) {
+
+		this.targetPropertyId = targetPropertyId;
+	}
+
 	public EntityId getAnchorConceptId() {
 
 		return anchorConceptId;

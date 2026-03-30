@@ -24,6 +24,11 @@ public class SimpleAttributeConfig extends PropertyAttributeConfig {
 		this.linkingPropertyId = linkingPropertyId;
 	}
 
+	public void resetLinkingPropertyId(EntityId linkingPropertyId) {
+
+		this.linkingPropertyId = linkingPropertyId;
+	}
+
 	public EntityId getLinkingPropertyId() {
 
 		return linkingPropertyId;

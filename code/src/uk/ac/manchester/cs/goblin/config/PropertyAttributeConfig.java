@@ -9,6 +9,11 @@ public abstract class PropertyAttributeConfig extends CoreAttributeConfig {
 
 	private ConstraintsOption constraintsOption;
 
+	public void resetConstraintsOption(ConstraintsOption constraintsOption) {
+
+		setConstraintsOption(constraintsOption);
+	}
+
 	public ConstraintsOption getConstraintsOption() {
 
 		return constraintsOption;
@@ -22,12 +27,17 @@ public abstract class PropertyAttributeConfig extends CoreAttributeConfig {
 
 		super(label, rootSourceConceptId, rootTargetConceptId);
 
+		setConstraintsOption(constraintsOption);
+	}
+
+	private void setConstraintsOption(ConstraintsOption constraintsOption) {
+
 		this.constraintsOption = constraintsOption;
 
 		if (constraintsOption == ConstraintsOption.NONE) {
 
 			throw new RuntimeException(
-						"Cannot create attribute \"" + label + "\""
+						"Cannot create attribute \"" + getLabel() + "\""
 						+ " with constraints option: " + constraintsOption);
 		}
 	}

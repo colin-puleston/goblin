@@ -154,9 +154,21 @@ class HierarchyConfigValuesPanel extends ValuesPanel {
 
 		CoreHierarchyConfig config = new CoreHierarchyConfig(rootConceptId.get());
 
-		config.setFixedStructure(extensibilityOption.get().fixedStructure());
-		config.setDynamicAttributeConstraints(dynamicAttributesOption.get());
+		setConfigOptions(config);
 
 		return config;
+	}
+
+	void updateConfig(CoreHierarchyConfig config) {
+
+		config.resetRootConceptId(rootConceptId.get());
+
+		setConfigOptions(config);
+	}
+
+	private void setConfigOptions(CoreHierarchyConfig config) {
+
+		config.setFixedStructure(extensibilityOption.get().fixedStructure());
+		config.setDynamicAttributeConstraints(dynamicAttributesOption.get());
 	}
 }

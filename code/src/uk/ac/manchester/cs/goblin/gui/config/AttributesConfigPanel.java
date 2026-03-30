@@ -44,6 +44,27 @@ class AttributesConfigPanel extends ConfigEditPanel<CoreAttributeConfig> {
 
 	private AttributeEditor attributeEditor;
 
+	private class TargetHierarchyUpdateProcessor extends TargetHierarchyListener {
+
+		TargetHierarchyUpdateProcessor() {
+
+			getTargetHierarchyMonitor().addListener(this);
+		}
+
+		void onHierarchyRelabelled(CoreAttributeConfig refingAttribute) {
+
+			attributeEditor.checkReinitialiseValueEdits(refingAttribute);
+		}
+
+		void onHierarchyRemoved(CoreAttributeConfig refingAttribute) {
+
+			if (checkDeleteAttribute(refingAttribute)) {
+
+				repopulate();
+			}
+		}
+	}
+
 	private class AttributeEditor
 					extends
 						ValuesEditor
@@ -67,29 +88,32 @@ class AttributesConfigPanel extends ConfigEditPanel<CoreAttributeConfig> {
 			return new AttributeConfigValuesPanel(editManager, hierarchy, type);
 		}
 
-		AttributeConfigValuesPanel createValues(CoreAttributeConfig currentSource) {
+		AttributeConfigValuesPanel createValues(CoreAttributeConfig source) {
 
-			return new AttributeConfigValuesPanel(editManager, hierarchy, currentSource);
+			return new AttributeConfigValuesPanel(editManager, hierarchy, source);
 		}
 
-		CoreAttributeConfig createSource(AttributeConfigValuesPanel values) {
+		void addNewSource(AttributeConfigValuesPanel values) {
 
-			return values.createConfig(hierarchy.getRootConceptId());
+			CoreAttributeConfig attribute = createSource(values);
+
+			hierarchy.addCoreAttribute(attribute);
+			getTargetHierarchyMonitor().onCoreAttributeAdded(attribute);
 		}
 
-		void addNewSource(CoreAttributeConfig newSource) {
+		void updateSource(CoreAttributeConfig source, AttributeConfigValuesPanel values) {
 
-			hierarchy.addCoreAttribute(newSource);
-		}
-
-		void replaceSource(CoreAttributeConfig oldSource, CoreAttributeConfig newSource) {
-
-			hierarchy.replaceCoreAttribute(oldSource, newSource);
+			values.updateConfig(source);
 		}
 
 		String getSourceTypeName() {
 
 			return "attribute";
+		}
+
+		private CoreAttributeConfig createSource(AttributeConfigValuesPanel values) {
+
+			return values.createConfig(hierarchy.getRootConceptId());
 		}
 
 		private AttributeType getAttributeTypeSelection() {
@@ -117,7 +141,7 @@ class AttributesConfigPanel extends ConfigEditPanel<CoreAttributeConfig> {
 
 	protected JComponent createComponent(CoreAttributeConfig attribute) {
 
-		return attributeEditor.checkSourceEdits(attribute);
+		return attributeEditor.setupValueEdits(attribute);
 	}
 
 	boolean checkNewSource() {
@@ -127,7 +151,7 @@ class AttributesConfigPanel extends ConfigEditPanel<CoreAttributeConfig> {
 
 	void deleteSource(CoreAttributeConfig attribute) {
 
-		hierarchy.removeCoreAttribute(attribute);
+		checkDeleteAttribute(attribute);
 	}
 
 	String getSourceTypeName() {
@@ -145,5 +169,26 @@ class AttributesConfigPanel extends ConfigEditPanel<CoreAttributeConfig> {
 		attributeEditor = new AttributeEditor();
 
 		populate();
+
+		new TargetHierarchyUpdateProcessor();
+	}
+
+	private boolean checkDeleteAttribute(CoreAttributeConfig attribute) {
+
+		if (attributeEditor.checkEndValueEdits(attribute)) {
+
+			hierarchy.removeCoreAttribute(attribute);
+
+			getTargetHierarchyMonitor().onCoreAttributeRemoved(attribute);
+
+			return true;
+		}
+
+		return false;
+	}
+
+	private TargetHierarchyMonitor getTargetHierarchyMonitor() {
+
+		return editManager.getTargetHierarchyMonitor();
 	}
 }

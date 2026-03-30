@@ -63,24 +63,19 @@ class ModelSectionConfigPanel extends ConfigEditPanel<CoreHierarchyConfig> {
 			return new HierarchyConfigValuesPanel(editManager);
 		}
 
-		HierarchyConfigValuesPanel createValues(CoreHierarchyConfig currentSource) {
+		HierarchyConfigValuesPanel createValues(CoreHierarchyConfig source) {
 
-			return new HierarchyConfigValuesPanel(editManager, currentSource);
+			return new HierarchyConfigValuesPanel(editManager, source);
 		}
 
-		CoreHierarchyConfig createSource(HierarchyConfigValuesPanel values) {
+		void addNewSource(HierarchyConfigValuesPanel values) {
 
-			return values.createConfig();
+			section.addHierarchy(values.createConfig());
 		}
 
-		void addNewSource(CoreHierarchyConfig newSource) {
+		void updateSource(CoreHierarchyConfig source, HierarchyConfigValuesPanel values) {
 
-			section.addHierarchy(newSource);
-		}
-
-		void replaceSource(CoreHierarchyConfig oldSource, CoreHierarchyConfig newSource) {
-
-			section.replaceHierarchy(oldSource, newSource);
+			values.updateConfig(source);
 		}
 
 		String getSourceTypeName() {
@@ -117,11 +112,17 @@ class ModelSectionConfigPanel extends ConfigEditPanel<CoreHierarchyConfig> {
 	void deleteSource(CoreHierarchyConfig hierarchy) {
 
 		section.removeHierarchy(hierarchy);
+		getTargetHierarchyMonitor().onCoreHierarchyRemoved(hierarchy);
 	}
 
 	String getSourceTypeName() {
 
 		return "hierarchy";
+	}
+
+	void onSourceRelabelled(CoreHierarchyConfig hierarchy) {
+
+		getTargetHierarchyMonitor().onCoreHierarchyRelabelled(hierarchy);
 	}
 
 	ModelSectionConfigPanel(EditManager editManager, ModelSectionConfig section) {
@@ -143,7 +144,7 @@ class ModelSectionConfigPanel extends ConfigEditPanel<CoreHierarchyConfig> {
 
 	private JComponent createHierarchyComponent(CoreHierarchyConfig hierarchy) {
 
-		return hierarchyEditor.checkSourceEdits(hierarchy);
+		return hierarchyEditor.setupValueEdits(hierarchy);
 	}
 
 	private JComponent createAttributesComponent(CoreHierarchyConfig hierarchy) {
@@ -151,5 +152,10 @@ class ModelSectionConfigPanel extends ConfigEditPanel<CoreHierarchyConfig> {
 		return TitledPanels.create(
 					new AttributesConfigPanel(editManager, hierarchy),
 					ATTRIBUTES_TITLE);
+	}
+
+	private TargetHierarchyMonitor getTargetHierarchyMonitor() {
+
+		return editManager.getTargetHierarchyMonitor();
 	}
 }

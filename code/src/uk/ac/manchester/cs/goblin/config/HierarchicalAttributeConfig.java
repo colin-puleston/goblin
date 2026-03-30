@@ -28,12 +28,19 @@ public class HierarchicalAttributeConfig extends CoreAttributeConfig {
 
 		this.linksOption = linksOption;
 
-		if (rootSourceConceptId.equals(rootTargetConceptId)) {
+		checkValidRootConceptCombo(rootSourceConceptId, rootTargetConceptId);
+	}
 
-			throw new RuntimeException(
-						"Cannot create hierarchical attribute \"" + getLabel() + "\""
-						+ " with identical source and target hierarchies");
-		}
+	public void resetRootTargetConceptId(EntityId rootTargetConceptId) {
+
+		super.resetRootTargetConceptId(rootTargetConceptId);
+
+		checkValidRootConceptCombo(getRootSourceConceptId(), rootTargetConceptId);
+	}
+
+	public void resetLinksOption(HierarchicalLinksOption linksOption) {
+
+		this.linksOption = linksOption;
 	}
 
 	public HierarchicalLinksOption getLinksOption() {
@@ -49,5 +56,17 @@ public class HierarchicalAttributeConfig extends CoreAttributeConfig {
 	void accept(CoreAttributeConfigVisitor visitor) {
 
 		visitor.visit(this);
+	}
+
+	private void checkValidRootConceptCombo(
+						EntityId rootSourceConceptId,
+						EntityId rootTargetConceptId) {
+
+		if (rootSourceConceptId.equals(rootTargetConceptId)) {
+
+			throw new RuntimeException(
+						"Cannot create hierarchical attribute \"" + getLabel() + "\""
+						+ " with identical source and target hierarchies");
+		}
 	}
 }

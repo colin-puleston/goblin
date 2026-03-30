@@ -24,6 +24,8 @@
 
 package uk.ac.manchester.cs.goblin.gui.config;
 
+import java.util.*;
+
 import uk.ac.manchester.cs.goblin.config.*;
 
 /**
@@ -33,27 +35,24 @@ abstract class ValuesEditor<S extends LabelledConfigEntity, V extends ValuesPane
 
 	private EditManager editManager;
 
+	private Map<S, V> valuesBySource = new HashMap<S, V>();
+
 	private class EditListener extends ValuesPanelListener {
 
 		private V values;
-		private S currentSource;
+		private S source;
 
-		EditListener(V values, S currentSource) {
+		EditListener(S source, V values) {
 
 			this.values = values;
-			this.currentSource = currentSource;
+			this.source = source;
 
 			values.addListener(this);
 		}
 
 		void onValueEdit() {
 
-			S newSource = createSource(values);
-
-			newSource.resetLabel(currentSource.getLabel());
-			replaceSource(currentSource, newSource);
-
-			currentSource = newSource;
+			updateSource(source, values);
 
 			editManager.registerEdit();
 		}
@@ -70,7 +69,7 @@ abstract class ValuesEditor<S extends LabelledConfigEntity, V extends ValuesPane
 
 		if (values != null && checkNewValueSelection(values) && values.allValuesSet()) {
 
-			addNewSource(createSource(values));
+			addNewSource(values);
 
 			editManager.registerEdit();
 
@@ -80,24 +79,43 @@ abstract class ValuesEditor<S extends LabelledConfigEntity, V extends ValuesPane
 		return false;
 	}
 
-	V checkSourceEdits(S currentSource) {
+	V setupValueEdits(S source) {
 
-		V values = createValues(currentSource);
+		V values = createValues(source);
 
-		new EditListener(values, currentSource);
+		valuesBySource.put(source, values);
+
+		new EditListener(source, values);
 
 		return values;
 	}
 
+	boolean checkReinitialiseValueEdits(S source) {
+
+		V value = valuesBySource.get(source);
+
+		if (value != null) {
+
+			value.reinitialise();
+
+			return true;
+		}
+
+		return false;
+	}
+
+	boolean checkEndValueEdits(S source) {
+
+		return valuesBySource.remove(source) != null;
+	}
+
 	abstract V checkCreateEmptyValues();
 
-	abstract V createValues(S currentSource);
+	abstract V createValues(S source);
 
-	abstract S createSource(V values);
+	abstract void addNewSource(V values);
 
-	abstract void addNewSource(S newSource);
-
-	abstract void replaceSource(S oldSource, S newSource);
+	abstract void updateSource(S source, V values);
 
 	abstract String getSourceTypeName();
 

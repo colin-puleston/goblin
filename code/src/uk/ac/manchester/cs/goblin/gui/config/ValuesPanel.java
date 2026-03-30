@@ -295,6 +295,13 @@ class ValuesPanel extends JPanel {
 		add(createInnerPanel(), BorderLayout.NORTH);
 	}
 
+	void reinitialise() {
+
+		removeAll();
+		initialise();
+		revalidate();
+	}
+
 	void addListener(ValuesPanelListener listener) {
 
 		listeners.add(listener);
@@ -311,13 +318,6 @@ class ValuesPanel extends JPanel {
 		}
 
 		return true;
-	}
-
-	private void reinitialise() {
-
-		removeAll();
-		initialise();
-		revalidate();
 	}
 
 	private void setBorderGap(int size) {
