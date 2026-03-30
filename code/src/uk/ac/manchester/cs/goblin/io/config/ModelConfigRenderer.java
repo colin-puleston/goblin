@@ -4,6 +4,7 @@ import uk.ac.manchester.cs.mekon_util.xdoc.*;
 
 import uk.ac.manchester.cs.goblin.model.*;
 import uk.ac.manchester.cs.goblin.config.*;
+import uk.ac.manchester.cs.goblin.io.ontology.*;
 
 /**
  * @author Colin Puleston
@@ -112,6 +113,6 @@ class ModelConfigRenderer extends ConfigFileSerialiser {
 
 	private void renderEntityIRI(XNode node, String tag, EntityId id) {
 
-		node.setValue(tag, id.getName());
+		node.setValue(tag, ((CoreId)id).getIRI());
 	}
 }
