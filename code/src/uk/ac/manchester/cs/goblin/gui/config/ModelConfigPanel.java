@@ -109,19 +109,41 @@ class ModelConfigPanel extends JPanel {
 
 		modelConfig = editManager.getModelConfig();
 
+		populate();
+	}
+
+	boolean setMultiSections(boolean multiSections) {
+
+		if (multiSections ? toMultiSections() : toSingleSection()) {
+
+			repopulate();
+
+			editManager.registerEdit();
+
+			return true;
+		}
+
+		return false;
+	}
+
+	private void populate() {
+
 		add(createMainPanel(), BorderLayout.CENTER);
+	}
+
+	private void repopulate() {
+
+		removeAll();
+		populate();
+		revalidate();
 	}
 
 	private JComponent createMainPanel() {
 
-		List<ModelSectionConfig> sections = modelConfig.getSections();
+		if (modelConfig.singleSectionModel()) {
 
-		return sections.size() == 1
-				? createSectionComponent(sections.get(0))
-				: createMultiSectionComponent();
-	}
-
-	private JComponent createMultiSectionComponent() {
+			return createSectionComponent(getSingleSection());
+		}
 
 		return TitledPanels.create(new MultiSectionPanel(), SECTIONS_TITLE);
 	}
@@ -131,5 +153,44 @@ class ModelConfigPanel extends JPanel {
 		return TitledPanels.create(
 					new ModelSectionConfigPanel(editManager, section),
 					HIERARCHIES_TITLE);
+	}
+
+	private boolean toMultiSections() {
+
+		String label = checkInputInitialSectionLabel();
+
+		if (label != null) {
+
+			getSingleSection().resetLabel(label);
+
+			return true;
+		}
+
+		return false;
+	}
+
+	private boolean toSingleSection() {
+
+		if (modelConfig.getSections().size() != 1) {
+
+			if (!InfoDisplay.checkContinue("All current sections will be merged")) {
+
+				return false;
+			}
+		}
+
+		modelConfig.toSingleSection();
+
+		return true;
+	}
+
+	private String checkInputInitialSectionLabel() {
+
+		return new LabelSelector(this, "initial section").getSelectionOrNull();
+	}
+
+	private ModelSectionConfig getSingleSection() {
+
+		return modelConfig.getSections().get(0);
 	}
 }

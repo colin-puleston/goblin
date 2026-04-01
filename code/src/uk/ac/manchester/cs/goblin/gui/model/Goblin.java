@@ -45,6 +45,9 @@ public class Goblin extends GoblinApp {
 	static private final int FRAME_WIDTH = 1200;
 	static private final int FRAME_HEIGHT = 700;
 
+	static private final String UNDO_BUTTON_LABEL = "Undo";
+	static private final String REDO_BUTTON_LABEL = "Redo";
+
 	static public void main(String[] args) {
 
 		new Goblin(getTitleSuffix(args));
@@ -67,6 +70,46 @@ public class Goblin extends GoblinApp {
 	private int undoCount = 0;
 
 	private ModelPanel modelPanel;
+
+	private class UndoButton extends EditsEnabledButton {
+
+		static private final long serialVersionUID = -1;
+
+		protected boolean canDoButtonThing() {
+
+			return Goblin.this.model.canUndo();
+		}
+
+		protected void doButtonThing() {
+
+			performUndoAction();
+		}
+
+		UndoButton() {
+
+			super(UNDO_BUTTON_LABEL);
+		}
+	}
+
+	private class RedoButton extends EditsEnabledButton {
+
+		static private final long serialVersionUID = -1;
+
+		protected boolean canDoButtonThing() {
+
+			return Goblin.this.model.canRedo();
+		}
+
+		protected void doButtonThing() {
+
+			performRedoAction();
+		}
+
+		RedoButton() {
+
+			super(REDO_BUTTON_LABEL);
+		}
+	}
 
 	private class EditRelayer implements ModelEditListener {
 
@@ -104,9 +147,14 @@ public class Goblin extends GoblinApp {
 		display();
 	}
 
-	protected JComponent getMainApplicationComponent() {
+	protected JComponent getMainAppComponent() {
 
 		return modelPanel;
+	}
+
+	protected JComponent getAppSpecificButtonsOrNull() {
+
+		return ControlsPanel.horizontal(new UndoButton(), new RedoButton());
 	}
 
 	protected boolean unsavedEdits() {
@@ -120,37 +168,6 @@ public class Goblin extends GoblinApp {
 
 		editCount = 0;
 		undoCount = 0;
-	}
-
-	protected boolean enableUndoRedoActions() {
-
-		return true;
-	}
-
-	protected boolean canUndo() {
-
-		return model.canUndo();
-	}
-
-	protected boolean canRedo() {
-
-		return model.canRedo();
-	}
-
-	protected void performUndoAction() {
-
-		undoCount++;
-		editCount--;
-
-		modelPanel.makeEditVisible(model.undo());
-	}
-
-	protected void performRedoAction() {
-
-		undoCount--;
-		editCount--;
-
-		modelPanel.makeEditVisible(model.redo());
 	}
 
 	protected File getEditFile() {
@@ -183,5 +200,21 @@ public class Goblin extends GoblinApp {
 		getInfoDisplay().informStartupError(e);
 
 		System.exit(0);
+	}
+
+	private void performUndoAction() {
+
+		undoCount++;
+		editCount--;
+
+		modelPanel.makeEditVisible(model.undo());
+	}
+
+	private void performRedoAction() {
+
+		undoCount--;
+		editCount--;
+
+		modelPanel.makeEditVisible(model.redo());
 	}
 }

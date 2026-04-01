@@ -25,7 +25,11 @@
 package uk.ac.manchester.cs.goblin.gui.config;
 
 import java.io.*;
+import java.awt.*;
 import javax.swing.*;
+import javax.swing.border.*;
+
+import uk.ac.manchester.cs.mekon_util.gui.*;
 
 import uk.ac.manchester.cs.goblin.config.*;
 import uk.ac.manchester.cs.goblin.io.config.*;
@@ -44,6 +48,9 @@ public class GoblinConfig extends GoblinApp {
 	static private final int FRAME_WIDTH = 1200;
 	static private final int FRAME_HEIGHT = 800;
 
+	static private final String SINGLE_SECTION_MODEL = "Single-section model";
+	static private final String MULTI_SECTION_MODEL = "Multi-section model";
+
 	static public void main(String[] args) {
 
 		new GoblinConfig();
@@ -58,6 +65,53 @@ public class GoblinConfig extends GoblinApp {
 
 	private EditManager editManager;
 	private ModelConfigPanel modelConfigPanel;
+
+	private class ModelModeSelector extends GStringSelectorBox {
+
+		static private final long serialVersionUID = -1;
+
+		private boolean resettingSelection = false;
+
+		protected void onSelection(String selection) {
+
+			if (!resettingSelection) {
+
+				boolean toMultiSections = selection == MULTI_SECTION_MODEL;
+
+				if (toMultiSections == singleSectionModel()) {
+
+					if (!modelConfigPanel.setMultiSections(toMultiSections)) {
+
+						resettingSelection = true;
+						setSelectedItem(getMode(toMultiSections));
+						resettingSelection = false;
+					}
+				}
+			}
+		}
+
+		ModelModeSelector() {
+
+			setFont(GFonts.toMedium(getFont()));
+
+			addOption(SINGLE_SECTION_MODEL);
+			addOption(MULTI_SECTION_MODEL);
+
+			setSelectedItem(getMode(singleSectionModel()));
+
+			activate();
+		}
+
+		private String getMode(boolean singleSection) {
+
+			return singleSection ? SINGLE_SECTION_MODEL : MULTI_SECTION_MODEL;
+		}
+
+		private boolean singleSectionModel() {
+
+			return editManager.getModelConfig().singleSectionModel();
+		}
+	}
 
 	private class EditRelayManager extends EditManager {
 
@@ -78,13 +132,24 @@ public class GoblinConfig extends GoblinApp {
 
 		serialiser = loadConfigFileOrExit();
 		editManager = new EditRelayManager();
+		modelConfigPanel = new ModelConfigPanel(editManager);
 
 		display();
 	}
 
-	protected JComponent getMainApplicationComponent() {
+	protected JComponent getMainAppComponent() {
 
-		return new ModelConfigPanel(editManager);
+		return modelConfigPanel;
+	}
+
+	protected JComponent getExtraAppSpecificControlsOrNull() {
+
+		JPanel panel = new JPanel(new BorderLayout());
+
+		panel.setBorder(LineBorder.createGrayLineBorder());
+		panel.add(new ModelModeSelector(), BorderLayout.WEST);
+
+		return panel;
 	}
 
 	protected boolean unsavedEdits() {

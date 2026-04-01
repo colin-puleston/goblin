@@ -43,6 +43,11 @@ public class ModelSectionConfig extends LabelledConfigEntity {
 		return section;
 	}
 
+	void addHierarchies(List<CoreHierarchyConfig> hierarchies) {
+
+		this.hierarchies.addAll(hierarchies);
+	}
+
 	void addCoreAttributes(ModelSection section) {
 
 		Iterator<Hierarchy> createdHierarchies = section.getCoreHierarchies().iterator();

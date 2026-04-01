@@ -45,18 +45,15 @@ public abstract class GoblinApp extends GFrame {
 	static private final String SAVE_BUTTON_LABEL = "Save";
 	static private final String EXIT_BUTTON_LABEL = "Exit";
 
-	static private final String UNDO_BUTTON_LABEL = "Undo";
-	static private final String REDO_BUTTON_LABEL = "Redo";
-
 	private AppInfoDisplay infoDisplay;
 
 	private List<EditsEnabledButton> editsEnabledButtons = new ArrayList<EditsEnabledButton>();
 
-	private abstract class EditsEnabledButton extends GButton {
+	protected abstract class EditsEnabledButton extends GButton {
 
 		static private final long serialVersionUID = -1;
 
-		EditsEnabledButton(String label) {
+		protected EditsEnabledButton(String label) {
 
 			super(label);
 
@@ -65,17 +62,22 @@ public abstract class GoblinApp extends GFrame {
 			editsEnabledButtons.add(this);
 		}
 
+		protected abstract boolean canDoButtonThing();
+
 		void onEdit() {
 
 			setEnabled(canDoButtonThing());
 		}
-
-		abstract boolean canDoButtonThing();
 	}
 
 	private class SaveButton extends EditsEnabledButton {
 
 		static private final long serialVersionUID = -1;
+
+		protected boolean canDoButtonThing() {
+
+			return unsavedEdits();
+		}
 
 		protected void doButtonThing() {
 
@@ -88,11 +90,6 @@ public abstract class GoblinApp extends GFrame {
 		SaveButton() {
 
 			super(SAVE_BUTTON_LABEL);
-		}
-
-		boolean canDoButtonThing() {
-
-			return unsavedEdits();
 		}
 	}
 
@@ -111,46 +108,6 @@ public abstract class GoblinApp extends GFrame {
 		ExitButton() {
 
 			super(EXIT_BUTTON_LABEL);
-		}
-	}
-
-	private class UndoButton extends EditsEnabledButton {
-
-		static private final long serialVersionUID = -1;
-
-		protected void doButtonThing() {
-
-			performUndoAction();
-		}
-
-		UndoButton() {
-
-			super(UNDO_BUTTON_LABEL);
-		}
-
-		boolean canDoButtonThing() {
-
-			return canUndo();
-		}
-	}
-
-	private class RedoButton extends EditsEnabledButton {
-
-		static private final long serialVersionUID = -1;
-
-		protected void doButtonThing() {
-
-			performRedoAction();
-		}
-
-		RedoButton() {
-
-			super(REDO_BUTTON_LABEL);
-		}
-
-		boolean canDoButtonThing() {
-
-			return canRedo();
 		}
 	}
 
@@ -180,36 +137,21 @@ public abstract class GoblinApp extends GFrame {
 		display(createMainPanel());
 	}
 
-	protected abstract JComponent getMainApplicationComponent();
+	protected abstract JComponent getMainAppComponent();
+
+	protected JComponent getAppSpecificButtonsOrNull() {
+
+		return null;
+	}
+
+	protected JComponent getExtraAppSpecificControlsOrNull() {
+
+		return null;
+	}
 
 	protected abstract boolean unsavedEdits();
 
 	protected abstract void save();
-
-	protected boolean enableUndoRedoActions() {
-
-		return false;
-	}
-
-	protected boolean canUndo() {
-
-		throw new UnsupportedOperationException();
-	}
-
-	protected boolean canRedo() {
-
-		throw new UnsupportedOperationException();
-	}
-
-	protected void performUndoAction() {
-
-		throw new UnsupportedOperationException();
-	}
-
-	protected void performRedoAction() {
-
-		throw new UnsupportedOperationException();
-	}
 
 	protected abstract File getEditFile();
 
@@ -262,31 +204,35 @@ public abstract class GoblinApp extends GFrame {
 
 		JPanel panel = new JPanel(new BorderLayout());
 
-		panel.add(getMainApplicationComponent(), BorderLayout.CENTER);
-		panel.add(createExternalActionsPanel(), BorderLayout.NORTH);
+		panel.add(createButtonsPanel(), BorderLayout.NORTH);
+		panel.add(getMainAppComponent(), BorderLayout.CENTER);
+
+		JComponent controls = getExtraAppSpecificControlsOrNull();
+
+		if (controls != null) {
+
+			panel.add(controls, BorderLayout.SOUTH);
+		}
 
 		return panel;
 	}
 
-	private JComponent createExternalActionsPanel() {
+	private JComponent createButtonsPanel() {
 
 		JPanel panel = new JPanel(new BorderLayout());
 
 		panel.setBorder(LineBorder.createGrayLineBorder());
 
-		if (enableUndoRedoActions()) {
+		JComponent buttons = getAppSpecificButtonsOrNull();
 
-			panel.add(createUndoRedoActionButtons(), BorderLayout.WEST);
+		if (buttons != null) {
+
+			panel.add(buttons, BorderLayout.WEST);
 		}
 
 		panel.add(createExternalActionButtons(), BorderLayout.EAST);
 
 		return panel;
-	}
-
-	private JComponent createUndoRedoActionButtons() {
-
-		return ControlsPanel.horizontal(new UndoButton(), new RedoButton());
 	}
 
 	private JComponent createExternalActionButtons() {

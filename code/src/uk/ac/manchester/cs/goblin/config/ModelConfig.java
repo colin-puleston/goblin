@@ -9,19 +9,26 @@ import uk.ac.manchester.cs.goblin.model.*;
  */
 public class ModelConfig {
 
-	static private final String DEFAULT_SECTION_NAME_PREFIX = "Section-";
+	static private final String SINGLE_SECTION_MODEL_LABEL = "SINGLE SECTION MODEL";
 
+	private ModelSectionConfig defaultSection = new ModelSectionConfig(SINGLE_SECTION_MODEL_LABEL);
 	private List<ModelSectionConfig> sections = new ArrayList<ModelSectionConfig>();
 
-	public ModelSectionConfig addSection() {
+	public ModelConfig() {
 
-		return addSection(DEFAULT_SECTION_NAME_PREFIX + sections.size());
+		sections.add(defaultSection);
+	}
+
+	public ModelSectionConfig addSingleSection() {
+
+		return addSection(SINGLE_SECTION_MODEL_LABEL);
 	}
 
 	public ModelSectionConfig addSection(String label) {
 
 		ModelSectionConfig section = new ModelSectionConfig(label);
 
+		checkRemoveDefaultSection();
 		sections.add(section);
 
 		return section;
@@ -30,6 +37,19 @@ public class ModelConfig {
 	public void removeSection(ModelSectionConfig section) {
 
 		sections.remove(section);
+	}
+
+	public void toSingleSection() {
+
+		List<CoreHierarchyConfig> allHierarchies = getHierarchies();
+
+		sections.clear();
+		addSingleSection().addHierarchies(allHierarchies);
+	}
+
+	public boolean singleSectionModel() {
+
+		return sections.size() == 1 && sections.get(0).getLabel().equals(SINGLE_SECTION_MODEL_LABEL);
 	}
 
 	public List<ModelSectionConfig> getSections() {
@@ -66,5 +86,13 @@ public class ModelConfig {
 		}
 
 		return model;
+	}
+
+	private void checkRemoveDefaultSection() {
+
+		if (sections.size() == 1 && sections.get(0) == defaultSection) {
+
+			sections.clear();
+		}
 	}
 }
