@@ -39,7 +39,13 @@ public class ModelConfig {
 		sections.remove(section);
 	}
 
-	public void toSingleSection() {
+	public void reorderSections(List<ModelSectionConfig> newOrderedSections) {
+
+		sections.clear();
+		sections.addAll(newOrderedSections);
+	}
+
+	public void toSingleSectionMode() {
 
 		List<CoreHierarchyConfig> allHierarchies = getHierarchies();
 
@@ -47,7 +53,7 @@ public class ModelConfig {
 		addSingleSection().addHierarchies(allHierarchies);
 	}
 
-	public boolean singleSectionModel() {
+	public boolean singleSectionMode() {
 
 		return sections.size() == 1 && sections.get(0).getLabel().equals(SINGLE_SECTION_MODEL_LABEL);
 	}

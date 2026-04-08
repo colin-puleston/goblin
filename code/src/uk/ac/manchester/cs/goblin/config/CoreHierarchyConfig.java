@@ -48,6 +48,12 @@ public class CoreHierarchyConfig extends LabelledConfigEntity {
 		coreAttributes.remove(attribute);
 	}
 
+	public void reorderCoreAttributes(List<CoreAttributeConfig> newOrderedAttributes) {
+
+		coreAttributes.clear();
+		coreAttributes.addAll(newOrderedAttributes);
+	}
+
 	public EntityId getRootConceptId() {
 
 		return rootConceptId;

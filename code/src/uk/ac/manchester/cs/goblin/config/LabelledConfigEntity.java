@@ -17,6 +17,11 @@ public abstract class LabelledConfigEntity {
 		return label;
 	}
 
+	public String toString() {
+
+		return label;
+	}
+
 	LabelledConfigEntity(String label) {
 
 		this.label = label;
