@@ -54,7 +54,7 @@ class ModelConfigPanel extends JPanel {
 
 		protected List<ModelSectionConfig> getSources() {
 
-			return modelConfig.getSections();
+			return getSections();
 		}
 
 		protected String getTitle(ModelSectionConfig section) {
@@ -90,9 +90,19 @@ class ModelConfigPanel extends JPanel {
 			return false;
 		}
 
+		boolean sourcesDeletable() {
+
+			return !singleSection();
+		}
+
 		void deleteSource(ModelSectionConfig section) {
 
 			modelConfig.removeSection(section);
+		}
+
+		void reorderSources(List<ModelSectionConfig> newOrderedSections) {
+
+			modelConfig.reorderSections(newOrderedSections);
 		}
 
 		String getSourceTypeName() {
@@ -114,7 +124,7 @@ class ModelConfigPanel extends JPanel {
 
 	boolean setMultiSections(boolean multiSections) {
 
-		if (multiSections ? toMultiSections() : toSingleSection()) {
+		if (multiSections ? toMultiSectionMode() : toSingleSectionMode()) {
 
 			repopulate();
 
@@ -140,22 +150,30 @@ class ModelConfigPanel extends JPanel {
 
 	private JComponent createMainPanel() {
 
-		if (modelConfig.singleSectionModel()) {
+		if (modelConfig.singleSectionMode()) {
 
 			return createSectionComponent(getSingleSection());
 		}
 
-		return TitledPanels.create(new MultiSectionPanel(), SECTIONS_TITLE);
+		return createMultiSectionComponent();
+	}
+
+	private JComponent createMultiSectionComponent() {
+
+		return new MultiSectionPanel().createFullEditComponent(SECTIONS_TITLE);
 	}
 
 	private JComponent createSectionComponent(ModelSectionConfig section) {
 
-		return TitledPanels.create(
-					new ModelSectionConfigPanel(editManager, section),
-					HIERARCHIES_TITLE);
+		return createSectionPanel(section).createFullEditComponent(HIERARCHIES_TITLE);
 	}
 
-	private boolean toMultiSections() {
+	private ModelSectionConfigPanel createSectionPanel(ModelSectionConfig section) {
+
+		return new ModelSectionConfigPanel(editManager, section);
+	}
+
+	private boolean toMultiSectionMode() {
 
 		String label = checkInputInitialSectionLabel();
 
@@ -169,19 +187,22 @@ class ModelConfigPanel extends JPanel {
 		return false;
 	}
 
-	private boolean toSingleSection() {
+	private boolean toSingleSectionMode() {
 
-		if (modelConfig.getSections().size() != 1) {
+		if (singleSection() || checkConfirmSectionMerging()) {
 
-			if (!InfoDisplay.checkContinue("All current sections will be merged")) {
+			modelConfig.toSingleSectionMode();
 
-				return false;
-			}
+			return true;
 		}
 
-		modelConfig.toSingleSection();
+		return false;
+	}
 
-		return true;
+	private boolean checkConfirmSectionMerging() {
+
+		return InfoDisplay.checkContinue(
+					"All current sections will be merged to form initial section");
 	}
 
 	private String checkInputInitialSectionLabel() {
@@ -189,8 +210,18 @@ class ModelConfigPanel extends JPanel {
 		return new LabelSelector(this, "initial section").getSelectionOrNull();
 	}
 
+	private boolean singleSection() {
+
+		return getSections().size() == 1;
+	}
+
 	private ModelSectionConfig getSingleSection() {
 
-		return modelConfig.getSections().get(0);
+		return getSections().get(0);
+	}
+
+	private List<ModelSectionConfig> getSections() {
+
+		return modelConfig.getSections();
 	}
 }

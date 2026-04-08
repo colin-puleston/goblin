@@ -69,7 +69,7 @@ class HierarchySelector extends GDialog {
 			dispose();
 		}
 
-		protected void onDeselected(Option selected) {
+		protected void onDeselected(Option option) {
 		}
 
 		ListSelectionListener(GList<Option> list) {

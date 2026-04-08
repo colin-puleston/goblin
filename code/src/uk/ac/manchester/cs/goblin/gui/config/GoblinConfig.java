@@ -78,7 +78,7 @@ public class GoblinConfig extends GoblinApp {
 
 				boolean toMultiSections = selection == MULTI_SECTION_MODEL;
 
-				if (toMultiSections == singleSectionModel()) {
+				if (toMultiSections == singleSectionMode()) {
 
 					if (!modelConfigPanel.setMultiSections(toMultiSections)) {
 
@@ -97,7 +97,7 @@ public class GoblinConfig extends GoblinApp {
 			addOption(SINGLE_SECTION_MODEL);
 			addOption(MULTI_SECTION_MODEL);
 
-			setSelectedItem(getMode(singleSectionModel()));
+			setSelectedItem(getMode(singleSectionMode()));
 
 			activate();
 		}
@@ -107,9 +107,9 @@ public class GoblinConfig extends GoblinApp {
 			return singleSection ? SINGLE_SECTION_MODEL : MULTI_SECTION_MODEL;
 		}
 
-		private boolean singleSectionModel() {
+		private boolean singleSectionMode() {
 
-			return editManager.getModelConfig().singleSectionModel();
+			return editManager.getModelConfig().singleSectionMode();
 		}
 	}
 

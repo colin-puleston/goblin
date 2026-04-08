@@ -154,6 +154,11 @@ class AttributesConfigPanel extends ConfigEditPanel<CoreAttributeConfig> {
 		checkDeleteAttribute(attribute);
 	}
 
+	void reorderSources(List<CoreAttributeConfig> newOrderedAttributes) {
+
+		hierarchy.reorderCoreAttributes(newOrderedAttributes);
+	}
+
 	String getSourceTypeName() {
 
 		return "attribute";

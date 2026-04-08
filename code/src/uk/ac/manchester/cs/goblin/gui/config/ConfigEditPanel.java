@@ -24,9 +24,12 @@
 
 package uk.ac.manchester.cs.goblin.gui.config;
 
-import java.awt.*;
+import java.util.*;
+import java.awt.Color;
+import java.awt.BorderLayout;
 import javax.swing.*;
 import javax.swing.event.*;
+import javax.swing.border.*;
 
 import uk.ac.manchester.cs.mekon_util.gui.*;
 
@@ -41,36 +44,102 @@ abstract class ConfigEditPanel<S extends LabelledConfigEntity> extends MultiTabP
 	static private final long serialVersionUID = -1;
 
 	static private final String ADD_TAB_LABEL = "Add...";
-	static private final String RELABEL_BUTTON_LABEL = "Relabel...";
+	static private final String REORDER_TAB_LABEL = "Order...";
+	static private final String RELABEL_BUTTON_LABEL = "Label...";
 	static private final String DELETE_BUTTON_LABEL = "Delete";
 
 	static private final Color CONTROL_LABEL_COLOUR = Color.GREEN.darker().darker();
 
 	private EditManager editManager;
-	private boolean additionHandlingEnabled = true;
 
-	private class AdditionHandler implements ChangeListener {
+	private List<ControlTabListener> controlTabListeners = new ArrayList<ControlTabListener>();
+	private Map<S, SourceDeleteButton> sourceDeleteButtons = new HashMap<S, SourceDeleteButton>();
+
+	private abstract class ControlTabListener implements ChangeListener {
 
 		public void stateChanged(ChangeEvent e) {
 
-			if (additionHandlingEnabled && getSelectedIndex() == additionTabIndex()) {
+			if (getSelectedIndex() == controlTabIndex()) {
 
-				if (checkRegisterEdit(checkNewSource())) {
-
-					repopulate();
-
-					setSelectedIndex(additionTabIndex() - 1);
-				}
-				else {
-
-					setCurrentSelection(-1);
-				}
+				setSelectedIndex(checkPerformControlAction());
 			}
 		}
 
-		AdditionHandler() {
+		ControlTabListener() {
 
 			addChangeListener(this);
+
+			controlTabListeners.add(this);
+		}
+
+		abstract int controlTabIndex();
+
+		abstract int postActionTabSelectionIndex();
+
+		abstract boolean performControlAction();
+
+		private int checkPerformControlAction() {
+
+			if (checkRegisterEdit(performControlAction())) {
+
+				repopulate();
+
+				return postActionTabSelectionIndex();
+			}
+
+			return -1;
+		}
+	}
+
+	private class AdditionHandler extends ControlTabListener {
+
+		int controlTabIndex() {
+
+			return firstControlTabIndex();
+		}
+
+		int postActionTabSelectionIndex() {
+
+			return lastSourceIndex();
+		}
+
+		boolean performControlAction() {
+
+			return checkNewSource();
+		}
+	}
+
+	private class ReorderHandler extends ControlTabListener {
+
+		int controlTabIndex() {
+
+			return lastTabIndex();
+		}
+
+		int postActionTabSelectionIndex() {
+
+			return -1;
+		}
+
+		boolean performControlAction() {
+
+			EntityReorderDialog<S> dialog = createReorderDialog();
+
+			if (dialog.reordered()) {
+
+				reorderSources(dialog.getCurrentOrder());
+
+				editManager.registerEdit();
+
+				return true;
+			}
+
+			return false;
+		}
+
+		private EntityReorderDialog<S> createReorderDialog() {
+
+			return new EntityReorderDialog<S>(getSources(), getSourceTypeName());
 		}
 	}
 
@@ -139,6 +208,15 @@ abstract class ConfigEditPanel<S extends LabelledConfigEntity> extends MultiTabP
 		SourceDeleteButton(S source) {
 
 			super(DELETE_BUTTON_LABEL, source);
+
+			updateEnabling();
+
+			sourceDeleteButtons.put(source, this);
+		}
+
+		void updateEnabling() {
+
+			setEnabled(sourcesDeletable());
 		}
 
 		boolean performSourceAction(S source) {
@@ -146,6 +224,7 @@ abstract class ConfigEditPanel<S extends LabelledConfigEntity> extends MultiTabP
 			if (checkRegisterEdit(checkConfirmDeletion(source))) {
 
 				deleteSource(source);
+				sourceDeleteButtons.remove(source);
 
 				return true;
 			}
@@ -167,22 +246,16 @@ abstract class ConfigEditPanel<S extends LabelledConfigEntity> extends MultiTabP
 	public void populate() {
 
 		super.populate();
-
-		addAdditionTab();
-		setCurrentSelection(0);
-
-		new AdditionHandler();
+		addControlTabs();
 	}
 
 	public void repopulate() {
 
-		additionHandlingEnabled = false;
-
-		removeAdditionTab();
+		removeControlTabs();
 		super.repopulate();
-		addAdditionTab();
+//		addControlTabs();
 
-		additionHandlingEnabled = true;
+		updateSourceDeleteButtons();
 	}
 
 	protected JComponent checkWrapComponent(S source, JComponent comp) {
@@ -202,9 +275,21 @@ abstract class ConfigEditPanel<S extends LabelledConfigEntity> extends MultiTabP
 		this.editManager = editManager;
 	}
 
+	JComponent createFullEditComponent(String title) {
+
+		return TitledPanels.create(this, title);
+	}
+
 	abstract boolean checkNewSource();
 
+	boolean sourcesDeletable() {
+
+		return true;
+	}
+
 	abstract void deleteSource(S source);
+
+	abstract void reorderSources(List<S> newOrderedSources);
 
 	abstract String getSourceTypeName();
 
@@ -220,6 +305,7 @@ abstract class ConfigEditPanel<S extends LabelledConfigEntity> extends MultiTabP
 
 		JPanel panel = new JPanel(new BorderLayout());
 
+		panel.setBorder(LineBorder.createGrayLineBorder());
 		panel.add(createButtonsComponent(source), BorderLayout.WEST);
 
 		return panel;
@@ -232,16 +318,53 @@ abstract class ConfigEditPanel<S extends LabelledConfigEntity> extends MultiTabP
 					new SourceDeleteButton(source));
 	}
 
-	private void addAdditionTab() {
+	private void addControlTabs() {
 
-		addTab(null, new JPanel());
+		addControlTab(ADD_TAB_LABEL);
 
-		setTabComponentAt(additionTabIndex(), createAdditionTabLabel());
+		new AdditionHandler();
+
+		if (sourceCount() > 1) {
+
+			addControlTab(REORDER_TAB_LABEL);
+
+			new ReorderHandler();
+		}
 	}
 
-	private JLabel createAdditionTabLabel() {
+	private void removeControlTabs() {
 
-		JLabel label = createTabLabel(ADD_TAB_LABEL);
+		int preRemoveCount = controlTabListeners.size();
+
+		int i = preRemoveCount;
+		int j = preRemoveCount;
+
+		do {
+
+			removeChangeListener(controlTabListeners.remove(i - 1));
+		}
+		while (--i > 0);
+
+		do {
+
+			removeTabAt(lastTabIndex());
+		}
+		while (--j > 0);
+	}
+
+	private void addControlTab(String label) {
+
+		int currentSel = getSelectedIndex();
+
+		addTab(null, new JPanel());
+		setTabComponentAt(lastTabIndex(), createControlTabLabel(label));
+
+		setSelectedIndex(currentSel);
+	}
+
+	private JLabel createControlTabLabel(String text) {
+
+		JLabel label = createTabLabel(text);
 
 		label.setForeground(CONTROL_LABEL_COLOUR);
 
@@ -257,17 +380,30 @@ abstract class ConfigEditPanel<S extends LabelledConfigEntity> extends MultiTabP
 		return label;
 	}
 
-	private void removeAdditionTab() {
+	private void updateSourceDeleteButtons() {
 
-		removeTabAt(additionTabIndex());
+		for (SourceDeleteButton button : sourceDeleteButtons.values()) {
+
+			button.updateEnabling();
+		}
 	}
 
-	private void setCurrentSelection(int currentSourceIndex) {
+	private int sourceCount() {
 
-		setSelectedIndex(additionTabIndex() != 0 ? currentSourceIndex : -1);
+		return getSources().size();
 	}
 
-	private int additionTabIndex() {
+	private int lastSourceIndex() {
+
+		return sourceCount() - 1;
+	}
+
+	private int firstControlTabIndex() {
+
+		return sourceCount() > 1 ? (lastTabIndex() - 1) : lastTabIndex();
+	}
+
+	private int lastTabIndex() {
 
 		return getTabCount() - 1;
 	}

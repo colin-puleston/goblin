@@ -115,6 +115,11 @@ class ModelSectionConfigPanel extends ConfigEditPanel<CoreHierarchyConfig> {
 		getTargetHierarchyMonitor().onCoreHierarchyRemoved(hierarchy);
 	}
 
+	void reorderSources(List<CoreHierarchyConfig> newOrderedHierarchies) {
+
+		section.reorderHierarchies(newOrderedHierarchies);
+	}
+
 	String getSourceTypeName() {
 
 		return "hierarchy";
@@ -149,9 +154,12 @@ class ModelSectionConfigPanel extends ConfigEditPanel<CoreHierarchyConfig> {
 
 	private JComponent createAttributesComponent(CoreHierarchyConfig hierarchy) {
 
-		return TitledPanels.create(
-					new AttributesConfigPanel(editManager, hierarchy),
-					ATTRIBUTES_TITLE);
+		return createAttributesPanel(hierarchy).createFullEditComponent(ATTRIBUTES_TITLE);
+	}
+
+	private AttributesConfigPanel createAttributesPanel(CoreHierarchyConfig hierarchy) {
+
+		return new AttributesConfigPanel(editManager, hierarchy);
 	}
 
 	private TargetHierarchyMonitor getTargetHierarchyMonitor() {

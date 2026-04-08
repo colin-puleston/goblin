@@ -50,8 +50,8 @@ public abstract class MultiTabPanel<S> extends JTabbedPane {
 
 			int selectedIndex = getNewSelectedIndex();
 
-			removeOldTabs();
-			insertNewTabs();
+			removeAll();
+			populate();
 
 			if (selectedIndex != -1) {
 
@@ -69,46 +69,6 @@ public abstract class MultiTabPanel<S> extends JTabbedPane {
 			}
 
 			return sources.indexOf(oldSources.get(oldIdx));
-		}
-
-		private void removeOldTabs() {
-
-			int tabIdx = 0;
-
-			for (S source : new ArrayList<S>(oldSources)) {
-
-				if (sources.contains(source)) {
-
-					tabIdx++;
-				}
-				else {
-
-					removeTabAt(tabIdx);
-
-					oldSources.remove(source);
-					onRemoved(source);
-				}
-			}
-		}
-
-		private void insertNewTabs() {
-
-			int tabIdx = 0;
-			int oldIdx = 0;
-
-			for (S source : sources) {
-
-				if (oldIdx < oldSources.size() && oldSources.get(oldIdx).equals(source)) {
-
-					oldIdx++;
-				}
-				else {
-
-					addSourceTab(source, tabIdx);
-				}
-
-				tabIdx++;
-			}
 		}
 	}
 
