@@ -11,12 +11,13 @@ public class ModelConfig {
 
 	static private final String SINGLE_SECTION_MODEL_LABEL = "SINGLE SECTION MODEL";
 
-	private ModelSectionConfig defaultSection = new ModelSectionConfig(SINGLE_SECTION_MODEL_LABEL);
 	private List<ModelSectionConfig> sections = new ArrayList<ModelSectionConfig>();
+
+	private TargetHierarchyManager targetHierarchyManager = new TargetHierarchyManager(this);
 
 	public ModelConfig() {
 
-		sections.add(defaultSection);
+		addSingleSection();
 	}
 
 	public ModelSectionConfig addSingleSection() {
@@ -26,12 +27,17 @@ public class ModelConfig {
 
 	public ModelSectionConfig addSection(String label) {
 
-		ModelSectionConfig section = new ModelSectionConfig(label);
+		ModelSectionConfig section = new ModelSectionConfig(this, label);
 
 		checkRemoveDefaultSection();
 		sections.add(section);
 
 		return section;
+	}
+
+	public void addTargetHierarchyListener(TargetHierarchyListener listener) {
+
+		targetHierarchyManager.addListener(listener);
 	}
 
 	public void removeSection(ModelSectionConfig section) {
@@ -55,7 +61,9 @@ public class ModelConfig {
 
 	public boolean singleSectionMode() {
 
-		return sections.size() == 1 && sections.get(0).getLabel().equals(SINGLE_SECTION_MODEL_LABEL);
+		ModelSectionConfig section = getSingleSectionModeSectionOrNull();
+
+		return section != null && section.getLabel().equals(SINGLE_SECTION_MODEL_LABEL);
 	}
 
 	public List<ModelSectionConfig> getSections() {
@@ -77,28 +85,60 @@ public class ModelConfig {
 
 	public Model createModel() {
 
-		Model model = new Model();
+		Model createdModel = new Model();
 
 		for (ModelSectionConfig section : sections) {
 
-			model.addSection(section.createSection(model));
+			createdModel.addSection(section.createSection(createdModel));
 		}
 
-		Iterator<ModelSection> createdSections = model.getSections().iterator();
+		Iterator<ModelSection> createdSections = createdModel.getSections().iterator();
 
 		for (ModelSectionConfig section : sections) {
 
 			section.addCoreAttributes(createdSections.next());
 		}
 
-		return model;
+		return createdModel;
+	}
+
+	void onCoreHierarchyRelabelled(CoreHierarchyConfig hierarchy) {
+
+		targetHierarchyManager.onCoreHierarchyRelabelled(hierarchy);
+	}
+
+	void onCoreHierarchyRemoved(CoreHierarchyConfig hierarchy) {
+
+		targetHierarchyManager.onCoreHierarchyRemoved(hierarchy);
 	}
 
 	private void checkRemoveDefaultSection() {
 
-		if (sections.size() == 1 && sections.get(0) == defaultSection) {
+		ModelSectionConfig section = getSingleSectionModeSectionOrNull();
+
+		if (section != null) {
+
+			if (section.hasHierarchies()) {
+
+				throw new RuntimeException("Cannot add new section to single-section model!");
+			}
 
 			sections.clear();
 		}
+	}
+
+	private ModelSectionConfig getSingleSectionModeSectionOrNull() {
+
+		if (sections.size() == 1) {
+
+			ModelSectionConfig section = sections.get(0);
+
+			if (section.getLabel().equals(SINGLE_SECTION_MODEL_LABEL)) {
+
+				return section;
+			}
+		}
+
+		return null;
 	}
 }

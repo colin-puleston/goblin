@@ -22,74 +22,12 @@
  * THE SOFTWARE.
  */
 
-package uk.ac.manchester.cs.goblin.gui.config;
-
-import java.util.*;
-
-import uk.ac.manchester.cs.goblin.model.*;
-import uk.ac.manchester.cs.goblin.config.*;
-import uk.ac.manchester.cs.goblin.io.config.*;
+package uk.ac.manchester.cs.goblin.config;
 
 /**
  * @author Colin Puleston
  */
-abstract class EditManager {
+public interface HierarchyGrabListener {
 
-	private ModelConfig modelConfig;
-	private ConfigOntology ontology;
-
-	private boolean unsavedEdits = false;
-
-	EditManager(ModelConfig modelConfig, ConfigOntology ontology) {
-
-		this.modelConfig = modelConfig;
-		this.ontology = ontology;
-	}
-
-	ModelConfig getModelConfig() {
-
-		return modelConfig;
-	}
-
-	ConfigOntology getOntology() {
-
-		return ontology;
-	}
-
-	List<CoreHierarchyConfig> getHierarchies() {
-
-		return modelConfig.getHierarchies();
-	}
-
-	CoreHierarchyConfig findHierarchy(EntityId rootConceptId) {
-
-		for (CoreHierarchyConfig hierarchy : getHierarchies()) {
-
-			if (hierarchy.getRootConceptId().equals(rootConceptId)) {
-
-				return hierarchy;
-			}
-		}
-
-		throw new Error("Cannot find hierarchy for: " + rootConceptId);
-	}
-
-	void registerEdit() {
-
-		unsavedEdits = true;
-
-		onEdit();
-	}
-
-	void resetEdits() {
-
-		unsavedEdits = false;
-	}
-
-	boolean unsavedEdits() {
-
-		return unsavedEdits;
-	}
-
-	abstract void onEdit();
+	public void onHierarchyGrabbed();
 }

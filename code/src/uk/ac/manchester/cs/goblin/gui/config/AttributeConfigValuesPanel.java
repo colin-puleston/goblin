@@ -99,16 +99,16 @@ class AttributeConfigValuesPanel extends ValuesPanel {
 		void checkDoctorTargetHierarchyOptions(List<CoreHierarchyConfig> options) {
 		}
 
-		CoreAttributeConfig createConfig(EntityId rootSourceConceptId) {
+		CoreAttributeConfig createAttribute(EntityId rootSourceConceptId) {
 
-			return createConfig(rootSourceConceptId, targetHierarchy.get().getRootConceptId());
+			return createAttribute(rootSourceConceptId, targetHierarchy.get().getRootConceptId());
 		}
 
-		abstract CoreAttributeConfig createConfig(
+		abstract CoreAttributeConfig createAttribute(
 										EntityId rootSourceConceptId,
 										EntityId rootTargetConceptId);
 
-		void updateConfig(CoreAttributeConfig config) {
+		void updateAttribute(CoreAttributeConfig config) {
 
 			config.resetRootTargetConceptId(targetHierarchy.get().getRootConceptId());
 		}
@@ -200,7 +200,7 @@ class AttributeConfigValuesPanel extends ValuesPanel {
 			constraintsOption.set(attribute);
 		}
 
-		CoreAttributeConfig createConfig(
+		CoreAttributeConfig createAttribute(
 								EntityId rootSourceConceptId,
 								EntityId rootTargetConceptId) {
 
@@ -211,11 +211,11 @@ class AttributeConfigValuesPanel extends ValuesPanel {
 							constraintsOption.get());
 		}
 
-		void updateConfig(CoreAttributeConfig config) {
+		void updateAttribute(CoreAttributeConfig config) {
 
 			SimpleAttributeConfig saConfig = (SimpleAttributeConfig)config;
 
-			super.updateConfig(saConfig);
+			super.updateAttribute(saConfig);
 
 			saConfig.resetLinkingPropertyId(linkingPropertyId.get());
 			saConfig.resetConstraintsOption(constraintsOption.get());
@@ -291,7 +291,7 @@ class AttributeConfigValuesPanel extends ValuesPanel {
 			constraintsOption.set(attribute);
 		}
 
-		CoreAttributeConfig createConfig(
+		CoreAttributeConfig createAttribute(
 								EntityId rootSourceConceptId,
 								EntityId rootTargetConceptId) {
 
@@ -304,11 +304,11 @@ class AttributeConfigValuesPanel extends ValuesPanel {
 							constraintsOption.get());
 		}
 
-		void updateConfig(CoreAttributeConfig config) {
+		void updateAttribute(CoreAttributeConfig config) {
 
 			AnchoredAttributeConfig aaConfig = (AnchoredAttributeConfig)config;
 
-			super.updateConfig(aaConfig);
+			super.updateAttribute(aaConfig);
 
 			aaConfig.resetAnchorConceptId(anchorConceptId.get());
 			aaConfig.resetSourcePropertyId(sourcePropertyId.get());
@@ -361,7 +361,7 @@ class AttributeConfigValuesPanel extends ValuesPanel {
 			options.remove(sourceHierarchy);
 		}
 
-		CoreAttributeConfig createConfig(
+		CoreAttributeConfig createAttribute(
 								EntityId rootSourceConceptId,
 								EntityId rootTargetConceptId) {
 
@@ -371,11 +371,11 @@ class AttributeConfigValuesPanel extends ValuesPanel {
 							linksOption.get());
 		}
 
-		void updateConfig(CoreAttributeConfig config) {
+		void updateAttribute(CoreAttributeConfig config) {
 
 			HierarchicalAttributeConfig haConfig = (HierarchicalAttributeConfig)config;
 
-			super.updateConfig(haConfig);
+			super.updateAttribute(haConfig);
 
 			haConfig.resetLinksOption(linksOption.get());
 		}
@@ -446,14 +446,14 @@ class AttributeConfigValuesPanel extends ValuesPanel {
 		initialise();
 	}
 
-	CoreAttributeConfig createConfig(EntityId rootSourceConceptId) {
+	CoreAttributeConfig createAttribute(EntityId rootSourceConceptId) {
 
-		return values.createConfig(rootSourceConceptId);
+		return values.createAttribute(rootSourceConceptId);
 	}
 
-	void updateConfig(CoreAttributeConfig config) {
+	void updateAttribute(CoreAttributeConfig config) {
 
-		values.updateConfig(config);
+		values.updateAttribute(config);
 	}
 
 	private AttributeConfigValuesPanel(

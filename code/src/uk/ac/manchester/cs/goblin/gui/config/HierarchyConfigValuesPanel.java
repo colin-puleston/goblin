@@ -150,16 +150,14 @@ class HierarchyConfigValuesPanel extends ValuesPanel {
 		initialise();
 	}
 
-	CoreHierarchyConfig createConfig() {
+	void createHierarchy(ModelSectionConfig section) {
 
-		CoreHierarchyConfig config = new CoreHierarchyConfig(rootConceptId.get());
+		CoreHierarchyConfig config = section.addHierarchy(rootConceptId.get());
 
 		setConfigOptions(config);
-
-		return config;
 	}
 
-	void updateConfig(CoreHierarchyConfig config) {
+	void updateHierarchy(CoreHierarchyConfig config) {
 
 		config.resetRootConceptId(rootConceptId.get());
 

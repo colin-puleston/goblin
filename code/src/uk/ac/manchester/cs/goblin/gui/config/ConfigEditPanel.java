@@ -44,6 +44,7 @@ abstract class ConfigEditPanel<S extends LabelledConfigEntity> extends MultiTabP
 	static private final long serialVersionUID = -1;
 
 	static private final String ADD_TAB_LABEL = "Add...";
+	static private final String GRAB_TAB_LABEL = "Grab...";
 	static private final String REORDER_TAB_LABEL = "Order...";
 	static private final String RELABEL_BUTTON_LABEL = "Label...";
 	static private final String DELETE_BUTTON_LABEL = "Delete";
@@ -52,31 +53,58 @@ abstract class ConfigEditPanel<S extends LabelledConfigEntity> extends MultiTabP
 
 	private EditManager editManager;
 
-	private List<ControlTabListener> controlTabListeners = new ArrayList<ControlTabListener>();
+	private List<ControlTabHandler> controlTabHandlers = new ArrayList<ControlTabHandler>();
 	private Map<S, SourceDeleteButton> sourceDeleteButtons = new HashMap<S, SourceDeleteButton>();
 
-	private abstract class ControlTabListener implements ChangeListener {
+	private abstract class ControlTabHandler {
 
-		public void stateChanged(ChangeEvent e) {
+		private TabListener tabListener;
+		private int tabIndex = getTabCount();
 
-			if (getSelectedIndex() == controlTabIndex()) {
+		private class TabListener implements ChangeListener {
 
-				setSelectedIndex(checkPerformControlAction());
+			public void stateChanged(ChangeEvent e) {
+
+				if (activeTabHandler() && getSelectedIndex() == tabIndex) {
+
+					setSelectedIndex(checkPerformControlAction());
+				}
+			}
+
+			TabListener() {
+
+				addChangeListener(this);
 			}
 		}
 
-		ControlTabListener() {
+		ControlTabHandler(String label) {
 
-			addChangeListener(this);
+			addControlTab(label);
+			controlTabHandlers.add(this);
 
-			controlTabListeners.add(this);
+			tabListener = new TabListener();
 		}
 
-		abstract int controlTabIndex();
+		void remove() {
+
+			removeChangeListener(tabListener);
+
+			controlTabHandlers.remove(this);
+		}
 
 		abstract int postActionTabSelectionIndex();
 
 		abstract boolean performControlAction();
+
+		private void addControlTab(String label) {
+
+			int currentSel = getSelectedIndex();
+
+			addTab(null, new JPanel());
+			setTabComponentAt(tabIndex, createControlTabLabel(label));
+
+			setSelectedIndex(currentSel);
+		}
 
 		private int checkPerformControlAction() {
 
@@ -89,13 +117,18 @@ abstract class ConfigEditPanel<S extends LabelledConfigEntity> extends MultiTabP
 
 			return -1;
 		}
+
+		private boolean activeTabHandler() {
+
+			return controlTabHandlers.contains(this);
+		}
 	}
 
-	private class AdditionHandler extends ControlTabListener {
+	private class AdditionHandler extends ControlTabHandler {
 
-		int controlTabIndex() {
+		AdditionHandler() {
 
-			return firstControlTabIndex();
+			super(ADD_TAB_LABEL);
 		}
 
 		int postActionTabSelectionIndex() {
@@ -109,11 +142,29 @@ abstract class ConfigEditPanel<S extends LabelledConfigEntity> extends MultiTabP
 		}
 	}
 
-	private class ReorderHandler extends ControlTabListener {
+	private class GrabHandler extends ControlTabHandler {
 
-		int controlTabIndex() {
+		GrabHandler() {
 
-			return lastTabIndex();
+			super(GRAB_TAB_LABEL);
+		}
+
+		int postActionTabSelectionIndex() {
+
+			return lastSourceIndex();
+		}
+
+		boolean performControlAction() {
+
+			return checkGrabSource();
+		}
+	}
+
+	private class ReorderHandler extends ControlTabHandler {
+
+		ReorderHandler() {
+
+			super(REORDER_TAB_LABEL);
 		}
 
 		int postActionTabSelectionIndex() {
@@ -192,8 +243,6 @@ abstract class ConfigEditPanel<S extends LabelledConfigEntity> extends MultiTabP
 				source.resetLabel(label);
 				setTabComponentAt(getSelectedIndex(), createTabLabel(label));
 
-				onSourceRelabelled(source);
-
 				return true;
 			}
 
@@ -216,7 +265,7 @@ abstract class ConfigEditPanel<S extends LabelledConfigEntity> extends MultiTabP
 
 		void updateEnabling() {
 
-			setEnabled(sourcesDeletable());
+			setEnabled(enableDelete());
 		}
 
 		boolean performSourceAction(S source) {
@@ -253,7 +302,6 @@ abstract class ConfigEditPanel<S extends LabelledConfigEntity> extends MultiTabP
 
 		removeControlTabs();
 		super.repopulate();
-//		addControlTabs();
 
 		updateSourceDeleteButtons();
 	}
@@ -282,7 +330,17 @@ abstract class ConfigEditPanel<S extends LabelledConfigEntity> extends MultiTabP
 
 	abstract boolean checkNewSource();
 
-	boolean sourcesDeletable() {
+	boolean enableGrab() {
+
+		return false;
+	}
+
+	boolean checkGrabSource() {
+
+		throw new Error("Method not enabled!");
+	}
+
+	boolean enableDelete() {
 
 		return true;
 	}
@@ -296,9 +354,6 @@ abstract class ConfigEditPanel<S extends LabelledConfigEntity> extends MultiTabP
 	String checkInputSourceLabel() {
 
 		return new LabelSelector(this, getSourceTypeName()).getSelectionOrNull();
-	}
-
-	void onSourceRelabelled(S source) {
 	}
 
 	private JComponent createControlsComponent(S source) {
@@ -320,13 +375,14 @@ abstract class ConfigEditPanel<S extends LabelledConfigEntity> extends MultiTabP
 
 	private void addControlTabs() {
 
-		addControlTab(ADD_TAB_LABEL);
-
 		new AdditionHandler();
 
-		if (sourceCount() > 1) {
+		if (enableGrab()) {
 
-			addControlTab(REORDER_TAB_LABEL);
+			new GrabHandler();
+		}
+
+		if (sourceCount() > 1) {
 
 			new ReorderHandler();
 		}
@@ -334,14 +390,14 @@ abstract class ConfigEditPanel<S extends LabelledConfigEntity> extends MultiTabP
 
 	private void removeControlTabs() {
 
-		int preRemoveCount = controlTabListeners.size();
+		int preRemoveCount = controlTabHandlers.size();
 
 		int i = preRemoveCount;
 		int j = preRemoveCount;
 
 		do {
 
-			removeChangeListener(controlTabListeners.remove(i - 1));
+			controlTabHandlers.get(i - 1).remove();
 		}
 		while (--i > 0);
 
@@ -350,16 +406,6 @@ abstract class ConfigEditPanel<S extends LabelledConfigEntity> extends MultiTabP
 			removeTabAt(lastTabIndex());
 		}
 		while (--j > 0);
-	}
-
-	private void addControlTab(String label) {
-
-		int currentSel = getSelectedIndex();
-
-		addTab(null, new JPanel());
-		setTabComponentAt(lastTabIndex(), createControlTabLabel(label));
-
-		setSelectedIndex(currentSel);
 	}
 
 	private JLabel createControlTabLabel(String text) {
@@ -396,11 +442,6 @@ abstract class ConfigEditPanel<S extends LabelledConfigEntity> extends MultiTabP
 	private int lastSourceIndex() {
 
 		return sourceCount() - 1;
-	}
-
-	private int firstControlTabIndex() {
-
-		return sourceCount() > 1 ? (lastTabIndex() - 1) : lastTabIndex();
 	}
 
 	private int lastTabIndex() {

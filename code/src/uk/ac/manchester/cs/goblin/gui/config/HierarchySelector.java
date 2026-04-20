@@ -45,34 +45,19 @@ class HierarchySelector extends GDialog {
 
 	private CoreHierarchyConfig selection = null;
 
-	private class Option {
+	private class ListSelectionListener extends GSelectionListener<CoreHierarchyConfig> {
 
-		final CoreHierarchyConfig hierarchy;
+		protected void onSelected(CoreHierarchyConfig option) {
 
-		public String toString() {
-
-			return hierarchy.getLabel();
-		}
-
-		Option(CoreHierarchyConfig hierarchy) {
-
-			this.hierarchy = hierarchy;
-		}
-	}
-
-	private class ListSelectionListener extends GSelectionListener<Option> {
-
-		protected void onSelected(Option option) {
-
-			selection = option.hierarchy;
+			selection = option;
 
 			dispose();
 		}
 
-		protected void onDeselected(Option option) {
+		protected void onDeselected(CoreHierarchyConfig option) {
 		}
 
-		ListSelectionListener(GList<Option> list) {
+		ListSelectionListener(GList<CoreHierarchyConfig> list) {
 
 			list.addSelectionListener(this);
 		}
@@ -93,17 +78,27 @@ class HierarchySelector extends GDialog {
 		return selection;
 	}
 
-	private GList<Option> createList(List<CoreHierarchyConfig> options) {
+	String getOptionDisplayLabel(CoreHierarchyConfig option) {
 
-		GList<Option> list = new GList<Option>(false, true);
+		return option.getLabel();
+	}
+
+	private GList<CoreHierarchyConfig> createList(List<CoreHierarchyConfig> options) {
+
+		GList<CoreHierarchyConfig> list = new GList<CoreHierarchyConfig>(false, true);
 
 		for (CoreHierarchyConfig option : options) {
 
-			list.addEntity(new Option(option), ConfigCellDisplay.forHierarchy(option));
+			list.addEntity(option, getOptionCellDisplay(option));
 		}
 
 		new ListSelectionListener(list);
 
 		return list;
+	}
+
+	private GCellDisplay getOptionCellDisplay(CoreHierarchyConfig option) {
+
+		return ConfigCellDisplay.forHierarchy(getOptionDisplayLabel(option));
 	}
 }

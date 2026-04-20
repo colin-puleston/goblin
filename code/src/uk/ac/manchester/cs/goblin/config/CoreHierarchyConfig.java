@@ -9,6 +9,7 @@ import uk.ac.manchester.cs.goblin.model.*;
  */
 public class CoreHierarchyConfig extends LabelledConfigEntity {
 
+	private ModelConfig model;
 	private EntityId rootConceptId;
 
 	private boolean fixedStructure = false;
@@ -16,11 +17,11 @@ public class CoreHierarchyConfig extends LabelledConfigEntity {
 
 	private List<CoreAttributeConfig> coreAttributes = new ArrayList<CoreAttributeConfig>();
 
-	public CoreHierarchyConfig(EntityId rootConceptId) {
+	public void resetLabel(String label) {
 
-		super(rootConceptId.getLabel());
+		super.resetLabel(label);
 
-		this.rootConceptId = rootConceptId;
+		model.onCoreHierarchyRelabelled(this);
 	}
 
 	public void resetRootConceptId(EntityId rootConceptId) {
@@ -79,6 +80,14 @@ public class CoreHierarchyConfig extends LabelledConfigEntity {
 		return new ArrayList<CoreAttributeConfig>(coreAttributes);
 	}
 
+	CoreHierarchyConfig(ModelConfig model, EntityId rootConceptId) {
+
+		super(rootConceptId.getLabel());
+
+		this.model = model;
+		this.rootConceptId = rootConceptId;
+	}
+
 	CoreHierarchy createHierarchy(Model model) {
 
 		CoreHierarchy hierarchy = new CoreHierarchy(model, rootConceptId, getLabel());
@@ -91,11 +100,11 @@ public class CoreHierarchyConfig extends LabelledConfigEntity {
 
 	void addCoreAttributes(Hierarchy createdHierarchy) {
 
-		Model model = createdHierarchy.getModel();
+		Model createdModel = createdHierarchy.getModel();
 
 		for (CoreAttributeConfig attribute : coreAttributes) {
 
-			createdHierarchy.addCoreAttribute(new CoreAttribute(model, attribute));
+			createdHierarchy.addCoreAttribute(new CoreAttribute(createdModel, attribute));
 		}
 	}
 }

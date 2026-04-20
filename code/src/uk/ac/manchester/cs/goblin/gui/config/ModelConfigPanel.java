@@ -90,7 +90,7 @@ class ModelConfigPanel extends JPanel {
 			return false;
 		}
 
-		boolean sourcesDeletable() {
+		boolean enableDelete() {
 
 			return !singleSection();
 		}

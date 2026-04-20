@@ -22,16 +22,14 @@
  * THE SOFTWARE.
  */
 
-package uk.ac.manchester.cs.goblin.gui.config;
-
-import uk.ac.manchester.cs.goblin.config.*;
+package uk.ac.manchester.cs.goblin.config;
 
 /**
  * @author Colin Puleston
  */
-abstract class TargetHierarchyListener {
+public interface TargetHierarchyListener {
 
-	abstract void onHierarchyRelabelled(CoreAttributeConfig refingAttribute);
+	public void onHierarchyRelabelled(CoreAttributeConfig refingAttribute);
 
-	abstract void onHierarchyRemoved(CoreAttributeConfig refingAttribute);
+	public void onHierarchyRemoved(CoreAttributeConfig refingAttribute);
 }

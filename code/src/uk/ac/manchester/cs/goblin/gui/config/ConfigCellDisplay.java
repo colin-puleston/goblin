@@ -51,9 +51,9 @@ class ConfigCellDisplay {
 	static private final GIcon INERT_CONCEPT_ICON = createConceptIcon(INERT_ENTITY_CLR);
 	static private final GIcon INERT_PROPERTY_ICON = createPropertyIcon(INERT_ENTITY_CLR);
 
-	static GCellDisplay forHierarchy(CoreHierarchyConfig hierarchy) {
+	static GCellDisplay forHierarchy(String displayLabel) {
 
-		return forEntity(hierarchy.getLabel(), false, CONCEPT_ICON);
+		return forEntity(displayLabel, false, CONCEPT_ICON);
 	}
 
 	static GCellDisplay forConcept(ConfigEntity concept, boolean highlight) {

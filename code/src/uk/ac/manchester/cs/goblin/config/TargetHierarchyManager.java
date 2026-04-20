@@ -22,44 +22,52 @@
  * THE SOFTWARE.
  */
 
-package uk.ac.manchester.cs.goblin.gui.config;
+package uk.ac.manchester.cs.goblin.config;
 
 import java.util.*;
 
 import uk.ac.manchester.cs.goblin.model.*;
-import uk.ac.manchester.cs.goblin.config.*;
 
 /**
  * @author Colin Puleston
  */
-class TargetHierarchyMonitor {
+class TargetHierarchyManager {
 
-	private List<CoreAttributeConfig> attributes = new ArrayList<CoreAttributeConfig>();
-	private List<TargetHierarchyListener> listeners = new ArrayList<TargetHierarchyListener>();
+	private ModelConfig model;
 
 	private RelabelProcessor relabelProcessor = new RelabelProcessor();
 	private RemovalProcessor removalProcessor = new RemovalProcessor();
 
+	private List<TargetHierarchyListener> listeners = new ArrayList<TargetHierarchyListener>();
+
 	private abstract class UpdateProcessor {
 
-		void processFor(CoreHierarchyConfig hierarchy) {
+		void processFor(CoreHierarchyConfig targetHierarchy) {
 
-			EntityId rootConceptId = hierarchy.getRootConceptId();
+			EntityId rootTargetId = targetHierarchy.getRootConceptId();
 
-			for (CoreAttributeConfig attribute : copyAttributes()) {
+			for (CoreHierarchyConfig hierarchy : model.getHierarchies()) {
 
-				if (attribute.getRootTargetConceptId().equals(rootConceptId)) {
+				for (CoreAttributeConfig attribute : hierarchy.getCoreAttributes()) {
 
-					pollAttributeListenersForUpdate(attribute);
+					if (attribute.getRootTargetConceptId().equals(rootTargetId)) {
+
+						performAttributeUpdate(hierarchy, attribute);
+						pollListenersForUpdate(attribute);
+					}
 				}
 			}
 		}
+
+		abstract void performAttributeUpdate(
+							CoreHierarchyConfig hierarchy,
+							CoreAttributeConfig attribute);
 
 		abstract void invokeListenerForUpdate(
 							TargetHierarchyListener listener,
 							CoreAttributeConfig attribute);
 
-		private void pollAttributeListenersForUpdate(CoreAttributeConfig attribute) {
+		private void pollListenersForUpdate(CoreAttributeConfig attribute) {
 
 			for (TargetHierarchyListener listener : listeners) {
 
@@ -69,6 +77,11 @@ class TargetHierarchyMonitor {
 	}
 
 	private class RelabelProcessor extends UpdateProcessor {
+
+		void performAttributeUpdate(
+				CoreHierarchyConfig hierarchy,
+				CoreAttributeConfig attribute) {
+		}
 
 		void invokeListenerForUpdate(
 				TargetHierarchyListener listener,
@@ -80,6 +93,13 @@ class TargetHierarchyMonitor {
 
 	private class RemovalProcessor extends UpdateProcessor {
 
+		void performAttributeUpdate(
+				CoreHierarchyConfig hierarchy,
+				CoreAttributeConfig attribute) {
+
+			hierarchy.removeCoreAttribute(attribute);
+		}
+
 		void invokeListenerForUpdate(
 				TargetHierarchyListener listener,
 				CoreAttributeConfig attribute) {
@@ -88,30 +108,14 @@ class TargetHierarchyMonitor {
 		}
 	}
 
-	TargetHierarchyMonitor(ModelConfig modelConfig) {
+	TargetHierarchyManager(ModelConfig model) {
 
-		for (CoreHierarchyConfig hierarchy : modelConfig.getHierarchies()) {
-
-			for (CoreAttributeConfig attribute : hierarchy.getCoreAttributes()) {
-
-				attributes.add(attribute);
-			}
-		}
+		this.model = model;
 	}
 
 	void addListener(TargetHierarchyListener listener) {
 
 		listeners.add(listener);
-	}
-
-	void onCoreAttributeAdded(CoreAttributeConfig attribute) {
-
-		attributes.add(attribute);
-	}
-
-	void onCoreAttributeRemoved(CoreAttributeConfig attribute) {
-
-		attributes.remove(attribute);
 	}
 
 	void onCoreHierarchyRelabelled(CoreHierarchyConfig hierarchy) {
@@ -122,10 +126,5 @@ class TargetHierarchyMonitor {
 	void onCoreHierarchyRemoved(CoreHierarchyConfig hierarchy) {
 
 		removalProcessor.processFor(hierarchy);
-	}
-
-	private List<CoreAttributeConfig> copyAttributes() {
-
-		return new ArrayList<CoreAttributeConfig>(attributes);
 	}
 }

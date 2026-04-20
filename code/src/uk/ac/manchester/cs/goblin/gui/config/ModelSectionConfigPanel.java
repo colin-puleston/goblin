@@ -46,6 +46,7 @@ class ModelSectionConfigPanel extends ConfigEditPanel<CoreHierarchyConfig> {
 	private ModelSectionConfig section;
 
 	private HierarchyEditor hierarchyEditor;
+	private SectionHierarchyGrabManager hierarchyGrabManager;
 
 	private class HierarchyEditor
 					extends
@@ -70,17 +71,30 @@ class ModelSectionConfigPanel extends ConfigEditPanel<CoreHierarchyConfig> {
 
 		void addNewSource(HierarchyConfigValuesPanel values) {
 
-			section.addHierarchy(values.createConfig());
+			values.createHierarchy(section);
 		}
 
 		void updateSource(CoreHierarchyConfig source, HierarchyConfigValuesPanel values) {
 
-			values.updateConfig(source);
+			values.updateHierarchy(source);
 		}
 
 		String getSourceTypeName() {
 
 			return "hierarchy";
+		}
+	}
+
+	private class HierarchyGrabVictimRepopulator implements HierarchyGrabListener {
+
+		public void onHierarchyGrabbed() {
+
+			repopulate();
+		}
+
+		HierarchyGrabVictimRepopulator() {
+
+			section.addHierarchyGrabListener(this);
 		}
 	}
 
@@ -109,10 +123,19 @@ class ModelSectionConfigPanel extends ConfigEditPanel<CoreHierarchyConfig> {
 		return hierarchyEditor.checkNewSource();
 	}
 
+	boolean enableGrab() {
+
+		return hierarchyGrabManager.enableGrab();
+	}
+
+	boolean checkGrabSource() {
+
+		return hierarchyGrabManager.performGrab();
+	}
+
 	void deleteSource(CoreHierarchyConfig hierarchy) {
 
 		section.removeHierarchy(hierarchy);
-		getTargetHierarchyMonitor().onCoreHierarchyRemoved(hierarchy);
 	}
 
 	void reorderSources(List<CoreHierarchyConfig> newOrderedHierarchies) {
@@ -125,11 +148,6 @@ class ModelSectionConfigPanel extends ConfigEditPanel<CoreHierarchyConfig> {
 		return "hierarchy";
 	}
 
-	void onSourceRelabelled(CoreHierarchyConfig hierarchy) {
-
-		getTargetHierarchyMonitor().onCoreHierarchyRelabelled(hierarchy);
-	}
-
 	ModelSectionConfigPanel(EditManager editManager, ModelSectionConfig section) {
 
 		super(editManager, JTabbedPane.LEFT);
@@ -138,8 +156,11 @@ class ModelSectionConfigPanel extends ConfigEditPanel<CoreHierarchyConfig> {
 		this.section = section;
 
 		hierarchyEditor = new HierarchyEditor();
+		hierarchyGrabManager = createHierarchyGrabManager();
 
 		populate();
+
+		new HierarchyGrabVictimRepopulator();
 	}
 
 	String getTitle() {
@@ -162,8 +183,8 @@ class ModelSectionConfigPanel extends ConfigEditPanel<CoreHierarchyConfig> {
 		return new AttributesConfigPanel(editManager, hierarchy);
 	}
 
-	private TargetHierarchyMonitor getTargetHierarchyMonitor() {
+	private SectionHierarchyGrabManager createHierarchyGrabManager() {
 
-		return editManager.getTargetHierarchyMonitor();
+		return new SectionHierarchyGrabManager(editManager.getModelConfig(), section);
 	}
 }
