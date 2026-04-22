@@ -24,9 +24,4 @@ class ImpliedValueConstraint extends Constraint {
 
 		return getAttribute().getConstraintsOption().singleImpliedValues();
 	}
-
-	private Constraint lookForImpliedValueConstraint(Attribute attribute) {
-
-		return getSourceValue().lookForConstraint(attribute, ConstraintSemantics.IMPLIED_VALUE);
-	}
 }
