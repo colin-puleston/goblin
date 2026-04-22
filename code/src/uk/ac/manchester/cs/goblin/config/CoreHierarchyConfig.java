@@ -51,8 +51,7 @@ public class CoreHierarchyConfig extends LabelledConfigEntity {
 
 	public void reorderCoreAttributes(List<CoreAttributeConfig> newOrderedAttributes) {
 
-		coreAttributes.clear();
-		coreAttributes.addAll(newOrderedAttributes);
+		new ListReorderer<CoreAttributeConfig>(coreAttributes).reorder(newOrderedAttributes);
 	}
 
 	public EntityId getRootConceptId() {

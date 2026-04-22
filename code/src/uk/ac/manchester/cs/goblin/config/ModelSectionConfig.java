@@ -49,8 +49,7 @@ public class ModelSectionConfig extends LabelledConfigEntity {
 
 	public void reorderHierarchies(List<CoreHierarchyConfig> newOrderedHierarchies) {
 
-		hierarchies.clear();
-		hierarchies.addAll(newOrderedHierarchies);
+		new ListReorderer<CoreHierarchyConfig>(hierarchies).reorder(newOrderedHierarchies);
 	}
 
 	public boolean hasHierarchies() {

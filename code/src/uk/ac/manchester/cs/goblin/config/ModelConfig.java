@@ -47,8 +47,7 @@ public class ModelConfig {
 
 	public void reorderSections(List<ModelSectionConfig> newOrderedSections) {
 
-		sections.clear();
-		sections.addAll(newOrderedSections);
+		new ListReorderer<ModelSectionConfig>(sections).reorder(newOrderedSections);
 	}
 
 	public void toSingleSectionMode() {
