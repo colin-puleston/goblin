@@ -37,9 +37,9 @@ class ValidValuesConstraint extends Constraint {
 		return new ReplaceConstraintAction(this, new ValidValuesConstraint(this, target));
 	}
 
-	EditAction checkIncorporateConstraintRemoval(EditAction action) {
+	boolean onlySingleConstraintOfTypeAllowed() {
 
-		return action;
+		return true;
 	}
 
 	private ValidValuesConstraint(ValidValuesConstraint template, Concept minusTargetValue) {

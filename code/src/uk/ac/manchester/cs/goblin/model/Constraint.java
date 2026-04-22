@@ -130,7 +130,7 @@ public abstract class Constraint extends EditTarget {
 		return testAttr.equals(attribute);
 	}
 
-	abstract EditAction checkIncorporateConstraintRemoval(EditAction action);
+	abstract boolean onlySingleConstraintOfTypeAllowed();
 
 	private void checkTargetConflicts(Collection<Concept> targetValues) {
 
@@ -156,5 +156,25 @@ public abstract class Constraint extends EditTarget {
 	private ConflictResolution checkAdditionConflicts() {
 
 		return getModel().getConflictResolver().checkConstraintAddition(this);
+	}
+
+	private EditAction checkIncorporateConstraintRemoval(EditAction action) {
+
+		if (onlySingleConstraintOfTypeAllowed()) {
+
+			Constraint constraint = lookForCurrentConstraintOfType();
+
+			if (constraint != null) {
+
+				return new CompoundEditAction(new RemoveAction(constraint), action);
+			}
+		}
+
+		return action;
+	}
+
+	private Constraint lookForCurrentConstraintOfType() {
+
+		return getSourceValue().lookForConstraint(getAttribute(), getSemantics());
 	}
 }

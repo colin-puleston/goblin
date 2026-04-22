@@ -20,21 +20,9 @@ class ImpliedValueConstraint extends Constraint {
 		return new RemoveAction(this);
 	}
 
-	EditAction checkIncorporateConstraintRemoval(EditAction action) {
+	boolean onlySingleConstraintOfTypeAllowed() {
 
-		Attribute attribute = getAttribute();
-
-		if (attribute.getConstraintsOption().singleImpliedValues()) {
-
-			Constraint constraint = lookForImpliedValueConstraint(attribute);
-
-			if (constraint != null) {
-
-				return new CompoundEditAction(new RemoveAction(constraint), action);
-			}
-		}
-
-		return action;
+		return getAttribute().getConstraintsOption().singleImpliedValues();
 	}
 
 	private Constraint lookForImpliedValueConstraint(Attribute attribute) {
