@@ -152,7 +152,7 @@ class ModelConfigPanel extends JPanel {
 
 		if (modelConfig.singleSectionMode()) {
 
-			return createSectionComponent(getSingleSection());
+			return createSectionComponent(modelConfig.getSingleSectionModeSection());
 		}
 
 		return createMultiSectionComponent();
@@ -179,7 +179,7 @@ class ModelConfigPanel extends JPanel {
 
 		if (label != null) {
 
-			getSingleSection().resetLabel(label);
+			modelConfig.toMultiSectionMode(label);
 
 			return true;
 		}
@@ -213,11 +213,6 @@ class ModelConfigPanel extends JPanel {
 	private boolean singleSection() {
 
 		return getSections().size() == 1;
-	}
-
-	private ModelSectionConfig getSingleSection() {
-
-		return getSections().get(0);
 	}
 
 	private List<ModelSectionConfig> getSections() {

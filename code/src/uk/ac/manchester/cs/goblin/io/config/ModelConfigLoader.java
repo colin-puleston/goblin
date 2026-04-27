@@ -343,7 +343,7 @@ class ModelConfigLoader extends ConfigFileSerialiser {
 
 		String label = getEntityLabelOrNull(node);
 
-		return label != null ? model.addSection(label) : model.addSingleSection();
+		return label != null ? model.addSection(label) : model.getSingleSectionModeSection();
 	}
 
 	private String getEntityLabel(XNode node) {

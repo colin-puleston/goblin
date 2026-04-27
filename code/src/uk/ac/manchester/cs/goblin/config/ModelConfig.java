@@ -17,27 +17,35 @@ public class ModelConfig {
 
 	public ModelConfig() {
 
-		addSingleSection();
+		addSingleSectionModeSection();
 	}
 
-	public ModelSectionConfig addSingleSection() {
+	public void addTargetHierarchyListener(TargetHierarchyListener listener) {
 
-		return addSection(SINGLE_SECTION_MODEL_LABEL);
+		targetHierarchyManager.addListener(listener);
+	}
+
+	public void toSingleSectionMode() {
+
+		List<CoreHierarchyConfig> allHierarchies = getHierarchies();
+
+		sections.clear();
+		addSingleSectionModeSection().addHierarchies(allHierarchies);
+	}
+
+	public void toMultiSectionMode(String initialSectionLabel) {
+
+		getSingleSectionModeSection().resetLabel(initialSectionLabel);
 	}
 
 	public ModelSectionConfig addSection(String label) {
 
 		ModelSectionConfig section = new ModelSectionConfig(this, label);
 
-		checkRemoveDefaultSection();
+		checkEnableMultiSectionModeSectionAddition();
 		sections.add(section);
 
 		return section;
-	}
-
-	public void addTargetHierarchyListener(TargetHierarchyListener listener) {
-
-		targetHierarchyManager.addListener(listener);
 	}
 
 	public void removeSection(ModelSectionConfig section) {
@@ -50,14 +58,6 @@ public class ModelConfig {
 		new ListReorderer<ModelSectionConfig>(sections).reorder(newOrderedSections);
 	}
 
-	public void toSingleSectionMode() {
-
-		List<CoreHierarchyConfig> allHierarchies = getHierarchies();
-
-		sections.clear();
-		addSingleSection().addHierarchies(allHierarchies);
-	}
-
 	public boolean singleSectionMode() {
 
 		ModelSectionConfig section = getSingleSectionModeSectionOrNull();
@@ -68,6 +68,18 @@ public class ModelConfig {
 	public List<ModelSectionConfig> getSections() {
 
 		return new ArrayList<ModelSectionConfig>(sections);
+	}
+
+	public ModelSectionConfig getSingleSectionModeSection() {
+
+		ModelSectionConfig section = getSingleSectionModeSectionOrNull();
+
+		if (section != null) {
+
+			return section;
+		}
+
+		throw new RuntimeException("Not a single-section model!");
 	}
 
 	public List<CoreHierarchyConfig> getHierarchies() {
@@ -111,7 +123,12 @@ public class ModelConfig {
 		targetHierarchyManager.onCoreHierarchyRemoved(hierarchy);
 	}
 
-	private void checkRemoveDefaultSection() {
+	private ModelSectionConfig addSingleSectionModeSection() {
+
+		return addSection(SINGLE_SECTION_MODEL_LABEL);
+	}
+
+	private void checkEnableMultiSectionModeSectionAddition() {
 
 		ModelSectionConfig section = getSingleSectionModeSectionOrNull();
 
