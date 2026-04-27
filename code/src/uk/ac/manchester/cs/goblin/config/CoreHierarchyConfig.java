@@ -7,7 +7,7 @@ import uk.ac.manchester.cs.goblin.model.*;
 /**
  * @author Colin Puleston
  */
-public class CoreHierarchyConfig extends LabelledConfigEntity {
+public class CoreHierarchyConfig extends LabelledConfigObject {
 
 	private ModelConfig model;
 	private EntityId rootConceptId;

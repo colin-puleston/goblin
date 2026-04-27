@@ -37,7 +37,7 @@ import uk.ac.manchester.cs.goblin.gui.util.*;
 /**
  * @author Colin Puleston
  */
-class EntityReorderDialog<E extends LabelledConfigEntity> extends GDialog {
+class EntityReorderDialog<E extends LabelledConfigObject> extends GDialog {
 
 	static private final long serialVersionUID = -1;
 

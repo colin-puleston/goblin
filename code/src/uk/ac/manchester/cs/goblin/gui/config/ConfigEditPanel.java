@@ -39,7 +39,7 @@ import uk.ac.manchester.cs.goblin.gui.util.*;
 /**
  * @author Colin Puleston
  */
-abstract class ConfigEditPanel<S extends LabelledConfigEntity> extends MultiTabPanel<S> {
+abstract class ConfigEditPanel<S extends LabelledConfigObject> extends MultiTabPanel<S> {
 
 	static private final long serialVersionUID = -1;
 

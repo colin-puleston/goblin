@@ -5,7 +5,7 @@ import uk.ac.manchester.cs.goblin.model.*;
 /**
  * @author Colin Puleston
  */
-public abstract class CoreAttributeConfig extends LabelledConfigEntity {
+public abstract class CoreAttributeConfig extends LabelledConfigObject {
 
 	private EntityId rootSourceConceptId;
 	private EntityId rootTargetConceptId;

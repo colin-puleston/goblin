@@ -3,7 +3,7 @@ package uk.ac.manchester.cs.goblin.config;
 /**
  * @author Colin Puleston
  */
-public abstract class LabelledConfigEntity {
+public abstract class LabelledConfigObject {
 
 	private String label;
 
@@ -22,7 +22,7 @@ public abstract class LabelledConfigEntity {
 		return label;
 	}
 
-	LabelledConfigEntity(String label) {
+	LabelledConfigObject(String label) {
 
 		this.label = label;
 	}

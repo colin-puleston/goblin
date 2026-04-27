@@ -7,7 +7,7 @@ import uk.ac.manchester.cs.goblin.model.*;
 /**
  * @author Colin Puleston
  */
-public class ModelSectionConfig extends LabelledConfigEntity {
+public class ModelSectionConfig extends LabelledConfigObject {
 
 	private ModelConfig model;
 	private List<CoreHierarchyConfig> hierarchies = new ArrayList<CoreHierarchyConfig>();

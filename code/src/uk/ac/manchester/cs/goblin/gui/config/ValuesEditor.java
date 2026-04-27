@@ -31,7 +31,7 @@ import uk.ac.manchester.cs.goblin.config.*;
 /**
  * @author Colin Puleston
  */
-abstract class ValuesEditor<S extends LabelledConfigEntity, V extends ValuesPanel> {
+abstract class ValuesEditor<S extends LabelledConfigObject, V extends ValuesPanel> {
 
 	private EditManager editManager;
 
