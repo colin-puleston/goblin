@@ -289,9 +289,9 @@ abstract class ConfigArrayPanel<S extends LabelledConfigObject<S>> extends Multi
 			repopulate();
 		}
 
-		ArrayUpdateListener(ConfigObject<?> arrayProvider) {
+		ArrayUpdateListener(ConfigObject<?> arrayContainer) {
 
-			arrayProvider.addDataArrayUpdateListener(this);
+			arrayContainer.addDataArrayUpdateListener(this);
 		}
 	}
 
@@ -340,13 +340,13 @@ abstract class ConfigArrayPanel<S extends LabelledConfigObject<S>> extends Multi
 
 	protected abstract JComponent createDataComponent(S source);
 
-	ConfigArrayPanel(EditManager editManager, ConfigObject<?> arrayProvider, int tabPlacement) {
+	ConfigArrayPanel(EditManager editManager, ConfigObject<?> arrayContainer, int tabPlacement) {
 
 		super(tabPlacement);
 
 		this.editManager = editManager;
 
-		new ArrayUpdateListener(arrayProvider);
+		new ArrayUpdateListener(arrayContainer);
 	}
 
 	JComponent createFullEditComponent(String title) {

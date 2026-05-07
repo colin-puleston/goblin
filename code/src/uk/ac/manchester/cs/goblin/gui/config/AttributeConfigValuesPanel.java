@@ -431,7 +431,7 @@ class AttributeConfigValuesPanel extends ValuesPanel {
 				break;
 		}
 
-		initialise();
+		populate();
 	}
 
 	AttributeConfigValuesPanel(
@@ -443,7 +443,7 @@ class AttributeConfigValuesPanel extends ValuesPanel {
 
 		new ValuesCreator(attribute);
 
-		initialise();
+		populate(attribute);
 	}
 
 	CoreAttributeConfig createAttribute(EntityId rootSourceConceptId) {

@@ -111,6 +111,19 @@ class ModelConfigPanel extends JPanel {
 		}
 	}
 
+	private class MultiSectionModeListener implements ConfigUpdateListener {
+
+		public void onUpdate() {
+
+			repopulate();
+		}
+
+		MultiSectionModeListener() {
+
+			modelConfig.addDataArrayUpdateListener(this);
+		}
+	}
+
 	ModelConfigPanel(EditManager editManager) {
 
 		super(new BorderLayout());
@@ -120,13 +133,13 @@ class ModelConfigPanel extends JPanel {
 		modelConfig = editManager.getModelConfig();
 
 		populate();
+
+		new MultiSectionModeListener();
 	}
 
 	boolean setMultiSections(boolean multiSections) {
 
 		if (multiSections ? toMultiSectionMode() : toSingleSectionMode()) {
-
-			repopulate();
 
 			editManager.registerEdit();
 

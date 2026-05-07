@@ -21,9 +21,12 @@ public abstract class ConfigObject<O extends ConfigObject<O>> {
 
 		void set(V value) {
 
-			this.value = value;
+			if (value != this.value) {
 
-			pollListenersForUpdate();
+				this.value = value;
+
+				pollListenersForUpdate();
+			}
 		}
 
 		V get() {
@@ -35,10 +38,15 @@ public abstract class ConfigObject<O extends ConfigObject<O>> {
 
 		void pollListenersForUpdate() {
 
-			for (ConfigUpdateListener listener : getUpdateListeners()) {
+			for (ConfigUpdateListener listener : copyUpdateListeners()) {
 
 				listener.onUpdate();
 			}
+		}
+
+		private List<ConfigUpdateListener> copyUpdateListeners() {
+
+			return new ArrayList<ConfigUpdateListener>(getUpdateListeners());
 		}
 	}
 

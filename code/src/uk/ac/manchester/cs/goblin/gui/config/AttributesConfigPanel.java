@@ -105,7 +105,7 @@ class AttributesConfigPanel extends ConfigArrayPanel<CoreAttributeConfig> {
 
 		void onTargetHierarchyUpdate(CoreAttributeConfig attribute) {
 
-			attributeEditor.getValueEdits(attribute).reinitialise();
+			attributeEditor.getValueEdits(attribute).repopulate();
 		}
 	}
 

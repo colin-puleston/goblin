@@ -41,7 +41,7 @@ import uk.ac.manchester.cs.goblin.gui.util.*;
 /**
  * @author Colin Puleston
  */
-class ValuesPanel extends JPanel {
+abstract class ValuesPanel extends JPanel {
 
 	static private final long serialVersionUID = -1;
 
@@ -269,7 +269,7 @@ class ValuesPanel extends JPanel {
 			if (value.perfomInputOp()) {
 
 				pollListenersForEdit();
-				reinitialise();
+				repopulate();
 			}
 		}
 
@@ -278,6 +278,19 @@ class ValuesPanel extends JPanel {
 			super(EDIT_INVOKE_BUTTON_LABEL);
 
 			this.value = value;
+		}
+	}
+
+	private class ValuesUpdateListener implements ConfigUpdateListener {
+
+		public void onUpdate() {
+
+			repopulate();
+		}
+
+		ValuesUpdateListener(ConfigObject<?> valuesContainer) {
+
+			valuesContainer.addDataArrayUpdateListener(this);
 		}
 	}
 
@@ -290,15 +303,22 @@ class ValuesPanel extends JPanel {
 		setBorderGap(GAP_SIZE);
 	}
 
-	void initialise() {
+	void populate() {
 
 		add(createInnerPanel(), BorderLayout.NORTH);
 	}
 
-	void reinitialise() {
+	void populate(ConfigObject<?> valuesContainer) {
+
+		populate();
+
+		new ValuesUpdateListener(valuesContainer);
+	}
+
+	void repopulate() {
 
 		removeAll();
-		initialise();
+		populate();
 		revalidate();
 	}
 

@@ -136,7 +136,7 @@ class HierarchyConfigValuesPanel extends ValuesPanel {
 
 		this.editManager = editManager;
 
-		initialise();
+		populate();
 	}
 
 	HierarchyConfigValuesPanel(EditManager editManager, CoreHierarchyConfig hierarchy) {
@@ -147,7 +147,7 @@ class HierarchyConfigValuesPanel extends ValuesPanel {
 		extensibilityOption.set(hierarchy);
 		dynamicAttributesOption.set(hierarchy);
 
-		initialise();
+		populate(hierarchy);
 	}
 
 	void createHierarchy(ModelSectionConfig section) {
