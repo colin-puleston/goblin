@@ -31,7 +31,7 @@ import uk.ac.manchester.cs.goblin.config.*;
 /**
  * @author Colin Puleston
  */
-abstract class ValuesEditor<S extends LabelledConfigObject, V extends ValuesPanel> {
+abstract class ValuesEditor<S extends LabelledConfigObject<S>, V extends ValuesPanel> {
 
 	private EditManager editManager;
 
@@ -90,23 +90,14 @@ abstract class ValuesEditor<S extends LabelledConfigObject, V extends ValuesPane
 		return values;
 	}
 
-	boolean checkReinitialiseValueEdits(S source) {
+	V getValueEdits(S source) {
 
-		V value = valuesBySource.get(source);
-
-		if (value != null) {
-
-			value.reinitialise();
-
-			return true;
-		}
-
-		return false;
+		return valuesBySource.get(source);
 	}
 
-	boolean checkEndValueEdits(S source) {
+	void endValueEdits(S source) {
 
-		return valuesBySource.remove(source) != null;
+		valuesBySource.remove(source);
 	}
 
 	abstract V checkCreateEmptyValues();

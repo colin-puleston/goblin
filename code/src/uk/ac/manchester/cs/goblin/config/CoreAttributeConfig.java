@@ -5,37 +5,37 @@ import uk.ac.manchester.cs.goblin.model.*;
 /**
  * @author Colin Puleston
  */
-public abstract class CoreAttributeConfig extends LabelledConfigObject {
+public abstract class CoreAttributeConfig extends LabelledConfigObject<CoreAttributeConfig> {
 
-	private EntityId rootSourceConceptId;
-	private EntityId rootTargetConceptId;
+	private DataField<EntityId> rootSourceConceptId;
+	private DataField<EntityId> rootTargetConceptId;
 
 	public String toString() {
 
-		return getLabel() + "(" + rootSourceConceptId + " --> " + rootTargetConceptId + ")";
+		return getLabel() + "(" + rootSourceConceptId.get() + " --> " + rootTargetConceptId.get() + ")";
 	}
 
-	public void resetRootTargetConceptId(EntityId rootTargetConceptId) {
+	public void resetRootTargetConceptId(EntityId conceptId) {
 
-		this.rootTargetConceptId = rootTargetConceptId;
+		rootTargetConceptId.set(conceptId);
 	}
 
 	public EntityId getRootSourceConceptId() {
 
-		return rootSourceConceptId;
+		return rootSourceConceptId.get();
 	}
 
 	public EntityId getRootTargetConceptId() {
 
-		return rootTargetConceptId;
+		return rootTargetConceptId.get();
 	}
 
 	CoreAttributeConfig(String label, EntityId rootSourceConceptId, EntityId rootTargetConceptId) {
 
 		super(label);
 
-		this.rootSourceConceptId = rootSourceConceptId;
-		this.rootTargetConceptId = rootTargetConceptId;
+		this.rootSourceConceptId = new DataField<EntityId>(rootSourceConceptId);
+		this.rootTargetConceptId = new DataField<EntityId>(rootTargetConceptId);
 	}
 
 	abstract ConstraintsOption getConstraintsOption();

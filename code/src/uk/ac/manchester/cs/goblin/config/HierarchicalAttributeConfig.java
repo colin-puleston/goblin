@@ -14,7 +14,7 @@ public class HierarchicalAttributeConfig extends CoreAttributeConfig {
 		return DEFAULT_LABEL_PREFIX + rootTargetConceptId.getLabel();
 	}
 
-	private HierarchicalLinksOption linksOption;
+	private DataField<HierarchicalLinksOption> linksOption;
 
 	public HierarchicalAttributeConfig(
 				EntityId rootSourceConceptId,
@@ -26,31 +26,31 @@ public class HierarchicalAttributeConfig extends CoreAttributeConfig {
 			rootSourceConceptId,
 			rootTargetConceptId);
 
-		this.linksOption = linksOption;
+		checkValidRootConceptCombo();
 
-		checkValidRootConceptCombo(rootSourceConceptId, rootTargetConceptId);
+		this.linksOption = new DataField<HierarchicalLinksOption>(linksOption);
 	}
 
 	public void resetRootTargetConceptId(EntityId rootTargetConceptId) {
 
 		super.resetRootTargetConceptId(rootTargetConceptId);
 
-		checkValidRootConceptCombo(getRootSourceConceptId(), rootTargetConceptId);
+		checkValidRootConceptCombo();
 	}
 
-	public void resetLinksOption(HierarchicalLinksOption linksOption) {
+	public void resetLinksOption(HierarchicalLinksOption option) {
 
-		this.linksOption = linksOption;
+		linksOption.set(option);
 	}
 
 	public HierarchicalLinksOption getLinksOption() {
 
-		return linksOption;
+		return linksOption.get();
 	}
 
 	ConstraintsOption getConstraintsOption() {
 
-		return linksOption.toConstraintsOption();
+		return linksOption.get().toConstraintsOption();
 	}
 
 	void accept(CoreAttributeConfigVisitor visitor) {
@@ -58,11 +58,9 @@ public class HierarchicalAttributeConfig extends CoreAttributeConfig {
 		visitor.visit(this);
 	}
 
-	private void checkValidRootConceptCombo(
-						EntityId rootSourceConceptId,
-						EntityId rootTargetConceptId) {
+	private void checkValidRootConceptCombo() {
 
-		if (rootSourceConceptId.equals(rootTargetConceptId)) {
+		if (getRootSourceConceptId().equals(getRootTargetConceptId())) {
 
 			throw new RuntimeException(
 						"Cannot create hierarchical attribute \"" + getLabel() + "\""

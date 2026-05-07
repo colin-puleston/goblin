@@ -7,10 +7,9 @@ import uk.ac.manchester.cs.goblin.model.*;
  */
 public class AnchoredAttributeConfig extends PropertyAttributeConfig {
 
-	private EntityId anchorConceptId;
-
-	private EntityId sourcePropertyId;
-	private EntityId targetPropertyId;
+	private DataField<EntityId> anchorConceptId;
+	private DataField<EntityId> sourcePropertyId;
+	private DataField<EntityId> targetPropertyId;
 
 	public AnchoredAttributeConfig(
 				EntityId anchorConceptId,
@@ -26,39 +25,39 @@ public class AnchoredAttributeConfig extends PropertyAttributeConfig {
 			rootTargetConceptId,
 			constraintsOption);
 
-		this.anchorConceptId = anchorConceptId;
-		this.sourcePropertyId = sourcePropertyId;
-		this.targetPropertyId = targetPropertyId;
+		this.anchorConceptId = new DataField<EntityId>(anchorConceptId);
+		this.sourcePropertyId = new DataField<EntityId>(sourcePropertyId);
+		this.targetPropertyId = new DataField<EntityId>(targetPropertyId);
 	}
 
-	public void resetAnchorConceptId(EntityId anchorConceptId) {
+	public void resetAnchorConceptId(EntityId conceptId) {
 
-		this.anchorConceptId = anchorConceptId;
+		anchorConceptId.set(conceptId);
 	}
 
-	public void resetSourcePropertyId(EntityId sourcePropertyId) {
+	public void resetSourcePropertyId(EntityId propertyId) {
 
-		this.sourcePropertyId = sourcePropertyId;
+		sourcePropertyId.set(propertyId);
 	}
 
-	public void resetTargetPropertyId(EntityId targetPropertyId) {
+	public void resetTargetPropertyId(EntityId propertyId) {
 
-		this.targetPropertyId = targetPropertyId;
+		targetPropertyId.set(propertyId);
 	}
 
 	public EntityId getAnchorConceptId() {
 
-		return anchorConceptId;
+		return anchorConceptId.get();
 	}
 
 	public EntityId getSourcePropertyId() {
 
-		return sourcePropertyId;
+		return sourcePropertyId.get();
 	}
 
 	public EntityId getTargetPropertyId() {
 
-		return targetPropertyId;
+		return targetPropertyId.get();
 	}
 
 	void accept(CoreAttributeConfigVisitor visitor) {

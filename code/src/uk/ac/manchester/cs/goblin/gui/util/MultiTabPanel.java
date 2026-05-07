@@ -110,11 +110,6 @@ public abstract class MultiTabPanel<S> extends JTabbedPane {
 
 	protected abstract JComponent createComponent(S source);
 
-	protected JComponent checkWrapComponent(S source, JComponent comp) {
-
-		return comp;
-	}
-
 	protected void onRemoved(S source) {
 	}
 
@@ -125,7 +120,7 @@ public abstract class MultiTabPanel<S> extends JTabbedPane {
 
 	private void addSourceTab(S source, int index) {
 
-		JComponent comp = checkWrapComponent(source, createComponent(source));
+		JComponent comp = createComponent(source);
 
 		insertTab("", null, comp, null, index);
 

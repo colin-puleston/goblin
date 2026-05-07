@@ -48,7 +48,7 @@ class ModelConfigPanel extends JPanel {
 	private EditManager editManager;
 	private ModelConfig modelConfig;
 
-	private class MultiSectionPanel extends ConfigEditPanel<ModelSectionConfig> {
+	private class MultiSectionPanel extends ConfigArrayPanel<ModelSectionConfig> {
 
 		static private final long serialVersionUID = -1;
 
@@ -62,14 +62,14 @@ class ModelConfigPanel extends JPanel {
 			return section.getLabel();
 		}
 
-		protected JComponent createComponent(ModelSectionConfig section) {
+		protected JComponent createDataComponent(ModelSectionConfig section) {
 
 			return createSectionComponent(section);
 		}
 
 		MultiSectionPanel() {
 
-			super(editManager, JTabbedPane.LEFT);
+			super(editManager, modelConfig, JTabbedPane.LEFT);
 
 			setFont(GFonts.toLarge(getFont()));
 
@@ -100,9 +100,9 @@ class ModelConfigPanel extends JPanel {
 			modelConfig.removeSection(section);
 		}
 
-		void reorderSources(List<ModelSectionConfig> newOrderedSections) {
+		void reorderSources(List<ModelSectionConfig> reorderedSections) {
 
-			modelConfig.reorderSections(newOrderedSections);
+			modelConfig.reorderSections(reorderedSections);
 		}
 
 		String getSourceTypeName() {

@@ -35,7 +35,7 @@ import uk.ac.manchester.cs.goblin.gui.util.*;
 /**
  * @author Colin Puleston
  */
-class AttributesConfigPanel extends ConfigEditPanel<CoreAttributeConfig> {
+class AttributesConfigPanel extends ConfigArrayPanel<CoreAttributeConfig> {
 
 	static private final long serialVersionUID = -1;
 
@@ -44,24 +44,68 @@ class AttributesConfigPanel extends ConfigEditPanel<CoreAttributeConfig> {
 
 	private AttributeEditor attributeEditor;
 
-	private class TargetHierarchyUpdateProcessor implements TargetHierarchyListener {
+	private abstract class TargetHierarchyListener implements ConfigUpdateListener {
 
-		public void onHierarchyRelabelled(CoreAttributeConfig refingAttribute) {
+		private CoreAttributeConfig attribute;
 
-			attributeEditor.checkReinitialiseValueEdits(refingAttribute);
+		public void onUpdate() {
+
+			onTargetHierarchyUpdate(attribute);
 		}
 
-		public void onHierarchyRemoved(CoreAttributeConfig refingAttribute) {
+		TargetHierarchyListener(CoreAttributeConfig attribute) {
 
-			if (attributeEditor.checkEndValueEdits(refingAttribute)) {
+			this.attribute = attribute;
 
-				repopulate();
+			addToTargetHierarchy(findTargetHierarchy());
+		}
+
+		abstract void addToTargetHierarchy(CoreHierarchyConfig targetHierarchy);
+
+		abstract void onTargetHierarchyUpdate(CoreAttributeConfig attribute);
+
+		private CoreHierarchyConfig findTargetHierarchy() {
+
+			return editManager.findHierarchy(attribute.getRootTargetConceptId());
+		}
+	}
+
+	private class TargetHierarchyRemovalListener extends TargetHierarchyListener {
+
+		TargetHierarchyRemovalListener(CoreAttributeConfig attribute) {
+
+			super(attribute);
+		}
+
+		void addToTargetHierarchy(CoreHierarchyConfig targetHierarchy) {
+
+			targetHierarchy.addDataArrayUpdateListener(this);
+		}
+
+		void onTargetHierarchyUpdate(CoreAttributeConfig attribute) {
+
+			if (!hierarchy.hasCoreAttribute(attribute)) {
+
+				attributeEditor.endValueEdits(attribute);
 			}
 		}
+	}
 
-		TargetHierarchyUpdateProcessor() {
+	private class TargetHierarchyLabelUpdateListener extends TargetHierarchyListener {
 
-			getModelConfig().addTargetHierarchyListener(this);
+		TargetHierarchyLabelUpdateListener(CoreAttributeConfig attribute) {
+
+			super(attribute);
+		}
+
+		void addToTargetHierarchy(CoreHierarchyConfig targetHierarchy) {
+
+			targetHierarchy.addLabelUpdateListener(this);
+		}
+
+		void onTargetHierarchyUpdate(CoreAttributeConfig attribute) {
+
+			attributeEditor.getValueEdits(attribute).reinitialise();
 		}
 	}
 
@@ -136,7 +180,10 @@ class AttributesConfigPanel extends ConfigEditPanel<CoreAttributeConfig> {
 		return attribute.getLabel();
 	}
 
-	protected JComponent createComponent(CoreAttributeConfig attribute) {
+	protected JComponent createDataComponent(CoreAttributeConfig attribute) {
+
+		new TargetHierarchyRemovalListener(attribute);
+		new TargetHierarchyLabelUpdateListener(attribute);
 
 		return attributeEditor.setupValueEdits(attribute);
 	}
@@ -148,14 +195,14 @@ class AttributesConfigPanel extends ConfigEditPanel<CoreAttributeConfig> {
 
 	void deleteSource(CoreAttributeConfig attribute) {
 
-		attributeEditor.checkEndValueEdits(attribute);
+		attributeEditor.endValueEdits(attribute);
 
 		hierarchy.removeCoreAttribute(attribute);
 	}
 
-	void reorderSources(List<CoreAttributeConfig> newOrderedAttributes) {
+	void reorderSources(List<CoreAttributeConfig> reorderedAttributes) {
 
-		hierarchy.reorderCoreAttributes(newOrderedAttributes);
+		hierarchy.reorderCoreAttributes(reorderedAttributes);
 	}
 
 	String getSourceTypeName() {
@@ -165,7 +212,7 @@ class AttributesConfigPanel extends ConfigEditPanel<CoreAttributeConfig> {
 
 	AttributesConfigPanel(EditManager editManager, CoreHierarchyConfig hierarchy) {
 
-		super(editManager, JTabbedPane.LEFT);
+		super(editManager, hierarchy, JTabbedPane.LEFT);
 
 		this.editManager = editManager;
 		this.hierarchy = hierarchy;
@@ -173,8 +220,6 @@ class AttributesConfigPanel extends ConfigEditPanel<CoreAttributeConfig> {
 		attributeEditor = new AttributeEditor();
 
 		populate();
-
-		new TargetHierarchyUpdateProcessor();
 	}
 
 	private ModelConfig getModelConfig() {

@@ -27,9 +27,7 @@ package uk.ac.manchester.cs.goblin.config;
 /**
  * @author Colin Puleston
  */
-public interface TargetHierarchyListener {
+public interface ConfigUpdateListener {
 
-	public void onHierarchyRelabelled(CoreAttributeConfig refingAttribute);
-
-	public void onHierarchyRemoved(CoreAttributeConfig refingAttribute);
+	public void onUpdate();
 }

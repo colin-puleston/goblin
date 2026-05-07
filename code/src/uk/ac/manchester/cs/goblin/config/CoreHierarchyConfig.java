@@ -7,36 +7,30 @@ import uk.ac.manchester.cs.goblin.model.*;
 /**
  * @author Colin Puleston
  */
-public class CoreHierarchyConfig extends LabelledConfigObject {
+public class CoreHierarchyConfig extends LabelledConfigObject<CoreHierarchyConfig> {
 
 	private ModelConfig model;
-	private EntityId rootConceptId;
 
-	private boolean fixedStructure = false;
-	private ConstraintsOption dynamicAttributeConstraintsOption = ConstraintsOption.NONE;
+	private DataField<EntityId> rootConceptId;
+	private DataField<Boolean> fixedStructure = new DataField<Boolean>(false);
+	private DataField<ConstraintsOption> dynamicAttributeConstraintsOption
+						= new DataField<ConstraintsOption>(ConstraintsOption.NONE);
 
-	private List<CoreAttributeConfig> coreAttributes = new ArrayList<CoreAttributeConfig>();
+	private DataArray<CoreAttributeConfig> coreAttributes = new DataArray<CoreAttributeConfig>();
 
-	public void resetLabel(String label) {
+	public void resetRootConceptId(EntityId conceptId) {
 
-		super.resetLabel(label);
-
-		model.onCoreHierarchyRelabelled(this);
+		rootConceptId.set(conceptId);
 	}
 
-	public void resetRootConceptId(EntityId rootConceptId) {
+	public void setFixedStructure(boolean fixed) {
 
-		this.rootConceptId = rootConceptId;
-	}
-
-	public void setFixedStructure(boolean fixedStructure) {
-
-		this.fixedStructure = fixedStructure;
+		fixedStructure.set(fixed);
 	}
 
 	public void setDynamicAttributeConstraints(ConstraintsOption option) {
 
-		dynamicAttributeConstraintsOption = option;
+		dynamicAttributeConstraintsOption.set(option);
 	}
 
 	public void addCoreAttribute(CoreAttributeConfig attribute) {
@@ -49,24 +43,24 @@ public class CoreHierarchyConfig extends LabelledConfigObject {
 		coreAttributes.remove(attribute);
 	}
 
-	public void reorderCoreAttributes(List<CoreAttributeConfig> newOrderedAttributes) {
+	public void reorderCoreAttributes(List<CoreAttributeConfig> reorderedAttributes) {
 
-		new ListReorderer<CoreAttributeConfig>(coreAttributes).reorder(newOrderedAttributes);
+		coreAttributes.reorder(reorderedAttributes);
 	}
 
 	public EntityId getRootConceptId() {
 
-		return rootConceptId;
+		return rootConceptId.get();
 	}
 
 	public boolean fixedStructure() {
 
-		return fixedStructure;
+		return fixedStructure.get();
 	}
 
 	public ConstraintsOption getDynamicAttributeConstraintsOption() {
 
-		return dynamicAttributeConstraintsOption;
+		return dynamicAttributeConstraintsOption.get();
 	}
 
 	public boolean hasCoreAttributes() {
@@ -74,9 +68,14 @@ public class CoreHierarchyConfig extends LabelledConfigObject {
 		return !coreAttributes.isEmpty();
 	}
 
+	public boolean hasCoreAttribute(CoreAttributeConfig attribute) {
+
+		return coreAttributes.contains(attribute);
+	}
+
 	public List<CoreAttributeConfig> getCoreAttributes() {
 
-		return new ArrayList<CoreAttributeConfig>(coreAttributes);
+		return coreAttributes.copy();
 	}
 
 	CoreHierarchyConfig(ModelConfig model, EntityId rootConceptId) {
@@ -84,15 +83,15 @@ public class CoreHierarchyConfig extends LabelledConfigObject {
 		super(rootConceptId.getLabel());
 
 		this.model = model;
-		this.rootConceptId = rootConceptId;
+		this.rootConceptId = new DataField<EntityId>(rootConceptId);
 	}
 
 	CoreHierarchy createHierarchy(Model model) {
 
-		CoreHierarchy hierarchy = new CoreHierarchy(model, rootConceptId, getLabel());
+		CoreHierarchy hierarchy = new CoreHierarchy(model, rootConceptId.get(), getLabel());
 
-		hierarchy.setFixedStructure(fixedStructure);
-		hierarchy.setDynamicAttributeConstraints(dynamicAttributeConstraintsOption);
+		hierarchy.setFixedStructure(fixedStructure.get());
+		hierarchy.setDynamicAttributeConstraints(dynamicAttributeConstraintsOption.get());
 
 		return hierarchy;
 	}
@@ -101,7 +100,7 @@ public class CoreHierarchyConfig extends LabelledConfigObject {
 
 		Model createdModel = createdHierarchy.getModel();
 
-		for (CoreAttributeConfig attribute : coreAttributes) {
+		for (CoreAttributeConfig attribute : coreAttributes.get()) {
 
 			createdHierarchy.addCoreAttribute(new CoreAttribute(createdModel, attribute));
 		}

@@ -7,7 +7,7 @@ import uk.ac.manchester.cs.goblin.model.*;
  */
 public class SimpleAttributeConfig extends PropertyAttributeConfig {
 
-	private EntityId linkingPropertyId;
+	private DataField<EntityId> linkingPropertyId;
 
 	public SimpleAttributeConfig(
 				EntityId linkingPropertyId,
@@ -21,17 +21,17 @@ public class SimpleAttributeConfig extends PropertyAttributeConfig {
 			rootTargetConceptId,
 			constraintsOption);
 
-		this.linkingPropertyId = linkingPropertyId;
+		this.linkingPropertyId = new DataField<EntityId>(linkingPropertyId);
 	}
 
 	public void resetLinkingPropertyId(EntityId linkingPropertyId) {
 
-		this.linkingPropertyId = linkingPropertyId;
+		this.linkingPropertyId.set(linkingPropertyId);
 	}
 
 	public EntityId getLinkingPropertyId() {
 
-		return linkingPropertyId;
+		return linkingPropertyId.get();
 	}
 
 	void accept(CoreAttributeConfigVisitor visitor) {

@@ -7,16 +7,18 @@ import uk.ac.manchester.cs.goblin.model.*;
  */
 public abstract class PropertyAttributeConfig extends CoreAttributeConfig {
 
-	private ConstraintsOption constraintsOption;
+	private DataField<ConstraintsOption> constraintsOption;
 
-	public void resetConstraintsOption(ConstraintsOption constraintsOption) {
+	public void resetConstraintsOption(ConstraintsOption option) {
 
-		setConstraintsOption(constraintsOption);
+		checkValidConstraintsOption(option);
+
+		constraintsOption.set(option);
 	}
 
 	public ConstraintsOption getConstraintsOption() {
 
-		return constraintsOption;
+		return constraintsOption.get();
 	}
 
 	PropertyAttributeConfig(
@@ -27,18 +29,18 @@ public abstract class PropertyAttributeConfig extends CoreAttributeConfig {
 
 		super(label, rootSourceConceptId, rootTargetConceptId);
 
-		setConstraintsOption(constraintsOption);
+		checkValidConstraintsOption(constraintsOption);
+
+		this.constraintsOption = new DataField<ConstraintsOption>(constraintsOption);
 	}
 
-	private void setConstraintsOption(ConstraintsOption constraintsOption) {
+	private void checkValidConstraintsOption(ConstraintsOption option) {
 
-		this.constraintsOption = constraintsOption;
-
-		if (constraintsOption == ConstraintsOption.NONE) {
+		if (option == ConstraintsOption.NONE) {
 
 			throw new RuntimeException(
 						"Cannot create attribute \"" + getLabel() + "\""
-						+ " with constraints option: " + constraintsOption);
+						+ " with constraints option: " + option);
 		}
 	}
 }

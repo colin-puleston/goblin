@@ -39,7 +39,7 @@ import uk.ac.manchester.cs.goblin.gui.util.*;
 /**
  * @author Colin Puleston
  */
-abstract class ConfigEditPanel<S extends LabelledConfigObject> extends MultiTabPanel<S> {
+abstract class ConfigArrayPanel<S extends LabelledConfigObject<S>> extends MultiTabPanel<S> {
 
 	static private final long serialVersionUID = -1;
 
@@ -109,8 +109,6 @@ abstract class ConfigEditPanel<S extends LabelledConfigObject> extends MultiTabP
 		private int checkPerformControlAction() {
 
 			if (checkRegisterEdit(performControlAction())) {
-
-				repopulate();
 
 				return postActionTabSelectionIndex();
 			}
@@ -202,10 +200,7 @@ abstract class ConfigEditPanel<S extends LabelledConfigObject> extends MultiTabP
 
 		protected void doButtonThing() {
 
-			if (performSourceAction(source)) {
-
-				repopulate();
-			}
+			checkPerformSourceAction(source);
 		}
 
 		SourceActionButton(String label, S source) {
@@ -217,7 +212,7 @@ abstract class ConfigEditPanel<S extends LabelledConfigObject> extends MultiTabP
 			setForeground(CONTROL_LABEL_COLOUR);
 		}
 
-		abstract boolean performSourceAction(S source);
+		abstract void checkPerformSourceAction(S source);
 	}
 
 	private class SourceRelabelButton extends SourceActionButton {
@@ -229,9 +224,9 @@ abstract class ConfigEditPanel<S extends LabelledConfigObject> extends MultiTabP
 			super(RELABEL_BUTTON_LABEL, source);
 		}
 
-		boolean performSourceAction(S source) {
+		void checkPerformSourceAction(S source) {
 
-			return checkRegisterEdit(checkRelabelSource(source));
+			checkRegisterEdit(checkRelabelSource(source));
 		}
 
 		private boolean checkRelabelSource(S source) {
@@ -241,7 +236,6 @@ abstract class ConfigEditPanel<S extends LabelledConfigObject> extends MultiTabP
 			if (label != null) {
 
 				source.resetLabel(label);
-				setTabComponentAt(getSelectedIndex(), createTabLabel(label));
 
 				return true;
 			}
@@ -268,17 +262,13 @@ abstract class ConfigEditPanel<S extends LabelledConfigObject> extends MultiTabP
 			setEnabled(enableDelete());
 		}
 
-		boolean performSourceAction(S source) {
+		void checkPerformSourceAction(S source) {
 
 			if (checkRegisterEdit(checkConfirmDeletion(source))) {
 
 				deleteSource(source);
 				sourceDeleteButtons.remove(source);
-
-				return true;
 			}
-
-			return false;
 		}
 
 		private boolean checkConfirmDeletion(S source) {
@@ -289,6 +279,36 @@ abstract class ConfigEditPanel<S extends LabelledConfigObject> extends MultiTabP
 		private String describeSource(S source) {
 
 			return getSourceTypeName() + " \"" + source.getLabel() + "\"";
+		}
+	}
+
+	private class ArrayUpdateListener implements ConfigUpdateListener {
+
+		public void onUpdate() {
+
+			repopulate();
+		}
+
+		ArrayUpdateListener(ConfigObject<?> arrayProvider) {
+
+			arrayProvider.addDataArrayUpdateListener(this);
+		}
+	}
+
+	private class LabelUpdateListener implements ConfigUpdateListener {
+
+		private S source;
+
+		public void onUpdate() {
+
+			resetTabLabel(source);
+		}
+
+		LabelUpdateListener(S source) {
+
+			this.source = source;
+
+			source.addLabelUpdateListener(this);
 		}
 	}
 
@@ -306,21 +326,27 @@ abstract class ConfigEditPanel<S extends LabelledConfigObject> extends MultiTabP
 		updateSourceDeleteButtons();
 	}
 
-	protected JComponent checkWrapComponent(S source, JComponent comp) {
+	protected JComponent createComponent(S source) {
 
 		JPanel panel = new JPanel(new BorderLayout());
 
-		panel.add(comp, BorderLayout.CENTER);
+		panel.add(createDataComponent(source), BorderLayout.CENTER);
 		panel.add(createControlsComponent(source), BorderLayout.SOUTH);
 
-		return super.checkWrapComponent(source, panel);
+		new LabelUpdateListener(source);
+
+		return panel;
 	}
 
-	ConfigEditPanel(EditManager editManager, int tabPlacement) {
+	protected abstract JComponent createDataComponent(S source);
+
+	ConfigArrayPanel(EditManager editManager, ConfigObject<?> arrayProvider, int tabPlacement) {
 
 		super(tabPlacement);
 
 		this.editManager = editManager;
+
+		new ArrayUpdateListener(arrayProvider);
 	}
 
 	JComponent createFullEditComponent(String title) {
@@ -347,7 +373,7 @@ abstract class ConfigEditPanel<S extends LabelledConfigObject> extends MultiTabP
 
 	abstract void deleteSource(S source);
 
-	abstract void reorderSources(List<S> newOrderedSources);
+	abstract void reorderSources(List<S> reorderedSources);
 
 	abstract String getSourceTypeName();
 
@@ -410,17 +436,9 @@ abstract class ConfigEditPanel<S extends LabelledConfigObject> extends MultiTabP
 
 	private JLabel createControlTabLabel(String text) {
 
-		JLabel label = createTabLabel(text);
-
-		label.setForeground(CONTROL_LABEL_COLOUR);
-
-		return label;
-	}
-
-	private JLabel createTabLabel(String text) {
-
 		JLabel label = new JLabel(text);
 
+		label.setForeground(CONTROL_LABEL_COLOUR);
 		label.setFont(GFonts.toMedium(label.getFont()));
 
 		return label;

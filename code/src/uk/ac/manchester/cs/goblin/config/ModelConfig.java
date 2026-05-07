@@ -7,42 +7,43 @@ import uk.ac.manchester.cs.goblin.model.*;
 /**
  * @author Colin Puleston
  */
-public class ModelConfig {
+public class ModelConfig extends ConfigObject<ModelConfig> {
 
 	static private final String SINGLE_SECTION_MODEL_LABEL = "SINGLE SECTION MODEL";
 
-	private List<ModelSectionConfig> sections = new ArrayList<ModelSectionConfig>();
-
-	private TargetHierarchyManager targetHierarchyManager = new TargetHierarchyManager(this);
+	private DataArray<ModelSectionConfig> sections = new DataArray<ModelSectionConfig>();
 
 	public ModelConfig() {
 
-		addSingleSectionModeSection();
-	}
-
-	public void addTargetHierarchyListener(TargetHierarchyListener listener) {
-
-		targetHierarchyManager.addListener(listener);
+		addSection(SINGLE_SECTION_MODEL_LABEL);
 	}
 
 	public void toSingleSectionMode() {
 
-		List<CoreHierarchyConfig> allHierarchies = getHierarchies();
+		if (singleSectionMode()) {
 
-		sections.clear();
-		addSingleSectionModeSection().addHierarchies(allHierarchies);
+			throw new RuntimeException("Not a multi-section model!");
+		}
+
+		replaceSingleSection(SINGLE_SECTION_MODEL_LABEL);
 	}
 
 	public void toMultiSectionMode(String initialSectionLabel) {
 
-		getSingleSectionModeSection().resetLabel(initialSectionLabel);
+		if (!singleSectionMode()) {
+
+			throw new RuntimeException("Not a single-section model!");
+		}
+
+		replaceSingleSection(initialSectionLabel);
 	}
 
 	public ModelSectionConfig addSection(String label) {
 
+		checkEnableMultiSectionModeSectionAddition();
+
 		ModelSectionConfig section = new ModelSectionConfig(this, label);
 
-		checkEnableMultiSectionModeSectionAddition();
 		sections.add(section);
 
 		return section;
@@ -53,21 +54,19 @@ public class ModelConfig {
 		sections.remove(section);
 	}
 
-	public void reorderSections(List<ModelSectionConfig> newOrderedSections) {
+	public void reorderSections(List<ModelSectionConfig> reorderedSections) {
 
-		new ListReorderer<ModelSectionConfig>(sections).reorder(newOrderedSections);
+		sections.reorder(reorderedSections);
 	}
 
 	public boolean singleSectionMode() {
 
-		ModelSectionConfig section = getSingleSectionModeSectionOrNull();
-
-		return section != null && section.getLabel().equals(SINGLE_SECTION_MODEL_LABEL);
+		return getSingleSectionModeSectionOrNull() != null;
 	}
 
 	public List<ModelSectionConfig> getSections() {
 
-		return new ArrayList<ModelSectionConfig>(sections);
+		return sections.copy();
 	}
 
 	public ModelSectionConfig getSingleSectionModeSection() {
@@ -86,7 +85,7 @@ public class ModelConfig {
 
 		List<CoreHierarchyConfig> hierarchies = new ArrayList<CoreHierarchyConfig>();
 
-		for (ModelSectionConfig section : sections) {
+		for (ModelSectionConfig section : sections.get()) {
 
 			hierarchies.addAll(section.getHierarchies());
 		}
@@ -98,14 +97,14 @@ public class ModelConfig {
 
 		Model createdModel = new Model();
 
-		for (ModelSectionConfig section : sections) {
+		for (ModelSectionConfig section : sections.get()) {
 
 			createdModel.addSection(section.createSection(createdModel));
 		}
 
 		Iterator<ModelSection> createdSections = createdModel.getSections().iterator();
 
-		for (ModelSectionConfig section : sections) {
+		for (ModelSectionConfig section : sections.get()) {
 
 			section.addCoreAttributes(createdSections.next());
 		}
@@ -113,19 +112,9 @@ public class ModelConfig {
 		return createdModel;
 	}
 
-	void onCoreHierarchyRelabelled(CoreHierarchyConfig hierarchy) {
+	private void replaceSingleSection(String newSectionLabel) {
 
-		targetHierarchyManager.onCoreHierarchyRelabelled(hierarchy);
-	}
-
-	void onCoreHierarchyRemoved(CoreHierarchyConfig hierarchy) {
-
-		targetHierarchyManager.onCoreHierarchyRemoved(hierarchy);
-	}
-
-	private ModelSectionConfig addSingleSectionModeSection() {
-
-		return addSection(SINGLE_SECTION_MODEL_LABEL);
+		sections.replace(new ModelSectionConfig(this, newSectionLabel, getHierarchies()));
 	}
 
 	private void checkEnableMultiSectionModeSectionAddition() {

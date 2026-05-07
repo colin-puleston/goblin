@@ -36,7 +36,7 @@ import uk.ac.manchester.cs.goblin.gui.util.*;
 /**
  * @author Colin Puleston
  */
-class ModelSectionConfigPanel extends ConfigEditPanel<CoreHierarchyConfig> {
+class ModelSectionConfigPanel extends ConfigArrayPanel<CoreHierarchyConfig> {
 
 	static private final long serialVersionUID = -1;
 
@@ -85,19 +85,6 @@ class ModelSectionConfigPanel extends ConfigEditPanel<CoreHierarchyConfig> {
 		}
 	}
 
-	private class HierarchyGrabVictimRepopulator implements HierarchyGrabListener {
-
-		public void onHierarchyGrabbed() {
-
-			repopulate();
-		}
-
-		HierarchyGrabVictimRepopulator() {
-
-			section.addHierarchyGrabListener(this);
-		}
-	}
-
 	protected List<CoreHierarchyConfig> getSources() {
 
 		return section.getHierarchies();
@@ -108,7 +95,7 @@ class ModelSectionConfigPanel extends ConfigEditPanel<CoreHierarchyConfig> {
 		return hierarchy.getLabel();
 	}
 
-	protected JComponent createComponent(CoreHierarchyConfig hierarchy) {
+	protected JComponent createDataComponent(CoreHierarchyConfig hierarchy) {
 
 		GSplitPane panel = new GSplitPane();
 
@@ -138,9 +125,9 @@ class ModelSectionConfigPanel extends ConfigEditPanel<CoreHierarchyConfig> {
 		section.removeHierarchy(hierarchy);
 	}
 
-	void reorderSources(List<CoreHierarchyConfig> newOrderedHierarchies) {
+	void reorderSources(List<CoreHierarchyConfig> reorderedHierarchies) {
 
-		section.reorderHierarchies(newOrderedHierarchies);
+		section.reorderHierarchies(reorderedHierarchies);
 	}
 
 	String getSourceTypeName() {
@@ -150,7 +137,7 @@ class ModelSectionConfigPanel extends ConfigEditPanel<CoreHierarchyConfig> {
 
 	ModelSectionConfigPanel(EditManager editManager, ModelSectionConfig section) {
 
-		super(editManager, JTabbedPane.LEFT);
+		super(editManager, section, JTabbedPane.LEFT);
 
 		this.editManager = editManager;
 		this.section = section;
@@ -159,8 +146,6 @@ class ModelSectionConfigPanel extends ConfigEditPanel<CoreHierarchyConfig> {
 		hierarchyGrabManager = createHierarchyGrabManager();
 
 		populate();
-
-		new HierarchyGrabVictimRepopulator();
 	}
 
 	String getTitle() {

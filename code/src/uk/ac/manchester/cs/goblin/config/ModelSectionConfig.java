@@ -7,12 +7,10 @@ import uk.ac.manchester.cs.goblin.model.*;
 /**
  * @author Colin Puleston
  */
-public class ModelSectionConfig extends LabelledConfigObject {
+public class ModelSectionConfig extends LabelledConfigObject<ModelSectionConfig> {
 
 	private ModelConfig model;
-	private List<CoreHierarchyConfig> hierarchies = new ArrayList<CoreHierarchyConfig>();
-
-	private List<HierarchyGrabListener> hierarchyGrabListeners = new ArrayList<HierarchyGrabListener>();
+	private DataArray<CoreHierarchyConfig> hierarchies;
 
 	public CoreHierarchyConfig addHierarchy(EntityId rootConceptId) {
 
@@ -21,11 +19,6 @@ public class ModelSectionConfig extends LabelledConfigObject {
 		hierarchies.add(hierarchy);
 
 		return hierarchy;
-	}
-
-	public void addHierarchyGrabListener(HierarchyGrabListener listener) {
-
-		hierarchyGrabListeners.add(listener);
 	}
 
 	public void addHierarchies(List<CoreHierarchyConfig> hierarchies) {
@@ -37,19 +30,19 @@ public class ModelSectionConfig extends LabelledConfigObject {
 
 		hierarchies.add(hierarchy);
 
-		fromSection.removeGrabbedHierarchy(hierarchy);
+		fromSection.hierarchies.remove(hierarchy);
 	}
 
 	public void removeHierarchy(CoreHierarchyConfig hierarchy) {
 
 		hierarchies.remove(hierarchy);
 
-		model.onCoreHierarchyRemoved(hierarchy);
+		checkTargetHierarchyRemoved(hierarchy);
 	}
 
-	public void reorderHierarchies(List<CoreHierarchyConfig> newOrderedHierarchies) {
+	public void reorderHierarchies(List<CoreHierarchyConfig> reorderedHierarchies) {
 
-		new ListReorderer<CoreHierarchyConfig>(hierarchies).reorder(newOrderedHierarchies);
+		hierarchies.reorder(reorderedHierarchies);
 	}
 
 	public boolean hasHierarchies() {
@@ -64,21 +57,27 @@ public class ModelSectionConfig extends LabelledConfigObject {
 
 	public List<CoreHierarchyConfig> getHierarchies() {
 
-		return new ArrayList<CoreHierarchyConfig>(hierarchies);
+		return hierarchies.copy();
 	}
 
 	ModelSectionConfig(ModelConfig model, String label) {
 
+		this(model, label, new ArrayList<CoreHierarchyConfig>());
+	}
+
+	ModelSectionConfig(ModelConfig model, String label, List<CoreHierarchyConfig> hierarchies) {
+
 		super(label);
 
 		this.model = model;
+		this.hierarchies = new DataArray<CoreHierarchyConfig>(hierarchies);
 	}
 
 	ModelSection createSection(Model createdModel) {
 
 		ModelSection createdSection = new ModelSection(createdModel, getLabel());
 
-		for (CoreHierarchyConfig hierarchy : hierarchies) {
+		for (CoreHierarchyConfig hierarchy : hierarchies.get()) {
 
 			createdSection.addCoreHierarchy(hierarchy.createHierarchy(createdModel));
 		}
@@ -90,19 +89,25 @@ public class ModelSectionConfig extends LabelledConfigObject {
 
 		Iterator<Hierarchy> createdHierarchies = createdSection.getCoreHierarchies().iterator();
 
-		for (CoreHierarchyConfig hierarchy : hierarchies) {
+		for (CoreHierarchyConfig hierarchy : hierarchies.get()) {
 
 			hierarchy.addCoreAttributes(createdHierarchies.next());
 		}
 	}
 
-	private void removeGrabbedHierarchy(CoreHierarchyConfig hierarchy) {
+	private void checkTargetHierarchyRemoved(CoreHierarchyConfig removedHierarchy) {
 
-		hierarchies.remove(hierarchy);
+		EntityId rootTargetId = removedHierarchy.getRootConceptId();
 
-		for (HierarchyGrabListener listener : hierarchyGrabListeners) {
+		for (CoreHierarchyConfig sourceHierarchy : model.getHierarchies()) {
 
-			listener.onHierarchyGrabbed();
+			for (CoreAttributeConfig attribute : sourceHierarchy.getCoreAttributes()) {
+
+				if (attribute.getRootTargetConceptId().equals(rootTargetId)) {
+
+					sourceHierarchy.removeCoreAttribute(attribute);
+				}
+			}
 		}
 	}
 }
