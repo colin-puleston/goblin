@@ -43,24 +43,24 @@ public abstract class Concept extends ModelEditTarget {
 
 		final EntityId id;
 
-		public void doAdd(boolean replacement) {
+		ConceptId(EntityId id) {
+
+			this.id = id;
+		}
+
+		void addToModel(boolean replacement) {
 
 			conceptId = this;
 
 			onIdReset();
 		}
 
-		public void doRemove(boolean replacing) {
+		void removeFromModel(boolean replacing) {
 		}
 
-		ConceptId(EntityId id) {
+		Concept getEditedConceptOrNull(boolean postRemovalOp) {
 
-			this.id = id;
-		}
-
-		Concept getEditTargetConcept() {
-
-			return Concept.this;
+			return postRemovalOp ? null : Concept.this;
 		}
 	}
 
@@ -440,24 +440,6 @@ public abstract class Concept extends ModelEditTarget {
 		return new ConstraintMatcher(attribute, true).getAll();
 	}
 
-	public void doAdd(boolean replacement) {
-
-		Concept parent = getParent();
-
-		parent.children.add(this);
-		parent.onChildAdded(this, replacement);
-	}
-
-	public void doRemove(boolean replacing) {
-
-		Concept parent = getParent();
-
-		parent.children.remove(this);
-		onConceptRemoved(replacing);
-
-		removeAllSubTreeListeners();
-	}
-
 	Concept(Hierarchy hierarchy, EntityId conceptId) {
 
 		this.hierarchy = hierarchy;
@@ -475,9 +457,27 @@ public abstract class Concept extends ModelEditTarget {
 		parent = newParent.toTracker();
 	}
 
-	Concept getEditTargetConcept() {
+	void addToModel(boolean replacement) {
 
-		return this;
+		Concept parent = getParent();
+
+		parent.children.add(this);
+		parent.onChildAdded(this, replacement);
+	}
+
+	void removeFromModel(boolean replacing) {
+
+		Concept parent = getParent();
+
+		parent.children.remove(this);
+		onConceptRemoved(replacing);
+
+		removeAllSubTreeListeners();
+	}
+
+	Concept getEditedConceptOrNull(boolean postRemovalOp) {
+
+		return postRemovalOp ? null : this;
 	}
 
 	EditAction checkCreateMoveAction(Concept newParent) {

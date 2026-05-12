@@ -7,14 +7,28 @@ import uk.ac.manchester.cs.goblin.edit.*;
  */
 abstract class ModelEditTarget implements EditTarget {
 
+	public void doAdd(boolean replacement) {
+
+		addToModel(replacement);
+	}
+
+	public void doRemove(boolean replacing) {
+
+		removeFromModel(replacing);
+	}
+
 	public EditLocation createLocation(boolean postRemovalOp) {
 
 		return new ModelEditLocation(this, postRemovalOp);
 	}
 
-	abstract Concept getEditTargetConcept();
+	abstract void addToModel(boolean replacement);
 
-	Attribute getEditTargetAttributeOrNull() {
+	abstract void removeFromModel(boolean replacing);
+
+	abstract Concept getEditedConceptOrNull(boolean postRemovalOp);
+
+	Attribute getEditedAttributeOrNull(boolean postRemovalOp) {
 
 		return null;
 	}

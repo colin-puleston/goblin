@@ -12,27 +12,19 @@ public class ModelEditLocation extends EditLocation {
 
 	public Hierarchy getEditedHierarchy() {
 
-		return target.getEditTargetConcept().getHierarchy();
+		Concept concept = getEditedConceptOrNull();
+
+		return concept != null ? concept.getHierarchy() : null;
 	}
 
 	public Concept getEditedConceptOrNull() {
 
-		if (target instanceof Concept && postRemovalOp) {
-
-			return null;
-		}
-
-		return target.getEditTargetConcept();
+		return target.getEditedConceptOrNull(postRemovalOp);
 	}
 
 	public Attribute getEditedAttributeOrNull() {
 
-		if (target instanceof Attribute && postRemovalOp) {
-
-			return null;
-		}
-
-		return target.getEditTargetAttributeOrNull();
+		return target.getEditedAttributeOrNull(postRemovalOp);
 	}
 
 	ModelEditLocation(ModelEditTarget target, boolean postRemovalOp) {

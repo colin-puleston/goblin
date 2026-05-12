@@ -63,16 +63,6 @@ public abstract class Constraint extends ModelEditTarget {
 
 	public abstract ConstraintSemantics getSemantics();
 
-	public void doAdd(boolean replacement) {
-
-		getSourceValue().addConstraint(this);
-	}
-
-	public void doRemove(boolean replacing) {
-
-		getSourceValue().removeConstraint(this);
-	}
-
 	Constraint(Attribute attribute, Concept sourceValue, Concept targetValue) {
 
 		this(attribute, sourceValue, Collections.singletonList(targetValue));
@@ -115,12 +105,22 @@ public abstract class Constraint extends ModelEditTarget {
 		return false;
 	}
 
-	Concept getEditTargetConcept() {
+	void addToModel(boolean replacement) {
+
+		getSourceValue().addConstraint(this);
+	}
+
+	void removeFromModel(boolean replacing) {
+
+		getSourceValue().removeConstraint(this);
+	}
+
+	Concept getEditedConceptOrNull(boolean postRemovalOp) {
 
 		return getSourceValue();
 	}
 
-	Attribute getEditTargetAttributeOrNull() {
+	Attribute getEditedAttributeOrNull(boolean postRemovalOp) {
 
 		return attribute;
 	}

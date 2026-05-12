@@ -48,17 +48,7 @@ public abstract class Attribute extends ModelEditTarget {
 
 	public abstract ConstraintsOption getConstraintsOption();
 
-	public void doAdd(boolean replacement) {
-
-		throw createDynamicOperationException();
-	}
-
-	public void doRemove(boolean replacing) {
-
-		throw createDynamicOperationException();
-	}
-
-	public Concept getEditTargetConcept() {
+	public Concept getEditedConceptOrNull(boolean postRemovalOp) {
 
 		return rootSourceConcept;
 	}
@@ -76,6 +66,16 @@ public abstract class Attribute extends ModelEditTarget {
 		rootTargetConcept.getHierarchy().addInwardCoreAttribute(this);
 
 		rootSourceConcept.addConstraint(rootConstraint);
+	}
+
+	void addToModel(boolean replacement) {
+
+		throw createDynamicOperationException();
+	}
+
+	void removeFromModel(boolean replacing) {
+
+		throw createDynamicOperationException();
 	}
 
 	Model getModel() {

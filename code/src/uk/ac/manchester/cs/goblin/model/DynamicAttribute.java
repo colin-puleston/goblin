@@ -17,29 +17,29 @@ public class DynamicAttribute extends Attribute {
 
 		final EntityId id;
 
-		public void doAdd(boolean replacement) {
+		Concept getEditedConceptOrNull(boolean postRemovalOp) {
+
+			return getRootSourceConcept();
+		}
+
+		Attribute getEditedAttributeOrNull(boolean postRemovalOp) {
+
+			return postRemovalOp ? null : DynamicAttribute.this;
+		}
+
+		AttributeId(EntityId id) {
+
+			this.id = id;
+		}
+
+		void addToModel(boolean replacement) {
 
 			attributeId = this;
 
 			onAttributeIdReset();
 		}
 
-		public void doRemove(boolean replacing) {
-		}
-
-		public Concept getEditTargetConcept() {
-
-			return getRootSourceConcept();
-		}
-
-		Attribute getEditTargetAttributeOrNull() {
-
-			return DynamicAttribute.this;
-		}
-
-		AttributeId(EntityId id) {
-
-			this.id = id;
+		void removeFromModel(boolean replacing) {
 		}
 	}
 
@@ -131,14 +131,19 @@ public class DynamicAttribute extends Attribute {
 		return true;
 	}
 
-	public void doAdd(boolean replacement) {
+	void addToModel(boolean replacement) {
 
 		getRootSourceConcept().addDynamicAttribute(this);
 	}
 
-	public void doRemove(boolean replacing) {
+	void removeFromModel(boolean replacing) {
 
 		getRootSourceConcept().removeDynamicAttribute(this);
+	}
+
+	Attribute getEditedAttributeOrNull(boolean postRemovalOp) {
+
+		return postRemovalOp ? null : this;
 	}
 
 	private ReplaceAttributeIdAction createReplaceAttributeIdAction(EntityId newId) {
