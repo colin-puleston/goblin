@@ -48,7 +48,7 @@ class ModelSectionPanel extends MultiTabPanel<Hierarchy> {
 		private Concept coreConcept;
 		private Attribute coreConceptAttribute;
 
-		LocationDisplay(EditLocation location) {
+		LocationDisplay(ModelEditLocation location) {
 
 			coreHierarchy = location.getEditedHierarchy();
 			coreConcept = location.getEditedConceptOrNull();
@@ -127,7 +127,7 @@ class ModelSectionPanel extends MultiTabPanel<Hierarchy> {
 		return section.getLabel();
 	}
 
-	boolean checkMakeEditVisible(EditLocation location) {
+	boolean checkMakeEditVisible(ModelEditLocation location) {
 
 		LocationDisplay locationDisplay = toLocationDisplayOrNull(location);
 
@@ -141,7 +141,7 @@ class ModelSectionPanel extends MultiTabPanel<Hierarchy> {
 		return false;
 	}
 
-	private LocationDisplay toLocationDisplayOrNull(EditLocation location) {
+	private LocationDisplay toLocationDisplayOrNull(ModelEditLocation location) {
 
 		Hierarchy edHierarchy = location.getEditedHierarchy();
 

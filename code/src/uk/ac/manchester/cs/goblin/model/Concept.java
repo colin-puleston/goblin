@@ -2,10 +2,12 @@ package uk.ac.manchester.cs.goblin.model;
 
 import java.util.*;
 
+import uk.ac.manchester.cs.goblin.edit.*;
+
 /**
  * @author Colin Puleston
  */
-public abstract class Concept extends EditTarget {
+public abstract class Concept extends ModelEditTarget {
 
 	static public boolean allSubsumed(
 							Collection<Concept> testSubsumers,
@@ -37,23 +39,23 @@ public abstract class Concept extends EditTarget {
 
 	private List<ConceptListener> listeners = new ArrayList<ConceptListener>();
 
-	private class ConceptId extends EditTarget {
+	private class ConceptId extends ModelEditTarget {
 
 		final EntityId id;
 
-		ConceptId(EntityId id) {
-
-			this.id = id;
-		}
-
-		void doAdd(boolean replacement) {
+		public void doAdd(boolean replacement) {
 
 			conceptId = this;
 
 			onIdReset();
 		}
 
-		void doRemove(boolean replacing) {
+		public void doRemove(boolean replacing) {
+		}
+
+		ConceptId(EntityId id) {
+
+			this.id = id;
 		}
 
 		Concept getEditTargetConcept() {
@@ -64,12 +66,12 @@ public abstract class Concept extends EditTarget {
 
 	private class ReplaceConceptIdAction extends ReplaceAction<ConceptId> {
 
+		protected void performInterSubActionUpdates(ConceptId target1, ConceptId target2) {
+		}
+
 		ReplaceConceptIdAction(ConceptId removeTarget, ConceptId addTarget) {
 
 			super(removeTarget, addTarget);
-		}
-
-		void performInterSubActionUpdates(ConceptId target1, ConceptId target2) {
 		}
 	}
 
@@ -438,6 +440,24 @@ public abstract class Concept extends EditTarget {
 		return new ConstraintMatcher(attribute, true).getAll();
 	}
 
+	public void doAdd(boolean replacement) {
+
+		Concept parent = getParent();
+
+		parent.children.add(this);
+		parent.onChildAdded(this, replacement);
+	}
+
+	public void doRemove(boolean replacing) {
+
+		Concept parent = getParent();
+
+		parent.children.remove(this);
+		onConceptRemoved(replacing);
+
+		removeAllSubTreeListeners();
+	}
+
 	Concept(Hierarchy hierarchy, EntityId conceptId) {
 
 		this.hierarchy = hierarchy;
@@ -453,6 +473,11 @@ public abstract class Concept extends EditTarget {
 		inwardConstraints = replaced.inwardConstraints.copy();
 
 		parent = newParent.toTracker();
+	}
+
+	Concept getEditTargetConcept() {
+
+		return this;
 	}
 
 	EditAction checkCreateMoveAction(Concept newParent) {
@@ -480,24 +505,6 @@ public abstract class Concept extends EditTarget {
 		}
 
 		return action;
-	}
-
-	void doAdd(boolean replacement) {
-
-		Concept parent = getParent();
-
-		parent.children.add(this);
-		parent.onChildAdded(this, replacement);
-	}
-
-	void doRemove(boolean replacing) {
-
-		Concept parent = getParent();
-
-		parent.children.remove(this);
-		onConceptRemoved(replacing);
-
-		removeAllSubTreeListeners();
 	}
 
 	void addDynamicAttribute(DynamicAttribute attribute) {
@@ -543,11 +550,6 @@ public abstract class Concept extends EditTarget {
 	ConceptTracker toTracker() {
 
 		return getModel().getConceptTracking().toTracker(this);
-	}
-
-	Concept getEditTargetConcept() {
-
-		return this;
 	}
 
 	boolean hasDynamicAttribute(DynamicAttribute attribute) {

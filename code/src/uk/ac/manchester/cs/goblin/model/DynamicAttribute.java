@@ -2,6 +2,8 @@ package uk.ac.manchester.cs.goblin.model;
 
 import java.util.*;
 
+import uk.ac.manchester.cs.goblin.edit.*;
+
 /**
  * @author Colin Puleston
  */
@@ -11,26 +13,21 @@ public class DynamicAttribute extends Attribute {
 
 	private List<DynamicAttributeListener> listeners = new ArrayList<DynamicAttributeListener>();
 
-	private class AttributeId extends EditTarget {
+	private class AttributeId extends ModelEditTarget {
 
 		final EntityId id;
 
-		AttributeId(EntityId id) {
-
-			this.id = id;
-		}
-
-		void doAdd(boolean replacement) {
+		public void doAdd(boolean replacement) {
 
 			attributeId = this;
 
 			onAttributeIdReset();
 		}
 
-		void doRemove(boolean replacing) {
+		public void doRemove(boolean replacing) {
 		}
 
-		Concept getEditTargetConcept() {
+		public Concept getEditTargetConcept() {
 
 			return getRootSourceConcept();
 		}
@@ -39,16 +36,21 @@ public class DynamicAttribute extends Attribute {
 
 			return DynamicAttribute.this;
 		}
+
+		AttributeId(EntityId id) {
+
+			this.id = id;
+		}
 	}
 
 	private class ReplaceAttributeIdAction extends ReplaceAction<AttributeId> {
 
+		protected void performInterSubActionUpdates(AttributeId target1, AttributeId target2) {
+		}
+
 		ReplaceAttributeIdAction(AttributeId removeTarget, AttributeId addTarget) {
 
 			super(removeTarget, addTarget);
-		}
-
-		void performInterSubActionUpdates(AttributeId target1, AttributeId target2) {
 		}
 	}
 
@@ -129,12 +131,12 @@ public class DynamicAttribute extends Attribute {
 		return true;
 	}
 
-	void doAdd(boolean replacement) {
+	public void doAdd(boolean replacement) {
 
 		getRootSourceConcept().addDynamicAttribute(this);
 	}
 
-	void doRemove(boolean replacing) {
+	public void doRemove(boolean replacing) {
 
 		getRootSourceConcept().removeDynamicAttribute(this);
 	}

@@ -28,6 +28,7 @@ import java.io.*;
 import javax.swing.*;
 
 import uk.ac.manchester.cs.goblin.model.*;
+import uk.ac.manchester.cs.goblin.edit.*;
 import uk.ac.manchester.cs.goblin.io.model.*;
 import uk.ac.manchester.cs.goblin.io.config.*;
 import uk.ac.manchester.cs.goblin.gui.*;
@@ -111,7 +112,7 @@ public class Goblin extends GoblinApp {
 		}
 	}
 
-	private class EditRelayer implements ModelEditListener {
+	private class EditRelayer implements EditListener {
 
 		public void onEdit() {
 

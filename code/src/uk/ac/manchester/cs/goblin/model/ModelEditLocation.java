@@ -1,11 +1,13 @@
 package uk.ac.manchester.cs.goblin.model;
 
+import uk.ac.manchester.cs.goblin.edit.*;
+
 /**
  * @author Colin Puleston
  */
-public class EditLocation {
+public class ModelEditLocation extends EditLocation {
 
-	private EditTarget target;
+	private ModelEditTarget target;
 	private boolean postRemovalOp;
 
 	public Hierarchy getEditedHierarchy() {
@@ -33,7 +35,7 @@ public class EditLocation {
 		return target.getEditTargetAttributeOrNull();
 	}
 
-	EditLocation(EditTarget target, boolean postRemovalOp) {
+	ModelEditLocation(ModelEditTarget target, boolean postRemovalOp) {
 
 		this.target = target;
 		this.postRemovalOp = postRemovalOp;

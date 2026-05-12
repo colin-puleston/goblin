@@ -2,6 +2,8 @@ package uk.ac.manchester.cs.goblin.model;
 
 import java.util.*;
 
+import uk.ac.manchester.cs.goblin.edit.*;
+
 /**
  * @author Colin Puleston
  */

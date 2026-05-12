@@ -2,10 +2,12 @@ package uk.ac.manchester.cs.goblin.model;
 
 import java.util.*;
 
+import uk.ac.manchester.cs.goblin.edit.*;
+
 /**
  * @author Colin Puleston
  */
-public abstract class Constraint extends EditTarget {
+public abstract class Constraint extends ModelEditTarget {
 
 	private Attribute attribute;
 
@@ -61,6 +63,16 @@ public abstract class Constraint extends EditTarget {
 
 	public abstract ConstraintSemantics getSemantics();
 
+	public void doAdd(boolean replacement) {
+
+		getSourceValue().addConstraint(this);
+	}
+
+	public void doRemove(boolean replacing) {
+
+		getSourceValue().removeConstraint(this);
+	}
+
 	Constraint(Attribute attribute, Concept sourceValue, Concept targetValue) {
 
 		this(attribute, sourceValue, Collections.singletonList(targetValue));
@@ -103,18 +115,6 @@ public abstract class Constraint extends EditTarget {
 		return false;
 	}
 
-	abstract EditAction createTargetValueRemovalEditAction(Concept target);
-
-	void doAdd(boolean replacement) {
-
-		getSourceValue().addConstraint(this);
-	}
-
-	void doRemove(boolean replacing) {
-
-		getSourceValue().removeConstraint(this);
-	}
-
 	Concept getEditTargetConcept() {
 
 		return getSourceValue();
@@ -129,6 +129,8 @@ public abstract class Constraint extends EditTarget {
 
 		return testAttr.equals(attribute);
 	}
+
+	abstract EditAction createTargetValueRemovalEditAction(Concept target);
 
 	abstract boolean onlySingleConstraintOfTypeAllowed();
 

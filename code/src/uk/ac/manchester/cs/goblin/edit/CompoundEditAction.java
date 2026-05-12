@@ -1,30 +1,30 @@
-package uk.ac.manchester.cs.goblin.model;
+package uk.ac.manchester.cs.goblin.edit;
 
 import java.util.*;
 
 /**
  * @author Colin Puleston
  */
-class CompoundEditAction extends EditAction {
+public class CompoundEditAction extends EditAction {
 
 	private LinkedList<EditAction> subActions = new LinkedList<EditAction>();
 
-	CompoundEditAction(EditAction... subActions) {
+	public CompoundEditAction(EditAction... subActions) {
 
 		this(Arrays.asList(subActions));
 	}
 
-	CompoundEditAction(Collection<EditAction> subActions) {
+	public CompoundEditAction(Collection<EditAction> subActions) {
 
 		this.subActions.addAll(subActions);
 	}
 
-	void addSubAction(EditAction subAction) {
+	public void addSubAction(EditAction subAction) {
 
 		subActions.add(subAction);
 	}
 
-	void addSubActions(List<EditAction> subActions) {
+	public void addSubActions(List<EditAction> subActions) {
 
 		this.subActions.addAll(subActions);
 	}

@@ -52,7 +52,7 @@ class ModelPanel extends JPanel {
 		populate();
 	}
 
-	void makeEditVisible(EditLocation location) {
+	void makeEditVisible(ModelEditLocation location) {
 
 		for (ModelSectionPanel sectionPanel : sectionPanels) {
 

@@ -2,6 +2,8 @@ package uk.ac.manchester.cs.goblin.model;
 
 import java.util.*;
 
+import uk.ac.manchester.cs.goblin.edit.*;
+
 /**
  * @author Colin Puleston
  */
@@ -108,7 +110,7 @@ public class ConceptGroup {
 		new GroupRemover().checkPerform();
 	}
 
-	private EditActions getEditActions() {
+	private EditActions<?> getEditActions() {
 
 		return concepts.get(0).getModel().getEditActions();
 	}

@@ -1,18 +1,18 @@
-package uk.ac.manchester.cs.goblin.model;
+package uk.ac.manchester.cs.goblin.edit;
 
 /**
  * @author Colin Puleston
  */
-abstract class AtomicEditAction<T extends EditTarget> extends EditAction {
+public abstract class AtomicEditAction<T extends EditTarget> extends EditAction {
 
 	private T target;
 
-	AtomicEditAction(T target) {
+	public AtomicEditAction(T target) {
 
 		this.target = target;
 	}
 
-	T getTarget() {
+	public T getTarget() {
 
 		return target;
 	}
@@ -36,7 +36,7 @@ abstract class AtomicEditAction<T extends EditTarget> extends EditAction {
 
 	EditLocation getEditLocation(boolean forward) {
 
-		return new EditLocation(target, addAction() != forward);
+		return target.createLocation(addAction() != forward);
 	}
 
 	abstract boolean addAction();

@@ -1,57 +1,59 @@
-package uk.ac.manchester.cs.goblin.model;
+package uk.ac.manchester.cs.goblin.edit;
 
 import java.util.*;
 
 /**
  * @author Colin Puleston
  */
-class EditActions {
+public abstract class EditActions<L extends EditLocation> {
 
 	private Deque<EditAction> undos = new ArrayDeque<EditAction>();
 	private Deque<EditAction> redos = new ArrayDeque<EditAction>();
 
 	private boolean trackingStarted = false;
 
-	private List<ModelEditListener> listeners = new ArrayList<ModelEditListener>();
+	private List<EditListener> listeners = new ArrayList<EditListener>();
 
-	void startTracking() {
+	public void startTracking() {
 
 		trackingStarted = true;
 	}
 
-	void addListener(ModelEditListener listener) {
+	public void addListener(EditListener listener) {
 
 		listeners.add(listener);
 	}
 
-	void perform(EditAction action) {
+	public boolean canUndo() {
+
+		return !undos.isEmpty();
+	}
+
+	public boolean canRedo() {
+
+		return !redos.isEmpty();
+	}
+
+	public L undo() {
+
+		return flip(false);
+	}
+
+	public L redo() {
+
+		return flip(true);
+	}
+
+	public void perform(EditAction action) {
 
 		redos.clear();
 
 		perfom(action, true, undos);
 	}
 
-	boolean canUndo() {
+	protected abstract Class<L> getEditLocationClass();
 
-		return !undos.isEmpty();
-	}
-
-	boolean canRedo() {
-
-		return !redos.isEmpty();
-	}
-
-	EditLocation undo() {
-
-		return flip(false);
-	}
-
-	EditLocation redo() {
-
-		return flip(true);
-	}
-
-	private EditLocation flip(boolean forward) {
+	private L flip(boolean forward) {
 
 		Deque<EditAction> froms = getActionStack(forward, true);
 		Deque<EditAction> tos = getActionStack(forward, false);
@@ -67,7 +69,7 @@ class EditActions {
 
 		perfom(action, forward, tos);
 
-		return action.getFinalAtomicAction(forward).getEditLocation(forward);
+		return getEditLocation(action.getFinalAtomicAction(forward), forward);
 	}
 
 	private void perfom(EditAction action, boolean forward, Deque<EditAction> tos) {
@@ -82,9 +84,14 @@ class EditActions {
 		pollListenersForEdit();
 	}
 
+	private L getEditLocation(AtomicEditAction<?> atomicAction, boolean forward) {
+
+		return getEditLocationClass().cast(atomicAction.getEditLocation(forward));
+	}
+
 	private void pollListenersForEdit() {
 
-		for (ModelEditListener listener : listeners) {
+		for (EditListener listener : listeners) {
 
 			listener.onEdit();
 		}

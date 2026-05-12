@@ -1,9 +1,9 @@
-package uk.ac.manchester.cs.goblin.model;
+package uk.ac.manchester.cs.goblin.edit;
 
 /**
  * @author Colin Puleston
  */
-abstract class EditAction {
+public abstract class EditAction {
 
 	abstract void perform(boolean forward);
 

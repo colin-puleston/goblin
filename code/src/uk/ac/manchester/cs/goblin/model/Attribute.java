@@ -2,10 +2,12 @@ package uk.ac.manchester.cs.goblin.model;
 
 import java.util.*;
 
+import uk.ac.manchester.cs.goblin.edit.*;
+
 /**
  * @author Colin Puleston
  */
-public abstract class Attribute extends EditTarget {
+public abstract class Attribute extends ModelEditTarget {
 
 	private Concept rootSourceConcept;
 	private Concept rootTargetConcept;
@@ -46,6 +48,21 @@ public abstract class Attribute extends EditTarget {
 
 	public abstract ConstraintsOption getConstraintsOption();
 
+	public void doAdd(boolean replacement) {
+
+		throw createDynamicOperationException();
+	}
+
+	public void doRemove(boolean replacing) {
+
+		throw createDynamicOperationException();
+	}
+
+	public Concept getEditTargetConcept() {
+
+		return rootSourceConcept;
+	}
+
 	protected Attribute(Concept rootSourceConcept, Concept rootTargetConcept) {
 
 		this.rootSourceConcept = rootSourceConcept;
@@ -61,24 +78,9 @@ public abstract class Attribute extends EditTarget {
 		rootSourceConcept.addConstraint(rootConstraint);
 	}
 
-	void doAdd(boolean replacement) {
-
-		throw createDynamicOperationException();
-	}
-
-	void doRemove(boolean replacing) {
-
-		throw createDynamicOperationException();
-	}
-
 	Model getModel() {
 
 		return rootSourceConcept.getModel();
-	}
-
-	Concept getEditTargetConcept() {
-
-		return rootSourceConcept;
 	}
 
 	Constraint createValidValues(Concept sourceValue, Collection<Concept> targetValues) {

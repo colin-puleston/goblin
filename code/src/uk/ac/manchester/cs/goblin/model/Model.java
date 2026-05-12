@@ -3,6 +3,8 @@ package uk.ac.manchester.cs.goblin.model;
 import java.net.*;
 import java.util.*;
 
+import uk.ac.manchester.cs.goblin.edit.*;
+
 /**
  * @author Colin Puleston
  */
@@ -10,9 +12,17 @@ public class Model extends CoreHierarchyContainer {
 
 	private List<ModelSection> sections = new ArrayList<ModelSection>();
 
-	private EditActions editActions = new EditActions();
+	private ModelEditActions editActions = new ModelEditActions();
 	private ConceptTracking conceptTracking = new ConceptTracking();
 	private ConflictResolver conflictResolver = new ConflictResolver();
+
+	private class ModelEditActions extends EditActions<ModelEditLocation> {
+
+		protected Class<ModelEditLocation> getEditLocationClass(){
+
+			return ModelEditLocation.class;
+		}
+	}
 
 	public void addSection(ModelSection section) {
 
@@ -29,7 +39,7 @@ public class Model extends CoreHierarchyContainer {
 		conflictResolver.setConfirmations(confirmations);
 	}
 
-	public void addEditListener(ModelEditListener listener) {
+	public void addEditListener(EditListener listener) {
 
 		editActions.addListener(listener);
 	}
@@ -54,17 +64,17 @@ public class Model extends CoreHierarchyContainer {
 		return editActions.canRedo();
 	}
 
-	public EditLocation undo() {
+	public ModelEditLocation undo() {
 
 		return editActions.undo();
 	}
 
-	public EditLocation redo() {
+	public ModelEditLocation redo() {
 
 		return editActions.redo();
 	}
 
-	EditActions getEditActions() {
+	EditActions<?> getEditActions() {
 
 		return editActions;
 	}
