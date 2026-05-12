@@ -43,7 +43,7 @@ abstract class DynamicConceptTree extends ConceptTree {
 
 		private class ModelUpdateTracker implements ConceptListener {
 
-			public void onIdReset(Concept concept) {
+			public void onIdUpdate(Concept concept) {
 
 				((DefaultTreeModel)getModel()).nodeChanged(DynamicConceptNode.this);
 			}

@@ -7,16 +7,50 @@ import uk.ac.manchester.cs.goblin.edit.*;
 /**
  * @author Colin Puleston
  */
-public abstract class Constraint extends ModelEditTarget {
+public abstract class Constraint {
 
 	private Attribute attribute;
 
 	private ConceptTracker sourceValue;
 	private ConceptTrackerSet targetValues;
 
+	private class AddRemoveTarget extends ModelEditTarget {
+
+		public void doAdd(boolean replacement) {
+
+			getSourceValue().addConstraint(Constraint.this);
+		}
+
+		public void doRemove(boolean replacing) {
+
+			getSourceValue().removeConstraint(Constraint.this);
+		}
+
+		Concept getEditedConceptOrNull(boolean postRemovalOp) {
+
+			return getSourceValue();
+		}
+
+		Attribute getEditedAttributeOrNull(boolean postRemovalOp) {
+
+			return attribute;
+		}
+	}
+
+	private class ReplaceConstraintAction extends ReplaceAction<AddRemoveTarget> {
+
+		protected void performInterSubActionUpdates(AddRemoveTarget target1, AddRemoveTarget target2) {
+		}
+
+		ReplaceConstraintAction(Constraint replacement) {
+
+			super(new AddRemoveTarget(), replacement.createAddRemoveTarget());
+		}
+	}
+
 	public void remove() {
 
-		performAction(new RemoveAction(this));
+		performAction(new RemoveAction(new AddRemoveTarget()));
 	}
 
 	public String toString() {
@@ -92,7 +126,7 @@ public abstract class Constraint extends ModelEditTarget {
 
 		if (conflictRes.resolvable()) {
 
-			EditAction action = new AddAction(this);
+			EditAction action = new AddAction(new AddRemoveTarget());
 
 			action = conflictRes.incorporateResolvingEdits(action);
 			action = checkIncorporateConstraintRemoval(action);
@@ -105,29 +139,19 @@ public abstract class Constraint extends ModelEditTarget {
 		return false;
 	}
 
-	void addToModel(boolean replacement) {
-
-		getSourceValue().addConstraint(this);
-	}
-
-	void removeFromModel(boolean replacing) {
-
-		getSourceValue().removeConstraint(this);
-	}
-
-	Concept getEditedConceptOrNull(boolean postRemovalOp) {
-
-		return getSourceValue();
-	}
-
-	Attribute getEditedAttributeOrNull(boolean postRemovalOp) {
-
-		return attribute;
-	}
-
 	boolean onAttribute(Attribute testAttr) {
 
 		return testAttr.equals(attribute);
+	}
+
+	RemoveAction createRemoveAction() {
+
+		return new RemoveAction(new AddRemoveTarget());
+	}
+
+	ReplaceAction<?> createReplaceAction(Constraint replacement) {
+
+		return new ReplaceConstraintAction(replacement);
 	}
 
 	abstract EditAction createTargetValueRemovalEditAction(Concept target);
@@ -168,7 +192,7 @@ public abstract class Constraint extends ModelEditTarget {
 
 			if (constraint != null) {
 
-				return new CompoundEditAction(new RemoveAction(constraint), action);
+				return new CompoundEditAction(createRemoveAction(), action);
 			}
 		}
 
@@ -178,5 +202,10 @@ public abstract class Constraint extends ModelEditTarget {
 	private Constraint lookForCurrentConstraintOfType() {
 
 		return getSourceValue().lookForConstraint(getAttribute(), getSemantics());
+	}
+
+	private AddRemoveTarget createAddRemoveTarget() {
+
+		return new AddRemoveTarget();
 	}
 }

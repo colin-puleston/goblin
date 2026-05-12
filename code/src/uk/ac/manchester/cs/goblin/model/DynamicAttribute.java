@@ -9,46 +9,68 @@ import uk.ac.manchester.cs.goblin.edit.*;
  */
 public class DynamicAttribute extends Attribute {
 
-	private AttributeId attributeId;
-
+	private EntityId attributeId;
 	private List<DynamicAttributeListener> listeners = new ArrayList<DynamicAttributeListener>();
 
-	private class AttributeId extends ModelEditTarget {
-
-		final EntityId id;
+	private abstract class DynamicAttributeEditTarget extends ModelEditTarget {
 
 		Concept getEditedConceptOrNull(boolean postRemovalOp) {
 
 			return getRootSourceConcept();
+		}
+	}
+
+	private class IdUpdateTarget extends DynamicAttributeEditTarget {
+
+		private EntityId id;
+
+		public void doAdd(boolean replacement) {
+
+			attributeId = id;
+
+			onIdUpdate();
+		}
+
+		public void doRemove(boolean replacing) {
+		}
+
+		IdUpdateTarget(EntityId id) {
+
+			this.id = id;
+		}
+
+		Attribute getEditedAttributeOrNull(boolean postRemovalOp) {
+
+			return DynamicAttribute.this;
+		}
+	}
+
+	private class AddRemoveTarget extends DynamicAttributeEditTarget {
+
+		public void doAdd(boolean replacement) {
+
+			getRootSourceConcept().addDynamicAttribute(DynamicAttribute.this);
+		}
+
+		public void doRemove(boolean replacing) {
+
+			getRootSourceConcept().removeDynamicAttribute(DynamicAttribute.this);
 		}
 
 		Attribute getEditedAttributeOrNull(boolean postRemovalOp) {
 
 			return postRemovalOp ? null : DynamicAttribute.this;
 		}
-
-		AttributeId(EntityId id) {
-
-			this.id = id;
-		}
-
-		void addToModel(boolean replacement) {
-
-			attributeId = this;
-
-			onAttributeIdReset();
-		}
-
-		void removeFromModel(boolean replacing) {
-		}
 	}
 
-	private class ReplaceAttributeIdAction extends ReplaceAction<AttributeId> {
+	private class ReplaceAttributeIdAction extends ReplaceAction<IdUpdateTarget> {
 
-		protected void performInterSubActionUpdates(AttributeId target1, AttributeId target2) {
+		protected void performInterSubActionUpdates(
+							IdUpdateTarget target1,
+							IdUpdateTarget target2) {
 		}
 
-		ReplaceAttributeIdAction(AttributeId removeTarget, AttributeId addTarget) {
+		ReplaceAttributeIdAction(IdUpdateTarget removeTarget, IdUpdateTarget addTarget) {
 
 			super(removeTarget, addTarget);
 		}
@@ -99,12 +121,12 @@ public class DynamicAttribute extends Attribute {
 
 	public String getLabel() {
 
-		return attributeId.id.getLabel();
+		return attributeId.getLabel();
 	}
 
 	public EntityId getAttributeId() {
 
-		return attributeId.id;
+		return attributeId;
 	}
 
 	public ConstraintsOption getConstraintsOption() {
@@ -117,43 +139,30 @@ public class DynamicAttribute extends Attribute {
 		return getRootSourceConcept().hasDynamicAttribute(this);
 	}
 
-	DynamicAttribute(EntityId attrId, Concept rootSourceConcept, Concept rootTargetConcept) {
+	DynamicAttribute(EntityId attributeId, Concept rootSourceConcept, Concept rootTargetConcept) {
 
 		super(rootSourceConcept, rootTargetConcept);
 
-		attributeId = new AttributeId(attrId);
+		this.attributeId = attributeId;
 	}
 
 	boolean add() {
 
-		performAction(new AddAction(this));
+		performAction(new AddAction(new AddRemoveTarget()));
 
 		return true;
 	}
 
-	void addToModel(boolean replacement) {
-
-		getRootSourceConcept().addDynamicAttribute(this);
-	}
-
-	void removeFromModel(boolean replacing) {
-
-		getRootSourceConcept().removeDynamicAttribute(this);
-	}
-
-	Attribute getEditedAttributeOrNull(boolean postRemovalOp) {
-
-		return postRemovalOp ? null : this;
-	}
-
 	private ReplaceAttributeIdAction createReplaceAttributeIdAction(EntityId newId) {
 
-		return new ReplaceAttributeIdAction(attributeId, new AttributeId(newId));
+		return new ReplaceAttributeIdAction(
+						new IdUpdateTarget(attributeId),
+						new IdUpdateTarget(newId));
 	}
 
 	private EditAction createRemoveAction() {
 
-		EditAction action = new RemoveAction(this);
+		EditAction action = new RemoveAction(new AddRemoveTarget());
 
 		List<Constraint> constraints = getConstraintsDownwards();
 
@@ -175,7 +184,7 @@ public class DynamicAttribute extends Attribute {
 
 		for (Constraint constraint : constraints) {
 
-			compoundAction.addSubAction(new RemoveAction(constraint));
+			compoundAction.addSubAction(constraint.createRemoveAction());
 		}
 
 		compoundAction.addSubAction(action);
@@ -193,11 +202,11 @@ public class DynamicAttribute extends Attribute {
 		getModel().getEditActions().perform(action);
 	}
 
-	private void onAttributeIdReset() {
+	private void onIdUpdate() {
 
 		for (DynamicAttributeListener listener : copyListeners()) {
 
-			listener.onAttributeIdReset();
+			listener.onIdUpdate();
 		}
 	}
 

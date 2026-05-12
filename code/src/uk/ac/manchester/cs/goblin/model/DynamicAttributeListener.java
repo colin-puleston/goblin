@@ -5,5 +5,5 @@ package uk.ac.manchester.cs.goblin.model;
  */
 public interface DynamicAttributeListener {
 
-	public void onAttributeIdReset();
+	public void onIdUpdate();
 }

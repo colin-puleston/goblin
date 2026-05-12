@@ -19,7 +19,7 @@ class ImpliedValueConstraint extends Constraint {
 
 	EditAction createTargetValueRemovalEditAction(Concept target) {
 
-		return new RemoveAction(this);
+		return createRemoveAction();
 	}
 
 	boolean onlySingleConstraintOfTypeAllowed() {

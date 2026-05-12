@@ -33,10 +33,10 @@ class ValidValuesConstraint extends Constraint {
 
 		if (targets.size() == 1) {
 
-			return new RemoveAction(this);
+			return createRemoveAction();
 		}
 
-		return new ReplaceConstraintAction(this, new ValidValuesConstraint(this, target));
+		return createReplaceAction(new ValidValuesConstraint(this, target));
 	}
 
 	boolean onlySingleConstraintOfTypeAllowed() {

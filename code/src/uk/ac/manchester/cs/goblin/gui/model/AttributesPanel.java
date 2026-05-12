@@ -123,7 +123,7 @@ class AttributesPanel extends MultiTabPanel<Attribute> {
 
 		private DynamicAttribute attribute;
 
-		public void onAttributeIdReset() {
+		public void onIdUpdate() {
 
 			resetTabLabel(attribute);
 		}

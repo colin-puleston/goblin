@@ -7,7 +7,7 @@ import uk.ac.manchester.cs.goblin.edit.*;
 /**
  * @author Colin Puleston
  */
-public abstract class Concept extends ModelEditTarget {
+public abstract class Concept {
 
 	static public boolean allSubsumed(
 							Collection<Concept> testSubsumers,
@@ -26,7 +26,7 @@ public abstract class Concept extends ModelEditTarget {
 
 	private Hierarchy hierarchy;
 
-	private ConceptId conceptId;
+	private EntityId conceptId;
 
 	private ConceptTracker parent;
 	private ConceptTrackerSet children = new ConceptTrackerSet();
@@ -39,39 +39,77 @@ public abstract class Concept extends ModelEditTarget {
 
 	private List<ConceptListener> listeners = new ArrayList<ConceptListener>();
 
-	private class ConceptId extends ModelEditTarget {
+	private class IdUpdateTarget extends ModelEditTarget {
 
-		final EntityId id;
+		private EntityId id;
 
-		ConceptId(EntityId id) {
+		public void doAdd(boolean replacement) {
+
+			conceptId = id;
+
+			onIdUpdate();
+		}
+
+		public void doRemove(boolean replacing) {
+		}
+
+		IdUpdateTarget(EntityId id) {
 
 			this.id = id;
 		}
 
-		void addToModel(boolean replacement) {
+		Concept getEditedConceptOrNull(boolean postRemovalOp) {
 
-			conceptId = this;
+			return Concept.this;
+		}
+	}
 
-			onIdReset();
+	private class AddRemoveTarget extends ModelEditTarget {
+
+		public void doAdd(boolean replacement) {
+
+			Concept.this.doAdd(replacement);
 		}
 
-		void removeFromModel(boolean replacing) {
+		public void doRemove(boolean replacing) {
+
+			Concept.this.doRemove(replacing);
 		}
 
 		Concept getEditedConceptOrNull(boolean postRemovalOp) {
 
 			return postRemovalOp ? null : Concept.this;
 		}
+
+		Concept getConcept() {
+
+			return Concept.this;
+		}
 	}
 
-	private class ReplaceConceptIdAction extends ReplaceAction<ConceptId> {
+	private class ReplaceConceptIdAction extends ReplaceAction<IdUpdateTarget> {
 
-		protected void performInterSubActionUpdates(ConceptId target1, ConceptId target2) {
+		protected void performInterSubActionUpdates(IdUpdateTarget target1, IdUpdateTarget target2) {
 		}
 
-		ReplaceConceptIdAction(ConceptId removeTarget, ConceptId addTarget) {
+		ReplaceConceptIdAction(IdUpdateTarget removeTarget, IdUpdateTarget addTarget) {
 
 			super(removeTarget, addTarget);
+		}
+	}
+
+	private class ReplaceConceptAction extends ReplaceAction<AddRemoveTarget> {
+
+		protected void performInterSubActionUpdates(
+								AddRemoveTarget target1,
+								AddRemoveTarget target2) {
+
+			getConceptTracking().updateForReplacement(target1.getConcept(), target2.getConcept());
+		}
+
+		ReplaceConceptAction(Concept replacement) {
+
+			super(new AddRemoveTarget(), replacement.createAddRemoveTarget());
 		}
 	}
 
@@ -265,7 +303,7 @@ public abstract class Concept extends ModelEditTarget {
 
 	public String toString() {
 
-		return conceptId.id.toString();
+		return conceptId.toString();
 	}
 
 	public Model getModel() {
@@ -280,7 +318,7 @@ public abstract class Concept extends ModelEditTarget {
 
 	public EntityId getConceptId() {
 
-		return conceptId.id;
+		return conceptId;
 	}
 
 	public boolean isRoot() {
@@ -443,41 +481,18 @@ public abstract class Concept extends ModelEditTarget {
 	Concept(Hierarchy hierarchy, EntityId conceptId) {
 
 		this.hierarchy = hierarchy;
-		this.conceptId = new ConceptId(conceptId);
+		this.conceptId = conceptId;
 	}
 
 	Concept(Concept replaced, Concept newParent) {
 
 		hierarchy = replaced.hierarchy;
-		conceptId = new ConceptId(replaced.conceptId.id);
+		conceptId = replaced.conceptId;
 		children = replaced.children.copy();
 		constraints = replaced.constraints.copy();
 		inwardConstraints = replaced.inwardConstraints.copy();
 
 		parent = newParent.toTracker();
-	}
-
-	void addToModel(boolean replacement) {
-
-		Concept parent = getParent();
-
-		parent.children.add(this);
-		parent.onChildAdded(this, replacement);
-	}
-
-	void removeFromModel(boolean replacing) {
-
-		Concept parent = getParent();
-
-		parent.children.remove(this);
-		onConceptRemoved(replacing);
-
-		removeAllSubTreeListeners();
-	}
-
-	Concept getEditedConceptOrNull(boolean postRemovalOp) {
-
-		return postRemovalOp ? null : this;
 	}
 
 	EditAction checkCreateMoveAction(Concept newParent) {
@@ -487,7 +502,7 @@ public abstract class Concept extends ModelEditTarget {
 		if (conflictRes.resolvable()) {
 
 			Concept replacement = createMovedReplacement(newParent);
-			EditAction action = new ReplaceConceptAction(this, replacement);
+			EditAction action = new ReplaceConceptAction(replacement);
 
 			return conflictRes.incorporateResolvingEdits(action);
 		}
@@ -497,7 +512,7 @@ public abstract class Concept extends ModelEditTarget {
 
 	EditAction createRemoveAction() {
 
-		EditAction action = new RemoveAction(this);
+		EditAction action = new RemoveAction(new AddRemoveTarget());
 
 		if (!inwardConstraints.isEmpty()) {
 
@@ -549,7 +564,7 @@ public abstract class Concept extends ModelEditTarget {
 
 	ConceptTracker toTracker() {
 
-		return getModel().getConceptTracking().toTracker(this);
+		return getConceptTracking().toTracker(this);
 	}
 
 	boolean hasDynamicAttribute(DynamicAttribute attribute) {
@@ -593,7 +608,25 @@ public abstract class Concept extends ModelEditTarget {
 
 	private void add() {
 
-		performAction(new AddAction(this));
+		performAction(new AddAction(new AddRemoveTarget()));
+	}
+
+	private void doAdd(boolean replacement) {
+
+		Concept parent = getParent();
+
+		parent.children.add(this);
+		parent.onChildAdded(this, replacement);
+	}
+
+	private void doRemove(boolean replacing) {
+
+		Concept parent = getParent();
+
+		parent.children.remove(this);
+		onConceptRemoved(replacing);
+
+		removeAllSubTreeListeners();
 	}
 
 	private Concept createChild(EntityId id) {
@@ -653,7 +686,9 @@ public abstract class Concept extends ModelEditTarget {
 
 	private ReplaceConceptIdAction createReplaceIdAction(EntityId newId) {
 
-		return new ReplaceConceptIdAction(conceptId, new ConceptId(newId));
+		return new ReplaceConceptIdAction(
+						new IdUpdateTarget(conceptId),
+						new IdUpdateTarget(newId));
 	}
 
 	private EditAction incorporateInwardTargetRemovalEdits(EditAction action) {
@@ -762,11 +797,11 @@ public abstract class Concept extends ModelEditTarget {
 		return matcher.anyMatches();
 	}
 
-	private void onIdReset() {
+	private void onIdUpdate() {
 
 		for (ConceptListener listener : copyListeners()) {
 
-			listener.onIdReset(this);
+			listener.onIdUpdate(this);
 		}
 	}
 
@@ -817,5 +852,15 @@ public abstract class Concept extends ModelEditTarget {
 
 			throw createInvalidOperationException();
 		}
+	}
+
+	private AddRemoveTarget createAddRemoveTarget() {
+
+		return new AddRemoveTarget();
+	}
+
+	private ConceptTracking getConceptTracking() {
+
+		return getModel().getConceptTracking();
 	}
 }

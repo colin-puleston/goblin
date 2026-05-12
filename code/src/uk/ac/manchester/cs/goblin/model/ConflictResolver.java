@@ -168,7 +168,7 @@ class ConflictResolver {
 
 			for (Constraint conflict : removals) {
 
-				actions.add(new RemoveAction(conflict));
+				actions.add(conflict.createRemoveAction());
 			}
 
 			return actions;

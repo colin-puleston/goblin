@@ -7,7 +7,7 @@ import uk.ac.manchester.cs.goblin.edit.*;
 /**
  * @author Colin Puleston
  */
-public abstract class Attribute extends ModelEditTarget {
+public abstract class Attribute {
 
 	private Concept rootSourceConcept;
 	private Concept rootTargetConcept;
@@ -68,16 +68,6 @@ public abstract class Attribute extends ModelEditTarget {
 		rootSourceConcept.addConstraint(rootConstraint);
 	}
 
-	void addToModel(boolean replacement) {
-
-		throw createDynamicOperationException();
-	}
-
-	void removeFromModel(boolean replacing) {
-
-		throw createDynamicOperationException();
-	}
-
 	Model getModel() {
 
 		return rootSourceConcept.getModel();
@@ -126,10 +116,5 @@ public abstract class Attribute extends ModelEditTarget {
 						function + "-value concept \"" + value + "\""
 						+ " not a descendant-concept of \"" + root + "\"");
 		}
-	}
-
-	private RuntimeException createDynamicOperationException() {
-
-		return new RuntimeException("Cannot perform operation on non-dynamic attribute!");
 	}
 }
