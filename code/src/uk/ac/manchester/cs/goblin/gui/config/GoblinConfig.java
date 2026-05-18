@@ -155,6 +155,8 @@ public class GoblinConfig extends GoblinApp<ConfigEditLocation> {
 	}
 
 	protected void makeEditVisible(ConfigEditLocation editLocation) {
+
+		modelConfigPanel.checkMakeEditVisible(editLocation);
 	}
 
 	private EditManager createEditManager() {

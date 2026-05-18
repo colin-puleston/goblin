@@ -113,6 +113,11 @@ public class ModelSectionConfig extends LabelledConfigObject<ModelSectionConfig>
 		return model.getEditActions();
 	}
 
+	ConfigEditLocation createEditLocation() {
+
+		return new ConfigEditLocation(this);
+	}
+
 	private void checkTargetHierarchyRemoved(CoreHierarchyConfig removedHierarchy) {
 
 		EntityId rootTargetId = removedHierarchy.getRootConceptId();

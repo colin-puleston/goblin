@@ -56,6 +56,11 @@ public abstract class CoreAttributeConfig extends LabelledConfigObject<CoreAttri
 		return sourceHierarchy.getEditActions();
 	}
 
+	ConfigEditLocation createEditLocation() {
+
+		return new ConfigEditLocation(this);
+	}
+
 	abstract ConstraintsOption getConstraintsOption();
 
 	abstract void accept(CoreAttributeConfigVisitor visitor);

@@ -48,6 +48,9 @@ class ModelSectionConfigPanel extends ConfigArrayPanel<CoreHierarchyConfig> {
 	private HierarchyEditor hierarchyEditor;
 	private SectionHierarchyGrabManager hierarchyGrabManager;
 
+	private Map<CoreHierarchyConfig, AttributesConfigPanel> attributesPanels
+						= new HashMap<CoreHierarchyConfig, AttributesConfigPanel>();
+
 	private class HierarchyEditor
 					extends
 						ValuesEditor
@@ -78,6 +81,13 @@ class ModelSectionConfigPanel extends ConfigArrayPanel<CoreHierarchyConfig> {
 
 			return "hierarchy";
 		}
+	}
+
+	public void repopulate() {
+
+		attributesPanels.clear();
+
+		super.repopulate();
 	}
 
 	protected List<CoreHierarchyConfig> getSources() {
@@ -148,6 +158,11 @@ class ModelSectionConfigPanel extends ConfigArrayPanel<CoreHierarchyConfig> {
 		return section.getLabel();
 	}
 
+	AttributesConfigPanel getAttributesPanel(CoreHierarchyConfig hierarchy) {
+
+		return attributesPanels.get(hierarchy);
+	}
+
 	private JComponent createHierarchyComponent(CoreHierarchyConfig hierarchy) {
 
 		return hierarchyEditor.setupValueEdits(hierarchy);
@@ -160,7 +175,11 @@ class ModelSectionConfigPanel extends ConfigArrayPanel<CoreHierarchyConfig> {
 
 	private AttributesConfigPanel createAttributesPanel(CoreHierarchyConfig hierarchy) {
 
-		return new AttributesConfigPanel(editManager, hierarchy);
+		AttributesConfigPanel panel = new AttributesConfigPanel(editManager, hierarchy);
+
+		attributesPanels.put(hierarchy, panel);
+
+		return panel;
 	}
 
 	private SectionHierarchyGrabManager createHierarchyGrabManager() {

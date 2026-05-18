@@ -164,6 +164,11 @@ public class CoreHierarchyConfig extends LabelledConfigObject<CoreHierarchyConfi
 		return section.get().getEditActions();
 	}
 
+	ConfigEditLocation createEditLocation() {
+
+		return new ConfigEditLocation(this);
+	}
+
 	private <A extends CoreAttributeConfig>A addCoreAttribute(A attribute) {
 
 		coreAttributes.add(attribute);

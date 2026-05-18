@@ -48,6 +48,11 @@ class ModelConfigPanel extends JPanel {
 	private EditManager editManager;
 	private ModelConfig modelConfig;
 
+	private MultiSectionPanel multiSectionPanel = null;
+
+	private Map<ModelSectionConfig, ModelSectionConfigPanel> sectionPanels
+					= new HashMap<ModelSectionConfig, ModelSectionConfigPanel>();
+
 	private class MultiSectionPanel extends ConfigArrayPanel<ModelSectionConfig> {
 
 		static private final long serialVersionUID = -1;
@@ -147,12 +152,44 @@ class ModelConfigPanel extends JPanel {
 		return false;
 	}
 
+	void checkMakeEditVisible(ConfigEditLocation editLocation) {
+
+		ModelSectionConfig section = editLocation.getEditedSectionOrNull();
+
+		if (section != null) {
+
+			if (multiSectionPanel != null) {
+
+				multiSectionPanel.makeSourceVisible(section);
+			}
+
+			CoreHierarchyConfig hierarchy = editLocation.getEditedHierarchyOrNull();
+
+			if (hierarchy != null) {
+
+				ModelSectionConfigPanel sectionPanel = sectionPanels.get(section);
+
+				sectionPanel.makeSourceVisible(hierarchy);
+
+				CoreAttributeConfig attribute = editLocation.getEditedAttributeOrNull();
+
+				if (attribute != null) {
+
+					sectionPanel.getAttributesPanel(hierarchy).makeSourceVisible(attribute);
+				}
+			}
+		}
+	}
+
 	private void populate() {
 
 		add(createMainPanel(), BorderLayout.CENTER);
 	}
 
 	private void repopulate() {
+
+		multiSectionPanel = null;
+		sectionPanels.clear();
 
 		removeAll();
 		populate();
@@ -163,15 +200,22 @@ class ModelConfigPanel extends JPanel {
 
 		if (modelConfig.singleSectionMode()) {
 
-			return createSectionComponent(modelConfig.getSingleSectionModeSection());
+			return createSingleSectionComponent();
 		}
 
 		return createMultiSectionComponent();
 	}
 
+	private JComponent createSingleSectionComponent() {
+
+		return createSectionComponent(modelConfig.getSingleSectionModeSection());
+	}
+
 	private JComponent createMultiSectionComponent() {
 
-		return new MultiSectionPanel().createFullEditComponent(SECTIONS_TITLE);
+		multiSectionPanel = new MultiSectionPanel();
+
+		return multiSectionPanel.createFullEditComponent(SECTIONS_TITLE);
 	}
 
 	private JComponent createSectionComponent(ModelSectionConfig section) {
@@ -181,7 +225,11 @@ class ModelConfigPanel extends JPanel {
 
 	private ModelSectionConfigPanel createSectionPanel(ModelSectionConfig section) {
 
-		return new ModelSectionConfigPanel(editManager, section);
+		ModelSectionConfigPanel panel = new ModelSectionConfigPanel(editManager, section);
+
+		sectionPanels.put(section, panel);
+
+		return panel;
 	}
 
 	private boolean toMultiSectionMode() {

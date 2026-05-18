@@ -143,6 +143,11 @@ public class ModelConfig extends ConfigObject<ModelConfig> {
 		return createdModel;
 	}
 
+	ConfigEditLocation createEditLocation() {
+
+		return new ConfigEditLocation();
+	}
+
 	private void replaceSingleSection(String newSectionLabel) {
 
 		sections.replace(new ModelSectionConfig(this, newSectionLabel, getHierarchies()));

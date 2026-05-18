@@ -1,3 +1,4 @@
+
 package uk.ac.manchester.cs.goblin.config;
 
 import java.util.*;
@@ -19,9 +20,11 @@ public abstract class ConfigObject<O extends ConfigObject<O>> {
 		private class FieldEditTarget implements EditTarget {
 
 			private V editValue;
+			private V preEditValue = null;
 
 			public void doAdd(boolean replacement) {
 
+				preEditValue = value;
 				value = editValue;
 
 				pollListenersForUpdate();
@@ -32,7 +35,7 @@ public abstract class ConfigObject<O extends ConfigObject<O>> {
 
 			public EditLocation createLocation(boolean postRemovalOp) {
 
-				return new ConfigEditLocation();
+				return createConfigEditLocation(preEditValue, postRemovalOp);
 			}
 
 			FieldEditTarget(V editValue) {
@@ -65,6 +68,11 @@ public abstract class ConfigObject<O extends ConfigObject<O>> {
 		V get() {
 
 			return value;
+		}
+
+		ConfigEditLocation createConfigEditLocation(V preEditValue, boolean postRemovalOp) {
+
+			return createEditLocation();
 		}
 
 		abstract List<ConfigUpdateListener> getUpdateListeners();
@@ -104,53 +112,53 @@ public abstract class ConfigObject<O extends ConfigObject<O>> {
 		}
 	}
 
-	class DataArray<V> extends ConfigField<List<V>> {
+	class DataArray<E extends ConfigObject<?>> extends ConfigField<List<E>> {
 
 		DataArray() {
 
-			this(new ArrayList<V>());
+			this(new ArrayList<E>());
 		}
 
-		DataArray(List<V> values) {
+		DataArray(List<E> elements) {
 
-			super(values);
+			super(elements);
 		}
 
-		void add(V value) {
+		void add(E element) {
 
-			set(copyPlus(value));
+			set(copyPlus(element));
 		}
 
-		void remove(V value) {
+		void remove(E element) {
 
-			set(copyMinus(value));
+			set(copyMinus(element));
 		}
 
-		void includeAddAction(CompoundEditAction compoundAction, V value) {
+		void includeAddAction(CompoundEditAction compoundAction, E element) {
 
-			includeSetAction(compoundAction, copyPlus(value));
+			includeSetAction(compoundAction, copyPlus(element));
 		}
 
-		void includeRemoveAction(CompoundEditAction compoundAction, V value) {
+		void includeRemoveAction(CompoundEditAction compoundAction, E element) {
 
-			includeSetAction(compoundAction, copyMinus(value));
+			includeSetAction(compoundAction, copyMinus(element));
 		}
 
-		void replace(V replacementValue) {
+		void replace(E replacementElement) {
 
-			replace(Collections.singletonList(replacementValue));
+			replace(Collections.singletonList(replacementElement));
 		}
 
-		void replace(List<V> replacementValues) {
+		void replace(List<E> replacementElements) {
 
-			set(replacementValues);
+			set(replacementElements);
 		}
 
-		void reorder(List<V> reorderedValues) {
+		void reorder(List<E> reorderedElements) {
 
-			checkReorder(reorderedValues);
+			checkReorder(reorderedElements);
 
-			set(reorderedValues);
+			set(reorderedElements);
 		}
 
 		boolean isEmpty() {
@@ -163,19 +171,29 @@ public abstract class ConfigObject<O extends ConfigObject<O>> {
 			return get().size();
 		}
 
-		V get(int index) {
+		E get(int index) {
 
 			return get().get(index);
 		}
 
-		List<V> copy() {
+		List<E> copy() {
 
-			return new ArrayList<V>(get());
+			return new ArrayList<E>(get());
 		}
 
-		boolean contains(V hierarchy) {
+		boolean contains(E hierarchy) {
 
 			return get().contains(hierarchy);
+		}
+
+		ConfigEditLocation createConfigEditLocation(List<E> preEditValue, boolean postRemovalOp) {
+
+			if (postRemovalOp) {
+
+				return createEditLocation();
+			}
+
+			return findAddedElement(preEditValue).createEditLocation();
 		}
 
 		List<ConfigUpdateListener> getUpdateListeners() {
@@ -183,30 +201,44 @@ public abstract class ConfigObject<O extends ConfigObject<O>> {
 			return dataArrayUpdateListeners;
 		}
 
-		private List<V> copyPlus(V value) {
+		private List<E> copyPlus(E element) {
 
-			List<V> newValues = copy();
+			List<E> newElements = copy();
 
-			newValues.add(value);
+			newElements.add(element);
 
-			return newValues;
+			return newElements;
 		}
 
-		private List<V> copyMinus(V value) {
+		private List<E> copyMinus(E element) {
 
-			List<V> newValues = copy();
+			List<E> newElements = copy();
 
-			newValues.remove(value);
+			newElements.remove(element);
 
-			return newValues;
+			return newElements;
 		}
 
-		private void checkReorder(List<V> reorderedValues) {
+		private void checkReorder(List<E> reorderedElements) {
 
-			if (!new HashSet<V>(get()).equals(new HashSet<V>(reorderedValues))) {
+			if (!new HashSet<E>(get()).equals(new HashSet<E>(reorderedElements))) {
 
 				throw new RuntimeException("Invalid reordering!");
 			}
+		}
+
+		private E findAddedElement(List<E> preAddElements) {
+
+			List<E> elements = copy();
+
+			elements.removeAll(preAddElements);
+
+			if (elements.size() == 1) {
+
+				return elements.get(0);
+			}
+
+			throw new Error("Unexpected added-element result: " + elements);
 		}
 	}
 
@@ -221,4 +253,6 @@ public abstract class ConfigObject<O extends ConfigObject<O>> {
 	}
 
 	abstract ConfigEditActions getEditActions();
+
+	abstract ConfigEditLocation createEditLocation();
 }
