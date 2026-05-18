@@ -12,9 +12,7 @@ public class ModelEditLocation extends EditLocation {
 
 	public Hierarchy getEditedHierarchy() {
 
-		Concept concept = getEditedConceptOrNull();
-
-		return concept != null ? concept.getHierarchy() : null;
+		return target.getEditedHierarchy();
 	}
 
 	public Concept getEditedConceptOrNull() {

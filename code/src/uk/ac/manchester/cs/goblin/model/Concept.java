@@ -39,7 +39,15 @@ public abstract class Concept {
 
 	private List<ConceptListener> listeners = new ArrayList<ConceptListener>();
 
-	private class IdUpdateTarget extends ModelEditTarget {
+	private abstract class ConceptEditTarget extends ModelEditTarget {
+
+		Hierarchy getEditedHierarchy() {
+
+			return hierarchy;
+		}
+	}
+
+	private class IdUpdateTarget extends ConceptEditTarget {
 
 		private EntityId id;
 
@@ -64,7 +72,7 @@ public abstract class Concept {
 		}
 	}
 
-	private class AddRemoveTarget extends ModelEditTarget {
+	private class AddRemoveTarget extends ConceptEditTarget {
 
 		public void doAdd(boolean replacement) {
 

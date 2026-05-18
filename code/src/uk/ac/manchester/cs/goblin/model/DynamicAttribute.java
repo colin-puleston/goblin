@@ -14,6 +14,11 @@ public class DynamicAttribute extends Attribute {
 
 	private abstract class DynamicAttributeEditTarget extends ModelEditTarget {
 
+		Hierarchy getEditedHierarchy() {
+
+			return getRootSourceConcept().getHierarchy();
+		}
+
 		Concept getEditedConceptOrNull(boolean postRemovalOp) {
 
 			return getRootSourceConcept();

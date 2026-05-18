@@ -12,6 +12,8 @@ abstract class ModelEditTarget implements EditTarget {
 		return new ModelEditLocation(this, postRemovalOp);
 	}
 
+	abstract Hierarchy getEditedHierarchy();
+
 	abstract Concept getEditedConceptOrNull(boolean postRemovalOp);
 
 	Attribute getEditedAttributeOrNull(boolean postRemovalOp) {

@@ -48,11 +48,6 @@ public abstract class Attribute {
 
 	public abstract ConstraintsOption getConstraintsOption();
 
-	public Concept getEditedConceptOrNull(boolean postRemovalOp) {
-
-		return rootSourceConcept;
-	}
-
 	protected Attribute(Concept rootSourceConcept, Concept rootTargetConcept) {
 
 		this.rootSourceConcept = rootSourceConcept;

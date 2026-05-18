@@ -26,6 +26,11 @@ public abstract class Constraint {
 			getSourceValue().removeConstraint(Constraint.this);
 		}
 
+		Hierarchy getEditedHierarchy() {
+
+			return getSourceValue().getHierarchy();
+		}
+
 		Concept getEditedConceptOrNull(boolean postRemovalOp) {
 
 			return getSourceValue();
