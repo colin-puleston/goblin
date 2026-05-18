@@ -35,7 +35,7 @@ public abstract class ConfigObject<O extends ConfigObject<O>> {
 
 			public EditLocation createLocation(boolean postRemovalOp) {
 
-				return createConfigEditLocation(preEditValue, postRemovalOp);
+				return createConfigEditLocation(preEditValue);
 			}
 
 			FieldEditTarget(V editValue) {
@@ -70,7 +70,7 @@ public abstract class ConfigObject<O extends ConfigObject<O>> {
 			return value;
 		}
 
-		ConfigEditLocation createConfigEditLocation(V preEditValue, boolean postRemovalOp) {
+		ConfigEditLocation createConfigEditLocation(V preEditValue) {
 
 			return createEditLocation();
 		}
@@ -186,14 +186,11 @@ public abstract class ConfigObject<O extends ConfigObject<O>> {
 			return get().contains(hierarchy);
 		}
 
-		ConfigEditLocation createConfigEditLocation(List<E> preEditValue, boolean postRemovalOp) {
+		ConfigEditLocation createConfigEditLocation(List<E> preEditValue) {
 
-			if (postRemovalOp) {
+			E added = lookForAddedElement(preEditValue);
 
-				return createEditLocation();
-			}
-
-			return findAddedElement(preEditValue).createEditLocation();
+			return added != null ? added.createEditLocation() : createEditLocation();
 		}
 
 		List<ConfigUpdateListener> getUpdateListeners() {
@@ -227,18 +224,13 @@ public abstract class ConfigObject<O extends ConfigObject<O>> {
 			}
 		}
 
-		private E findAddedElement(List<E> preAddElements) {
+		private E lookForAddedElement(List<E> preAddElements) {
 
 			List<E> elements = copy();
 
 			elements.removeAll(preAddElements);
 
-			if (elements.size() == 1) {
-
-				return elements.get(0);
-			}
-
-			throw new Error("Unexpected added-element result: " + elements);
+			return elements.size() == 1 ? elements.get(0) : null;
 		}
 	}
 
