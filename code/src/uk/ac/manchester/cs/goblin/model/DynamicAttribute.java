@@ -63,19 +63,6 @@ public class DynamicAttribute extends Attribute {
 		}
 	}
 
-	private class ReplaceAttributeIdAction extends ReplaceAction<IdUpdateTarget> {
-
-		protected void performInterSubActionUpdates(
-							IdUpdateTarget target1,
-							IdUpdateTarget target2) {
-		}
-
-		ReplaceAttributeIdAction(IdUpdateTarget removeTarget, IdUpdateTarget addTarget) {
-
-			super(removeTarget, addTarget);
-		}
-	}
-
 	public void resetAttributeId(EntityId attrId) {
 
 		Concept source = getRootSourceConcept();
@@ -153,9 +140,9 @@ public class DynamicAttribute extends Attribute {
 		return true;
 	}
 
-	private ReplaceAttributeIdAction createReplaceAttributeIdAction(EntityId newId) {
+	private ReplaceAction<IdUpdateTarget> createReplaceAttributeIdAction(EntityId newId) {
 
-		return new ReplaceAttributeIdAction(
+		return new ReplaceAction<IdUpdateTarget>(
 						new IdUpdateTarget(attributeId),
 						new IdUpdateTarget(newId));
 	}

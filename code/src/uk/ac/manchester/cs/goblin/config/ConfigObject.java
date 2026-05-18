@@ -2,6 +2,8 @@ package uk.ac.manchester.cs.goblin.config;
 
 import java.util.*;
 
+import uk.ac.manchester.cs.goblin.edit.*;
+
 /**
  * @author Colin Puleston
  */
@@ -14,18 +16,49 @@ public abstract class ConfigObject<O extends ConfigObject<O>> {
 
 		private V value;
 
+		private class FieldEditTarget implements EditTarget {
+
+			private V editValue;
+
+			public void doAdd(boolean replacement) {
+
+				value = editValue;
+
+				pollListenersForUpdate();
+			}
+
+			public void doRemove(boolean replacing) {
+			}
+
+			public EditLocation createLocation(boolean postRemovalOp) {
+
+				return new ConfigEditLocation();
+			}
+
+			FieldEditTarget(V editValue) {
+
+				this.editValue = editValue;
+			}
+		}
+
 		ConfigField(V value) {
 
 			this.value = value;
 		}
 
-		void set(V value) {
+		void set(V newValue) {
 
-			if (value != this.value) {
+			if (!newValue.equals(value)) {
 
-				this.value = value;
+				getEditActions().perform(createReplaceAction(newValue));
+			}
+		}
 
-				pollListenersForUpdate();
+		void includeSetAction(CompoundEditAction compoundAction, V newValue) {
+
+			if (!newValue.equals(value)) {
+
+				compoundAction.addSubAction(createReplaceAction(newValue));
 			}
 		}
 
@@ -48,6 +81,14 @@ public abstract class ConfigObject<O extends ConfigObject<O>> {
 
 			return new ArrayList<ConfigUpdateListener>(getUpdateListeners());
 		}
+
+		private ReplaceAction<FieldEditTarget> createReplaceAction(V newValue) {
+
+			FieldEditTarget oldTarget = new FieldEditTarget(value);
+			FieldEditTarget newTarget = new FieldEditTarget(newValue);
+
+			return new ReplaceAction<FieldEditTarget>(oldTarget, newTarget);
+		}
 	}
 
 	class DataField<V> extends ConfigField<V> {
@@ -65,8 +106,6 @@ public abstract class ConfigObject<O extends ConfigObject<O>> {
 
 	class DataArray<V> extends ConfigField<List<V>> {
 
-		private List<V> values;
-
 		DataArray() {
 
 			this(new ArrayList<V>());
@@ -75,36 +114,26 @@ public abstract class ConfigObject<O extends ConfigObject<O>> {
 		DataArray(List<V> values) {
 
 			super(values);
-
-			this.values = values;
 		}
 
 		void add(V value) {
 
-			values.add(value);
-
-			pollListenersForUpdate();
-		}
-
-		void addAll(List<V> values) {
-
-			values.addAll(values);
-
-			pollListenersForUpdate();
+			set(copyPlus(value));
 		}
 
 		void remove(V value) {
 
-			values.remove(value);
-
-			pollListenersForUpdate();
+			set(copyMinus(value));
 		}
 
-		void clear() {
+		void includeAddAction(CompoundEditAction compoundAction, V value) {
 
-			values.clear();
+			includeSetAction(compoundAction, copyPlus(value));
+		}
 
-			pollListenersForUpdate();
+		void includeRemoveAction(CompoundEditAction compoundAction, V value) {
+
+			includeSetAction(compoundAction, copyMinus(value));
 		}
 
 		void replace(V replacementValue) {
@@ -114,42 +143,39 @@ public abstract class ConfigObject<O extends ConfigObject<O>> {
 
 		void replace(List<V> replacementValues) {
 
-			values.clear();
-			values.addAll(replacementValues);
-
-			pollListenersForUpdate();
+			set(replacementValues);
 		}
 
 		void reorder(List<V> reorderedValues) {
 
 			checkReorder(reorderedValues);
 
-			replace(reorderedValues);
+			set(reorderedValues);
 		}
 
 		boolean isEmpty() {
 
-			return values.isEmpty();
+			return get().isEmpty();
 		}
 
 		int size() {
 
-			return values.size();
+			return get().size();
 		}
 
 		V get(int index) {
 
-			return values.get(index);
+			return get().get(index);
 		}
 
 		List<V> copy() {
 
-			return new ArrayList<V>(values);
+			return new ArrayList<V>(get());
 		}
 
 		boolean contains(V hierarchy) {
 
-			return values.contains(hierarchy);
+			return get().contains(hierarchy);
 		}
 
 		List<ConfigUpdateListener> getUpdateListeners() {
@@ -157,9 +183,27 @@ public abstract class ConfigObject<O extends ConfigObject<O>> {
 			return dataArrayUpdateListeners;
 		}
 
+		private List<V> copyPlus(V value) {
+
+			List<V> newValues = copy();
+
+			newValues.add(value);
+
+			return newValues;
+		}
+
+		private List<V> copyMinus(V value) {
+
+			List<V> newValues = copy();
+
+			newValues.remove(value);
+
+			return newValues;
+		}
+
 		private void checkReorder(List<V> reorderedValues) {
 
-			if (!new HashSet<V>(values).equals(new HashSet<V>(reorderedValues))) {
+			if (!new HashSet<V>(get()).equals(new HashSet<V>(reorderedValues))) {
 
 				throw new RuntimeException("Invalid reordering!");
 			}
@@ -175,4 +219,6 @@ public abstract class ConfigObject<O extends ConfigObject<O>> {
 
 		dataArrayUpdateListeners.add(listener);
 	}
+
+	abstract ConfigEditActions getEditActions();
 }

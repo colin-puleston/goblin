@@ -36,22 +36,21 @@ class ModelConfigLoader extends ConfigFileSerialiser {
 
 		abstract CoreAttributeConfig loadAttribute(
 										XNode node,
-										EntityId rootSrcId,
+										CoreHierarchyConfig hierarchy,
 										EntityId rootTgtId);
 
 		private void loadHierarchyAttributes(XNode hierarchyNode, CoreHierarchyConfig hierarchy) {
 
 			for (XNode attributeNode : hierarchyNode.getChildren(getAttributeTag())) {
 
-				hierarchy.addCoreAttribute(loadAttribute(attributeNode, hierarchy));
+				loadAttribute(attributeNode, hierarchy);
 			}
 		}
 
-		private CoreAttributeConfig loadAttribute(XNode node, CoreHierarchyConfig hierarchy) {
+		private void loadAttribute(XNode node, CoreHierarchyConfig hierarchy) {
 
-			EntityId rootSrcId = hierarchy.getRootConceptId();
 			EntityId rootTgtId = getRootTargetConceptId(node);
-			CoreAttributeConfig attr = loadAttribute(node, rootSrcId, rootTgtId);
+			CoreAttributeConfig attr = loadAttribute(node, hierarchy, rootTgtId);
 
 			String label = getEntityLabelOrNull(node);
 
@@ -59,8 +58,6 @@ class ModelConfigLoader extends ConfigFileSerialiser {
 
 				attr.resetLabel(label);
 			}
-
-			return attr;
 		}
 	}
 
@@ -76,12 +73,15 @@ class ModelConfigLoader extends ConfigFileSerialiser {
 			return SIMPLE_ATTRIBUTE_TAG;
 		}
 
-		CoreAttributeConfig loadAttribute(XNode node, EntityId rootSrcId, EntityId rootTgtId) {
+		CoreAttributeConfig loadAttribute(
+								XNode node,
+								CoreHierarchyConfig hierarchy,
+								EntityId rootTgtId) {
 
-			EntityId lnkProp = getPropertyId(node, LINKING_PROPERTY_ATTR);
-			ConstraintsOption constraintsOpt = getPropertyAttributeConstraintsOption(node);
+			EntityId linkProp = getPropertyId(node, LINKING_PROPERTY_ATTR);
+			ConstraintsOption constOpt = getPropertyAttributeConstraintsOption(node);
 
-			return new SimpleAttributeConfig(lnkProp, rootSrcId, rootTgtId, constraintsOpt);
+			return hierarchy.addSimpleAttribute(linkProp, rootTgtId, constOpt);
 		}
 	}
 
@@ -97,16 +97,19 @@ class ModelConfigLoader extends ConfigFileSerialiser {
 			return ANCHORED_ATTRIBUTE_TAG;
 		}
 
-		CoreAttributeConfig loadAttribute(XNode node, EntityId rootSrcId, EntityId rootTgtId) {
+		CoreAttributeConfig loadAttribute(
+								XNode node,
+								CoreHierarchyConfig hierarchy,
+								EntityId rootTgtId) {
 
 			EntityId anchor = getConceptId(node, ANCHOR_CONCEPT_ATTR);
 
 			EntityId srcProp = getPropertyId(node, SOURCE_PROPERTY_ATTR);
 			EntityId tgtProp = getPropertyId(node, TARGET_PROPERTY_ATTR);
 
-			ConstraintsOption constraintsOpt = getPropertyAttributeConstraintsOption(node);
+			ConstraintsOption constOpt = getPropertyAttributeConstraintsOption(node);
 
-			return new AnchoredAttributeConfig(anchor, srcProp, tgtProp, rootSrcId, rootTgtId, constraintsOpt);
+			return hierarchy.addAnchoredAttribute(anchor, srcProp, tgtProp, rootTgtId, constOpt);
 		}
 	}
 
@@ -243,31 +246,21 @@ class ModelConfigLoader extends ConfigFileSerialiser {
 			}
 		}
 
-		CoreAttributeConfig loadAttribute(XNode node, EntityId rootSrcId, EntityId rootTgtId) {
+		CoreAttributeConfig loadAttribute(
+								XNode node,
+								CoreHierarchyConfig hierarchy,
+								EntityId rootTgtId) {
 
-			addLink(findHierarchy(rootSrcId), findHierarchy(rootTgtId));
+			addLink(hierarchy, model.findHierarchy(rootTgtId));
 
 			HierarchicalLinksOption linksOpt = getHierarchicalLinksOption(node);
 
-			return new HierarchicalAttributeConfig(rootSrcId, rootTgtId, linksOpt);
+			return hierarchy.addHierarchicalAttribute(rootTgtId, linksOpt);
 		}
 
 		String getAttributeTag() {
 
 			return HIERARCHICAL_ATTRIBUTE_TAG;
-		}
-
-		private CoreHierarchyConfig findHierarchy(EntityId rootConceptId) {
-
-			for (CoreHierarchyConfig hierarchy : model.getHierarchies()) {
-
-				if (hierarchy.getRootConceptId().equals(rootConceptId)) {
-
-					return hierarchy;
-				}
-			}
-
-			throw new Error("Hierarchy not found with root concept: " + rootConceptId);
 		}
 
 		private void addLink(CoreHierarchyConfig source, CoreHierarchyConfig target) {
@@ -313,16 +306,17 @@ class ModelConfigLoader extends ConfigFileSerialiser {
 
 	private void loadHierarchy(ModelSectionConfig section, XNode node) {
 
-		CoreHierarchyConfig hierarchy = section.addHierarchy(getRootConceptId(node));
+		CoreHierarchyConfig hierarchy = section.addHierarchy(
+											getRootConceptId(node),
+											fixedHierarchyStructure(node),
+											getDynamicAttributeConstraintsOption(node));
+
 		String label = getEntityLabelOrNull(node);
 
 		if (label != null) {
 
 			hierarchy.resetLabel(label);
 		}
-
-		hierarchy.setFixedStructure(fixedHierarchyStructure(node));
-		hierarchy.setDynamicAttributeConstraints(getDynamicAttributeConstraintsOption(node));
 	}
 
 	private void loadAttributes(XNode rootNode) {

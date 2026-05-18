@@ -33,8 +33,6 @@ import uk.ac.manchester.cs.goblin.config.*;
  */
 abstract class ValuesEditor<S extends LabelledConfigObject<S>, V extends ValuesPanel> {
 
-	private EditManager editManager;
-
 	private Map<S, V> valuesBySource = new HashMap<S, V>();
 
 	private class EditListener extends ValuesPanelListener {
@@ -53,14 +51,7 @@ abstract class ValuesEditor<S extends LabelledConfigObject<S>, V extends ValuesP
 		void onValueEdit() {
 
 			updateSource(source, values);
-
-			editManager.registerEdit();
 		}
-	}
-
-	ValuesEditor(EditManager editManager) {
-
-		this.editManager = editManager;
 	}
 
 	boolean checkNewSource() {
@@ -70,8 +61,6 @@ abstract class ValuesEditor<S extends LabelledConfigObject<S>, V extends ValuesP
 		if (values != null && checkNewValueSelection(values) && values.allValuesSet()) {
 
 			addNewSource(values);
-
-			editManager.registerEdit();
 
 			return true;
 		}

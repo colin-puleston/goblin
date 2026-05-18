@@ -37,7 +37,7 @@ import uk.ac.manchester.cs.goblin.gui.util.*;
 /**
  * @author Colin Puleston
  */
-public class Goblin extends GoblinApp {
+public class Goblin extends GoblinApp<ModelEditLocation> {
 
 	static private final long serialVersionUID = -1;
 
@@ -45,9 +45,6 @@ public class Goblin extends GoblinApp {
 
 	static private final int FRAME_WIDTH = 1200;
 	static private final int FRAME_HEIGHT = 700;
-
-	static private final String UNDO_BUTTON_LABEL = "Undo";
-	static private final String REDO_BUTTON_LABEL = "Redo";
 
 	static public void main(String[] args) {
 
@@ -67,65 +64,7 @@ public class Goblin extends GoblinApp {
 	private ModelSerialiser serialiser;
 	private Model model;
 
-	private int editCount = 0;
-	private int undoCount = 0;
-
 	private ModelPanel modelPanel;
-
-	private class UndoButton extends EditsEnabledButton {
-
-		static private final long serialVersionUID = -1;
-
-		protected boolean canDoButtonThing() {
-
-			return Goblin.this.model.canUndo();
-		}
-
-		protected void doButtonThing() {
-
-			performUndoAction();
-		}
-
-		UndoButton() {
-
-			super(UNDO_BUTTON_LABEL);
-		}
-	}
-
-	private class RedoButton extends EditsEnabledButton {
-
-		static private final long serialVersionUID = -1;
-
-		protected boolean canDoButtonThing() {
-
-			return Goblin.this.model.canRedo();
-		}
-
-		protected void doButtonThing() {
-
-			performRedoAction();
-		}
-
-		RedoButton() {
-
-			super(REDO_BUTTON_LABEL);
-		}
-	}
-
-	private class EditRelayer implements EditListener {
-
-		public void onEdit() {
-
-			editCount++;
-
-			Goblin.this.onEdit();
-		}
-
-		EditRelayer() {
-
-			model.addEditListener(this);
-		}
-	}
 
 	public Goblin() {
 
@@ -141,11 +80,8 @@ public class Goblin extends GoblinApp {
 		modelPanel = new ModelPanel(model);
 
 		model.setConfirmations(new UserConfirmations());
-		model.setModelLoaded();
 
-		new EditRelayer();
-
-		display();
+		start();
 	}
 
 	protected JComponent getMainAppComponent() {
@@ -153,27 +89,24 @@ public class Goblin extends GoblinApp {
 		return modelPanel;
 	}
 
-	protected JComponent getAppSpecificButtonsOrNull() {
-
-		return ControlsPanel.horizontal(new UndoButton(), new RedoButton());
-	}
-
-	protected boolean unsavedEdits() {
-
-		return editCount != undoCount;
-	}
-
 	protected void save() {
 
 		serialiser.save();
-
-		editCount = 0;
-		undoCount = 0;
 	}
 
 	protected File getEditFile() {
 
 		return serialiser.getDynamicFile();
+	}
+
+	protected ModelEditActions getEditActions() {
+
+		return model.getEditActions();
+	}
+
+	protected void makeEditVisible(ModelEditLocation editLocation) {
+
+		modelPanel.makeEditVisible(editLocation);
 	}
 
 	private ModelSerialiser loadOrExit() {
@@ -201,21 +134,5 @@ public class Goblin extends GoblinApp {
 		getInfoDisplay().informStartupError(e);
 
 		System.exit(0);
-	}
-
-	private void performUndoAction() {
-
-		undoCount++;
-		editCount--;
-
-		modelPanel.makeEditVisible(model.undo());
-	}
-
-	private void performRedoAction() {
-
-		undoCount--;
-		editCount--;
-
-		modelPanel.makeEditVisible(model.redo());
 	}
 }

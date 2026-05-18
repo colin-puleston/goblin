@@ -5,7 +5,7 @@ import uk.ac.manchester.cs.goblin.edit.*;
 /**
  * @author Colin Puleston
  */
-public abstract class ReplaceAction<T extends EditTarget> extends EditAction {
+public class ReplaceAction<T extends EditTarget> extends EditAction {
 
 	private SubAction add;
 	private SubAction remove;
@@ -55,7 +55,8 @@ public abstract class ReplaceAction<T extends EditTarget> extends EditAction {
 		remove = new RemoveSubAction(removeTarget);
 	}
 
-	protected abstract void performInterSubActionUpdates(T target1, T target2);
+	protected void performInterSubActionUpdates(T target1, T target2) {
+	}
 
 	void perform(boolean forward) {
 

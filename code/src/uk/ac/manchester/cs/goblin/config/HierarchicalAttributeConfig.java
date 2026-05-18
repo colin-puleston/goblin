@@ -16,21 +16,6 @@ public class HierarchicalAttributeConfig extends CoreAttributeConfig {
 
 	private DataField<HierarchicalLinksOption> linksOption;
 
-	public HierarchicalAttributeConfig(
-				EntityId rootSourceConceptId,
-				EntityId rootTargetConceptId,
-				HierarchicalLinksOption linksOption) {
-
-		super(
-			createDefaultLabel(rootTargetConceptId),
-			rootSourceConceptId,
-			rootTargetConceptId);
-
-		checkValidRootConceptCombo();
-
-		this.linksOption = new DataField<HierarchicalLinksOption>(linksOption);
-	}
-
 	public void resetRootTargetConceptId(EntityId rootTargetConceptId) {
 
 		super.resetRootTargetConceptId(rootTargetConceptId);
@@ -46,6 +31,21 @@ public class HierarchicalAttributeConfig extends CoreAttributeConfig {
 	public HierarchicalLinksOption getLinksOption() {
 
 		return linksOption.get();
+	}
+
+	HierarchicalAttributeConfig(
+		CoreHierarchyConfig sourceHierarchy,
+		EntityId rootTargetConceptId,
+		HierarchicalLinksOption linksOption) {
+
+		super(
+			createDefaultLabel(rootTargetConceptId),
+			sourceHierarchy,
+			rootTargetConceptId);
+
+		checkValidRootConceptCombo();
+
+		this.linksOption = new DataField<HierarchicalLinksOption>(linksOption);
 	}
 
 	ConstraintsOption getConstraintsOption() {

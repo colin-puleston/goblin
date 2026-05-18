@@ -130,6 +130,21 @@ class HierarchyConfigValuesPanel extends ValuesPanel {
 		}
 	}
 
+	private class HierarchyValuesInitialiser extends ValuesInitialiser<CoreHierarchyConfig> {
+
+		HierarchyValuesInitialiser(CoreHierarchyConfig hierarchy) {
+
+			super(hierarchy);
+		}
+
+		void initialiseValues(CoreHierarchyConfig hierarchy) {
+
+			rootConceptId.set(hierarchy);
+			extensibilityOption.set(hierarchy);
+			dynamicAttributesOption.set(hierarchy);
+		}
+	}
+
 	HierarchyConfigValuesPanel(EditManager editManager) {
 
 		super(editManager);
@@ -143,30 +158,21 @@ class HierarchyConfigValuesPanel extends ValuesPanel {
 
 		this(editManager);
 
-		rootConceptId.set(hierarchy);
-		extensibilityOption.set(hierarchy);
-		dynamicAttributesOption.set(hierarchy);
-
-		populate(hierarchy);
+		populate(new HierarchyValuesInitialiser(hierarchy));
 	}
 
 	void createHierarchy(ModelSectionConfig section) {
 
-		CoreHierarchyConfig config = section.addHierarchy(rootConceptId.get());
-
-		setConfigOptions(config);
+		section.addHierarchy(
+			rootConceptId.get(),
+			extensibilityOption.get().fixedStructure(),
+			dynamicAttributesOption.get());
 	}
 
 	void updateHierarchy(CoreHierarchyConfig config) {
 
 		config.resetRootConceptId(rootConceptId.get());
-
-		setConfigOptions(config);
-	}
-
-	private void setConfigOptions(CoreHierarchyConfig config) {
-
-		config.setFixedStructure(extensibilityOption.get().fixedStructure());
-		config.setDynamicAttributeConstraints(dynamicAttributesOption.get());
+		config.resetFixedStructure(extensibilityOption.get().fixedStructure());
+		config.resetDynamicAttributeConstraintsOption(dynamicAttributesOption.get());
 	}
 }

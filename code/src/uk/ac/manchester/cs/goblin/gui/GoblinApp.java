@@ -33,23 +33,29 @@ import javax.swing.border.*;
 
 import uk.ac.manchester.cs.mekon_util.gui.*;
 
+import uk.ac.manchester.cs.goblin.edit.*;
 import uk.ac.manchester.cs.goblin.gui.util.*;
 
 /**
  * @author Colin Puleston
  */
-public abstract class GoblinApp extends GFrame {
+public abstract class GoblinApp<L extends EditLocation> extends GFrame {
 
 	static private final long serialVersionUID = -1;
 
 	static private final String SAVE_BUTTON_LABEL = "Save";
 	static private final String EXIT_BUTTON_LABEL = "Exit";
+	static private final String UNDO_BUTTON_LABEL = "Undo";
+	static private final String REDO_BUTTON_LABEL = "Redo";
 
 	private AppInfoDisplay infoDisplay;
 
+	private int editCount = 0;
+	private int undoCount = 0;
+
 	private List<EditsEnabledButton> editsEnabledButtons = new ArrayList<EditsEnabledButton>();
 
-	protected abstract class EditsEnabledButton extends GButton {
+	private abstract class EditsEnabledButton extends GButton {
 
 		static private final long serialVersionUID = -1;
 
@@ -111,6 +117,64 @@ public abstract class GoblinApp extends GFrame {
 		}
 	}
 
+	private class UndoButton extends EditsEnabledButton {
+
+		static private final long serialVersionUID = -1;
+
+		protected boolean canDoButtonThing() {
+
+			return getEditActions().canUndo();
+		}
+
+		protected void doButtonThing() {
+
+			performUndoAction();
+		}
+
+		UndoButton() {
+
+			super(UNDO_BUTTON_LABEL);
+		}
+	}
+
+	private class RedoButton extends EditsEnabledButton {
+
+		static private final long serialVersionUID = -1;
+
+		protected boolean canDoButtonThing() {
+
+			return getEditActions().canRedo();
+		}
+
+		protected void doButtonThing() {
+
+			performRedoAction();
+		}
+
+		RedoButton() {
+
+			super(REDO_BUTTON_LABEL);
+		}
+	}
+
+	private class EditRelayer implements EditListener {
+
+		public void onEdit() {
+
+			editCount++;
+
+			for (EditsEnabledButton button : editsEnabledButtons) {
+
+				button.onEdit();
+			}
+		}
+
+		EditRelayer() {
+
+			getEditActions().addListener(this);
+		}
+	}
+
 	private class WindowCloseListener extends WindowAdapter {
 
 		public void windowClosing(WindowEvent e) {
@@ -129,39 +193,32 @@ public abstract class GoblinApp extends GFrame {
 		this.infoDisplay = infoDisplay;
 	}
 
-	protected void display() {
+	protected void start() {
 
 		setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 		addWindowListener(new WindowCloseListener());
+
+		getEditActions().startTracking();
+
+		new EditRelayer();
 
 		display(createMainPanel());
 	}
 
 	protected abstract JComponent getMainAppComponent();
 
-	protected JComponent getAppSpecificButtonsOrNull() {
+	protected JComponent getAppSpecificControlsOrNull() {
 
 		return null;
 	}
-
-	protected JComponent getExtraAppSpecificControlsOrNull() {
-
-		return null;
-	}
-
-	protected abstract boolean unsavedEdits();
 
 	protected abstract void save();
 
 	protected abstract File getEditFile();
 
-	protected void onEdit() {
+	protected abstract EditActions<L> getEditActions();
 
-		for (EditsEnabledButton button : editsEnabledButtons) {
-
-			button.onEdit();
-		}
-	}
+	protected abstract void makeEditVisible(L editLocation);
 
 	protected AppInfoDisplay getInfoDisplay() {
 
@@ -173,6 +230,9 @@ public abstract class GoblinApp extends GFrame {
 		if (unsavedEdits() && confirmOverwriteFile()) {
 
 			save();
+
+			editCount = 0;
+			undoCount = 0;
 
 			return true;
 		}
@@ -200,6 +260,27 @@ public abstract class GoblinApp extends GFrame {
 		return true;
 	}
 
+	private void performUndoAction() {
+
+		undoCount++;
+		editCount--;
+
+		makeEditVisible(getEditActions().undo());
+	}
+
+	private void performRedoAction() {
+
+		undoCount--;
+		editCount--;
+
+		makeEditVisible(getEditActions().redo());
+	}
+
+	private boolean unsavedEdits() {
+
+		return editCount != undoCount;
+	}
+
 	private JComponent createMainPanel() {
 
 		JPanel panel = new JPanel(new BorderLayout());
@@ -207,11 +288,11 @@ public abstract class GoblinApp extends GFrame {
 		panel.add(createButtonsPanel(), BorderLayout.NORTH);
 		panel.add(getMainAppComponent(), BorderLayout.CENTER);
 
-		JComponent controls = getExtraAppSpecificControlsOrNull();
+		JComponent extraControls = getAppSpecificControlsOrNull();
 
-		if (controls != null) {
+		if (extraControls != null) {
 
-			panel.add(controls, BorderLayout.SOUTH);
+			panel.add(extraControls, BorderLayout.SOUTH);
 		}
 
 		return panel;
@@ -223,14 +304,8 @@ public abstract class GoblinApp extends GFrame {
 
 		panel.setBorder(LineBorder.createGrayLineBorder());
 
-		JComponent buttons = getAppSpecificButtonsOrNull();
-
-		if (buttons != null) {
-
-			panel.add(buttons, BorderLayout.WEST);
-		}
-
 		panel.add(createExternalActionButtons(), BorderLayout.EAST);
+		panel.add(createEditActionButtons(), BorderLayout.WEST);
 
 		return panel;
 	}
@@ -238,6 +313,11 @@ public abstract class GoblinApp extends GFrame {
 	private JComponent createExternalActionButtons() {
 
 		return ControlsPanel.horizontal(new SaveButton(), new ExitButton());
+	}
+
+	private JComponent createEditActionButtons() {
+
+		return ControlsPanel.horizontal(new UndoButton(), new RedoButton());
 	}
 
 	private boolean confirmOverwriteFile() {

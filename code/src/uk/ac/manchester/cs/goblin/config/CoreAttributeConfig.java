@@ -7,12 +7,17 @@ import uk.ac.manchester.cs.goblin.model.*;
  */
 public abstract class CoreAttributeConfig extends LabelledConfigObject<CoreAttributeConfig> {
 
-	private DataField<EntityId> rootSourceConceptId;
+	private CoreHierarchyConfig sourceHierarchy;
 	private DataField<EntityId> rootTargetConceptId;
 
 	public String toString() {
 
-		return getLabel() + "(" + rootSourceConceptId.get() + " --> " + rootTargetConceptId.get() + ")";
+		return getLabel()
+				+ "("
+				+ getRootSourceConceptId()
+				+ " --> "
+				+ getRootTargetConceptId()
+				+ ")";
 	}
 
 	public void resetRootTargetConceptId(EntityId conceptId) {
@@ -20,9 +25,14 @@ public abstract class CoreAttributeConfig extends LabelledConfigObject<CoreAttri
 		rootTargetConceptId.set(conceptId);
 	}
 
+	public CoreHierarchyConfig getSourceHierarchy() {
+
+		return sourceHierarchy;
+	}
+
 	public EntityId getRootSourceConceptId() {
 
-		return rootSourceConceptId.get();
+		return sourceHierarchy.getRootConceptId();
 	}
 
 	public EntityId getRootTargetConceptId() {
@@ -30,12 +40,20 @@ public abstract class CoreAttributeConfig extends LabelledConfigObject<CoreAttri
 		return rootTargetConceptId.get();
 	}
 
-	CoreAttributeConfig(String label, EntityId rootSourceConceptId, EntityId rootTargetConceptId) {
+	CoreAttributeConfig(
+		String label,
+		CoreHierarchyConfig sourceHierarchy,
+		EntityId rootTargetConceptId) {
 
 		super(label);
 
-		this.rootSourceConceptId = new DataField<EntityId>(rootSourceConceptId);
+		this.sourceHierarchy = sourceHierarchy;
 		this.rootTargetConceptId = new DataField<EntityId>(rootTargetConceptId);
+	}
+
+	ConfigEditActions getEditActions() {
+
+		return sourceHierarchy.getEditActions();
 	}
 
 	abstract ConstraintsOption getConstraintsOption();

@@ -11,25 +11,6 @@ public class AnchoredAttributeConfig extends PropertyAttributeConfig {
 	private DataField<EntityId> sourcePropertyId;
 	private DataField<EntityId> targetPropertyId;
 
-	public AnchoredAttributeConfig(
-				EntityId anchorConceptId,
-				EntityId sourcePropertyId,
-				EntityId targetPropertyId,
-				EntityId rootSourceConceptId,
-				EntityId rootTargetConceptId,
-				ConstraintsOption constraintsOption) {
-
-		super(
-			targetPropertyId.getLabel(),
-			rootSourceConceptId,
-			rootTargetConceptId,
-			constraintsOption);
-
-		this.anchorConceptId = new DataField<EntityId>(anchorConceptId);
-		this.sourcePropertyId = new DataField<EntityId>(sourcePropertyId);
-		this.targetPropertyId = new DataField<EntityId>(targetPropertyId);
-	}
-
 	public void resetAnchorConceptId(EntityId conceptId) {
 
 		anchorConceptId.set(conceptId);
@@ -58,6 +39,25 @@ public class AnchoredAttributeConfig extends PropertyAttributeConfig {
 	public EntityId getTargetPropertyId() {
 
 		return targetPropertyId.get();
+	}
+
+	AnchoredAttributeConfig(
+		CoreHierarchyConfig sourceHierarchy,
+		EntityId anchorConceptId,
+		EntityId sourcePropertyId,
+		EntityId targetPropertyId,
+		EntityId rootTargetConceptId,
+		ConstraintsOption constraintsOption) {
+
+		super(
+			targetPropertyId.getLabel(),
+			sourceHierarchy,
+			rootTargetConceptId,
+			constraintsOption);
+
+		this.anchorConceptId = new DataField<EntityId>(anchorConceptId);
+		this.sourcePropertyId = new DataField<EntityId>(sourcePropertyId);
+		this.targetPropertyId = new DataField<EntityId>(targetPropertyId);
 	}
 
 	void accept(CoreAttributeConfigVisitor visitor) {

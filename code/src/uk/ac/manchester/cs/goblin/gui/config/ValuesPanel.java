@@ -57,6 +57,8 @@ abstract class ValuesPanel extends JPanel {
 	private List<Value<?>> values = new ArrayList<Value<?>>();
 	private List<ValuesPanelListener> listeners = new ArrayList<ValuesPanelListener>();
 
+	private boolean reEditingValues = false;
+
 	abstract class Value<V> {
 
 		Value() {
@@ -188,7 +190,7 @@ abstract class ValuesPanel extends JPanel {
 
 		void set(EntityId rootConceptId) {
 
-			set(editManager.findHierarchy(rootConceptId));
+			set(editManager.getModelConfig().findHierarchy(rootConceptId));
 		}
 
 		Color getTextColour() {
@@ -258,6 +260,40 @@ abstract class ValuesPanel extends JPanel {
 		}
 	}
 
+	abstract class ValuesInitialiser<C extends ConfigObject<?>> {
+
+		private C valuesContainer;
+
+		private class ValuesUpdateListener implements ConfigUpdateListener {
+
+			public void onUpdate() {
+
+				initialiseValues(valuesContainer);
+
+				repopulate();
+			}
+
+			ValuesUpdateListener() {
+
+				valuesContainer.addDataFieldUpdateListener(this);
+			}
+		}
+
+		ValuesInitialiser(C valuesContainer) {
+
+			this.valuesContainer = valuesContainer;
+		}
+
+		void activate() {
+
+			initialiseValues(valuesContainer);
+
+			new ValuesUpdateListener();
+		}
+
+		abstract void initialiseValues(C valuesContainer);
+	}
+
 	private class EditInvokeButton extends GButton {
 
 		static private final long serialVersionUID = -1;
@@ -269,7 +305,11 @@ abstract class ValuesPanel extends JPanel {
 			if (value.perfomInputOp()) {
 
 				pollListenersForEdit();
-				repopulate();
+
+				if (!reEditingValues) {
+
+					repopulate();
+				}
 			}
 		}
 
@@ -278,19 +318,6 @@ abstract class ValuesPanel extends JPanel {
 			super(EDIT_INVOKE_BUTTON_LABEL);
 
 			this.value = value;
-		}
-	}
-
-	private class ValuesUpdateListener implements ConfigUpdateListener {
-
-		public void onUpdate() {
-
-			repopulate();
-		}
-
-		ValuesUpdateListener(ConfigObject<?> valuesContainer) {
-
-			valuesContainer.addDataArrayUpdateListener(this);
 		}
 	}
 
@@ -308,11 +335,13 @@ abstract class ValuesPanel extends JPanel {
 		add(createInnerPanel(), BorderLayout.NORTH);
 	}
 
-	void populate(ConfigObject<?> valuesContainer) {
+	void populate(ValuesInitialiser<?> valuesInitialiser) {
+
+		reEditingValues = true;
+
+		valuesInitialiser.activate();
 
 		populate();
-
-		new ValuesUpdateListener(valuesContainer);
 	}
 
 	void repopulate() {

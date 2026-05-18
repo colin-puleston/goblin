@@ -69,7 +69,7 @@ class ModelConfigPanel extends JPanel {
 
 		MultiSectionPanel() {
 
-			super(editManager, modelConfig, JTabbedPane.LEFT);
+			super(modelConfig, JTabbedPane.LEFT);
 
 			setFont(GFonts.toLarge(getFont()));
 
@@ -140,8 +140,6 @@ class ModelConfigPanel extends JPanel {
 	boolean setMultiSections(boolean multiSections) {
 
 		if (multiSections ? toMultiSectionMode() : toSingleSectionMode()) {
-
-			editManager.registerEdit();
 
 			return true;
 		}

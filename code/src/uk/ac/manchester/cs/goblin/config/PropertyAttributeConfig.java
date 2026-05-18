@@ -23,11 +23,11 @@ public abstract class PropertyAttributeConfig extends CoreAttributeConfig {
 
 	PropertyAttributeConfig(
 		String label,
-		EntityId rootSourceConceptId,
+		CoreHierarchyConfig sourceHierarchy,
 		EntityId rootTargetConceptId,
 		ConstraintsOption constraintsOption) {
 
-		super(label, rootSourceConceptId, rootTargetConceptId);
+		super(label, sourceHierarchy, rootTargetConceptId);
 
 		checkValidConstraintsOption(constraintsOption);
 

@@ -2,6 +2,7 @@ package uk.ac.manchester.cs.goblin.config;
 
 import java.util.*;
 
+import uk.ac.manchester.cs.goblin.edit.*;
 import uk.ac.manchester.cs.goblin.model.*;
 
 /**
@@ -9,12 +10,11 @@ import uk.ac.manchester.cs.goblin.model.*;
  */
 public class CoreHierarchyConfig extends LabelledConfigObject<CoreHierarchyConfig> {
 
-	private ModelConfig model;
+	private DataField<ModelSectionConfig> section;
 
 	private DataField<EntityId> rootConceptId;
-	private DataField<Boolean> fixedStructure = new DataField<Boolean>(false);
-	private DataField<ConstraintsOption> dynamicAttributeConstraintsOption
-						= new DataField<ConstraintsOption>(ConstraintsOption.NONE);
+	private DataField<Boolean> fixedStructure;
+	private DataField<ConstraintsOption> dynamicAttributeConstraintsOption;
 
 	private DataArray<CoreAttributeConfig> coreAttributes = new DataArray<CoreAttributeConfig>();
 
@@ -23,19 +23,55 @@ public class CoreHierarchyConfig extends LabelledConfigObject<CoreHierarchyConfi
 		rootConceptId.set(conceptId);
 	}
 
-	public void setFixedStructure(boolean fixed) {
+	public void resetFixedStructure(boolean fixed) {
 
 		fixedStructure.set(fixed);
 	}
 
-	public void setDynamicAttributeConstraints(ConstraintsOption option) {
+	public void resetDynamicAttributeConstraintsOption(ConstraintsOption option) {
 
 		dynamicAttributeConstraintsOption.set(option);
 	}
 
-	public void addCoreAttribute(CoreAttributeConfig attribute) {
+	public SimpleAttributeConfig addSimpleAttribute(
+									EntityId linkingPropertyId,
+									EntityId rootTargetConceptId,
+									ConstraintsOption constraintsOption) {
 
-		coreAttributes.add(attribute);
+		return addCoreAttribute(
+					new SimpleAttributeConfig(
+							this,
+							linkingPropertyId,
+							rootTargetConceptId,
+							constraintsOption));
+	}
+
+	public AnchoredAttributeConfig addAnchoredAttribute(
+										EntityId anchorConceptId,
+										EntityId sourcePropertyId,
+										EntityId targetPropertyId,
+										EntityId rootTargetConceptId,
+										ConstraintsOption constraintsOption) {
+
+		return addCoreAttribute(
+					new AnchoredAttributeConfig(
+							this,
+							anchorConceptId,
+							sourcePropertyId,
+							targetPropertyId,
+							rootTargetConceptId,
+							constraintsOption));
+	}
+
+	public HierarchicalAttributeConfig addHierarchicalAttribute(
+											EntityId rootTargetConceptId,
+											HierarchicalLinksOption linksOption) {
+
+		return addCoreAttribute(
+					new HierarchicalAttributeConfig(
+							this,
+							rootTargetConceptId,
+							linksOption));
 	}
 
 	public void removeCoreAttribute(CoreAttributeConfig attribute) {
@@ -46,6 +82,11 @@ public class CoreHierarchyConfig extends LabelledConfigObject<CoreHierarchyConfi
 	public void reorderCoreAttributes(List<CoreAttributeConfig> reorderedAttributes) {
 
 		coreAttributes.reorder(reorderedAttributes);
+	}
+
+	public ModelSectionConfig getSection() {
+
+		return section.get();
 	}
 
 	public EntityId getRootConceptId() {
@@ -78,12 +119,19 @@ public class CoreHierarchyConfig extends LabelledConfigObject<CoreHierarchyConfi
 		return coreAttributes.copy();
 	}
 
-	CoreHierarchyConfig(ModelConfig model, EntityId rootConceptId) {
+	CoreHierarchyConfig(
+		ModelSectionConfig section,
+		EntityId rootConceptId,
+		boolean fixedStructure,
+		ConstraintsOption dynamicAttributeConstraintsOption) {
 
 		super(rootConceptId.getLabel());
 
-		this.model = model;
+		this.section = new DataField<ModelSectionConfig>(section);
 		this.rootConceptId = new DataField<EntityId>(rootConceptId);
+		this.fixedStructure = new DataField<Boolean>(false);
+		this.dynamicAttributeConstraintsOption
+				= new DataField<ConstraintsOption>(dynamicAttributeConstraintsOption);
 	}
 
 	CoreHierarchy createHierarchy(Model model) {
@@ -104,5 +152,22 @@ public class CoreHierarchyConfig extends LabelledConfigObject<CoreHierarchyConfi
 
 			createdHierarchy.addCoreAttribute(new CoreAttribute(createdModel, attribute));
 		}
+	}
+
+	void includeSectionSetAction(CompoundEditAction compoundAction, ModelSectionConfig newSection) {
+
+		section.includeSetAction(compoundAction, newSection);
+	}
+
+	ConfigEditActions getEditActions() {
+
+		return section.get().getEditActions();
+	}
+
+	private <A extends CoreAttributeConfig>A addCoreAttribute(A attribute) {
+
+		coreAttributes.add(attribute);
+
+		return attribute;
 	}
 }

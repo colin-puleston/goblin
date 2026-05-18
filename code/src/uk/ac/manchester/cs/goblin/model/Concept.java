@@ -87,17 +87,6 @@ public abstract class Concept {
 		}
 	}
 
-	private class ReplaceConceptIdAction extends ReplaceAction<IdUpdateTarget> {
-
-		protected void performInterSubActionUpdates(IdUpdateTarget target1, IdUpdateTarget target2) {
-		}
-
-		ReplaceConceptIdAction(IdUpdateTarget removeTarget, IdUpdateTarget addTarget) {
-
-			super(removeTarget, addTarget);
-		}
-	}
-
 	private class ReplaceConceptAction extends ReplaceAction<AddRemoveTarget> {
 
 		protected void performInterSubActionUpdates(
@@ -684,9 +673,9 @@ public abstract class Concept {
 		}
 	}
 
-	private ReplaceConceptIdAction createReplaceIdAction(EntityId newId) {
+	private ReplaceAction<IdUpdateTarget> createReplaceIdAction(EntityId newId) {
 
-		return new ReplaceConceptIdAction(
+		return new ReplaceAction<IdUpdateTarget>(
 						new IdUpdateTarget(conceptId),
 						new IdUpdateTarget(newId));
 	}

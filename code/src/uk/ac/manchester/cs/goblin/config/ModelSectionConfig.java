@@ -2,6 +2,7 @@ package uk.ac.manchester.cs.goblin.config;
 
 import java.util.*;
 
+import uk.ac.manchester.cs.goblin.edit.*;
 import uk.ac.manchester.cs.goblin.model.*;
 
 /**
@@ -12,25 +13,32 @@ public class ModelSectionConfig extends LabelledConfigObject<ModelSectionConfig>
 	private ModelConfig model;
 	private DataArray<CoreHierarchyConfig> hierarchies;
 
-	public CoreHierarchyConfig addHierarchy(EntityId rootConceptId) {
+	public CoreHierarchyConfig addHierarchy(
+									EntityId rootConceptId,
+									boolean fixedStructure,
+									ConstraintsOption dynamicAttributeConstraintsOption) {
 
-		CoreHierarchyConfig hierarchy = new CoreHierarchyConfig(model, rootConceptId);
+		CoreHierarchyConfig hierarchy = new CoreHierarchyConfig(
+												this,
+												rootConceptId,
+												fixedStructure,
+												dynamicAttributeConstraintsOption);
 
 		hierarchies.add(hierarchy);
 
 		return hierarchy;
 	}
 
-	public void addHierarchies(List<CoreHierarchyConfig> hierarchies) {
-
-		this.hierarchies.addAll(hierarchies);
-	}
-
 	public void grabHierarchy(ModelSectionConfig fromSection, CoreHierarchyConfig hierarchy) {
 
-		hierarchies.add(hierarchy);
+		CompoundEditAction compoundAction = new CompoundEditAction();
 
-		fromSection.hierarchies.remove(hierarchy);
+		hierarchy.includeSectionSetAction(compoundAction, this);
+
+		hierarchies.includeAddAction(compoundAction, hierarchy);
+		fromSection.hierarchies.includeRemoveAction(compoundAction, hierarchy);
+
+		getEditActions().perform(compoundAction);
 	}
 
 	public void removeHierarchy(CoreHierarchyConfig hierarchy) {
@@ -43,6 +51,11 @@ public class ModelSectionConfig extends LabelledConfigObject<ModelSectionConfig>
 	public void reorderHierarchies(List<CoreHierarchyConfig> reorderedHierarchies) {
 
 		hierarchies.reorder(reorderedHierarchies);
+	}
+
+	public ModelConfig getModelConfig() {
+
+		return model;
 	}
 
 	public boolean hasHierarchies() {
@@ -93,6 +106,11 @@ public class ModelSectionConfig extends LabelledConfigObject<ModelSectionConfig>
 
 			hierarchy.addCoreAttributes(createdHierarchies.next());
 		}
+	}
+
+	ConfigEditActions getEditActions() {
+
+		return model.getEditActions();
 	}
 
 	private void checkTargetHierarchyRemoved(CoreHierarchyConfig removedHierarchy) {

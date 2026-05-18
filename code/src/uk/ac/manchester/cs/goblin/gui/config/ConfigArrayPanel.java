@@ -51,8 +51,6 @@ abstract class ConfigArrayPanel<S extends LabelledConfigObject<S>> extends Multi
 
 	static private final Color CONTROL_LABEL_COLOUR = Color.GREEN.darker().darker();
 
-	private EditManager editManager;
-
 	private List<ControlTabHandler> controlTabHandlers = new ArrayList<ControlTabHandler>();
 	private Map<S, SourceDeleteButton> sourceDeleteButtons = new HashMap<S, SourceDeleteButton>();
 
@@ -108,7 +106,7 @@ abstract class ConfigArrayPanel<S extends LabelledConfigObject<S>> extends Multi
 
 		private int checkPerformControlAction() {
 
-			if (checkRegisterEdit(performControlAction())) {
+			if (performControlAction()) {
 
 				return postActionTabSelectionIndex();
 			}
@@ -178,8 +176,6 @@ abstract class ConfigArrayPanel<S extends LabelledConfigObject<S>> extends Multi
 
 				reorderSources(dialog.getCurrentOrder());
 
-				editManager.registerEdit();
-
 				return true;
 			}
 
@@ -226,7 +222,7 @@ abstract class ConfigArrayPanel<S extends LabelledConfigObject<S>> extends Multi
 
 		void checkPerformSourceAction(S source) {
 
-			checkRegisterEdit(checkRelabelSource(source));
+			checkRelabelSource(source);
 		}
 
 		private boolean checkRelabelSource(S source) {
@@ -264,7 +260,7 @@ abstract class ConfigArrayPanel<S extends LabelledConfigObject<S>> extends Multi
 
 		void checkPerformSourceAction(S source) {
 
-			if (checkRegisterEdit(checkConfirmDeletion(source))) {
+			if (checkConfirmDeletion(source)) {
 
 				deleteSource(source);
 				sourceDeleteButtons.remove(source);
@@ -340,11 +336,9 @@ abstract class ConfigArrayPanel<S extends LabelledConfigObject<S>> extends Multi
 
 	protected abstract JComponent createDataComponent(S source);
 
-	ConfigArrayPanel(EditManager editManager, ConfigObject<?> arrayContainer, int tabPlacement) {
+	ConfigArrayPanel(ConfigObject<?> arrayContainer, int tabPlacement) {
 
 		super(tabPlacement);
-
-		this.editManager = editManager;
 
 		new ArrayUpdateListener(arrayContainer);
 	}
@@ -465,15 +459,5 @@ abstract class ConfigArrayPanel<S extends LabelledConfigObject<S>> extends Multi
 	private int lastTabIndex() {
 
 		return getTabCount() - 1;
-	}
-
-	private boolean checkRegisterEdit(boolean wasEdit) {
-
-		if (wasEdit) {
-
-			editManager.registerEdit();
-		}
-
-		return wasEdit;
 	}
 }

@@ -54,11 +54,6 @@ class ModelSectionConfigPanel extends ConfigArrayPanel<CoreHierarchyConfig> {
 							<CoreHierarchyConfig,
 							HierarchyConfigValuesPanel> {
 
-		HierarchyEditor() {
-
-			super(editManager);
-		}
-
 		HierarchyConfigValuesPanel checkCreateEmptyValues() {
 
 			return new HierarchyConfigValuesPanel(editManager);
@@ -137,7 +132,7 @@ class ModelSectionConfigPanel extends ConfigArrayPanel<CoreHierarchyConfig> {
 
 	ModelSectionConfigPanel(EditManager editManager, ModelSectionConfig section) {
 
-		super(editManager, section, JTabbedPane.LEFT);
+		super(section, JTabbedPane.LEFT);
 
 		this.editManager = editManager;
 		this.section = section;

@@ -37,17 +37,6 @@ public abstract class Constraint {
 		}
 	}
 
-	private class ReplaceConstraintAction extends ReplaceAction<AddRemoveTarget> {
-
-		protected void performInterSubActionUpdates(AddRemoveTarget target1, AddRemoveTarget target2) {
-		}
-
-		ReplaceConstraintAction(Constraint replacement) {
-
-			super(new AddRemoveTarget(), replacement.createAddRemoveTarget());
-		}
-	}
-
 	public void remove() {
 
 		performAction(new RemoveAction(new AddRemoveTarget()));
@@ -151,7 +140,9 @@ public abstract class Constraint {
 
 	ReplaceAction<?> createReplaceAction(Constraint replacement) {
 
-		return new ReplaceConstraintAction(replacement);
+		return new ReplaceAction<AddRemoveTarget>(
+						new AddRemoveTarget(),
+						replacement.createAddRemoveTarget());
 	}
 
 	abstract EditAction createTargetValueRemovalEditAction(Concept target);

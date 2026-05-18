@@ -66,7 +66,9 @@ class AttributesConfigPanel extends ConfigArrayPanel<CoreAttributeConfig> {
 
 		private CoreHierarchyConfig findTargetHierarchy() {
 
-			return editManager.findHierarchy(attribute.getRootTargetConceptId());
+			EntityId rootConceptId = attribute.getRootTargetConceptId();
+
+			return editManager.getModelConfig().findHierarchy(rootConceptId);
 		}
 	}
 
@@ -115,11 +117,6 @@ class AttributesConfigPanel extends ConfigArrayPanel<CoreAttributeConfig> {
 							<CoreAttributeConfig,
 							AttributeConfigValuesPanel> {
 
-		AttributeEditor() {
-
-			super(editManager);
-		}
-
 		AttributeConfigValuesPanel checkCreateEmptyValues() {
 
 			AttributeType type = getAttributeTypeSelection();
@@ -139,7 +136,7 @@ class AttributesConfigPanel extends ConfigArrayPanel<CoreAttributeConfig> {
 
 		void addNewSource(AttributeConfigValuesPanel values) {
 
-			hierarchy.addCoreAttribute(createSource(values));
+			values.createAttribute();
 		}
 
 		void updateSource(CoreAttributeConfig source, AttributeConfigValuesPanel values) {
@@ -150,11 +147,6 @@ class AttributesConfigPanel extends ConfigArrayPanel<CoreAttributeConfig> {
 		String getSourceTypeName() {
 
 			return "attribute";
-		}
-
-		private CoreAttributeConfig createSource(AttributeConfigValuesPanel values) {
-
-			return values.createAttribute(hierarchy.getRootConceptId());
 		}
 
 		private AttributeType getAttributeTypeSelection() {
@@ -212,7 +204,7 @@ class AttributesConfigPanel extends ConfigArrayPanel<CoreAttributeConfig> {
 
 	AttributesConfigPanel(EditManager editManager, CoreHierarchyConfig hierarchy) {
 
-		super(editManager, hierarchy, JTabbedPane.LEFT);
+		super(hierarchy, JTabbedPane.LEFT);
 
 		this.editManager = editManager;
 		this.hierarchy = hierarchy;
@@ -220,10 +212,5 @@ class AttributesConfigPanel extends ConfigArrayPanel<CoreAttributeConfig> {
 		attributeEditor = new AttributeEditor();
 
 		populate();
-	}
-
-	private ModelConfig getModelConfig() {
-
-		return editManager.getModelConfig();
 	}
 }

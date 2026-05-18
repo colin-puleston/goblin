@@ -39,7 +39,7 @@ import uk.ac.manchester.cs.goblin.gui.util.*;
 /**
  * @author Colin Puleston
  */
-public class GoblinConfig extends GoblinApp {
+public class GoblinConfig extends GoblinApp<ConfigEditLocation> {
 
 	static private final long serialVersionUID = -1;
 
@@ -113,28 +113,15 @@ public class GoblinConfig extends GoblinApp {
 		}
 	}
 
-	private class EditRelayManager extends EditManager {
-
-		EditRelayManager() {
-
-			super(serialiser.getModelConfig(), serialiser.getConfigOntology());
-		}
-
-		void onEdit() {
-
-			GoblinConfig.this.onEdit();
-		}
-	}
-
 	public GoblinConfig() {
 
 		super(TITLE, FRAME_WIDTH, FRAME_HEIGHT, createInfoDisplay());
 
 		serialiser = loadConfigFileOrExit();
-		editManager = new EditRelayManager();
+		editManager = createEditManager();
 		modelConfigPanel = new ModelConfigPanel(editManager);
 
-		display();
+		start();
 	}
 
 	protected JComponent getMainAppComponent() {
@@ -142,7 +129,7 @@ public class GoblinConfig extends GoblinApp {
 		return modelConfigPanel;
 	}
 
-	protected JComponent getExtraAppSpecificControlsOrNull() {
+	protected JComponent getAppSpecificControlsOrNull() {
 
 		JPanel panel = new JPanel(new BorderLayout());
 
@@ -152,21 +139,27 @@ public class GoblinConfig extends GoblinApp {
 		return panel;
 	}
 
-	protected boolean unsavedEdits() {
-
-		return editManager.unsavedEdits();
-	}
-
 	protected void save() {
 
 		serialiser.save();
-
-		editManager.resetEdits();
 	}
 
 	protected File getEditFile() {
 
 		return ConfigFileSerialiser.getConfigFile();
+	}
+
+	protected ConfigEditActions getEditActions() {
+
+		return editManager.getEditActions();
+	}
+
+	protected void makeEditVisible(ConfigEditLocation editLocation) {
+	}
+
+	private EditManager createEditManager() {
+
+		return new EditManager(serialiser.getModelConfig(), serialiser.getConfigOntology());
 	}
 
 	private ConfigSerialiser loadConfigFileOrExit() {

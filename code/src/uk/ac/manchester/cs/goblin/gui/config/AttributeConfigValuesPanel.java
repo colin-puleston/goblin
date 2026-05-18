@@ -41,9 +41,9 @@ class AttributeConfigValuesPanel extends ValuesPanel {
 	private EditManager editManager;
 	private CoreHierarchyConfig sourceHierarchy;
 
-	private Values values;
+	private TypeValues values;
 
-	private abstract class Values {
+	private abstract class TypeValues {
 
 		private TargetHierarchy targetHierarchy;
 
@@ -82,7 +82,7 @@ class AttributeConfigValuesPanel extends ValuesPanel {
 			}
 		}
 
-		Values() {
+		TypeValues() {
 
 			values = this;
 
@@ -99,24 +99,27 @@ class AttributeConfigValuesPanel extends ValuesPanel {
 		void checkDoctorTargetHierarchyOptions(List<CoreHierarchyConfig> options) {
 		}
 
-		CoreAttributeConfig createAttribute(EntityId rootSourceConceptId) {
+		CoreAttributeConfig createAttribute() {
 
-			return createAttribute(rootSourceConceptId, targetHierarchy.get().getRootConceptId());
+			return createAttribute(getRootTargetConceptId());
 		}
 
-		abstract CoreAttributeConfig createAttribute(
-										EntityId rootSourceConceptId,
-										EntityId rootTargetConceptId);
+		abstract CoreAttributeConfig createAttribute(EntityId rootTargetConceptId);
 
 		void updateAttribute(CoreAttributeConfig config) {
 
-			config.resetRootTargetConceptId(targetHierarchy.get().getRootConceptId());
+			config.resetRootTargetConceptId(getRootTargetConceptId());
 		}
 
 		abstract AttributeType getAttributeType();
+
+		private EntityId getRootTargetConceptId() {
+
+			return targetHierarchy.get().getRootConceptId();
+		}
 	}
 
-	private abstract class PropertyAttributeValues extends Values {
+	private abstract class PropertyAttributeValues extends TypeValues {
 
 		abstract class TargetLinkPropertyId extends PropertyIdValue {
 
@@ -200,15 +203,13 @@ class AttributeConfigValuesPanel extends ValuesPanel {
 			constraintsOption.set(attribute);
 		}
 
-		CoreAttributeConfig createAttribute(
-								EntityId rootSourceConceptId,
-								EntityId rootTargetConceptId) {
+		CoreAttributeConfig createAttribute(EntityId rootTargetConceptId) {
 
-			return new SimpleAttributeConfig(
-							linkingPropertyId.get(),
-							rootSourceConceptId,
-							rootTargetConceptId,
-							constraintsOption.get());
+			return sourceHierarchy
+					.addSimpleAttribute(
+						linkingPropertyId.get(),
+						rootTargetConceptId,
+						constraintsOption.get());
 		}
 
 		void updateAttribute(CoreAttributeConfig config) {
@@ -291,17 +292,15 @@ class AttributeConfigValuesPanel extends ValuesPanel {
 			constraintsOption.set(attribute);
 		}
 
-		CoreAttributeConfig createAttribute(
-								EntityId rootSourceConceptId,
-								EntityId rootTargetConceptId) {
+		CoreAttributeConfig createAttribute(EntityId rootTargetConceptId) {
 
-			return new AnchoredAttributeConfig(
-							anchorConceptId.get(),
-							sourcePropertyId.get(),
-							targetPropertyId.get(),
-							rootSourceConceptId,
-							rootTargetConceptId,
-							constraintsOption.get());
+			return sourceHierarchy
+					.addAnchoredAttribute(
+						anchorConceptId.get(),
+						sourcePropertyId.get(),
+						targetPropertyId.get(),
+						rootTargetConceptId,
+						constraintsOption.get());
 		}
 
 		void updateAttribute(CoreAttributeConfig config) {
@@ -322,7 +321,7 @@ class AttributeConfigValuesPanel extends ValuesPanel {
 		}
 	}
 
-	private class HierarchicalAttributeValues extends Values {
+	private class HierarchicalAttributeValues extends TypeValues {
 
 		private LinksOption linksOption;
 
@@ -361,14 +360,12 @@ class AttributeConfigValuesPanel extends ValuesPanel {
 			options.remove(sourceHierarchy);
 		}
 
-		CoreAttributeConfig createAttribute(
-								EntityId rootSourceConceptId,
-								EntityId rootTargetConceptId) {
+		CoreAttributeConfig createAttribute(EntityId rootTargetConceptId) {
 
-			return new HierarchicalAttributeConfig(
-							rootSourceConceptId,
-							rootTargetConceptId,
-							linksOption.get());
+			return sourceHierarchy
+					.addHierarchicalAttribute(
+						rootTargetConceptId,
+						linksOption.get());
 		}
 
 		void updateAttribute(CoreAttributeConfig config) {
@@ -386,26 +383,62 @@ class AttributeConfigValuesPanel extends ValuesPanel {
 		}
 	}
 
-	private class ValuesCreator extends CoreAttributeConfigVisitor {
+	private class TypeValuesCreator extends CoreAttributeConfigVisitor {
 
 		public void visit(SimpleAttributeConfig attribute) {
 
-			new SimpleAttributeValues().setAll(attribute);
+			new SimpleAttributeValues();
 		}
 
 		public void visit(AnchoredAttributeConfig attribute) {
 
-			new AnchoredAttributeValues().setAll(attribute);
+			new AnchoredAttributeValues();
 		}
 
 		public void visit(HierarchicalAttributeConfig attribute) {
 
-			new HierarchicalAttributeValues().setAll(attribute);
+			new HierarchicalAttributeValues();
 		}
 
-		ValuesCreator(CoreAttributeConfig attribute) {
+		TypeValuesCreator(CoreAttributeConfig attribute) {
 
 			visit(attribute);
+		}
+	}
+
+	private class AttributeValuesInitialiser extends ValuesInitialiser<CoreAttributeConfig> {
+
+		private class TypeValuesInitialiser extends CoreAttributeConfigVisitor {
+
+			public void visit(SimpleAttributeConfig attribute) {
+
+				((SimpleAttributeValues)values).setAll(attribute);
+			}
+
+			public void visit(AnchoredAttributeConfig attribute) {
+
+				((AnchoredAttributeValues)values).setAll(attribute);
+			}
+
+			public void visit(HierarchicalAttributeConfig attribute) {
+
+				((HierarchicalAttributeValues)values).setAll(attribute);
+			}
+
+			TypeValuesInitialiser(CoreAttributeConfig attribute) {
+
+				visit(attribute);
+			}
+		}
+
+		AttributeValuesInitialiser(CoreAttributeConfig attribute) {
+
+			super(attribute);
+		}
+
+		void initialiseValues(CoreAttributeConfig attribute) {
+
+			new TypeValuesInitialiser(attribute);
 		}
 	}
 
@@ -441,14 +474,14 @@ class AttributeConfigValuesPanel extends ValuesPanel {
 
 		this(editManager, sourceHierarchy);
 
-		new ValuesCreator(attribute);
+		new TypeValuesCreator(attribute);
 
-		populate(attribute);
+		populate(new AttributeValuesInitialiser(attribute));
 	}
 
-	CoreAttributeConfig createAttribute(EntityId rootSourceConceptId) {
+	CoreAttributeConfig createAttribute() {
 
-		return values.createAttribute(rootSourceConceptId);
+		return values.createAttribute();
 	}
 
 	void updateAttribute(CoreAttributeConfig config) {

@@ -13,6 +13,8 @@ public class ModelConfig extends ConfigObject<ModelConfig> {
 
 	private DataArray<ModelSectionConfig> sections = new DataArray<ModelSectionConfig>();
 
+	private ConfigEditActions editActions = new ConfigEditActions();
+
 	public ModelConfig() {
 
 		addSection(SINGLE_SECTION_MODEL_LABEL);
@@ -40,11 +42,22 @@ public class ModelConfig extends ConfigObject<ModelConfig> {
 
 	public ModelSectionConfig addSection(String label) {
 
-		checkEnableMultiSectionModeSectionAddition();
-
 		ModelSectionConfig section = new ModelSectionConfig(this, label);
+		ModelSectionConfig ssmSection = getSingleSectionModeSectionOrNull();
 
-		sections.add(section);
+		if (ssmSection != null) {
+
+			if (ssmSection.hasHierarchies()) {
+
+				throw new RuntimeException("Cannot add new section to single-section model!");
+			}
+
+			sections.replace(section);
+		}
+		else {
+
+			sections.add(section);
+		}
 
 		return section;
 	}
@@ -93,6 +106,24 @@ public class ModelConfig extends ConfigObject<ModelConfig> {
 		return hierarchies;
 	}
 
+	public CoreHierarchyConfig findHierarchy(EntityId rootConceptId) {
+
+		for (CoreHierarchyConfig hierarchy : getHierarchies()) {
+
+			if (hierarchy.getRootConceptId().equals(rootConceptId)) {
+
+				return hierarchy;
+			}
+		}
+
+		throw new Error("Hierarchy not found with root concept: " + rootConceptId);
+	}
+
+	public ConfigEditActions getEditActions() {
+
+		return editActions;
+	}
+
 	public Model createModel() {
 
 		Model createdModel = new Model();
@@ -115,21 +146,6 @@ public class ModelConfig extends ConfigObject<ModelConfig> {
 	private void replaceSingleSection(String newSectionLabel) {
 
 		sections.replace(new ModelSectionConfig(this, newSectionLabel, getHierarchies()));
-	}
-
-	private void checkEnableMultiSectionModeSectionAddition() {
-
-		ModelSectionConfig section = getSingleSectionModeSectionOrNull();
-
-		if (section != null) {
-
-			if (section.hasHierarchies()) {
-
-				throw new RuntimeException("Cannot add new section to single-section model!");
-			}
-
-			sections.clear();
-		}
 	}
 
 	private ModelSectionConfig getSingleSectionModeSectionOrNull() {

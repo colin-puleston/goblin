@@ -26,14 +26,14 @@ package uk.ac.manchester.cs.goblin.gui.config;
 
 import java.util.*;
 
-import uk.ac.manchester.cs.goblin.model.*;
+import uk.ac.manchester.cs.goblin.edit.*;
 import uk.ac.manchester.cs.goblin.config.*;
 import uk.ac.manchester.cs.goblin.io.config.*;
 
 /**
  * @author Colin Puleston
  */
-abstract class EditManager {
+class EditManager {
 
 	private ModelConfig modelConfig;
 	private ConfigOntology ontology;
@@ -61,35 +61,8 @@ abstract class EditManager {
 		return modelConfig.getHierarchies();
 	}
 
-	CoreHierarchyConfig findHierarchy(EntityId rootConceptId) {
+	ConfigEditActions getEditActions() {
 
-		for (CoreHierarchyConfig hierarchy : getHierarchies()) {
-
-			if (hierarchy.getRootConceptId().equals(rootConceptId)) {
-
-				return hierarchy;
-			}
-		}
-
-		throw new Error("Cannot find hierarchy for: " + rootConceptId);
+		return modelConfig.getEditActions();
 	}
-
-	void registerEdit() {
-
-		unsavedEdits = true;
-
-		onEdit();
-	}
-
-	void resetEdits() {
-
-		unsavedEdits = false;
-	}
-
-	boolean unsavedEdits() {
-
-		return unsavedEdits;
-	}
-
-	abstract void onEdit();
 }
