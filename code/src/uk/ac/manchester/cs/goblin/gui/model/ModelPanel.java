@@ -32,6 +32,7 @@ import javax.swing.*;
 import uk.ac.manchester.cs.mekon_util.gui.*;
 
 import uk.ac.manchester.cs.goblin.model.*;
+import uk.ac.manchester.cs.goblin.gui.util.*;
 
 /**
  * @author Colin Puleston
@@ -41,7 +42,39 @@ class ModelPanel extends JPanel {
 	static private final long serialVersionUID = -1;
 
 	private Model model;
-	private List<ModelSectionPanel> sectionPanels = new ArrayList<ModelSectionPanel>();
+	private MultiSectionPanel multiSectionPanel;
+
+	private Map<ModelSection, ModelSectionPanel> sectionPanels
+					= new HashMap<ModelSection, ModelSectionPanel>();
+
+	private class MultiSectionPanel extends MultiTabPanel<ModelSection> {
+
+		static private final long serialVersionUID = -1;
+
+		protected List<ModelSection> getSources() {
+
+			return ModelPanel.this.model.getSections();
+		}
+
+		protected String getTitle(ModelSection section) {
+
+			return section.getLabel();
+		}
+
+		protected JComponent createComponent(ModelSection section) {
+
+			return createSectionPanel(section);
+		}
+
+		MultiSectionPanel() {
+
+			super(JTabbedPane.TOP);
+
+			setFont(GFonts.toLarge(getFont()));
+
+			populate();
+		}
+	}
 
 	ModelPanel(Model model) {
 
@@ -49,46 +82,47 @@ class ModelPanel extends JPanel {
 
 		this.model = model;
 
-		populate();
+		add(createMainPanel(), BorderLayout.CENTER);
 	}
 
 	void makeEditVisible(ModelEditLocation location) {
 
-		for (ModelSectionPanel sectionPanel : sectionPanels) {
+		for (ModelSection section : model.getSections()) {
 
-			if (sectionPanel.checkMakeEditVisible(location)) {
+			ModelSectionPanel panel = sectionPanels.get(section);
+
+			if (panel.checkMakeEditVisible(location)) {
+
+				if (multiSectionPanel != null) {
+
+					multiSectionPanel.makeSourceVisible(section);
+				}
 
 				break;
 			}
 		}
 	}
 
-	private void populate() {
-
-		for (ModelSection section : model.getSections()) {
-
-			sectionPanels.add(new ModelSectionPanel(section));
-		}
-
-		add(createMainPanel(), BorderLayout.CENTER);
-	}
-
 	private JComponent createMainPanel() {
 
-		return sectionPanels.size() == 1 ? sectionPanels.get(0) : createMultiSectionPanel();
-	}
+		List<ModelSection> sections = model.getSections();
 
-	private JComponent createMultiSectionPanel() {
+		if (sections.size() == 1) {
 
-		JTabbedPane tabs = new JTabbedPane(JTabbedPane.TOP);
-
-		tabs.setFont(GFonts.toLarge(tabs.getFont()));
-
-		for (ModelSectionPanel sectionPanel : sectionPanels) {
-
-			tabs.addTab(sectionPanel.getTitle(), sectionPanel);
+			return createSectionPanel(sections.get(0));
 		}
 
-		return tabs;
+		multiSectionPanel = new MultiSectionPanel();
+
+		return multiSectionPanel;
+	}
+
+	protected ModelSectionPanel createSectionPanel(ModelSection section) {
+
+		ModelSectionPanel panel = new ModelSectionPanel(section);
+
+		sectionPanels.put(section, panel);
+
+		return panel;
 	}
 }
