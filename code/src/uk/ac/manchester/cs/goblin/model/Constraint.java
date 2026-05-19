@@ -16,12 +16,12 @@ public abstract class Constraint {
 
 	private class AddRemoveTarget extends ModelEditTarget {
 
-		public void doAdd(boolean replacement) {
+		public void doAdd() {
 
 			getSourceValue().addConstraint(Constraint.this);
 		}
 
-		public void doRemove(boolean replacing) {
+		public void doRemove() {
 
 			getSourceValue().removeConstraint(Constraint.this);
 		}

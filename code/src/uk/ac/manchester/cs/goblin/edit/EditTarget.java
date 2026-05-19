@@ -5,9 +5,9 @@ package uk.ac.manchester.cs.goblin.edit;
  */
 public interface EditTarget {
 
-	public void doAdd(boolean replacement);
+	public void doAdd();
 
-	public void doRemove(boolean replacing);
+	public void doRemove();
 
 	public EditLocation createLocation(boolean postRemovalOp);
 }

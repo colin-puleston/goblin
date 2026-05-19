@@ -81,7 +81,7 @@ public abstract class EditActions<L extends EditLocation> {
 			tos.push(action);
 		}
 
-		pollListenersForEdit();
+		onEdit();
 	}
 
 	private L getEditLocation(AtomicEditAction<?> atomicAction, boolean forward) {
@@ -89,7 +89,7 @@ public abstract class EditActions<L extends EditLocation> {
 		return getEditLocationClass().cast(atomicAction.getEditLocation(forward));
 	}
 
-	private void pollListenersForEdit() {
+	private void onEdit() {
 
 		for (EditListener listener : listeners) {
 

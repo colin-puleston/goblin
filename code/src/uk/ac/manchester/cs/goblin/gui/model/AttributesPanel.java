@@ -119,7 +119,7 @@ class AttributesPanel extends MultiTabPanel<Attribute> {
 		}
 	}
 
-	private class DynamicAttributeLabelUpdater implements DynamicAttributeListener {
+	private class DynamicAttributeLabelUpdater implements EditableIdListener {
 
 		private DynamicAttribute attribute;
 
@@ -132,7 +132,7 @@ class AttributesPanel extends MultiTabPanel<Attribute> {
 
 			this.attribute = attribute;
 
-			attribute.addListener(this);
+			attribute.addIdListener(this);
 		}
 	}
 
@@ -175,7 +175,7 @@ class AttributesPanel extends MultiTabPanel<Attribute> {
 
 		DynamicAttribute dynAttr = (DynamicAttribute)attribute;
 
-		dynAttr.removeListenersOfType(DynamicAttributeLabelUpdater.class);
+		dynAttr.removeIdListenersOfType(DynamicAttributeLabelUpdater.class);
 	}
 
 	protected boolean requiresItalicizedLabel(Attribute attribute) {

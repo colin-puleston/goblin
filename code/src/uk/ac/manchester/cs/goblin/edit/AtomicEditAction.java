@@ -21,11 +21,11 @@ public abstract class AtomicEditAction<T extends EditTarget> extends EditAction 
 
 		if (forward == addAction()) {
 
-			target.doAdd(replaceSubAction());
+			target.doAdd();
 		}
 		else {
 
-			target.doRemove(replaceSubAction());
+			target.doRemove();
 		}
 	}
 
@@ -40,9 +40,4 @@ public abstract class AtomicEditAction<T extends EditTarget> extends EditAction 
 	}
 
 	abstract boolean addAction();
-
-	boolean replaceSubAction() {
-
-		return false;
-	}
 }

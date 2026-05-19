@@ -10,7 +10,7 @@ import uk.ac.manchester.cs.goblin.edit.*;
 public class DynamicAttribute extends Attribute {
 
 	private EntityId attributeId;
-	private List<DynamicAttributeListener> listeners = new ArrayList<DynamicAttributeListener>();
+	private List<EditableIdListener> idListeners = new ArrayList<EditableIdListener>();
 
 	private abstract class DynamicAttributeEditTarget extends ModelEditTarget {
 
@@ -29,14 +29,14 @@ public class DynamicAttribute extends Attribute {
 
 		private EntityId id;
 
-		public void doAdd(boolean replacement) {
+		public void doAdd() {
 
 			attributeId = id;
 
 			onIdUpdate();
 		}
 
-		public void doRemove(boolean replacing) {
+		public void doRemove() {
 		}
 
 		IdUpdateTarget(EntityId id) {
@@ -52,12 +52,12 @@ public class DynamicAttribute extends Attribute {
 
 	private class AddRemoveTarget extends DynamicAttributeEditTarget {
 
-		public void doAdd(boolean replacement) {
+		public void doAdd() {
 
 			getRootSourceConcept().addDynamicAttribute(DynamicAttribute.this);
 		}
 
-		public void doRemove(boolean replacing) {
+		public void doRemove() {
 
 			getRootSourceConcept().removeDynamicAttribute(DynamicAttribute.this);
 		}
@@ -80,23 +80,23 @@ public class DynamicAttribute extends Attribute {
 		performAction(createReplaceAttributeIdAction(attrId));
 	}
 
-	public void addListener(DynamicAttributeListener listener) {
+	public void addIdListener(EditableIdListener listener) {
 
-		listeners.add(listener);
+		idListeners.add(listener);
 	}
 
-	public void removeListener(DynamicAttributeListener listener) {
+	public void removeIdListener(EditableIdListener listener) {
 
-		listeners.remove(listener);
+		idListeners.remove(listener);
 	}
 
-	public void removeListenersOfType(Class<? extends DynamicAttributeListener> type) {
+	public void removeIdListenersOfType(Class<? extends EditableIdListener> type) {
 
-		for (DynamicAttributeListener listener : copyListeners()) {
+		for (EditableIdListener listener : copyIdListeners()) {
 
 			if (type.isAssignableFrom(listener.getClass())) {
 
-				listeners.remove(listener);
+				idListeners.remove(listener);
 			}
 		}
 	}
@@ -196,14 +196,14 @@ public class DynamicAttribute extends Attribute {
 
 	private void onIdUpdate() {
 
-		for (DynamicAttributeListener listener : copyListeners()) {
+		for (EditableIdListener listener : copyIdListeners()) {
 
 			listener.onIdUpdate();
 		}
 	}
 
-	private List<DynamicAttributeListener> copyListeners() {
+	private List<EditableIdListener> copyIdListeners() {
 
-		return new ArrayList<DynamicAttributeListener>(listeners);
+		return new ArrayList<EditableIdListener>(idListeners);
 	}
 }

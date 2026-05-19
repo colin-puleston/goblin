@@ -304,7 +304,7 @@ abstract class ValuesPanel extends JPanel {
 
 			if (value.perfomInputOp()) {
 
-				pollListenersForEdit();
+				onValueEdit();
 
 				if (!reEditingValues) {
 
@@ -446,7 +446,7 @@ abstract class ValuesPanel extends JPanel {
 		return field;
 	}
 
-	private void pollListenersForEdit() {
+	private void onValueEdit() {
 
 		for (ValuesPanelListener listener : listeners) {
 

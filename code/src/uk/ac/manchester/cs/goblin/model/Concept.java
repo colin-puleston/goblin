@@ -51,14 +51,14 @@ public abstract class Concept {
 
 		private EntityId id;
 
-		public void doAdd(boolean replacement) {
+		public void doAdd() {
 
 			conceptId = id;
 
 			onIdUpdate();
 		}
 
-		public void doRemove(boolean replacing) {
+		public void doRemove() {
 		}
 
 		IdUpdateTarget(EntityId id) {
@@ -74,14 +74,14 @@ public abstract class Concept {
 
 	private class AddRemoveTarget extends ConceptEditTarget {
 
-		public void doAdd(boolean replacement) {
+		public void doAdd() {
 
-			Concept.this.doAdd(replacement);
+			Concept.this.doAdd();
 		}
 
-		public void doRemove(boolean replacing) {
+		public void doRemove() {
 
-			Concept.this.doRemove(replacing);
+			Concept.this.doRemove();
 		}
 
 		Concept getEditedConceptOrNull(boolean postRemovalOp) {
@@ -530,7 +530,7 @@ public abstract class Concept {
 		addConstraintNoListenerPoll(rootConstraint);
 
 		hierarchy.onAddedDynamicAttribute(attribute);
-		pollListenersForAddedConstraint(rootConstraint);
+		onOutwardConstraintAdded(rootConstraint);
 	}
 
 	void removeDynamicAttribute(DynamicAttribute attribute) {
@@ -544,19 +544,19 @@ public abstract class Concept {
 		removeConstraintNoListenerPoll(rootConstraint);
 
 		hierarchy.onRemovedDynamicAttribute(attribute);
-		pollListenersForRemovedConstraint(rootConstraint);
+		onOutwardConstraintRemoved(rootConstraint);
 	}
 
 	void addConstraint(Constraint constraint) {
 
 		addConstraintNoListenerPoll(constraint);
-		pollListenersForAddedConstraint(constraint);
+		onOutwardConstraintAdded(constraint);
 	}
 
 	void removeConstraint(Constraint constraint) {
 
 		removeConstraintNoListenerPoll(constraint);
-		pollListenersForRemovedConstraint(constraint);
+		onOutwardConstraintRemoved(constraint);
 	}
 
 	ConceptTracker toTracker() {
@@ -608,20 +608,20 @@ public abstract class Concept {
 		performAction(new AddAction(new AddRemoveTarget()));
 	}
 
-	private void doAdd(boolean replacement) {
+	private void doAdd() {
 
 		Concept parent = getParent();
 
 		parent.children.add(this);
-		parent.onChildAdded(this, replacement);
+		parent.onChildAdded(this);
 	}
 
-	private void doRemove(boolean replacing) {
+	private void doRemove() {
 
 		Concept parent = getParent();
 
 		parent.children.remove(this);
-		onConceptRemoved(replacing);
+		onConceptRemoved();
 
 		removeAllSubTreeListeners();
 	}
@@ -651,16 +651,6 @@ public abstract class Concept {
 		}
 	}
 
-	private void pollListenersForAddedConstraint(Constraint constraint) {
-
-		onConstraintAdded(constraint, false);
-
-		for (Concept target : constraint.getTargetValues()) {
-
-			target.onConstraintAdded(constraint, true);
-		}
-	}
-
 	private void removeConstraintNoListenerPoll(Constraint constraint) {
 
 		ConstraintTracker tracker = constraints.remove(constraint);
@@ -671,13 +661,23 @@ public abstract class Concept {
 		}
 	}
 
-	private void pollListenersForRemovedConstraint(Constraint constraint) {
+	private void onOutwardConstraintAdded(Constraint constraint) {
 
-		onConstraintRemoved(constraint, false);
+		onConstraintAdded();
 
 		for (Concept target : constraint.getTargetValues()) {
 
-			target.onConstraintRemoved(constraint, true);
+			target.onConstraintAdded();
+		}
+	}
+
+	private void onOutwardConstraintRemoved(Constraint constraint) {
+
+		onConstraintRemoved();
+
+		for (Concept target : constraint.getTargetValues()) {
+
+			target.onConstraintRemoved();
 		}
 	}
 
@@ -798,43 +798,43 @@ public abstract class Concept {
 
 		for (ConceptListener listener : copyListeners()) {
 
-			listener.onIdUpdate(this);
+			listener.onIdUpdate();
 		}
 	}
 
-	private void onChildAdded(Concept child, boolean replacement) {
+	private void onChildAdded(Concept child) {
 
 		hierarchy.registerConcept(child);
 
 		for (ConceptListener listener : copyListeners()) {
 
-			listener.onChildAdded(child, replacement);
+			listener.onChildAdded(child);
 		}
 	}
 
-	private void onConstraintAdded(Constraint constraint, boolean inward) {
+	private void onConstraintAdded() {
 
 		for (ConceptListener listener : copyListeners()) {
 
-			listener.onConstraintAdded(constraint, inward);
+			listener.onConstraintAdded();
 		}
 	}
 
-	private void onConstraintRemoved(Constraint constraint, boolean inward) {
+	private void onConstraintRemoved() {
 
 		for (ConceptListener listener : copyListeners()) {
 
-			listener.onConstraintRemoved(constraint, inward);
+			listener.onConstraintRemoved();
 		}
 	}
 
-	private void onConceptRemoved(boolean replacing) {
+	private void onConceptRemoved() {
 
 		hierarchy.deregisterConcept(this);
 
 		for (ConceptListener listener : copyListeners()) {
 
-			listener.onConceptRemoved(this, replacing);
+			listener.onConceptRemoved();
 		}
 	}
 

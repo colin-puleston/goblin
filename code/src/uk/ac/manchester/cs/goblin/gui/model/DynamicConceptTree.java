@@ -43,29 +43,29 @@ abstract class DynamicConceptTree extends ConceptTree {
 
 		private class ModelUpdateTracker implements ConceptListener {
 
-			public void onIdUpdate(Concept concept) {
+			public void onIdUpdate() {
 
 				((DefaultTreeModel)getModel()).nodeChanged(DynamicConceptNode.this);
 			}
 
-			public void onChildAdded(Concept child, boolean replacement) {
+			public void onChildAdded(Concept child) {
 
 				addChildFor(child);
 
 				expand();
 			}
 
-			public void onConstraintAdded(Constraint constraint, boolean inward) {
+			public void onConstraintAdded() {
 
 				onConstraintsUpdated();
 			}
 
-			public void onConstraintRemoved(Constraint constraint, boolean inward) {
+			public void onConstraintRemoved() {
 
 				onConstraintsUpdated();
 			}
 
-			public void onConceptRemoved(Concept concept, boolean replacing) {
+			public void onConceptRemoved() {
 
 				remove();
 			}

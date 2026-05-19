@@ -22,15 +22,15 @@ public abstract class ConfigObject<O extends ConfigObject<O>> {
 			private V editValue;
 			private V preEditValue = null;
 
-			public void doAdd(boolean replacement) {
+			public void doAdd() {
 
 				preEditValue = value;
 				value = editValue;
 
-				pollListenersForUpdate();
+				onUpdate();
 			}
 
-			public void doRemove(boolean replacing) {
+			public void doRemove() {
 			}
 
 			public EditLocation createLocation(boolean postRemovalOp) {
@@ -77,7 +77,7 @@ public abstract class ConfigObject<O extends ConfigObject<O>> {
 
 		abstract List<ConfigUpdateListener> getUpdateListeners();
 
-		void pollListenersForUpdate() {
+		private void onUpdate() {
 
 			for (ConfigUpdateListener listener : copyUpdateListeners()) {
 

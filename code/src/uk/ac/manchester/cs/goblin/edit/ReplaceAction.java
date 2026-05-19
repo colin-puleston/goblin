@@ -7,23 +7,10 @@ import uk.ac.manchester.cs.goblin.edit.*;
  */
 public class ReplaceAction<T extends EditTarget> extends EditAction {
 
-	private SubAction add;
-	private SubAction remove;
+	private AtomicEditAction<T> add;
+	private AtomicEditAction<T> remove;
 
-	private abstract class SubAction extends AtomicEditAction<T> {
-
-		SubAction(T target) {
-
-			super(target);
-		}
-
-		boolean replaceSubAction() {
-
-			return true;
-		}
-	}
-
-	private class AddSubAction extends SubAction {
+	private class AddSubAction extends AtomicEditAction<T> {
 
 		AddSubAction(T target) {
 
@@ -36,7 +23,7 @@ public class ReplaceAction<T extends EditTarget> extends EditAction {
 		}
 	}
 
-	private class RemoveSubAction extends SubAction {
+	private class RemoveSubAction extends AtomicEditAction<T> {
 
 		RemoveSubAction(T target) {
 
@@ -75,7 +62,7 @@ public class ReplaceAction<T extends EditTarget> extends EditAction {
 		return forward ? add : remove;
 	}
 
-	private void perform(boolean forward, SubAction first, SubAction second) {
+	private void perform(boolean forward, AtomicEditAction<T> first, AtomicEditAction<T> second) {
 
 		first.perform(forward);
 		performInterSubActionUpdates(first.getTarget(), second.getTarget());
