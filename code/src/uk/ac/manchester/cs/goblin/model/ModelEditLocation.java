@@ -7,27 +7,41 @@ import uk.ac.manchester.cs.goblin.edit.*;
  */
 public class ModelEditLocation extends EditLocation {
 
-	private ModelEditTarget target;
-	private boolean postRemovalOp;
+	private Hierarchy hierarchy;
+	private Concept concept = null;
+	private Attribute attribute = null;
 
 	public Hierarchy getEditedHierarchy() {
 
-		return target.getEditedHierarchy();
+		return hierarchy;
 	}
 
 	public Concept getEditedConceptOrNull() {
 
-		return target.getEditedConceptOrNull(postRemovalOp);
+		return concept;
 	}
 
 	public Attribute getEditedAttributeOrNull() {
 
-		return target.getEditedAttributeOrNull(postRemovalOp);
+		return attribute;
 	}
 
-	ModelEditLocation(ModelEditTarget target, boolean postRemovalOp) {
+	ModelEditLocation(Hierarchy hierarchy) {
 
-		this.target = target;
-		this.postRemovalOp = postRemovalOp;
+		this.hierarchy = hierarchy;
+	}
+
+	ModelEditLocation(Concept concept) {
+
+		this(concept.getHierarchy());
+
+		this.concept = concept;
+	}
+
+	ModelEditLocation(Attribute attribute) {
+
+		this(attribute.getRootSourceConcept());
+
+		this.attribute = attribute;
 	}
 }

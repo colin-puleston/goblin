@@ -14,7 +14,7 @@ public abstract class Constraint {
 	private ConceptTracker sourceValue;
 	private ConceptTrackerSet targetValues;
 
-	private class AddRemoveTarget extends ModelEditTarget {
+	private class AddRemoveTarget implements EditTarget {
 
 		public void doAdd() {
 
@@ -26,14 +26,9 @@ public abstract class Constraint {
 			getSourceValue().removeConstraint(Constraint.this);
 		}
 
-		Hierarchy getEditedHierarchy() {
+		public EditLocation createLocation(boolean postRemovalOp) {
 
-			return getSourceValue().getHierarchy();
-		}
-
-		Concept getEditedConceptOrNull(boolean postRemovalOp) {
-
-			return getSourceValue();
+			return new ModelEditLocation(attribute);
 		}
 
 		Attribute getEditedAttributeOrNull(boolean postRemovalOp) {

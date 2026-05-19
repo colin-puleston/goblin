@@ -9,48 +9,22 @@ import uk.ac.manchester.cs.goblin.edit.*;
  */
 public class DynamicAttribute extends Attribute {
 
-	private EntityId attributeId;
-	private List<EditableIdListener> idListeners = new ArrayList<EditableIdListener>();
+	private AttributeId attributeId;
 
-	private abstract class DynamicAttributeEditTarget extends ModelEditTarget {
+	private class AttributeId extends EditableId<EditableIdListener> {
 
-		Hierarchy getEditedHierarchy() {
+		AttributeId(EntityId id) {
 
-			return getRootSourceConcept().getHierarchy();
+			super(id, getEditActions(), new ArrayList<EditableIdListener>());
 		}
 
-		Concept getEditedConceptOrNull(boolean postRemovalOp) {
+		EditLocation createEditLocation() {
 
-			return getRootSourceConcept();
-		}
-	}
-
-	private class IdUpdateTarget extends DynamicAttributeEditTarget {
-
-		private EntityId id;
-
-		public void doAdd() {
-
-			attributeId = id;
-
-			onIdUpdate();
-		}
-
-		public void doRemove() {
-		}
-
-		IdUpdateTarget(EntityId id) {
-
-			this.id = id;
-		}
-
-		Attribute getEditedAttributeOrNull(boolean postRemovalOp) {
-
-			return DynamicAttribute.this;
+			return new ModelEditLocation(DynamicAttribute.this);
 		}
 	}
 
-	private class AddRemoveTarget extends DynamicAttributeEditTarget {
+	private class AddRemoveTarget implements EditTarget {
 
 		public void doAdd() {
 
@@ -62,9 +36,11 @@ public class DynamicAttribute extends Attribute {
 			getRootSourceConcept().removeDynamicAttribute(DynamicAttribute.this);
 		}
 
-		Attribute getEditedAttributeOrNull(boolean postRemovalOp) {
+		public EditLocation createLocation(boolean postRemovalOp) {
 
-			return postRemovalOp ? null : DynamicAttribute.this;
+			return postRemovalOp
+					? new ModelEditLocation(getRootSourceConcept())
+					: new ModelEditLocation(DynamicAttribute.this);
 		}
 	}
 
@@ -77,28 +53,22 @@ public class DynamicAttribute extends Attribute {
 			throw new RuntimeException("Attribute already exists for concept: " + source);
 		}
 
-		performAction(createReplaceAttributeIdAction(attrId));
+		attributeId.resetId(attrId);
 	}
 
 	public void addIdListener(EditableIdListener listener) {
 
-		idListeners.add(listener);
+		attributeId.addListener(listener);
 	}
 
 	public void removeIdListener(EditableIdListener listener) {
 
-		idListeners.remove(listener);
+		attributeId.removeListener(listener);
 	}
 
 	public void removeIdListenersOfType(Class<? extends EditableIdListener> type) {
 
-		for (EditableIdListener listener : copyIdListeners()) {
-
-			if (type.isAssignableFrom(listener.getClass())) {
-
-				idListeners.remove(listener);
-			}
-		}
+		attributeId.removeListenersOfType(type);
 	}
 
 	public void remove() {
@@ -113,12 +83,12 @@ public class DynamicAttribute extends Attribute {
 
 	public String getLabel() {
 
-		return attributeId.getLabel();
+		return attributeId.getId().getLabel();
 	}
 
 	public EntityId getAttributeId() {
 
-		return attributeId;
+		return attributeId.getId();
 	}
 
 	public ConstraintsOption getConstraintsOption() {
@@ -135,7 +105,7 @@ public class DynamicAttribute extends Attribute {
 
 		super(rootSourceConcept, rootTargetConcept);
 
-		this.attributeId = attributeId;
+		this.attributeId = new AttributeId(attributeId);
 	}
 
 	boolean add() {
@@ -143,13 +113,6 @@ public class DynamicAttribute extends Attribute {
 		performAction(new AddAction(new AddRemoveTarget()));
 
 		return true;
-	}
-
-	private ReplaceAction<IdUpdateTarget> createReplaceAttributeIdAction(EntityId newId) {
-
-		return new ReplaceAction<IdUpdateTarget>(
-						new IdUpdateTarget(attributeId),
-						new IdUpdateTarget(newId));
 	}
 
 	private EditAction createRemoveAction() {
@@ -191,19 +154,11 @@ public class DynamicAttribute extends Attribute {
 
 	private void performAction(EditAction action) {
 
-		getModel().getEditActions().perform(action);
+		getEditActions().perform(action);
 	}
 
-	private void onIdUpdate() {
+	private EditActions<?> getEditActions() {
 
-		for (EditableIdListener listener : copyIdListeners()) {
-
-			listener.onIdUpdate();
-		}
-	}
-
-	private List<EditableIdListener> copyIdListeners() {
-
-		return new ArrayList<EditableIdListener>(idListeners);
+		return getModel().getEditActions();
 	}
 }

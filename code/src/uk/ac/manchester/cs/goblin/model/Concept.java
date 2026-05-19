@@ -26,7 +26,7 @@ public abstract class Concept {
 
 	private Hierarchy hierarchy;
 
-	private EntityId conceptId;
+	private ConceptId conceptId;
 
 	private ConceptTracker parent;
 	private ConceptTrackerSet children = new ConceptTrackerSet();
@@ -39,40 +39,20 @@ public abstract class Concept {
 
 	private List<ConceptListener> listeners = new ArrayList<ConceptListener>();
 
-	private abstract class ConceptEditTarget extends ModelEditTarget {
+	private class ConceptId extends EditableId<ConceptListener> {
 
-		Hierarchy getEditedHierarchy() {
+		ConceptId(EntityId id) {
 
-			return hierarchy;
+			super(id, getEditActions(), listeners);
+		}
+
+		EditLocation createEditLocation() {
+
+			return new ModelEditLocation(Concept.this);
 		}
 	}
 
-	private class IdUpdateTarget extends ConceptEditTarget {
-
-		private EntityId id;
-
-		public void doAdd() {
-
-			conceptId = id;
-
-			onIdUpdate();
-		}
-
-		public void doRemove() {
-		}
-
-		IdUpdateTarget(EntityId id) {
-
-			this.id = id;
-		}
-
-		Concept getEditedConceptOrNull(boolean postRemovalOp) {
-
-			return Concept.this;
-		}
-	}
-
-	private class AddRemoveTarget extends ConceptEditTarget {
+	private class AddRemoveTarget implements EditTarget {
 
 		public void doAdd() {
 
@@ -84,9 +64,11 @@ public abstract class Concept {
 			Concept.this.doRemove();
 		}
 
-		Concept getEditedConceptOrNull(boolean postRemovalOp) {
+		public EditLocation createLocation(boolean postRemovalOp) {
 
-			return postRemovalOp ? null : Concept.this;
+			return postRemovalOp
+					? new ModelEditLocation(hierarchy)
+					: new ModelEditLocation(Concept.this);
 		}
 
 		Concept getConcept() {
@@ -205,7 +187,7 @@ public abstract class Concept {
 				return false;
 			}
 
-			performAction(createReplaceIdAction(newConceptId));
+			conceptId.resetId(newConceptId);
 		}
 
 		return true;
@@ -300,7 +282,7 @@ public abstract class Concept {
 
 	public String toString() {
 
-		return conceptId.toString();
+		return conceptId.getId().toString();
 	}
 
 	public Model getModel() {
@@ -315,7 +297,7 @@ public abstract class Concept {
 
 	public EntityId getConceptId() {
 
-		return conceptId;
+		return conceptId.getId();
 	}
 
 	public boolean isRoot() {
@@ -478,13 +460,13 @@ public abstract class Concept {
 	Concept(Hierarchy hierarchy, EntityId conceptId) {
 
 		this.hierarchy = hierarchy;
-		this.conceptId = conceptId;
+		this.conceptId = new ConceptId(conceptId);
 	}
 
 	Concept(Concept replaced, Concept newParent) {
 
 		hierarchy = replaced.hierarchy;
-		conceptId = replaced.conceptId;
+		conceptId = new ConceptId(replaced.getConceptId());
 		children = replaced.children.copy();
 		constraints = replaced.constraints.copy();
 		inwardConstraints = replaced.inwardConstraints.copy();
@@ -681,13 +663,6 @@ public abstract class Concept {
 		}
 	}
 
-	private ReplaceAction<IdUpdateTarget> createReplaceIdAction(EntityId newId) {
-
-		return new ReplaceAction<IdUpdateTarget>(
-						new IdUpdateTarget(conceptId),
-						new IdUpdateTarget(newId));
-	}
-
 	private EditAction incorporateInwardTargetRemovalEdits(EditAction action) {
 
 		CompoundEditAction compoundAction = new CompoundEditAction();
@@ -705,11 +680,6 @@ public abstract class Concept {
 	private ConflictResolution checkMoveConflicts(Concept newParent) {
 
 		return getModel().getConflictResolver().checkConceptMove(this, newParent);
-	}
-
-	private void performAction(EditAction action) {
-
-		getModel().getEditActions().perform(action);
 	}
 
 	private void removeAllSubTreeListeners() {
@@ -794,14 +764,6 @@ public abstract class Concept {
 		return matcher.anyMatches();
 	}
 
-	private void onIdUpdate() {
-
-		for (ConceptListener listener : copyListeners()) {
-
-			listener.onIdUpdate();
-		}
-	}
-
 	private void onChildAdded(Concept child) {
 
 		hierarchy.registerConcept(child);
@@ -854,6 +816,16 @@ public abstract class Concept {
 	private AddRemoveTarget createAddRemoveTarget() {
 
 		return new AddRemoveTarget();
+	}
+
+	private void performAction(EditAction action) {
+
+		getEditActions().perform(action);
+	}
+
+	private EditActions<?> getEditActions() {
+
+		return getModel().getEditActions();
 	}
 
 	private ConceptTracking getConceptTracking() {
