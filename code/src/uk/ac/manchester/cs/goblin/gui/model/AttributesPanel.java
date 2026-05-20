@@ -38,7 +38,7 @@ import uk.ac.manchester.cs.goblin.gui.util.*;
 /**
  * @author Colin Puleston
  */
-class AttributesPanel extends MultiTabPanel<Attribute> {
+class AttributesPanel extends ArrayPanel<Attribute> {
 
 	static private final long serialVersionUID = -1;
 

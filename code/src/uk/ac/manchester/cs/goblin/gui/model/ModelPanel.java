@@ -47,7 +47,7 @@ class ModelPanel extends JPanel {
 	private Map<ModelSection, ModelSectionPanel> sectionPanels
 					= new HashMap<ModelSection, ModelSectionPanel>();
 
-	private class MultiSectionPanel extends MultiTabPanel<ModelSection> {
+	private class MultiSectionPanel extends ArrayPanel<ModelSection> {
 
 		static private final long serialVersionUID = -1;
 

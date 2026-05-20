@@ -34,7 +34,7 @@ import uk.ac.manchester.cs.goblin.gui.util.*;
 /**
  * @author Colin Puleston
  */
-class ModelSectionPanel extends MultiTabPanel<Hierarchy> {
+class ModelSectionPanel extends ArrayPanel<Hierarchy> {
 
 	static private final long serialVersionUID = -1;
 

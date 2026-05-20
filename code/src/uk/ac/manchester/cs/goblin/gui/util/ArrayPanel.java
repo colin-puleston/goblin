@@ -34,7 +34,7 @@ import uk.ac.manchester.cs.mekon_util.gui.*;
 /**
  * @author Colin Puleston
  */
-public abstract class MultiTabPanel<S> extends JTabbedPane {
+public abstract class ArrayPanel<S> extends JTabbedPane {
 
 	static private final long serialVersionUID = -1;
 
@@ -99,7 +99,7 @@ public abstract class MultiTabPanel<S> extends JTabbedPane {
 		setSelectedIndex(sources.indexOf(source));
 	}
 
-	protected MultiTabPanel(int tabPlacement) {
+	protected ArrayPanel(int tabPlacement) {
 
 		super(tabPlacement);
 	}
