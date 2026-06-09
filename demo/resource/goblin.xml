@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<GoblinConfiguration coreFilename="demo-core.owl" dynamicFilename="demo-dynamic.owl">
+<GoblinConfiguration projectName="Goblin Demo Project" coreFilename="demo-core.owl" dynamicFilename="demo-dynamic.owl">
     <ModelSection label="Hobby">
         <Hierarchy
             dynamicAttributeConstraints="VALID_AND_SINGLE_IMPLIED_VALUES"
