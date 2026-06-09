@@ -4,6 +4,7 @@ import java.io.*;
 
 import uk.ac.manchester.cs.goblin.model.*;
 import uk.ac.manchester.cs.goblin.config.*;
+import uk.ac.manchester.cs.goblin.io.*;
 import uk.ac.manchester.cs.goblin.io.ontology.*;
 import uk.ac.manchester.cs.goblin.io.config.*;
 
@@ -12,31 +13,36 @@ import uk.ac.manchester.cs.goblin.io.config.*;
  */
 public class ModelSerialiser {
 
-	private File dynamicFile;
+	private String projectName;
+
+	private File dynamicOntologyFile;
+
 	private Ontology ontology;
 	private OntologyIds ontologyIds;
 
 	private Model model;
 
-	public ModelSerialiser() throws BadConfigFileException, BadDynamicOntologyException {
+	public ModelSerialiser(ProjectDir projectDir) throws BadStartupException {
 
-		ConfigFileLoader configFileLoader = new ConfigFileLoader();
+		ConfigFileLoader configFileLoader = new ConfigFileLoader(projectDir);
 
-		dynamicFile = configFileLoader.loadOntologyConfig().getDynamicFile();
-		ontology = new Ontology(dynamicFile);
+		projectName = configFileLoader.getProjectName();
+		dynamicOntologyFile = configFileLoader.getDynamicOntologyFile();
+
+		ontology = new Ontology(dynamicOntologyFile);
 		ontologyIds = new OntologyIds(ontology.getOntologyIRI());
 
-		model = load(configFileLoader);
+		model = loadModel(configFileLoader);
 	}
 
-	public void save() {
+	public String getProjectName() {
 
-		new DynamicModelRenderer(ontology, ontologyIds).write(model, dynamicFile);
+		return projectName;
 	}
 
-	public File getDynamicFile() {
+	public File getDynamicOntologyFile() {
 
-		return dynamicFile;
+		return dynamicOntologyFile;
 	}
 
 	public Model getModel() {
@@ -44,7 +50,12 @@ public class ModelSerialiser {
 		return model;
 	}
 
-	private Model load(ConfigFileLoader configFileLoader) throws BadDynamicOntologyException {
+	public void save() {
+
+		new DynamicModelRenderer(ontology, ontologyIds).write(model, dynamicOntologyFile);
+	}
+
+	private Model loadModel(ConfigFileLoader configFileLoader) throws BadStartupException {
 
 		ModelConfig modelConfig = configFileLoader.loadModelConfig(ontology);
 

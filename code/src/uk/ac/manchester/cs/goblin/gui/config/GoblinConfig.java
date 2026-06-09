@@ -32,6 +32,7 @@ import javax.swing.border.*;
 import uk.ac.manchester.cs.mekon_util.gui.*;
 
 import uk.ac.manchester.cs.goblin.config.*;
+import uk.ac.manchester.cs.goblin.io.*;
 import uk.ac.manchester.cs.goblin.io.config.*;
 import uk.ac.manchester.cs.goblin.gui.*;
 import uk.ac.manchester.cs.goblin.gui.util.*;
@@ -43,7 +44,8 @@ public class GoblinConfig extends GoblinApp<ConfigEditLocation> {
 
 	static private final long serialVersionUID = -1;
 
-	static private final String TITLE = "Goblin Configuration Tool";
+	static private final String APP_TITLE = "Goblin Configuration Editor";
+	static private final String EDIT_SUBJECT = "configuration";
 
 	static private final int FRAME_WIDTH = 1200;
 	static private final int FRAME_HEIGHT = 800;
@@ -53,14 +55,10 @@ public class GoblinConfig extends GoblinApp<ConfigEditLocation> {
 
 	static public void main(String[] args) {
 
-		new GoblinConfig();
+		new GoblinConfig(args);
 	}
 
-	static private AppInfoDisplay createInfoDisplay() {
-
-		return new AppInfoDisplay(TITLE, "configuration");
-	}
-
+	private ProjectDir projectDir;
 	private ConfigSerialiser serialiser;
 
 	private EditManager editManager;
@@ -113,17 +111,6 @@ public class GoblinConfig extends GoblinApp<ConfigEditLocation> {
 		}
 	}
 
-	public GoblinConfig() {
-
-		super(TITLE, FRAME_WIDTH, FRAME_HEIGHT, createInfoDisplay());
-
-		serialiser = loadConfigFileOrExit();
-		editManager = createEditManager();
-		modelConfigPanel = new ModelConfigPanel(editManager);
-
-		start();
-	}
-
 	protected JComponent getMainAppComponent() {
 
 		return modelConfigPanel;
@@ -146,7 +133,7 @@ public class GoblinConfig extends GoblinApp<ConfigEditLocation> {
 
 	protected File getEditFile() {
 
-		return ConfigFileSerialiser.getConfigFile();
+		return projectDir.getConfigFile();
 	}
 
 	protected ConfigEditActions getEditActions() {
@@ -159,24 +146,35 @@ public class GoblinConfig extends GoblinApp<ConfigEditLocation> {
 		modelConfigPanel.checkMakeEditVisible(editLocation);
 	}
 
-	private EditManager createEditManager() {
+	private GoblinConfig(String[] args) {
 
-		return new EditManager(serialiser.getModelConfig(), serialiser.getConfigOntology());
+		super(APP_TITLE, EDIT_SUBJECT, FRAME_WIDTH, FRAME_HEIGHT);
+
+		projectDir = getProjectDir(args);
+
+		serialiser = loadConfigOrExit();
+		editManager = createEditManager();
+		modelConfigPanel = new ModelConfigPanel(editManager);
+
+		start(serialiser.getProjectName());
 	}
 
-	private ConfigSerialiser loadConfigFileOrExit() {
+	private ConfigSerialiser loadConfigOrExit() {
 
 		try {
 
-			return new ConfigSerialiser();
+			return new ConfigSerialiser(projectDir);
 		}
-		catch (BadConfigFileException e) {
+		catch (BadStartupException e) {
 
-			getInfoDisplay().informStartupError(e);
-
-			System.exit(0);
+			exitOnStartupError(e);
 
 			return null;
 		}
+	}
+
+	private EditManager createEditManager() {
+
+		return new EditManager(serialiser.getModelConfig(), serialiser.getConfigOntology());
 	}
 }

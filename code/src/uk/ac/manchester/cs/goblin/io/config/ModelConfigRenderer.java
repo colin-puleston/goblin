@@ -9,7 +9,7 @@ import uk.ac.manchester.cs.goblin.io.ontology.*;
 /**
  * @author Colin Puleston
  */
-class ModelConfigRenderer extends ConfigFileSerialiser {
+class ModelConfigRenderer extends ConfigFileVocab {
 
 	private XNode rootNode;
 

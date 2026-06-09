@@ -5,19 +5,31 @@ import java.io.*;
 import uk.ac.manchester.cs.mekon_util.xdoc.*;
 
 import uk.ac.manchester.cs.goblin.config.*;
+import uk.ac.manchester.cs.goblin.io.*;
 
 /**
  * @author Colin Puleston
  */
-class ConfigFileRenderer extends ConfigFileSerialiser {
+class ConfigFileRenderer extends ConfigFileVocab {
+
+	private ProjectDir projectDir;
 
 	private XDocument document = new XDocument(ROOT_NODE_TAG);
 	private XNode rootNode = document.getRootNode();
 
-	void renderOntologyConfig(OntologyConfig ontologyConfig) {
+	ConfigFileRenderer(ProjectDir projectDir) {
 
-		renderCoreFilename(ontologyConfig.getCoreFile());
-		renderDynamicFilename(ontologyConfig.getDynamicFile());
+		this.projectDir = projectDir;
+	}
+
+	void renderCoreOntologyFile(File file) {
+
+		rootNode.setValue(CORE_FILENAME_ATTR, file.getName());
+	}
+
+	void renderDynamicOntologyFile(File file) {
+
+		rootNode.setValue(DYNAMIC_FILENAME_ATTR, file.getName());
 	}
 
 	void renderModelConfig(ModelConfig model) {
@@ -27,16 +39,6 @@ class ConfigFileRenderer extends ConfigFileSerialiser {
 
 	void writeToFile() {
 
-		document.writeToFile(getConfigFile());
-	}
-
-	private void renderCoreFilename(File file) {
-
-		rootNode.setValue(CORE_FILENAME_ATTR, file.getName());
-	}
-
-	private void renderDynamicFilename(File file) {
-
-		rootNode.setValue(DYNAMIC_FILENAME_ATTR, file.getName());
+		document.writeToFile(projectDir.getConfigFile());
 	}
 }

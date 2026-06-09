@@ -3,6 +3,7 @@ package uk.ac.manchester.cs.goblin.io.config;
 import java.io.*;
 
 import uk.ac.manchester.cs.goblin.config.*;
+import uk.ac.manchester.cs.goblin.io.*;
 import uk.ac.manchester.cs.goblin.io.ontology.*;
 
 /**
@@ -10,31 +11,40 @@ import uk.ac.manchester.cs.goblin.io.ontology.*;
  */
 public class ConfigSerialiser {
 
-	private OntologyConfig ontologyConfig;
-	private ModelConfig modelConfig;
+	private ProjectDir projectDir;
+	private String projectName;
+
+	private File coreOntologyFile;
+	private File dynamicOntologyFile;
 
 	private ConfigOntology configOntology;
 
-	public ConfigSerialiser() throws BadConfigFileException {
+	private ModelConfig modelConfig;
 
-		ConfigFileLoader fileLoader = new ConfigFileLoader();
+	public ConfigSerialiser(ProjectDir projectDir) throws BadStartupException {
 
-		ontologyConfig = fileLoader.loadOntologyConfig();
+		this.projectDir = projectDir;
 
-		Ontology coreOntology = new Ontology(ontologyConfig.getCoreFile());
+		ConfigFileLoader fileLoader = new ConfigFileLoader(projectDir);
+
+		projectName = fileLoader.getProjectName();
+		coreOntologyFile = fileLoader.getCoreOntologyFile();
+		dynamicOntologyFile = fileLoader.getDynamicOntologyFile();
+
+		Ontology coreOntology = new Ontology(coreOntologyFile);
 
 		modelConfig = fileLoader.loadModelConfig(coreOntology);
 		configOntology = new ConfigOntology(coreOntology);
 	}
 
-	public OntologyConfig getOntologyConfig() {
+	public String getProjectName() {
 
-		return ontologyConfig;
+		return projectName;
 	}
 
-	public ModelConfig getModelConfig() {
+	public File getDynamicOntologyFile() {
 
-		return modelConfig;
+		return dynamicOntologyFile;
 	}
 
 	public ConfigOntology getConfigOntology() {
@@ -42,11 +52,17 @@ public class ConfigSerialiser {
 		return configOntology;
 	}
 
+	public ModelConfig getModelConfig() {
+
+		return modelConfig;
+	}
+
 	public void save() {
 
-		ConfigFileRenderer fileRenderer = new ConfigFileRenderer();
+		ConfigFileRenderer fileRenderer = new ConfigFileRenderer(projectDir);
 
-		fileRenderer.renderOntologyConfig(ontologyConfig);
+		fileRenderer.renderCoreOntologyFile(coreOntologyFile);
+		fileRenderer.renderDynamicOntologyFile(dynamicOntologyFile);
 		fileRenderer.renderModelConfig(modelConfig);
 
 		fileRenderer.writeToFile();

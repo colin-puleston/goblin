@@ -22,48 +22,52 @@
  * THE SOFTWARE.
  */
 
-package uk.ac.manchester.cs.goblin.gui.util;
+package uk.ac.manchester.cs.goblin.gui;
 
 import java.io.*;
+import java.awt.*;
+
+import javax.swing.*;
+import javax.swing.filechooser.FileFilter;
+
+import uk.ac.manchester.cs.goblin.io.*;
 
 /**
  * @author Colin Puleston
  */
-public class AppInfoDisplay extends InfoDisplay {
+class ProjectDirSelector extends JFileChooser {
 
-	private String application;
-	private String editSubject;
+	static private final long serialVersionUID = -1;
 
-	public AppInfoDisplay(String application, String editSubject) {
+	static private final String CONFIG_FILENAME = ProjectDir.CONFIG_FILENAME;
 
-		this.application = application;
-		this.editSubject = editSubject;
+	private File selection = null;
+
+	private class ConfigFileFilter extends FileFilter {
+
+		public boolean accept(File file) {
+
+			return file.isDirectory() || file.getName().equals(CONFIG_FILENAME);
+		}
+
+		public String getDescription() {
+
+			return "Goblin configuration files (\"" + CONFIG_FILENAME + "\")";
+		}
 	}
 
-	public void informStartupError(Exception e) {
+	ProjectDirSelector(Component parent) {
 
-		System.err.println(createCannotStartMessage(e.getMessage()));
+		setFileFilter(new ConfigFileFilter());
+
+		if (showOpenDialog(parent) == APPROVE_OPTION) {
+
+			selection = getSelectedFile().getParentFile();
+		}
 	}
 
-	public Confirmation confirmOverwriteFileAndExit(File editFile) {
+	File getSelectionOrNull() {
 
-		return checkConfirmOrCancel(
-					"Save unsaved " + editSubject + "?",
-					createOverwriteFileMessage(editFile));
-	}
-
-	public boolean confirmOverwriteFile(File editFile) {
-
-		return checkContinue(createOverwriteFileMessage(editFile));
-	}
-
-	private String createCannotStartMessage(String specificMsg) {
-
-		return "Cannot start " + application + ": " + specificMsg;
-	}
-
-	private String createOverwriteFileMessage(File editFile) {
-
-		return "Save " + editSubject + " to \"" + editFile + "\": Overwrite current file?";
+		return selection;
 	}
 }

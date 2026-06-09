@@ -34,6 +34,7 @@ import javax.swing.border.*;
 import uk.ac.manchester.cs.mekon_util.gui.*;
 
 import uk.ac.manchester.cs.goblin.edit.*;
+import uk.ac.manchester.cs.goblin.io.*;
 import uk.ac.manchester.cs.goblin.gui.util.*;
 
 /**
@@ -186,14 +187,37 @@ public abstract class GoblinApp<L extends EditLocation> extends GFrame {
 		}
 	}
 
-	protected GoblinApp(String title, int width, int height, AppInfoDisplay infoDisplay) {
+	protected GoblinApp(String appTitle, String editSubject, int width, int height) {
 
-		super(title, width, height);
+		super(appTitle, width, height);
 
-		this.infoDisplay = infoDisplay;
+		infoDisplay = new AppInfoDisplay(appTitle, editSubject);
 	}
 
-	protected void start() {
+	protected ProjectDir getProjectDir(String[] args) {
+
+		try {
+
+			return new ProjectDir(getProjectDirPath(args));
+		}
+		catch (BadProjectDirException e) {
+
+			exitOnStartupError(e);
+
+			return null;
+		}
+	}
+
+	protected void exitOnStartupError(Exception e) {
+
+		infoDisplay.informStartupError(e);
+
+		System.exit(0);
+	}
+
+	protected void start(String projectName) {
+
+		setTitle(getTitle() + ": " + projectName);
 
 		setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 		addWindowListener(new WindowCloseListener());
@@ -220,14 +244,28 @@ public abstract class GoblinApp<L extends EditLocation> extends GFrame {
 
 	protected abstract void makeEditVisible(L editLocation);
 
-	protected AppInfoDisplay getInfoDisplay() {
+	private File getProjectDirPath(String[] args) {
 
-		return infoDisplay;
+		return args.length == 0 ? inputProjectDirPath() : new File(args[0]);
+	}
+
+	private File inputProjectDirPath() {
+
+		File dir = new ProjectDirSelector(this).getSelectionOrNull();
+
+		if (dir != null) {
+
+			return dir;
+		}
+
+		System.exit(0);
+
+		return null;
 	}
 
 	private boolean performSaveAction() {
 
-		if (unsavedEdits() && confirmOverwriteFile()) {
+		if (unsavedEdits() && confirmWriteToFile()) {
 
 			save();
 
@@ -244,7 +282,7 @@ public abstract class GoblinApp<L extends EditLocation> extends GFrame {
 
 		if (unsavedEdits()) {
 
-			Confirmation confirm = confirmOverwriteFileAndExit();
+			Confirmation confirm = confirmWriteUnsavedToFile();
 
 			if (confirm.cancel()) {
 
@@ -320,13 +358,13 @@ public abstract class GoblinApp<L extends EditLocation> extends GFrame {
 		return ControlsPanel.horizontal(new UndoButton(), new RedoButton());
 	}
 
-	private boolean confirmOverwriteFile() {
+	private boolean confirmWriteToFile() {
 
-		return infoDisplay.confirmOverwriteFile(getEditFile());
+		return infoDisplay.confirmWriteToFile(getEditFile());
 	}
 
-	private Confirmation confirmOverwriteFileAndExit() {
+	private Confirmation confirmWriteUnsavedToFile() {
 
-		return infoDisplay.confirmOverwriteFileAndExit(getEditFile());
+		return infoDisplay.confirmWriteUnsavedToFile(getEditFile());
 	}
 }

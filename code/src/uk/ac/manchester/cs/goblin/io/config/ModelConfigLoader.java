@@ -14,11 +14,21 @@ import uk.ac.manchester.cs.goblin.io.ontology.*;
 /**
  * @author Colin Puleston
  */
-class ModelConfigLoader extends ConfigFileSerialiser {
+class ModelConfigLoader extends ConfigFileVocab {
 
 	private Ontology ontology;
 
 	private ModelConfig model = new ModelConfig();
+
+	private class InternalLoadException extends RuntimeException {
+
+		static private final long serialVersionUID = -1;
+
+		InternalLoadException(String message) {
+
+			super(message);
+		}
+	}
 
 	private abstract class CoreAttributesLoader {
 
@@ -128,6 +138,19 @@ class ModelConfigLoader extends ConfigFileSerialiser {
 
 			private Set<EntityId> sourceConstraintProperties;
 
+			private class LinkSpecException extends InternalLoadException {
+
+				static private final long serialVersionUID = -1;
+
+				LinkSpecException(String specificMsg) {
+
+					super(
+						"Cannot create hierarchical attribute: "
+						+ describeAttribute()
+						+ ": " + specificMsg);
+				}
+			}
+
 			Link(CoreHierarchyConfig source, CoreHierarchyConfig target) {
 
 				this.source = source;
@@ -135,6 +158,7 @@ class ModelConfigLoader extends ConfigFileSerialiser {
 
 				sourceConstraintProperties = getAllConstraintProperties(source);
 
+				checkNonIdentialHierarchies();
 				checkHierarchyOrder();
 			}
 
@@ -153,15 +177,12 @@ class ModelConfigLoader extends ConfigFileSerialiser {
 				}
 			}
 
-			private void checkNoPropertyConstraintLoops(CoreHierarchyConfig testTarget) {
+			private void checkNonIdentialHierarchies() {
 
-				Set<EntityId> commonProps = findCommonPropConstraintsWithSource(testTarget);
+				if (source == target) {
 
-				if (!commonProps.isEmpty()) {
-
-					throwException(
-						"Potential conflicting constraints on properties: "
-						+ commonProps);
+					throw new LinkSpecException(
+								"Source and target hierarchies cannot be identical");
 				}
 			}
 
@@ -171,10 +192,21 @@ class ModelConfigLoader extends ConfigFileSerialiser {
 
 				if (all.indexOf(source) > all.indexOf(target)) {
 
-					throwException(
-						"Source-hierarchy \"" + source.getLabel()
-						+ " should be defined before target-hierarchy \"" + target.getLabel()
-						+ " in config file");
+					throw new LinkSpecException(
+								"Source hierarchy should be defined before "
+								+ "target hierarchy in config file");
+				}
+			}
+
+			private void checkNoPropertyConstraintLoops(CoreHierarchyConfig testTarget) {
+
+				Set<EntityId> commonProps = findCommonPropConstraintsWithSource(testTarget);
+
+				if (!commonProps.isEmpty()) {
+
+					throw new LinkSpecException(
+								"Potential conflicting constraints on properties: "
+								+ commonProps);
 				}
 			}
 
@@ -186,14 +218,6 @@ class ModelConfigLoader extends ConfigFileSerialiser {
 				commonProps.retainAll(sourceConstraintProperties);
 
 				return commonProps;
-			}
-
-			private void throwException(String specificMsg) {
-
-				throw new RuntimeException(
-							"Cannot create hierarchical attribute: "
-							+ describeAttribute()
-							+ ": " + specificMsg);
 			}
 
 			private String describeAttribute() {
@@ -280,10 +304,21 @@ class ModelConfigLoader extends ConfigFileSerialiser {
 		this.ontology = ontology;
 	}
 
-	ModelConfig load(XNode rootNode) {
+	ModelConfig load(XNode rootNode) throws BadConfigException {
 
-		loadHierarchies(rootNode);
-		loadAttributes(rootNode);
+		try {
+
+			loadHierarchies(rootNode);
+			loadAttributes(rootNode);
+		}
+		catch (XDocumentException e) {
+
+			throw new BadConfigException(e);
+		}
+		catch (InternalLoadException e) {
+
+			throw new BadConfigException(e);
+		}
 
 		return model;
 	}

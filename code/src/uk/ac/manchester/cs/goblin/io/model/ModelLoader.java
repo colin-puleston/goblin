@@ -6,6 +6,7 @@ import org.semanticweb.owlapi.model.*;
 
 import uk.ac.manchester.cs.goblin.model.*;
 import uk.ac.manchester.cs.goblin.config.*;
+import uk.ac.manchester.cs.goblin.io.*;
 import uk.ac.manchester.cs.goblin.io.ontology.*;
 
 /**
@@ -21,6 +22,16 @@ class ModelLoader {
 	private Map<OWLClass, Concept> dynamicClassesToConcepts = new HashMap<OWLClass, Concept>();
 
 	private AttributeConstraintLoader attributeConstraintLoader = new AttributeConstraintLoader();
+
+	private class InternalLoadException extends RuntimeException {
+
+		static private final long serialVersionUID = -1;
+
+		InternalLoadException(String message) {
+
+			super(message);
+		}
+	}
 
 	private abstract class RestrictionAxiomReader {
 
@@ -66,9 +77,9 @@ class ModelLoader {
 			return elements.isEmpty() ? null : extractExactlyOne(elements);
 		}
 
-		RuntimeException createBadAxiomsException() {
+		InternalLoadException createBadAxiomsException() {
 
-			return new RuntimeException(
+			return new InternalLoadException(
 						"Illegal set of axioms for constraint-definition class: "
 						+ sourceCls);
 		}
@@ -284,9 +295,9 @@ class ModelLoader {
 				return model.createDynamicValueHierarchy(rootConceptId);
 			}
 
-			private RuntimeException createDuplicateAttributeIdException(EntityId attrId) {
+			private InternalLoadException createDuplicateAttributeIdException(EntityId attrId) {
 
-				return new RuntimeException(
+				return new InternalLoadException(
 							"Dynamic attribute already defined for property: "
 							+ attrId + ", on concept: " + getSourceClass());
 			}
@@ -652,7 +663,7 @@ class ModelLoader {
 		model = modelConfig.createModel();
 	}
 
-	Model load() throws BadDynamicOntologyException {
+	Model load() throws BadStartupException {
 
 		try {
 
@@ -660,7 +671,7 @@ class ModelLoader {
 			loadDynamicAttributes();
 			loadConstraints();
 		}
-		catch (RuntimeException e) {
+		catch (InternalLoadException e) {
 
 			throw new BadDynamicOntologyException(e);
 		}
@@ -754,7 +765,7 @@ class ModelLoader {
 			return ontology.getClass(iri);
 		}
 
-		throw new RuntimeException("Cannot find hierarchy root-class: " + iri);
+		throw new InternalLoadException("Cannot find hierarchy root-class: " + iri);
 	}
 
 	private OWLClass getCoreClass(Concept concept) {
@@ -806,7 +817,7 @@ class ModelLoader {
 			return concept;
 		}
 
-		throw new RuntimeException("Referenced concept not loaded: " + cls);
+		throw new InternalLoadException("Referenced concept not loaded: " + cls);
 	}
 
 	private EntityId getEntityId(OWLEntity entity) {
@@ -819,9 +830,9 @@ class ModelLoader {
 		return type.isAssignableFrom(obj.getClass()) ? type.cast(obj) : null;
 	}
 
-	private RuntimeException createNonFixedParentException(EntityId parentId, EntityId childId) {
+	private InternalLoadException createNonFixedParentException(EntityId parentId, EntityId childId) {
 
-		return new RuntimeException(
+		return new InternalLoadException(
 						"Cannot add fixed child to dynamic parent concept: "
 						+ childId + "-->" + parentId);
 	}

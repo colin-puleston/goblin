@@ -116,7 +116,7 @@ public class ModelConfig extends ConfigObject<ModelConfig> {
 			}
 		}
 
-		throw new Error("Hierarchy not found with root concept: " + rootConceptId);
+		throw new RuntimeException("Hierarchy not found with root concept: " + rootConceptId);
 	}
 
 	public ConfigEditActions getEditActions() {

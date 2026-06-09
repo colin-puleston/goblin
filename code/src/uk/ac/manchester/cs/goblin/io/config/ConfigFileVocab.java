@@ -1,13 +1,9 @@
 package uk.ac.manchester.cs.goblin.io.config;
 
-import java.io.*;
-
-import uk.ac.manchester.cs.mekon_util.config.*;
-
 /**
  * @author Colin Puleston
  */
-public class ConfigFileSerialiser {
+class ConfigFileVocab {
 
 	static final String ROOT_NODE_TAG = "GoblinConfiguration";
 	static final String SECTION_TAG = "ModelSection";
@@ -17,6 +13,7 @@ public class ConfigFileSerialiser {
 	static final String ANCHORED_ATTRIBUTE_TAG = "AnchoredAttribute";
 	static final String HIERARCHICAL_ATTRIBUTE_TAG = "HierarchicalAttribute";
 
+	static final String PROJECT_NAME_ATTR = "projectName";
 	static final String CORE_FILENAME_ATTR = "coreFilename";
 	static final String DYNAMIC_FILENAME_ATTR = "dynamicFilename";
 
@@ -33,16 +30,4 @@ public class ConfigFileSerialiser {
 	static final String TARGET_PROPERTY_ATTR = "targetProperty";
 	static final String PROPERTY_ATTR_CONSTRAINTS_OPT_ATTR = "constraints";
 	static final String HIERARCHICAL_LINKS_OPT_ATTR = "linksOption";
-
-	static private final String CONFIG_FILENAME = "goblin.xml";
-
-	static public File getConfigFile() {
-
-		return getFileFromClasspath(CONFIG_FILENAME);
-	}
-
-	static File getFileFromClasspath(String name) {
-
-		return KConfigResourceFinder.FILES.getResource(name);
-	}
 }

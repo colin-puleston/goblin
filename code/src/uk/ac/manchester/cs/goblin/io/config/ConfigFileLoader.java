@@ -5,20 +5,24 @@ import java.io.*;
 import uk.ac.manchester.cs.mekon_util.xdoc.*;
 
 import uk.ac.manchester.cs.goblin.config.*;
+import uk.ac.manchester.cs.goblin.io.*;
 import uk.ac.manchester.cs.goblin.io.ontology.*;
 
 /**
  * @author Colin Puleston
  */
-public class ConfigFileLoader extends ConfigFileSerialiser {
+public class ConfigFileLoader extends ConfigFileVocab {
 
+	private ProjectDir projectDir;
 	private XNode rootNode;
 
-	public ConfigFileLoader() throws BadConfigFileException {
+	public ConfigFileLoader(ProjectDir projectDir) throws BadConfigException {
+
+		this.projectDir = projectDir;
 
 		try {
 
-			rootNode = new XDocument(getConfigFile()).getRootNode();
+			rootNode = new XDocument(projectDir.getConfigFile()).getRootNode();
 		}
 		catch (XDocumentException e) {
 
@@ -26,23 +30,47 @@ public class ConfigFileLoader extends ConfigFileSerialiser {
 		}
 	}
 
-	public OntologyConfig loadOntologyConfig() {
+	public String getProjectName() throws BadConfigException {
 
-		return new OntologyConfig(getCoreFile(), getDynamicFile());
+		return getValue(PROJECT_NAME_ATTR);
 	}
 
-	public ModelConfig loadModelConfig(Ontology ontology) {
+	public File getCoreOntologyFile() throws BadConfigException {
+
+		return getOntologyFile("Core", CORE_FILENAME_ATTR);
+	}
+
+	public File getDynamicOntologyFile() throws BadConfigException {
+
+		return getOntologyFile("Ontology", DYNAMIC_FILENAME_ATTR);
+	}
+
+	public ModelConfig loadModelConfig(Ontology ontology) throws BadConfigException {
 
 		return new ModelConfigLoader(ontology).load(rootNode);
 	}
 
-	private File getCoreFile() {
+	private File getOntologyFile(String role, String attr) throws BadConfigException {
 
-		return getFileFromClasspath(rootNode.getString(CORE_FILENAME_ATTR));
+		File file = projectDir.getFile(getValue(attr));
+
+		if (!file.exists()) {
+
+			throw new BadOntologyFilepathException(role, file);
+		}
+
+		return file;
 	}
 
-	private File getDynamicFile() {
+	private String getValue(String attr) throws BadConfigException {
 
-		return getFileFromClasspath(rootNode.getString(DYNAMIC_FILENAME_ATTR));
+		try {
+
+			return rootNode.getString(attr);
+		}
+		catch (XDocumentException e) {
+
+			throw new BadConfigFileException(e);
+		}
 	}
 }

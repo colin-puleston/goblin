@@ -57,6 +57,6 @@ class DynamicValueHierarchy extends Hierarchy {
 
 	private RuntimeException createNotDynamicValuesOpException() {
 
-		return new RuntimeException("Illegal operation on dynamic-value hierachy: " + getLabel());
+		return new RuntimeException("Illegal operation on dynamic-value hierarchy: " + getLabel());
 	}
 }

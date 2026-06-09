@@ -28,10 +28,11 @@ public class Ontology {
 	private Set<OWLOntology> allOntologies;
 	private OWLDataFactory factory;
 	private OWLReasoner reasoner;
+	private IRI ontologyIRI;
 
 	private OWLAnnotationProperty labelAnnotationProperty;
 
-	public Ontology(File file) {
+	public Ontology(File file) throws BadOwlOntologyException {
 
 		this.file = file;
 
@@ -40,6 +41,7 @@ public class Ontology {
 		allOntologies = manager.getOntologies();
 		factory = manager.getOWLDataFactory();
 		reasoner = createReasoner();
+		ontologyIRI = findOntologyIRI();
 
 		labelAnnotationProperty = getLabelAnnotationProperty();
 	}
@@ -138,14 +140,7 @@ public class Ontology {
 
 	public IRI getOntologyIRI() {
 
-		Optional<IRI> iri = mainOntology.getOntologyID().getOntologyIRI();
-
-		if (iri.isPresent()) {
-
-			return iri.get();
-		}
-
-		throw new RuntimeException("Ontology IRI is not defined in file: " + file);
+		return ontologyIRI;
 	}
 
 	public Set<OWLClassAxiom> getAxioms(OWLClass cls) {
@@ -238,7 +233,7 @@ public class Ontology {
 		return new PathSearchIRIMapper(file.getParentFile());
 	}
 
-	private OWLOntology loadOntology() {
+	private OWLOntology loadOntology() throws BadOwlOntologyException {
 
 		try {
 
@@ -246,13 +241,25 @@ public class Ontology {
 		}
 		catch (OWLOntologyCreationException e) {
 
-			throw new RuntimeException(e);
+			throw new BadOwlOntologyException(e);
 		}
 	}
 
 	private OWLReasoner createReasoner() {
 
 		return new StructuralReasonerFactory().createReasoner(mainOntology);
+	}
+
+	private IRI findOntologyIRI() throws BadOwlOntologyException {
+
+		Optional<IRI> iri = mainOntology.getOntologyID().getOntologyIRI();
+
+		if (iri.isPresent()) {
+
+			return iri.get();
+		}
+
+		throw new BadOwlOntologyException("Ontology IRI is not defined in file: " + file);
 	}
 
 	private Set<OWLObjectPropertyExpression> getSubPropertyExprs(

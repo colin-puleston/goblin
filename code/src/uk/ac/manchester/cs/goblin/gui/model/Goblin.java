@@ -29,8 +29,8 @@ import javax.swing.*;
 
 import uk.ac.manchester.cs.goblin.model.*;
 import uk.ac.manchester.cs.goblin.edit.*;
+import uk.ac.manchester.cs.goblin.io.*;
 import uk.ac.manchester.cs.goblin.io.model.*;
-import uk.ac.manchester.cs.goblin.io.config.*;
 import uk.ac.manchester.cs.goblin.gui.*;
 import uk.ac.manchester.cs.goblin.gui.util.*;
 
@@ -41,48 +41,22 @@ public class Goblin extends GoblinApp<ModelEditLocation> {
 
 	static private final long serialVersionUID = -1;
 
-	static final String TITLE = "Goblin OWL Editor";
+	static private final String APP_TITLE = "Goblin OWL Editor";
+	static private final String EDIT_SUBJECT = "model";
 
 	static private final int FRAME_WIDTH = 1200;
 	static private final int FRAME_HEIGHT = 700;
 
 	static public void main(String[] args) {
 
-		new Goblin(getTitleSuffix(args));
+		new Goblin(args);
 	}
 
-	static private String getTitleSuffix(String[] args) {
-
-		return args.length == 1 ? (": " + args[0]) : "";
-	}
-
-	static private AppInfoDisplay createInfoDisplay() {
-
-		return new AppInfoDisplay(Goblin.TITLE, "model");
-	}
-
+	private ProjectDir projectDir;
 	private ModelSerialiser serialiser;
 	private Model model;
 
 	private ModelPanel modelPanel;
-
-	public Goblin() {
-
-		this("");
-	}
-
-	public Goblin(String titleSuffix) {
-
-		super(TITLE + titleSuffix, FRAME_WIDTH, FRAME_HEIGHT, createInfoDisplay());
-
-		serialiser = loadOrExit();
-		model = serialiser.getModel();
-		modelPanel = new ModelPanel(model);
-
-		model.setConfirmations(new UserConfirmations());
-
-		start();
-	}
 
 	protected JComponent getMainAppComponent() {
 
@@ -96,7 +70,7 @@ public class Goblin extends GoblinApp<ModelEditLocation> {
 
 	protected File getEditFile() {
 
-		return serialiser.getDynamicFile();
+		return serialiser.getDynamicOntologyFile();
 	}
 
 	protected ModelEditActions getEditActions() {
@@ -109,30 +83,32 @@ public class Goblin extends GoblinApp<ModelEditLocation> {
 		modelPanel.makeEditVisible(editLocation);
 	}
 
-	private ModelSerialiser loadOrExit() {
+	private Goblin(String[] args) {
+
+		super(APP_TITLE, EDIT_SUBJECT, FRAME_WIDTH, FRAME_HEIGHT);
+
+		projectDir = getProjectDir(args);
+
+		serialiser = loadModelOrExit();
+		model = serialiser.getModel();
+		modelPanel = new ModelPanel(model);
+
+		model.setConfirmations(new UserConfirmations());
+
+		start(serialiser.getProjectName());
+	}
+
+	private ModelSerialiser loadModelOrExit() {
 
 		try {
 
-			return new ModelSerialiser();
+			return new ModelSerialiser(projectDir);
 		}
-		catch (BadConfigFileException e) {
+		catch (BadStartupException e) {
 
 			exitOnStartupError(e);
 
 			return null;
 		}
-		catch (BadDynamicOntologyException e) {
-
-			exitOnStartupError(e);
-
-			return null;
-		}
-	}
-
-	private void exitOnStartupError(Exception e) {
-
-		getInfoDisplay().informStartupError(e);
-
-		System.exit(0);
 	}
 }
