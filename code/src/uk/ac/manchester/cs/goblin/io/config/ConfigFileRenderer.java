@@ -22,6 +22,11 @@ class ConfigFileRenderer extends ConfigFileVocab {
 		this.projectDir = projectDir;
 	}
 
+	void renderProjectName(String name) {
+
+		rootNode.setValue(PROJECT_NAME_ATTR, name);
+	}
+
 	void renderCoreOntologyFile(File file) {
 
 		rootNode.setValue(CORE_FILENAME_ATTR, file.getName());

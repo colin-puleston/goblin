@@ -12,8 +12,8 @@ import uk.ac.manchester.cs.goblin.io.ontology.*;
 public class ConfigSerialiser {
 
 	private ProjectDir projectDir;
-	private String projectName;
 
+	private String projectName;
 	private File coreOntologyFile;
 	private File dynamicOntologyFile;
 
@@ -61,6 +61,7 @@ public class ConfigSerialiser {
 
 		ConfigFileRenderer fileRenderer = new ConfigFileRenderer(projectDir);
 
+		fileRenderer.renderProjectName(projectName);
 		fileRenderer.renderCoreOntologyFile(coreOntologyFile);
 		fileRenderer.renderDynamicOntologyFile(dynamicOntologyFile);
 		fileRenderer.renderModelConfig(modelConfig);
