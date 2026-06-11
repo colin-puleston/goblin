@@ -159,7 +159,6 @@ class ModelConfigLoader extends ConfigFileVocab {
 				sourceConstraintProperties = getAllConstraintProperties(source);
 
 				checkNonIdentialHierarchies();
-				checkHierarchyOrder();
 			}
 
 			void recursivelyCheckNoPropertyConstraintLoops() {
@@ -183,18 +182,6 @@ class ModelConfigLoader extends ConfigFileVocab {
 
 					throw new LinkSpecException(
 								"Source and target hierarchies cannot be identical");
-				}
-			}
-
-			private void checkHierarchyOrder() {
-
-				List<CoreHierarchyConfig> all = model.getHierarchies();
-
-				if (all.indexOf(source) > all.indexOf(target)) {
-
-					throw new LinkSpecException(
-								"Source hierarchy should be defined before "
-								+ "target hierarchy in config file");
 				}
 			}
 
