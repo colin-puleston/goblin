@@ -123,18 +123,6 @@ class ModelLoader {
 			return restrictions;
 		}
 
-		R asRequiredRestriction(OWLClassExpression expr) {
-
-			R restriction = asRequiredRestrictionOrNull(expr);
-
-			if (restriction == null) {
-
-				throw createBadAxiomsException();
-			}
-
-			return restriction;
-		}
-
 		R asRequiredRestrictionOrNull(OWLClassExpression expr) {
 
 			R restriction = asTypeOrNull(expr, restrictionType);
@@ -546,7 +534,7 @@ class ModelLoader {
 						throw createBadAxiomsException();
 					}
 
-					return asRequiredRestriction(extractExactlyOne(ops));
+					return asRequiredRestrictionOrNull(extractExactlyOne(ops));
 				}
 
 				return null;
@@ -673,6 +661,7 @@ class ModelLoader {
 		}
 		catch (InternalLoadException e) {
 
+			e.printStackTrace();
 			throw new BadDynamicOntologyException(e);
 		}
 
