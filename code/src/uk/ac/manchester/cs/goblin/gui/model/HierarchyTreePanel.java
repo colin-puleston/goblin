@@ -490,7 +490,7 @@ class HierarchyTreePanel extends JPanel {
 
 		if (newId != null) {
 
-			if (concept.resetId(newId)) {
+			if (concept.resetConceptId(newId)) {
 
 				return true;
 			}

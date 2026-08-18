@@ -176,18 +176,27 @@ public abstract class Concept {
 		}
 	}
 
-	public boolean resetId(EntityId newConceptId) {
+	public boolean resetConceptId(EntityId newId) {
 
 		checkCanPerformOperation(canResetId());
 
-		if (!getConceptId().equals(newConceptId)) {
+		EntityId currentId = getConceptId();
 
-			if (getModel().containsConcept(newConceptId)) {
+		if (currentId.equals(newId)) {
+
+			if (!newId.getLabel().equals(currentId.getLabel())) {
+
+				conceptId.resetId(newId);
+			}
+		}
+		else {
+
+			if (getModel().containsConcept(newId)) {
 
 				return false;
 			}
 
-			conceptId.resetId(newConceptId);
+			conceptId.resetId(newId);
 		}
 
 		return true;
