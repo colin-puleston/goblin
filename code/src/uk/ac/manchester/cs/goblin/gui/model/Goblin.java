@@ -52,7 +52,6 @@ public class Goblin extends GoblinApp<ModelEditLocation> {
 		new Goblin(args);
 	}
 
-	private ProjectDir projectDir;
 	private ModelSerialiser serialiser;
 	private Model model;
 
@@ -87,9 +86,7 @@ public class Goblin extends GoblinApp<ModelEditLocation> {
 
 		super(APP_TITLE, EDIT_SUBJECT, FRAME_WIDTH, FRAME_HEIGHT);
 
-		projectDir = getProjectDir(args);
-
-		serialiser = loadModelOrExit();
+		serialiser = loadModelOrExit(getProjectDir(args));
 		model = serialiser.getModel();
 		modelPanel = new ModelPanel(model);
 
@@ -98,7 +95,7 @@ public class Goblin extends GoblinApp<ModelEditLocation> {
 		start(serialiser.getProjectName());
 	}
 
-	private ModelSerialiser loadModelOrExit() {
+	private ModelSerialiser loadModelOrExit(ProjectDir projectDir) {
 
 		try {
 
