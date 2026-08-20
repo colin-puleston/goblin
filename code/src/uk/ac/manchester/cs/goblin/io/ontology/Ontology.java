@@ -96,25 +96,9 @@ public class Ontology {
 		}
 	}
 
-	public void removeAllClasses() {
+	public void removeAllAxioms() {
 
-		for (OWLClass cls : mainOntology.getClassesInSignature()) {
-
-			removeClass(cls);
-		}
-	}
-
-	public void removeClass(OWLClass cls) {
-
-		removeAxioms(getAxioms(cls));
-		removeAxiom(factory.getOWLDeclarationAxiom(cls));
-
-		String label = lookForLabel(cls);
-
-		if (label != null) {
-
-			removeAxiom(createLabelAxiom(cls, label));
-		}
+		removeAxioms(mainOntology.getAxioms(Imports.EXCLUDED));
 	}
 
 	public void write(File file) {
@@ -143,7 +127,7 @@ public class Ontology {
 		return ontologyIRI;
 	}
 
-	public Set<OWLClassAxiom> getAxioms(OWLClass cls) {
+	public Set<OWLClassAxiom> getClassAxioms(OWLClass cls) {
 
 		return mainOntology.getAxioms(cls, Imports.INCLUDED);
 	}
@@ -343,11 +327,6 @@ public class Ontology {
 	private void addAxiom(OWLAxiom axiom) {
 
 		manager.addAxiom(mainOntology, axiom);
-	}
-
-	private void removeAxiom(OWLAxiom axiom) {
-
-		manager.removeAxiom(mainOntology, axiom);
 	}
 
 	private void removeAxioms(Set<? extends OWLAxiom> axioms) {

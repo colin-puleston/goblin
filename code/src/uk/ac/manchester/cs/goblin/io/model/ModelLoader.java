@@ -51,7 +51,7 @@ class ModelLoader {
 
 			Set<T> axioms = new HashSet<T>();
 
-			for (OWLClassAxiom axiom : ontology.getAxioms(sourceCls)) {
+			for (OWLClassAxiom axiom : ontology.getClassAxioms(sourceCls)) {
 
 				if (axiomCls.isAssignableFrom(axiom.getClass())) {
 

@@ -262,7 +262,7 @@ class ModelConfigLoader extends ConfigFileVocab {
 								CoreHierarchyConfig hierarchy,
 								EntityId rootTgtId) {
 
-			addLink(hierarchy, model.findHierarchy(rootTgtId));
+			addLink(hierarchy, model.getHierarchy(rootTgtId));
 
 			HierarchicalLinksOption linksOpt = getHierarchicalLinksOption(node);
 

@@ -106,7 +106,7 @@ class DynamicModelRenderer {
 
 	void write(Model model, File dynamicFile) {
 
-		ontology.removeAllClasses();
+		ontology.removeAllAxioms();
 
 		renderDynamicHierarchies(model);
 		renderDynamicConstraints(model);
