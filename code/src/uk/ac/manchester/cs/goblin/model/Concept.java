@@ -269,6 +269,11 @@ public abstract class Concept {
 		return null;
 	}
 
+	public boolean addValidValuesConstraint(Attribute attribute, Concept targetValue) {
+
+		return addValidValuesConstraint(attribute, Collections.singletonList(targetValue));
+	}
+
 	public boolean addValidValuesConstraint(Attribute attribute, Collection<Concept> targetValues) {
 
 		if (constraintExists(attribute, ConstraintSemantics.VALID_VALUES, targetValues)) {
@@ -343,6 +348,19 @@ public abstract class Concept {
 	public List<Concept> getChildren() {
 
 		return children.getEntities();
+	}
+
+	public Concept lookForChild(EntityId id) {
+
+		for (Concept child : children.getEntities()) {
+
+			if (child.getConceptId().equals(id)) {
+
+				return child;
+			}
+		}
+
+		return null;
 	}
 
 	public boolean subsumedBy(Concept testSubsumer) {
@@ -555,6 +573,26 @@ public abstract class Concept {
 		return getConceptTracking().toTracker(this);
 	}
 
+	Concept lookForConceptDownwards(EntityId id) {
+
+		if (getConceptId().equals(id)) {
+
+			return this;
+		}
+
+		for (Concept child : getChildren()) {
+
+			Concept concept = child.lookForConceptDownwards(id);
+
+			if (concept != null) {
+
+				return concept;
+			}
+		}
+
+		return null;
+	}
+
 	boolean hasDynamicAttribute(DynamicAttribute attribute) {
 
 		return dynamicAttributes.containsEntity(attribute);
@@ -609,12 +647,11 @@ public abstract class Concept {
 
 	private void doRemove() {
 
-		Concept parent = getParent();
+		getParent().children.remove(this);
 
-		parent.children.remove(this);
 		onConceptRemoved();
 
-		removeAllSubTreeListeners();
+		removeAllConceptListenersDownwards();
 	}
 
 	private Concept createChild(EntityId id) {
@@ -654,21 +691,21 @@ public abstract class Concept {
 
 	private void onOutwardConstraintAdded(Constraint constraint) {
 
-		onConstraintAdded();
+		onConstraintAdded(constraint, true);
 
 		for (Concept target : constraint.getTargetValues()) {
 
-			target.onConstraintAdded();
+			target.onConstraintAdded(constraint, false);
 		}
 	}
 
 	private void onOutwardConstraintRemoved(Constraint constraint) {
 
-		onConstraintRemoved();
+		onConstraintRemoved(constraint, true);
 
 		for (Concept target : constraint.getTargetValues()) {
 
-			target.onConstraintRemoved();
+			target.onConstraintRemoved(constraint, false);
 		}
 	}
 
@@ -676,29 +713,39 @@ public abstract class Concept {
 
 		CompoundEditAction compoundAction = new CompoundEditAction();
 
-		for (Constraint constraint : inwardConstraints.getEntities()) {
-
-			compoundAction.addSubAction(constraint.createTargetValueRemovalEditAction(this));
-		}
+		addInwardTargetRemovalEditsDownwards(compoundAction);
 
 		compoundAction.addSubAction(action);
 
 		return compoundAction;
 	}
 
-	private ConflictResolution checkMoveConflicts(Concept newParent) {
+	private void addInwardTargetRemovalEditsDownwards(CompoundEditAction compoundAction) {
 
-		return getModel().getConflictResolver().checkConceptMove(this, newParent);
+		for (Constraint constraint : inwardConstraints.getEntities()) {
+
+			compoundAction.addSubAction(constraint.createTargetValueRemovalEditAction(this));
+		}
+
+		for (Concept child : getChildren()) {
+
+			child.addInwardTargetRemovalEditsDownwards(compoundAction);
+		}
 	}
 
-	private void removeAllSubTreeListeners() {
+	private void removeAllConceptListenersDownwards() {
 
 		listeners.clear();
 
-		for (Concept sub : getChildren()) {
+		for (Concept child : getChildren()) {
 
-			sub.removeAllSubTreeListeners();
+			child.removeAllConceptListenersDownwards();
 		}
+	}
+
+	private ConflictResolution checkMoveConflicts(Concept newParent) {
+
+		return getModel().getConflictResolver().checkConceptMove(this, newParent);
 	}
 
 	private List<DynamicAttribute> getInwardDynamicAttributesUpwards() {
@@ -775,33 +822,29 @@ public abstract class Concept {
 
 	private void onChildAdded(Concept child) {
 
-		hierarchy.registerConcept(child);
-
 		for (ConceptListener listener : copyListeners()) {
 
 			listener.onChildAdded(child);
 		}
 	}
 
-	private void onConstraintAdded() {
+	private void onConstraintAdded(Constraint constraint, boolean outward) {
 
 		for (ConceptListener listener : copyListeners()) {
 
-			listener.onConstraintAdded();
+			listener.onConstraintAdded(constraint, outward);
 		}
 	}
 
-	private void onConstraintRemoved() {
+	private void onConstraintRemoved(Constraint constraint, boolean outward) {
 
 		for (ConceptListener listener : copyListeners()) {
 
-			listener.onConstraintRemoved();
+			listener.onConstraintRemoved(constraint, outward);
 		}
 	}
 
 	private void onConceptRemoved() {
-
-		hierarchy.deregisterConcept(this);
 
 		for (ConceptListener listener : copyListeners()) {
 

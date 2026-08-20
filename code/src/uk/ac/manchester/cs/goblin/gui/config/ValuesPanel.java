@@ -190,7 +190,7 @@ abstract class ValuesPanel extends JPanel {
 
 		void set(EntityId rootConceptId) {
 
-			set(editManager.getModelConfig().findHierarchy(rootConceptId));
+			set(editManager.getModelConfig().getHierarchy(rootConceptId));
 		}
 
 		Color getTextColour() {

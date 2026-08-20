@@ -68,7 +68,7 @@ class AttributesConfigPanel extends ConfigArrayPanel<CoreAttributeConfig> {
 
 			EntityId rootConceptId = attribute.getRootTargetConceptId();
 
-			return editManager.getModelConfig().findHierarchy(rootConceptId);
+			return editManager.getModelConfig().getHierarchy(rootConceptId);
 		}
 	}
 

@@ -70,6 +70,19 @@ public class CoreHierarchy extends Hierarchy {
 		return new ArrayList<Attribute>(coreAttributes);
 	}
 
+	public Attribute getCoreAttribute(String label) {
+
+		for (Attribute attr : coreAttributes) {
+
+			if (attr.getLabel().equals(label)) {
+
+				return attr;
+			}
+		}
+
+		throw new RuntimeException("Cannot find core-attribute: " + label);
+	}
+
 	public boolean dynamicAttributesEnabled() {
 
 		return dynamicAttributeConstraintsOption != ConstraintsOption.NONE;

@@ -106,7 +106,7 @@ public class ModelConfig extends ConfigObject<ModelConfig> {
 		return hierarchies;
 	}
 
-	public CoreHierarchyConfig findHierarchy(EntityId rootConceptId) {
+	public CoreHierarchyConfig getHierarchy(EntityId rootConceptId) {
 
 		for (CoreHierarchyConfig hierarchy : getHierarchies()) {
 

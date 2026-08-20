@@ -55,12 +55,12 @@ abstract class DynamicConceptTree extends ConceptTree {
 				expand();
 			}
 
-			public void onConstraintAdded() {
+			public void onConstraintAdded(Constraint constraint, boolean outward) {
 
 				onConstraintsUpdated();
 			}
 
-			public void onConstraintRemoved() {
+			public void onConstraintRemoved(Constraint constraint, boolean outward) {
 
 				onConstraintsUpdated();
 			}

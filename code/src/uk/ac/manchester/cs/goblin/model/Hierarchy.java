@@ -11,7 +11,6 @@ public abstract class Hierarchy {
 	private String label;
 
 	private RootConcept rootConcept;
-	private Map<EntityId, Concept> conceptsById = new HashMap<EntityId, Concept>();
 
 	private List<Attribute> inwardCoreAttributes = new ArrayList<Attribute>();
 
@@ -38,10 +37,7 @@ public abstract class Hierarchy {
 		return label;
 	}
 
-	public boolean fixedStructure() {
-
-		return false;
-	}
+	public abstract boolean fixedStructure();
 
 	public Concept getRootConcept() {
 
@@ -55,12 +51,12 @@ public abstract class Hierarchy {
 
 	public boolean containsConcept(EntityId conceptId) {
 
-		return conceptsById.containsKey(conceptId);
+		return lookForConcept(conceptId) != null;
 	}
 
 	public Concept getConcept(EntityId conceptId) {
 
-		Concept concept = conceptsById.get(conceptId);
+		Concept concept = lookForConcept(conceptId);
 
 		if (concept == null) {
 
@@ -70,25 +66,23 @@ public abstract class Hierarchy {
 		return concept;
 	}
 
+	public Concept lookForConcept(EntityId conceptId) {
+
+		return rootConcept.lookForConceptDownwards(conceptId);
+	}
+
 	public boolean potentiallyHasAttributes() {
 
 		return hasCoreAttributes() || dynamicAttributesEnabled();
 	}
 
-	public List<Attribute> getAllAttributes() {
+	public abstract List<Attribute> getAllAttributes();
 
-		return Collections.emptyList();
-	}
+	public abstract boolean hasCoreAttributes();
 
-	public boolean hasCoreAttributes() {
+	public abstract List<Attribute> getCoreAttributes();
 
-		return false;
-	}
-
-	public List<Attribute> getCoreAttributes() {
-
-		return Collections.emptyList();
-	}
+	public abstract Attribute getCoreAttribute(String label);
 
 	public boolean potentiallyHasInwardAttributes() {
 
@@ -126,21 +120,9 @@ public abstract class Hierarchy {
 		this.label = label;
 
 		rootConcept = createRootConcept(rootConceptId);
-
-		registerConcept(rootConcept);
 	}
 
 	abstract RootConcept createRootConcept(EntityId rootConceptId);
-
-	void registerConcept(Concept concept) {
-
-		conceptsById.put(concept.getConceptId(), concept);
-	}
-
-	void deregisterConcept(Concept concept) {
-
-		conceptsById.remove(concept.getConceptId());
-	}
 
 	void addInwardCoreAttribute(Attribute attribute) {
 

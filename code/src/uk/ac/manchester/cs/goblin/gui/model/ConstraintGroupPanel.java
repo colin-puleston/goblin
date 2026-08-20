@@ -562,6 +562,44 @@ class ConstraintGroupPanel extends JPanel {
 		}
 	}
 
+	private class ConstraintRemovalListener implements ConceptListener {
+
+		private Concept source;
+		private Constraint constraint;
+
+		public void onIdUpdate() {
+		}
+
+		public void onChildAdded(Concept child) {
+		}
+
+		public void onConstraintAdded(Constraint constraint, boolean outward) {
+		}
+
+		public void onConstraintRemoved(Constraint constraint, boolean outward) {
+
+			if (outward && constraint.equals(this.constraint)) {
+
+				source.removeListener(this);
+
+				System.out.println("\nSOURCE: " + source);
+				System.out.println("CONSTRAINT: " + constraint);
+				resetSourceConcept(source);
+			}
+		}
+
+		public void onConceptRemoved() {
+		}
+
+		ConstraintRemovalListener(Concept source, Constraint constraint) {
+
+			this.source = source;
+			this.constraint = constraint;
+
+			source.addListener(this);
+		}
+	}
+
 	private abstract class PanelPopulator {
 
 		static private final long serialVersionUID = -1;
@@ -578,7 +616,11 @@ class ConstraintGroupPanel extends JPanel {
 			targetsTree = new TargetsTree();
 			targetsDisplay = createTargetsDisplay();
 
-			targetsTree.initialise(getValidValuesConstraint());
+			Constraint constraint = getValidValuesConstraint();
+
+			targetsTree.initialise(constraint);
+
+			new ConstraintRemovalListener(source, constraint);
 
 			add(createHeaderPanel(), BorderLayout.NORTH);
 			add(new JScrollPane(targetsTree), BorderLayout.CENTER);

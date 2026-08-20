@@ -1,5 +1,7 @@
 package uk.ac.manchester.cs.goblin.model;
 
+import java.util.*;
+
 /**
  * @author Colin Puleston
  */
@@ -28,6 +30,31 @@ class DynamicValueHierarchy extends Hierarchy {
 	public boolean potentiallyHasInwardAttributes() {
 
 		return true;
+	}
+
+	public boolean fixedStructure() {
+
+		return false;
+	}
+
+	public List<Attribute> getAllAttributes() {
+
+		return Collections.emptyList();
+	}
+
+	public boolean hasCoreAttributes() {
+
+		return false;
+	}
+
+	public List<Attribute> getCoreAttributes() {
+
+		return Collections.emptyList();
+	}
+
+	public Attribute getCoreAttribute(String label) {
+
+		throw createNotDynamicValuesOpException();
 	}
 
 	DynamicValueHierarchy(Model model, EntityId rootConceptId) {
