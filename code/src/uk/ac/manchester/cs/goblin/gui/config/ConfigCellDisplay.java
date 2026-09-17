@@ -78,7 +78,7 @@ class ConfigCellDisplay {
 
 	static private GCellDisplay forEntity(ConfigEntity entity, boolean highlight, GIcon icon) {
 
-		return forEntity(entity.getId().getLabel(), highlight, icon);
+		return forEntity(entity.getId().toString(), highlight, icon);
 	}
 
 	static private GCellDisplay forEntity(String label, boolean highlight, GIcon icon) {
