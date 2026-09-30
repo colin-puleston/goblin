@@ -56,7 +56,7 @@ class EntityReorderDialog<E extends LabelledConfigObject<E>> extends GDialog {
 
 	private E currentSelection = null;
 
-	private JPanel reorderPanel = new JPanel(new BorderLayout());
+	private DisplayList displayList;
 
 	private OkButton okButton = new OkButton();
 
@@ -114,9 +114,7 @@ class EntityReorderDialog<E extends LabelledConfigObject<E>> extends GDialog {
 			currentOrder.remove(fromIndex);
 			currentOrder.add(toIndex, currentSelection);
 
-			setCurrentDisplayList(toIndex);
-
-			reorderPanel.revalidate();
+			displayList.repopulate(toIndex);
 		}
 
 		NavigationButton(String label) {
@@ -232,18 +230,29 @@ class EntityReorderDialog<E extends LabelledConfigObject<E>> extends GDialog {
 			}
 		}
 
-		DisplayList(int selectIndex) {
+		DisplayList() {
 
 			super(false, false);
+
+			populate();
+
+			new CurrentSelectionListener();
+		}
+
+		void repopulate(int selectedIndex) {
+
+			clearList();
+			populate();
+
+			setSelectedIndex(selectedIndex);
+		}
+
+		private void populate() {
 
 			for (E entity : currentOrder) {
 
 				addEntity(entity);
 			}
-
-			new CurrentSelectionListener();
-
-			setSelectedIndex(selectIndex);
 		}
 	}
 
@@ -255,12 +264,12 @@ class EntityReorderDialog<E extends LabelledConfigObject<E>> extends GDialog {
 
 		currentOrder.addAll(initialOrder);
 
+		displayList = new DisplayList();
+
 		setPreferredSize(WINDOW_SIZE);
 		setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 
-		initialseReorderPanel();
-
-		display(createMainComponent());
+		display(creatMainComponent());
 	}
 
 	boolean reordered() {
@@ -273,26 +282,22 @@ class EntityReorderDialog<E extends LabelledConfigObject<E>> extends GDialog {
 		return currentOrder;
 	}
 
-	private void initialseReorderPanel() {
-
-		setCurrentDisplayList(-1);
-
-		reorderPanel.add(createNavigationButtonsComponent(), BorderLayout.EAST);
-	}
-
-	private void setCurrentDisplayList(int selectIndex) {
-
-		GList<E> displayList = new DisplayList(selectIndex);
-
-		reorderPanel.add(new JScrollPane(displayList), BorderLayout.CENTER);
-	}
-
-	private JComponent createMainComponent() {
+	private JPanel creatMainComponent() {
 
 		JPanel panel = new JPanel(new BorderLayout());
 
-		panel.add(reorderPanel, BorderLayout.CENTER);
+		panel.add(createReorderComponent(), BorderLayout.CENTER);
 		panel.add(createExitButtonsComponent(), BorderLayout.SOUTH);
+
+		return panel;
+	}
+
+	private JComponent createReorderComponent() {
+
+		JPanel panel = new JPanel(new BorderLayout());
+
+		panel.add(new JScrollPane(displayList), BorderLayout.CENTER);
+		panel.add(createNavigationButtonsComponent(), BorderLayout.EAST);
 
 		return panel;
 	}
