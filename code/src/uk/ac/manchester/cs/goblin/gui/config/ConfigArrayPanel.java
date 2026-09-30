@@ -184,7 +184,7 @@ abstract class ConfigArrayPanel<S extends LabelledConfigObject<S>> extends Array
 
 		private EntityReorderDialog<S> createReorderDialog() {
 
-			return new EntityReorderDialog<S>(getSources(), getSourceTypeName());
+			return new EntityReorderDialog<S>(getSourceTypeName(), getSources());
 		}
 	}
 

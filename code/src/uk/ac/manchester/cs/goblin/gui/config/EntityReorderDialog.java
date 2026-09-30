@@ -26,291 +26,29 @@ package uk.ac.manchester.cs.goblin.gui.config;
 
 import java.util.*;
 import java.awt.Dimension;
-import java.awt.BorderLayout;
 import javax.swing.*;
 
 import uk.ac.manchester.cs.mekon_util.gui.*;
 
 import uk.ac.manchester.cs.goblin.config.*;
-import uk.ac.manchester.cs.goblin.gui.util.*;
 
 /**
  * @author Colin Puleston
  */
-class EntityReorderDialog<E extends LabelledConfigObject<E>> extends GDialog {
+class EntityReorderDialog<E extends LabelledConfigObject<E>> extends GListReorderDialog<E> {
 
 	static private final long serialVersionUID = -1;
 
 	static private final String TITLE_FORMAT = "Modify %s order";
-
-	static private final String OK_LABEL = "Ok";
-	static private final String CANCEL_LABEL = "Cancel";
-
-	static private final String UP_LABEL = "Up";
-	static private final String DOWN_LABEL = "Down";
-
 	static private final Dimension WINDOW_SIZE = new Dimension(400, 400);
 
-	private List<E> initialOrder;
-	private List<E> currentOrder = new ArrayList<E>();
+	EntityReorderDialog(String typeName, List<E> initialOrder) {
 
-	private E currentSelection = null;
-
-	private DisplayList displayList;
-
-	private OkButton okButton = new OkButton();
-
-	private UpButton upButton = new UpButton();
-	private DownButton downButton = new DownButton();
-
-	private class OkButton extends GButton {
-
-		static private final long serialVersionUID = -1;
-
-		protected void doButtonThing() {
-
-			dispose();
-		}
-
-		OkButton() {
-
-			super(OK_LABEL);
-
-			setEnabled(false);
-		}
-
-		void updateEnabling() {
-
-			setEnabled(reordered());
-		}
-	}
-
-	private class CancelButton extends GButton {
-
-		static private final long serialVersionUID = -1;
-
-		protected void doButtonThing() {
-
-			currentOrder = initialOrder;
-
-			dispose();
-		}
-
-		CancelButton() {
-
-			super(CANCEL_LABEL);
-		}
-	}
-
-	private abstract class NavigationButton extends GButton {
-
-		static private final long serialVersionUID = -1;
-
-		protected void doButtonThing() {
-
-			int fromIndex = currentOrder.indexOf(currentSelection);
-			int toIndex = fromIndex + directionShiftValue();
-
-			currentOrder.remove(fromIndex);
-			currentOrder.add(toIndex, currentSelection);
-
-			displayList.repopulate(toIndex);
-		}
-
-		NavigationButton(String label) {
-
-			super(label);
-
-			setEnabled(false);
-		}
-
-		JComponent createButtonComponent() {
-
-			JPanel panel = new JPanel(new BorderLayout());
-
-			panel.add(this, getButtonWithinComponentLocation());
-
-			return panel;
-		}
-
-		void updateEnabling() {
-
-			setEnabled(canMoveInDirection());
-		}
-
-		abstract int directionFinalIndex();
-
-		abstract int directionShiftValue();
-
-		abstract String getButtonWithinComponentLocation();
-
-		private boolean canMoveInDirection() {
-
-			return currentSelection != null && finalDirectionEntitySelected();
-		}
-
-		private boolean finalDirectionEntitySelected() {
-
-			return currentSelection != currentOrder.get(directionFinalIndex());
-		}
-	}
-
-	private class UpButton extends NavigationButton {
-
-		static private final long serialVersionUID = -1;
-
-		UpButton() {
-
-			super(UP_LABEL);
-		}
-
-		int directionFinalIndex() {
-
-			return 0;
-		}
-
-		int directionShiftValue() {
-
-			return -1;
-		}
-
-		String getButtonWithinComponentLocation() {
-
-			return BorderLayout.SOUTH;
-		}
-	}
-
-	private class DownButton extends NavigationButton {
-
-		static private final long serialVersionUID = -1;
-
-		DownButton() {
-
-			super(DOWN_LABEL);
-		}
-
-		int directionFinalIndex() {
-
-			return currentOrder.size() - 1;
-		}
-
-		int directionShiftValue() {
-
-			return 1;
-		}
-
-		String getButtonWithinComponentLocation() {
-
-			return BorderLayout.NORTH;
-		}
-	}
-
-	private class DisplayList extends GList<E> {
-
-		static private final long serialVersionUID = -1;
-
-		private class CurrentSelectionListener extends GSelectionListener<E> {
-
-			protected void onSelected(E selected) {
-
-				currentSelection = selected;
-
-				upButton.updateEnabling();
-				downButton.updateEnabling();
-
-				okButton.updateEnabling();
-			}
-
-			protected void onDeselected(E selected) {
-			}
-
-			CurrentSelectionListener() {
-
-				addSelectionListener(this);
-			}
-		}
-
-		DisplayList() {
-
-			super(false, false);
-
-			populate();
-
-			new CurrentSelectionListener();
-		}
-
-		void repopulate(int selectedIndex) {
-
-			clearList();
-			populate();
-
-			setSelectedIndex(selectedIndex);
-		}
-
-		private void populate() {
-
-			for (E entity : currentOrder) {
-
-				addEntity(entity);
-			}
-		}
-	}
-
-	EntityReorderDialog(List<E> initialOrder, String typeName) {
-
-		super(String.format(TITLE_FORMAT, typeName), true);
-
-		this.initialOrder = initialOrder;
-
-		currentOrder.addAll(initialOrder);
-
-		displayList = new DisplayList();
+		super(String.format(TITLE_FORMAT, typeName), initialOrder);
 
 		setPreferredSize(WINDOW_SIZE);
 		setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 
-		display(creatMainComponent());
-	}
-
-	boolean reordered() {
-
-		return !currentOrder.equals(initialOrder);
-	}
-
-	List<E> getCurrentOrder() {
-
-		return currentOrder;
-	}
-
-	private JPanel creatMainComponent() {
-
-		JPanel panel = new JPanel(new BorderLayout());
-
-		panel.add(createReorderComponent(), BorderLayout.CENTER);
-		panel.add(createExitButtonsComponent(), BorderLayout.SOUTH);
-
-		return panel;
-	}
-
-	private JComponent createReorderComponent() {
-
-		JPanel panel = new JPanel(new BorderLayout());
-
-		panel.add(new JScrollPane(displayList), BorderLayout.CENTER);
-		panel.add(createNavigationButtonsComponent(), BorderLayout.EAST);
-
-		return panel;
-	}
-
-	private JComponent createExitButtonsComponent() {
-
-		return ControlsPanel.horizontal(okButton, new CancelButton());
-	}
-
-	private JComponent createNavigationButtonsComponent() {
-
-		return ControlsPanel.vertical(
-				upButton.createButtonComponent(),
-				downButton.createButtonComponent());
+		display();
 	}
 }
