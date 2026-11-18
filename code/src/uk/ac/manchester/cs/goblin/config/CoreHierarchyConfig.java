@@ -129,7 +129,7 @@ public class CoreHierarchyConfig extends LabelledConfigObject<CoreHierarchyConfi
 
 		this.section = new DataField<ModelSectionConfig>(section);
 		this.rootConceptId = new DataField<EntityId>(rootConceptId);
-		this.fixedStructure = new DataField<Boolean>(false);
+		this.fixedStructure = new DataField<Boolean>(fixedStructure);
 		this.dynamicAttributeConstraintsOption
 				= new DataField<ConstraintsOption>(dynamicAttributeConstraintsOption);
 	}
